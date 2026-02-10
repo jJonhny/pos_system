@@ -3,12 +3,13 @@ package com.example.pos_system.repository;
 import com.example.pos_system.entity.Product;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface ProductRepo extends JpaRepository<Product, Long> {
+public interface ProductRepo extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Page<Product> findByActiveTrue(Pageable pageable);
     Page<Product> findByActiveTrueAndNameContainingIgnoreCase(String q, Pageable pageable);
     Page<Product> findByActiveTrueAndCategory_Id(Long categoryId, Pageable pageable);

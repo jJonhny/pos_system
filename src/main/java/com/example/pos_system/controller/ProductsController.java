@@ -5,12 +5,17 @@ import com.example.pos_system.entity.Category;
 import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.ProductRepo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.persistence.criteria.Predicate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -51,33 +56,20 @@ public class ProductsController {
                        Model model) {
         int pageNum = Math.max(0, page);
         boolean onlyLowStock = Boolean.TRUE.equals(lowStock);
-        List<Product> products = productRepo.findAll();
-        long overallLowStockCount = products.stream().filter(Product::isLowStock).count();
-        List<Product> filtered = products.stream()
-                .filter(p -> filterCategory(p, categoryId))
-                .filter(p -> filterLowStock(p, onlyLowStock))
-                .filter(p -> filterActive(p, active))
-                .filter(p -> filterQuery(p, q))
-                .filter(p -> filterPrice(p, priceMin, priceMax))
-                .filter(p -> filterStock(p, stockMin, stockMax))
-                .sorted(buildComparator(sort, dir))
-                .toList();
+        Sort sortSpec = buildSort(sort, dir);
+        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, sortSpec);
+        Specification<Product> specification = buildSpecification(categoryId, onlyLowStock, q, active, priceMin, priceMax, stockMin, stockMax);
 
-        int total = filtered.size();
-        int totalPages = total == 0 ? 1 : (int) Math.ceil(total / (double) PAGE_SIZE);
-        int maxPage = Math.max(0, totalPages - 1);
-        int pageSafe = Math.max(0, Math.min(pageNum, maxPage));
-        int fromIndex = pageSafe * PAGE_SIZE;
-        int toIndex = Math.min(fromIndex + PAGE_SIZE, total);
-        List<Product> pageItems = total == 0 ? List.of() : filtered.subList(fromIndex, toIndex);
+        Page<Product> productPage = productRepo.findAll(specification, pageable);
+        List<Product> pageItems = productPage.getContent();
 
         model.addAttribute("products", pageItems);
-        model.addAttribute("page", pageSafe);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("hasNext", pageSafe < totalPages - 1);
-        model.addAttribute("hasPrev", pageSafe > 0);
-        model.addAttribute("nextPage", pageSafe + 1);
-        model.addAttribute("prevPage", Math.max(0, pageSafe - 1));
+        model.addAttribute("page", productPage.getNumber());
+        model.addAttribute("totalPages", Math.max(1, productPage.getTotalPages()));
+        model.addAttribute("hasNext", productPage.hasNext());
+        model.addAttribute("hasPrev", productPage.hasPrevious());
+        model.addAttribute("nextPage", productPage.getNumber() + 1);
+        model.addAttribute("prevPage", Math.max(0, productPage.getNumber() - 1));
         List<Category> categories = categoryRepo.findAll(Sort.by("sortOrder").ascending().and(Sort.by("name").ascending()));
         model.addAttribute("categories", categories);
         model.addAttribute("categoryId", categoryId);
@@ -90,11 +82,11 @@ public class ProductsController {
         model.addAttribute("stockMax", stockMax);
         model.addAttribute("sort", sort);
         model.addAttribute("dir", dir);
-        ProductListStats stats = buildProductListStats(filtered, categories);
+        ProductListStats stats = buildProductListStats(pageItems, categories);
         model.addAttribute("productStats", stats);
-        model.addAttribute("totalProducts", products.size());
-        model.addAttribute("filteredTotal", total);
-        model.addAttribute("lowStockCount", overallLowStockCount);
+        model.addAttribute("totalProducts", productRepo.count());
+        model.addAttribute("filteredTotal", productPage.getTotalElements());
+        model.addAttribute("lowStockCount", productRepo.countLowStock());
         if ("invalidImage".equals(error)) {
             model.addAttribute("error", "Please upload a valid image file.");
         }
@@ -243,62 +235,72 @@ public class ProductsController {
         }
     }
 
-    private boolean filterCategory(Product product, Long categoryId) {
-        if (categoryId == null) return true;
-        return product.getCategory() != null && categoryId.equals(product.getCategory().getId());
+    private Specification<Product> buildSpecification(Long categoryId,
+                                                      boolean onlyLowStock,
+                                                      String q,
+                                                      Boolean active,
+                                                      BigDecimal priceMin,
+                                                      BigDecimal priceMax,
+                                                      Integer stockMin,
+                                                      Integer stockMax) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new java.util.ArrayList<>();
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+            if (onlyLowStock) {
+                predicates.add(cb.isNotNull(root.get("stockQty")));
+                predicates.add(cb.isNotNull(root.get("lowStockThreshold")));
+                predicates.add(cb.lessThanOrEqualTo(root.get("stockQty"), root.get("lowStockThreshold")));
+            }
+            if (active != null) {
+                predicates.add(cb.equal(root.get("active"), active));
+            }
+            if (q != null && !q.isBlank()) {
+                String like = "%" + q.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), like),
+                        cb.like(cb.lower(root.get("sku")), like),
+                        cb.like(cb.lower(root.get("barcode")), like)
+                ));
+            }
+            if (priceMin != null || priceMax != null) {
+                predicates.add(cb.isNotNull(root.get("price")));
+                if (priceMin != null) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("price"), priceMin));
+                }
+                if (priceMax != null) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("price"), priceMax));
+                }
+            }
+            if (stockMin != null || stockMax != null) {
+                predicates.add(cb.isNotNull(root.get("stockQty")));
+                if (stockMin != null) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("stockQty"), stockMin));
+                }
+                if (stockMax != null) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("stockQty"), stockMax));
+                }
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
-    private boolean filterLowStock(Product product, boolean onlyLowStock) {
-        return !onlyLowStock || product.isLowStock();
-    }
-
-    private boolean filterActive(Product product, Boolean active) {
-        if (active == null) return true;
-        return active.equals(product.getActive());
-    }
-
-    private boolean filterQuery(Product product, String q) {
-        if (q == null || q.isBlank()) return true;
-        String query = q.trim().toLowerCase();
-        if (product.getName() != null && product.getName().toLowerCase().contains(query)) return true;
-        if (product.getSku() != null && product.getSku().toLowerCase().contains(query)) return true;
-        if (product.getBarcode() != null && product.getBarcode().toLowerCase().contains(query)) return true;
-        return false;
-    }
-
-    private boolean filterPrice(Product product, BigDecimal min, BigDecimal max) {
-        if (min == null && max == null) return true;
-        if (product.getPrice() == null) return false;
-        if (min != null && product.getPrice().compareTo(min) < 0) return false;
-        return max == null || product.getPrice().compareTo(max) <= 0;
-    }
-
-    private boolean filterStock(Product product, Integer min, Integer max) {
-        if (min == null && max == null) return true;
-        if (product.getStockQty() == null) return false;
-        if (min != null && product.getStockQty() < min) return false;
-        return max == null || product.getStockQty() <= max;
-    }
-
-    private Comparator<Product> buildComparator(String sort, String dir) {
-        Comparator<Product> comparator;
+    private Sort buildSort(String sort, String dir) {
+        Sort.Order order;
         if ("price".equalsIgnoreCase(sort)) {
-            comparator = Comparator.comparing(Product::getPrice, Comparator.nullsLast(BigDecimal::compareTo));
+            order = new Sort.Order(Sort.Direction.ASC, "price");
         } else if ("stock".equalsIgnoreCase(sort)) {
-            comparator = Comparator.comparing(Product::getStockQty, Comparator.nullsLast(Integer::compareTo));
+            order = new Sort.Order(Sort.Direction.ASC, "stockQty");
         } else if ("sku".equalsIgnoreCase(sort)) {
-            comparator = Comparator.comparing(p -> safeLower(p.getSku()));
+            order = new Sort.Order(Sort.Direction.ASC, "sku");
         } else {
-            comparator = Comparator.comparing(p -> safeLower(p.getName()));
+            order = new Sort.Order(Sort.Direction.ASC, "name");
         }
         if ("desc".equalsIgnoreCase(dir)) {
-            comparator = comparator.reversed();
+            order = order.with(Sort.Direction.DESC);
         }
-        return comparator;
-    }
-
-    private String safeLower(String value) {
-        return value == null ? "" : value.toLowerCase();
+        return Sort.by(order);
     }
 
     private ProductListStats buildProductListStats(List<Product> products, List<Category> categories) {
