@@ -1,0 +1,795 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom enterprise styles */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(229, 231, 235, 0.6);
+    }
+    .data-table th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: #475569;
+    }
+    .status-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.375rem;
+    }
+    .enterprise-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border-width: 1px;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    .enterprise-btn-primary {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-color: #1e293b;
+      color: white;
+    }
+    .enterprise-btn-primary:hover {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15);
+    }
+    .filter-input {
+      border: 1px solid #e2e8f0;
+      background: white;
+      font-size: 0.875rem;
+    }
+    .filter-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+      outline: none;
+    }
+    .hover-row:hover {
+      background-color: #f8fafc;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                <path d="M3 8v8l9 5 9-5V8"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Products</div>
+              <div class="text-sm text-slate-500">Manage inventory and pricing</div>
+            </div>
+          </div>
+
+          <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+            <div class="relative group">
+              <a href="/"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 6h12v4H6V6z"/>
+                  <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                  <path d="M9 14h6"/>
+                </svg>
+                <span>POS</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/pos"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Open POS
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/analytics"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M7 14l3-3 4 4 5-6"/>
+                </svg>
+                <span>Analytics</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/analytics"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Overview
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/products"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                  <path d="M3 8v8l9 5 9-5V8"/>
+                </svg>
+                <span>Inventory Management</span>
+                <span th:if="${lowStockCount > 0}"
+                      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                  <span th:text="${lowStockCount}">0</span>
+                </span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/products"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Products
+                </a>
+                <a href="/products/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Product
+                </a>
+                <a href="/products?lowStock=true"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Low Stock
+                </a>
+                <a href="/categories"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Categories
+                </a>
+                <a href="/categories/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Category
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/sales"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+                  <path d="M9 7h6M9 11h6M9 15h4"/>
+                </svg>
+                <span>Sales</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/sales"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Sales
+                </a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <a th:href="@{/products(lowStock=true, categoryId=${categoryId})}"
+               class="rounded-xl border px-4 py-2 text-sm font-medium transition hover:bg-slate-50"
+               th:classappend="${lowStock} ? ' border-amber-200 bg-amber-50 text-amber-800' : ' border-slate-200 bg-white text-slate-700'">
+              Low stock
+              <span th:if="${lowStockCount > 0}"
+                    class="ml-2 inline-flex items-center rounded-full bg-amber-200/70 px-2 py-0.5 text-xs font-semibold text-amber-900">
+                <span th:text="${lowStockCount}">0</span>
+              </span>
+            </a>
+            <a href="/products/new" class="rounded-xl bg-slate-900 text-white px-4 py-2 font-semibold hover:bg-slate-800 transition">
+              New Product
+            </a>
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Login
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-8 py-6">
+      <!-- Enterprise Filter Card -->
+      <div class="glass-card rounded-xl border border-gray-200 shadow-sm mb-6">
+        <div class="p-5 border-b border-gray-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">Product Filters</h2>
+              <p class="text-sm text-gray-500 mt-1">Refine product list using advanced filters</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button type="submit" form="filter-form"
+                      class="enterprise-btn enterprise-btn-primary rounded-lg px-4 py-2 text-sm">
+                Apply Filters
+              </button>
+              <a href="/products"
+                 class="enterprise-btn rounded-lg px-4 py-2 text-sm border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                Clear All
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Form -->
+        <form id="filter-form" method="get" action="/products" class="p-5">
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Search -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-2">Search Products</label>
+              <input name="q" placeholder="Name, SKU, or Barcode"
+                     class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm"
+                     th:value="${q}">
+            </div>
+
+            <!-- Category -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-2">Category</label>
+              <select name="categoryId"
+                      class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm">
+                <option value="">All Categories</option>
+                <option th:each="c : ${categories}"
+                        th:value="${c.id}"
+                        th:selected="${categoryId == c.id}"
+                        th:text="${c.name}">Category</option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-2">Status</label>
+              <select name="active"
+                      class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm">
+                <option value="">All Status</option>
+                <option value="true" th:selected="${active == true}">Active Only</option>
+                <option value="false" th:selected="${active == false}">Inactive Only</option>
+              </select>
+            </div>
+
+            <!-- Price Range -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-2">Price Range</label>
+              <div class="flex space-x-3">
+                <input type="number" step="0.01" min="0" name="priceMin" placeholder="Min"
+                       class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm"
+                       th:value="${priceMin}">
+                <input type="number" step="0.01" min="0" name="priceMax" placeholder="Max"
+                       class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm"
+                       th:value="${priceMax}">
+              </div>
+            </div>
+
+            <!-- Stock Range -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-2">Stock Quantity</label>
+              <div class="flex space-x-3">
+                <input type="number" min="0" name="stockMin" placeholder="Min"
+                       class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm"
+                       th:value="${stockMin}">
+                <input type="number" min="0" name="stockMax" placeholder="Max"
+                       class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm"
+                       th:value="${stockMax}">
+              </div>
+            </div>
+
+            <!-- Sort Controls -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-2">Sort By</label>
+              <div class="flex space-x-3">
+                <select name="sort"
+                        class="filter-input w-full rounded-lg px-3.5 py-2.5 text-sm">
+                  <option value="" th:selected="${sort == null or #strings.isEmpty(sort)}">Name (A-Z)</option>
+                  <option value="price" th:selected="${sort == 'price'}">Price (Low-High)</option>
+                  <option value="stock" th:selected="${sort == 'stock'}">Stock (Low-High)</option>
+                  <option value="sku" th:selected="${sort == 'sku'}">SKU (A-Z)</option>
+                </select>
+                <select name="dir"
+                        class="filter-input w-32 rounded-lg px-3.5 py-2.5 text-sm">
+                  <option value="asc" th:selected="${dir == null or dir == 'asc'}">Ascending</option>
+                  <option value="desc" th:selected="${dir == 'desc'}">Descending</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Low Stock Toggle -->
+            <div class="flex items-end">
+              <label class="flex items-center space-x-3">
+                <div class="relative">
+                  <input type="checkbox" name="lowStock" value="true"
+                         class="sr-only peer"
+                         th:checked="${lowStock}"
+                         id="lowStockToggle"/>
+                  <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-red-500 transition-colors
+                              after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5
+                              after:bg-white after:rounded-full after:transition-transform
+                              peer-checked:after:translate-x-5">
+                  </div>
+                </div>
+                <span class="text-sm font-medium text-gray-700">Show Low Stock Only</span>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Inventory Analytics -->
+      <section class="mb-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="glass-card rounded-xl border border-gray-200 shadow-sm xl:col-span-2">
+          <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-900">Inventory Snapshot</h2>
+                <p class="text-sm text-gray-500 mt-1">
+                  Showing <span class="font-semibold text-gray-700" th:text="${filteredTotal}">0</span>
+                  of <span class="font-semibold text-gray-700" th:text="${totalProducts}">0</span> products
+                </p>
+              </div>
+              <div class="text-xs text-gray-500 font-medium">Live from current filters</div>
+            </div>
+          </div>
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Active</div>
+              <div class="mt-2 text-2xl font-semibold text-gray-900" th:text="${productStats.activeCount}">0</div>
+              <div class="text-xs text-gray-500 mt-1">
+                Inactive <span class="font-semibold text-gray-700" th:text="${productStats.inactiveCount}">0</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Low Stock</div>
+              <div class="mt-2 text-2xl font-semibold text-amber-700" th:text="${productStats.lowStockCount}">0</div>
+              <div class="text-xs text-gray-500 mt-1">
+                Out of stock <span class="font-semibold text-gray-700" th:text="${productStats.outOfStockCount}">0</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Units on Hand</div>
+              <div class="mt-2 text-2xl font-semibold text-gray-900" th:text="${productStats.stockUnits}">0</div>
+              <div class="text-xs text-gray-500 mt-1">
+                Avg price <span class="font-semibold text-gray-700" th:text="${productStats.avgPrice != null ? @uiFormat.money(productStats.avgPrice) : '-'}">$0.00</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Price Range</div>
+              <div class="mt-2 text-base font-semibold text-gray-900">
+                <span th:text="${@uiFormat.money(productStats.minPrice)}">$0.00</span>
+                <span class="text-gray-400">→</span>
+                <span th:text="${@uiFormat.money(productStats.maxPrice)}">$0.00</span>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">
+                Avg margin <span class="font-semibold text-gray-700"
+                                 th:text="${productStats.avgMarginPct != null ? #numbers.formatDecimal(productStats.avgMarginPct, 1, 1) + '%' : '-'}">0%</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Inventory Value (Retail)</div>
+              <div class="mt-2 text-2xl font-semibold text-gray-900" th:text="${@uiFormat.money(productStats.stockValueRetail)}">$0.00</div>
+              <div class="text-xs text-gray-500 mt-1">
+                Cost basis <span class="font-semibold text-gray-700" th:text="${@uiFormat.money(productStats.stockValueCost)}">$0.00</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Potential Profit</div>
+              <div class="mt-2 text-2xl font-semibold text-emerald-700" th:text="${@uiFormat.money(productStats.potentialProfit)}">$0.00</div>
+              <div class="text-xs text-gray-500 mt-1">
+                Avg cost <span class="font-semibold text-gray-700" th:text="${productStats.avgCost != null ? @uiFormat.money(productStats.avgCost) : '-'}">$0.00</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">SKU Coverage</div>
+              <div class="mt-2 text-2xl font-semibold text-gray-900"
+                   th:text="${productStats.total > 0 ? #numbers.formatDecimal((productStats.withSkuCount * 100.0 / productStats.total), 1, 1) + '%' : '0%'}">0%</div>
+              <div class="text-xs text-gray-500 mt-1">
+                With SKU <span class="font-semibold text-gray-700" th:text="${productStats.withSkuCount}">0</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-gray-100 bg-white p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Image Coverage</div>
+              <div class="mt-2 text-2xl font-semibold text-gray-900"
+                   th:text="${productStats.total > 0 ? #numbers.formatDecimal((productStats.withImageCount * 100.0 / productStats.total), 1, 1) + '%' : '0%'}">0%</div>
+              <div class="text-xs text-gray-500 mt-1">
+                With images <span class="font-semibold text-gray-700" th:text="${productStats.withImageCount}">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl border border-gray-200 shadow-sm">
+          <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="text-base font-semibold text-gray-900">Data Coverage</div>
+            <div class="text-sm text-gray-500">Quality checks for the current view</div>
+          </div>
+          <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-600">Barcode coverage</div>
+              <div class="text-sm font-semibold text-gray-900"
+                   th:text="${productStats.total > 0 ? #numbers.formatDecimal((productStats.withBarcodeCount * 100.0 / productStats.total), 1, 1) + '%' : '0%'}">0%</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-600">With barcodes</div>
+              <div class="text-sm font-semibold text-gray-900" th:text="${productStats.withBarcodeCount}">0</div>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-600">SKUs present</div>
+              <div class="text-sm font-semibold text-gray-900" th:text="${productStats.withSkuCount}">0</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-600">Images present</div>
+              <div class="text-sm font-semibold text-gray-900" th:text="${productStats.withImageCount}">0</div>
+            </div>
+            <div class="h-px bg-gray-100"></div>
+            <div class="text-xs text-gray-500">
+              Keep SKU, barcode, and image fields filled to improve search, scanning, and POS speed.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="glass-card rounded-xl border border-gray-200 shadow-sm">
+          <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="text-base font-semibold text-gray-900">Top Stock Value</div>
+            <div class="text-sm text-gray-500">Highest retail exposure</div>
+          </div>
+          <div class="p-5 space-y-3">
+            <div th:if="${#lists.isEmpty(productStats.topStockValue)}" class="text-sm text-gray-500">
+              No stock value data available.
+            </div>
+            <div th:each="item : ${productStats.topStockValue}" class="flex items-center justify-between">
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-gray-900 truncate" th:text="${item.name}">Product</div>
+                <div class="text-xs text-gray-500" th:text="${item.qty + ' units on hand'}">0 units</div>
+              </div>
+              <div class="text-sm font-semibold text-gray-900" th:text="${@uiFormat.money(item.value)}">$0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl border border-gray-200 shadow-sm">
+          <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="text-base font-semibold text-gray-900">Top Margin Products</div>
+            <div class="text-sm text-gray-500">Best per-unit profitability</div>
+          </div>
+          <div class="p-5 space-y-3">
+            <div th:if="${#lists.isEmpty(productStats.topMargin)}" class="text-sm text-gray-500">
+              No margin data available.
+            </div>
+            <div th:each="item : ${productStats.topMargin}" class="flex items-center justify-between">
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-gray-900 truncate" th:text="${item.name}">Product</div>
+                <div class="text-xs text-gray-500"
+                     th:text="${item.marginPct != null ? (#numbers.formatDecimal(item.marginPct, 1, 1) + '% margin') : 'Margin unavailable'}">0%</div>
+              </div>
+              <div class="text-sm font-semibold text-emerald-700" th:text="${@uiFormat.money(item.margin)}">$0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl border border-gray-200 shadow-sm">
+          <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div class="text-base font-semibold text-gray-900">Category Mix</div>
+            <div class="text-sm text-gray-500">Inventory value by category</div>
+          </div>
+          <div class="p-5 space-y-3">
+            <div th:if="${#lists.isEmpty(productStats.topCategories)}" class="text-sm text-gray-500">
+              No category data available.
+            </div>
+            <div th:each="cat : ${productStats.topCategories}" class="flex items-center justify-between">
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-gray-900 truncate" th:text="${cat.name}">Category</div>
+                <div class="text-xs text-gray-500" th:text="${cat.count + ' products'}">0 products</div>
+              </div>
+              <div class="text-sm font-semibold text-gray-900" th:text="${@uiFormat.money(cat.value)}">$0.00</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Error Message -->
+      <div th:if="${error}"
+           class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3.5">
+        <div class="flex items-center space-x-2 text-red-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="text-sm font-medium" th:text="${error}">Error</span>
+        </div>
+      </div>
+
+      <!-- Data Table Card -->
+      <div class="glass-card rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">Product Inventory</h2>
+              <p class="text-sm text-gray-500 mt-1">
+                Total: <span class="font-semibold text-gray-700" th:text="${filteredTotal}">0</span> products
+                <span th:if="${productStats.lowStockCount > 0}" class="ml-4">
+                  • <span class="text-red-600 font-semibold" th:text="${productStats.lowStockCount}">0</span> low stock items
+                </span>
+              </p>
+            </div>
+            <div class="text-xs text-gray-500 font-medium">
+              Page <span th:text="${page + 1}">1</span> of <span th:text="${totalPages}">1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm data-table">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th class="px-5 py-3.5 text-left">Product</th>
+                <th class="px-5 py-3.5 text-left">SKU</th>
+                <th class="px-5 py-3.5 text-left">Category</th>
+                <th class="px-5 py-3.5 text-left">Price</th>
+                <th class="px-5 py-3.5 text-left">Stock</th>
+                <th class="px-5 py-3.5 text-left">Status</th>
+                <th class="px-5 py-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr th:if="${#lists.isEmpty(products)}" class="border-b border-gray-100">
+                <td class="px-5 py-8 text-center text-gray-500" colspan="7">
+                  <div class="flex flex-col items-center justify-center space-y-3">
+                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                    <div>
+                      <p class="font-medium text-gray-900">No products found</p>
+                      <p class="text-sm text-gray-500 mt-1">Try adjusting your filters or add a new product</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Product Rows -->
+              <tr th:each="p : ${products}" 
+                  class="border-b border-gray-100 hover-row hover:bg-gray-50 transition-colors">
+                <!-- Product Info -->
+                <td class="px-5 py-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                      <div th:if="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
+                           class="h-12 w-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
+                        <img th:src="${p.imageUrl}" alt="" class="h-full w-full object-cover">
+                      </div>
+                      <div th:if="${p.imageUrl == null or #strings.isEmpty(p.imageUrl)}"
+                           class="h-12 w-12 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-gray-900" th:text="${p.name}">Product Name</div>
+                      <div class="text-xs text-gray-500 mt-0.5 truncate max-w-xs">
+                        ID: <span th:text="${p.id}">-</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- SKU -->
+                <td class="px-5 py-4">
+                  <div class="font-mono text-sm text-gray-700" th:text="${p.sku}">-</div>
+                </td>
+
+                <!-- Category -->
+                <td class="px-5 py-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        th:class="${p.category != null} ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-700'">
+                    <span th:text="${p.category != null ? p.category.name : 'Uncategorized'}">-</span>
+                  </span>
+                </td>
+
+                <!-- Price -->
+                <td class="px-5 py-4">
+                  <div class="font-semibold text-gray-900" th:text="${@uiFormat.money(p.price)}">$0.00</div>
+                  <div class="text-xs text-gray-500" th:if="${p.wholesalePrice != null}">
+                    Wholesale: <span th:text="${@uiFormat.money(p.wholesalePrice)}">$0.00</span>
+                  </div>
+                  <div class="text-xs text-gray-500" th:if="${p.wholesaleMinQty != null}">
+                    Min qty: <span th:text="${p.wholesaleMinQty}">0</span> pcs
+                  </div>
+                  <div class="text-xs text-gray-500" th:if="${p.unitsPerBox != null}">
+                    Box: <span th:text="${p.unitsPerBox}">0</span> pcs
+                  </div>
+                  <div class="text-xs text-gray-500" th:if="${p.unitsPerCase != null}">
+                    Case: <span th:text="${p.unitsPerCase}">0</span> pcs
+                  </div>
+                </td>
+
+                <!-- Stock -->
+                <td class="px-5 py-4">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-medium text-gray-900" 
+                          th:text="${p.stockQty != null ? p.stockQty : '-'}">0</span>
+                    <span th:if="${p.stockQty != null and p.lowStockThreshold != null and p.stockQty <= p.lowStockThreshold}"
+                          class="status-badge bg-red-100 text-red-700 font-semibold">
+                      Low
+                    </span>
+                  </div>
+                  <div th:if="${p.lowStockThreshold != null}"
+                       class="text-xs text-gray-400 mt-0.5">
+                    Alert at <span th:text="${p.lowStockThreshold}">0</span>
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td class="px-5 py-4">
+                  <div class="flex items-center space-x-3 min-w-[200px]">
+                    <!-- Status Badge -->
+                    <span th:if="${p.active == true}"
+                          class="status-badge bg-green-100 text-green-700">
+                      <span class="flex items-center space-x-1">
+                        <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                        <span>Active</span>
+                      </span>
+                    </span>
+                    <span th:unless="${p.active == true}"
+                          class="status-badge bg-gray-100 text-gray-700">
+                      <span class="flex items-center space-x-1">
+                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                        <span>Inactive</span>
+                      </span>
+                    </span>
+                    
+                    <!-- Toggle -->
+                    <form th:action="@{'/products/' + ${p.id} + '/toggle-active'}" method="post" class="m-0">
+                      <input type="hidden" name="categoryId" th:value="${categoryId}"/>
+                      <input type="hidden" name="lowStock" th:value="${lowStock}"/>
+                      <input type="hidden" name="q" th:value="${q}"/>
+                      <input type="hidden" name="active" th:value="${active}"/>
+                      <input type="hidden" name="priceMin" th:value="${priceMin}"/>
+                      <input type="hidden" name="priceMax" th:value="${priceMax}"/>
+                      <input type="hidden" name="stockMin" th:value="${stockMin}"/>
+                      <input type="hidden" name="stockMax" th:value="${stockMax}"/>
+                      <input type="hidden" name="sort" th:value="${sort}"/>
+                      <input type="hidden" name="dir" th:value="${dir}"/>
+                      <input type="hidden" name="page" th:value="${page}"/>
+                      <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               class="sr-only peer"
+                               th:checked="${p.active == true}"
+                               aria-label="Toggle active status"
+                               onchange="this.form.submit()"/>
+                        <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-green-500 transition-colors
+                                    after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:h-4 after:w-4
+                                    after:bg-white after:rounded-full after:transition-transform
+                                    peer-checked:after:translate-x-5">
+                        </div>
+                      </label>
+                    </form>
+                  </div>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-5 py-4 text-right">
+                  <div class="flex items-center justify-end space-x-2">
+                    <!-- Edit -->
+                    <a th:href="@{'/products/' + ${p.id} + '/edit'}"
+                       class="enterprise-btn rounded-lg px-3 py-1.5 text-sm border-gray-300 bg-white text-gray-700 hover:bg-gray-50 flex items-center space-x-1.5">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                      <span>Edit</span>
+                    </a>
+                    
+                    <!-- Delete -->
+                    <form th:action="@{'/products/' + ${p.id} + '/delete'}" method="post" class="m-0"
+                          onsubmit="return confirm('Are you sure you want to delete this product?');">
+                      <button type="submit"
+                              class="enterprise-btn rounded-lg px-3 py-1.5 text-sm border-red-200 bg-white text-red-600 hover:bg-red-50 flex items-center space-x-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span>Delete</span>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-5 py-4 border-t border-gray-100 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <a th:if="${hasPrev}"
+               th:href="@{/products(page=${prevPage}, categoryId=${categoryId}, lowStock=${lowStock}, q=${q}, active=${active}, priceMin=${priceMin}, priceMax=${priceMax}, stockMin=${stockMin}, stockMax=${stockMax}, sort=${sort}, dir=${dir})}"
+               class="enterprise-btn rounded-lg px-4 py-2 text-sm border-gray-300 bg-white text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span>Previous</span>
+            </a>
+            <div class="text-sm text-gray-500">
+              Showing page <span class="font-semibold text-gray-900" th:text="${page + 1}">1</span> 
+              of <span class="font-semibold text-gray-900" th:text="${totalPages}">1</span>
+            </div>
+            <a th:if="${hasNext}"
+               th:href="@{/products(page=${nextPage}, categoryId=${categoryId}, lowStock=${lowStock}, q=${q}, active=${active}, priceMin=${priceMin}, priceMax=${priceMax}, stockMin=${stockMin}, stockMax=${stockMax}, sort=${sort}, dir=${dir})}"
+               class="enterprise-btn rounded-lg px-4 py-2 text-sm border-gray-300 bg-white text-gray-700 hover:bg-gray-50 flex items-center space-x-2">
+              <span>Next</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById("filter-form");
+      if (!form) return;
+
+      const submitForm = () => {
+        if (typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+          return;
+        }
+        form.submit();
+      };
+
+      form.addEventListener("change", (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.matches("select") || (target.matches("input") && target.type === "checkbox")) {
+          submitForm();
+        }
+      });
+
+      form.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        const target = e.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.type === "checkbox") return;
+        e.preventDefault();
+        submitForm();
+      });
+    })();
+  </script>
+</body>
+</html>

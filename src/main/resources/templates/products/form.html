@@ -1,0 +1,423 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${product.id == null ? 'New Product' : 'Edit Product'}">Product</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen">
+    <!-- Top bar -->
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+            <!-- tag icon -->
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.59 13.41L11 3H4v7l9.59 9.59a2 2 0 0 0 2.82 0l4.18-4.18a2 2 0 0 0 0-2.82z"/>
+              <path d="M7.5 7.5h.01"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-xl sm:text-2xl font-bold leading-tight"
+                 th:text="${product.id == null ? 'New Product' : 'Edit Product'}">Product</div>
+            <div class="text-sm text-slate-500">Fill out product details</div>
+          </div>
+          </div>
+
+          <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+            <div class="relative group">
+              <a href="/"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 6h12v4H6V6z"/>
+                  <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                  <path d="M9 14h6"/>
+                </svg>
+                <span>POS</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/pos"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Open POS
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/analytics"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M7 14l3-3 4 4 5-6"/>
+                </svg>
+                <span>Analytics</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/analytics"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Overview
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/products"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                  <path d="M3 8v8l9 5 9-5V8"/>
+                </svg>
+                <span>Inventory Management</span>
+                <span th:if="${lowStockCount > 0}"
+                      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                  <span th:text="${lowStockCount}">0</span>
+                </span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/products"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Products
+                </a>
+                <a href="/products/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Product
+                </a>
+                <a href="/products?lowStock=true"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Low Stock
+                </a>
+                <a href="/categories"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Categories
+                </a>
+                <a href="/categories/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Category
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/sales"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+                  <path d="M9 7h6M9 11h6M9 15h4"/>
+                </svg>
+                <span>Sales</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/sales"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Sales
+                </a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="flex items-center justify-end gap-2">
+            <a href="/products"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Back to list
+            </a>
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Login
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-8">
+      <!-- Form card -->
+      <form method="post" th:action="@{/products}" th:object="${product}" enctype="multipart/form-data"
+            class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <input type="hidden" th:field="*{id}"/>
+
+        <!-- Section: Basic -->
+        <div class="p-6 border-b border-slate-200">
+          <div class="flex items-start justify-between gap-4 flex-col md:flex-row">
+            <div>
+              <div class="text-base font-semibold">Basic info</div>
+              <div class="text-sm text-slate-500">Name, identifiers, and category</div>
+            </div>
+            <div class="text-xs text-slate-500">
+              Fields marked required must be filled
+            </div>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="lg:col-span-2">
+              <label class="block text-sm font-medium text-slate-700">Name</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     th:field="*{name}" required/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">SKU</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     th:field="*{sku}"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Barcode</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     th:field="*{barcode}"/>
+            </div>
+
+            <div class="lg:col-span-2">
+              <label class="block text-sm font-medium text-slate-700">Category</label>
+              <select name="categoryId"
+                      class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="">None</option>
+                <option th:each="c : ${categories}"
+                        th:value="${c.id}"
+                        th:selected="${product.category != null and c.id == product.category.id}"
+                        th:text="${c.name}">Category</option>
+              </select>
+            </div>
+
+            <div class="lg:col-span-2">
+              <label class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                <input type="checkbox" class="rounded border-slate-300" th:field="*{active}"/>
+                <span class="text-sm font-medium text-slate-700">Active</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Media -->
+        <div class="p-6 border-b border-slate-200">
+          <div>
+            <div class="text-base font-semibold">Images</div>
+            <div class="text-sm text-slate-500">Link an image or upload a new one</div>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Image URL</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     th:field="*{imageUrl}" placeholder="https://..." maxlength="2048"/>
+              <p class="mt-2 text-xs text-slate-500">If you upload a file, you can still keep this URL for later.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Upload Image</label>
+              <input type="file" name="imageFile" accept="image/*"
+                     class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                            file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-white file:text-sm
+                            hover:file:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+              <div class="mt-3 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
+                   th:if="${product.imageUrl != null and !#strings.isEmpty(product.imageUrl)}">
+                <img th:src="${product.imageUrl}" alt="" class="h-16 w-16 rounded-xl object-cover border border-slate-200 bg-white"/>
+                <div>
+                  <div class="text-sm font-medium text-slate-700">Current image</div>
+                  <div class="text-xs text-slate-500">Shown in product list and POS grid</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Pricing -->
+        <div class="p-6">
+          <div>
+            <div class="text-base font-semibold">Pricing & stock</div>
+            <div class="text-sm text-slate-500">Set price and inventory quantity</div>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Retail Price</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="0.01" min="0" th:field="*{price}"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Wholesale Price</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="0.01" min="0" th:field="*{wholesalePrice}"
+                     placeholder="Optional"/>
+              <p class="mt-2 text-xs text-slate-500">Leave blank to disable wholesale pricing.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Wholesale Min Qty (pieces)</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="1" min="1" th:field="*{wholesaleMinQty}"
+                     placeholder="e.g. 12"/>
+              <p class="mt-2 text-xs text-slate-500">Applies wholesale price when this many pieces are sold.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Units per Box</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="1" min="1" th:field="*{unitsPerBox}"
+                     placeholder="Optional"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Units per Case</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="1" min="1" th:field="*{unitsPerCase}"
+                     placeholder="Optional"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Cost Price</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="0.01" min="0" th:field="*{costPrice}"
+                     placeholder="e.g. 0.80"/>
+              <p class="mt-2 text-xs text-slate-500">Used for gross profit analytics.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Stock Qty</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="1" min="0" th:field="*{stockQty}"/>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Low Stock Threshold</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                             focus:outline-none focus:ring-2 focus:ring-slate-300"
+                     type="number" step="1" min="0" th:field="*{lowStockThreshold}"
+                     placeholder="e.g. 5"/>
+              <p class="mt-2 text-xs text-slate-500">Show a low-stock badge when stock is at or below this number.</p>
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
+              <div>
+                <div class="text-base font-semibold">Product Analytics</div>
+                <div class="text-sm text-slate-500">Pricing health and inventory impact</div>
+              </div>
+              <div class="text-xs font-semibold rounded-full px-3 py-1"
+                   th:text="${productAnalytics.stockStatus}"
+                   th:classappend="${productAnalytics.stockStatus == 'Healthy'} ? ' bg-emerald-100 text-emerald-700' : (${productAnalytics.stockStatus == 'Low stock'} ? ' bg-amber-100 text-amber-700' : (${productAnalytics.stockStatus == 'Out of stock'} ? ' bg-red-100 text-red-700' : ' bg-slate-200 text-slate-600'))">
+                Status
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="rounded-xl border border-slate-200 bg-white p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-500">Unit Margin</div>
+                <div class="mt-2 text-lg font-semibold text-slate-900"
+                     th:text="${productAnalytics.unitMargin != null ? @uiFormat.money(productAnalytics.unitMargin) : '-'}">$0.00</div>
+                <div class="text-xs text-slate-500 mt-1">
+                  Margin % <span class="font-semibold text-slate-700"
+                                 th:text="${productAnalytics.marginPct != null ? #numbers.formatDecimal(productAnalytics.marginPct, 1, 1) + '%' : '-'}">0%</span>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-500">Markup</div>
+                <div class="mt-2 text-lg font-semibold text-slate-900"
+                     th:text="${productAnalytics.markupPct != null ? #numbers.formatDecimal(productAnalytics.markupPct, 1, 1) + '%' : '-'}">0%</div>
+                <div class="text-xs text-slate-500 mt-1">Vs. cost price</div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-500">Inventory Value</div>
+                <div class="mt-2 text-lg font-semibold text-slate-900"
+                     th:text="${productAnalytics.retailValue != null ? @uiFormat.money(productAnalytics.retailValue) : '-'}">$0.00</div>
+                <div class="text-xs text-slate-500 mt-1">
+                  Cost basis <span class="font-semibold text-slate-700"
+                                   th:text="${productAnalytics.costValue != null ? @uiFormat.money(productAnalytics.costValue) : '-'}">$0.00</span>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-500">Potential Profit</div>
+                <div class="mt-2 text-lg font-semibold text-emerald-700"
+                     th:text="${productAnalytics.potentialProfit != null ? @uiFormat.money(productAnalytics.potentialProfit) : '-'}">$0.00</div>
+                <div class="text-xs text-slate-500 mt-1">Based on current stock</div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-500">Wholesale Discount</div>
+                <div class="mt-2 text-lg font-semibold text-slate-900"
+                     th:text="${productAnalytics.wholesaleDiscountPct != null ? #numbers.formatDecimal(productAnalytics.wholesaleDiscountPct, 1, 1) + '%' : '-'}">0%</div>
+                <div class="text-xs text-slate-500 mt-1">Retail vs wholesale</div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-500">Pack Pricing</div>
+                <div class="mt-2 text-sm text-slate-700">
+                  Box: <span class="font-semibold" th:text="${productAnalytics.boxPrice != null ? @uiFormat.money(productAnalytics.boxPrice) : '-'}">$0.00</span>
+                </div>
+                <div class="text-sm text-slate-700">
+                  Case: <span class="font-semibold" th:text="${productAnalytics.casePrice != null ? @uiFormat.money(productAnalytics.casePrice) : '-'}">$0.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
+            <a href="/products"
+               class="rounded-xl border border-slate-200 px-4 py-2.5 bg-white text-sm font-medium hover:bg-slate-50 transition">
+              Cancel
+            </a>
+            <button class="rounded-xl bg-slate-900 text-white px-5 py-2.5 text-sm font-semibold hover:bg-slate-800 transition">
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+</html>

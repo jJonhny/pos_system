@@ -1,0 +1,673 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Group 2 POS System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+
+  <!-- UI helpers only (no logic change) -->
+  <style>
+    .line-clamp-2{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <!-- soft background accents (UI only) -->
+  <div class="absolute inset-0 -z-10">
+    <div class="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-slate-300/30 blur-3xl"></div>
+    <div class="absolute -bottom-28 -right-28 h-96 w-96 rounded-full bg-slate-200/60 blur-3xl"></div>
+  </div>
+
+  <div class="min-h-screen">
+    <!-- Sticky top toolbar (UI only) -->
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="flex flex-col gap-4">
+          <!-- Title row -->
+          <div class="grid grid-cols-3 items-center gap-4">
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+                <!-- register icon -->
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 6h12v4H6V6z"/>
+                  <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                  <path d="M9 14h6"/>
+                </svg>
+              </div>
+              <div>
+                <div class="text-xl sm:text-2xl font-bold leading-tight">Point of Sale</div>
+                <div class="text-sm text-slate-500">Search items, scan barcodes, checkout</div>
+              </div>
+            </div>
+
+            <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+              <div class="relative group">
+                <a href="/"
+                   class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 6h12v4H6V6z"/>
+                    <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                    <path d="M9 14h6"/>
+                  </svg>
+                  <span>POS</span>
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </a>
+                <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                            opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                            group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                  <a href="/pos"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    Open POS
+                  </a>
+                  <a href="/"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    Dashboard
+                  </a>
+                </div>
+              </div>
+              <div sec:authorize="hasRole('ADMIN')" class="relative group">
+                <a href="/analytics"
+                   class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18"/>
+                    <path d="M7 14l3-3 4 4 5-6"/>
+                  </svg>
+                  <span>Analytics</span>
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </a>
+                <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                            opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                            group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                  <a href="/analytics"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    Overview
+                  </a>
+                  <a href="/"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    Dashboard
+                  </a>
+                </div>
+              </div>
+              <div sec:authorize="hasRole('ADMIN')" class="relative group">
+                <a href="/products"
+                   class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                    <path d="M3 8v8l9 5 9-5V8"/>
+                  </svg>
+                  <span>Inventory Management</span>
+                  <span th:if="${lowStockCount > 0}"
+                        class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                    <span th:text="${lowStockCount}">0</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </a>
+                <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                            opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                            group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                  <a href="/products"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    All Products
+                  </a>
+                  <a href="/products/new"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    New Product
+                  </a>
+                  <a href="/products?lowStock=true"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    Low Stock
+                  </a>
+                  <a href="/categories"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    Categories
+                  </a>
+                  <a href="/categories/new"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    New Category
+                  </a>
+                </div>
+              </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+                <a href="/sales"
+                   class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+                    <path d="M9 7h6M9 11h6M9 15h4"/>
+                  </svg>
+                  <span>Sales</span>
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </a>
+                <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                            opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                            group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                  <a href="/sales"
+                     class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                    All Sales
+                  </a>
+                </div>
+              </div>
+            </nav>
+
+            <div class="flex flex-wrap items-center justify-end gap-2">
+              <a sec:authorize="isAnonymous()" href="/login"
+                 class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700
+                        hover:bg-slate-50 transition">
+                Login
+              </a>
+              <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+                <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700
+                               hover:bg-slate-50 transition">
+                  Logout
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Controls row -->
+          <div class="flex flex-col lg:flex-row lg:items-end gap-3">
+            <form method="get" action="/pos"
+                  hx-get="/pos"
+                  hx-target="#productGridWrap"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
+                  hx-trigger="submit, change from:#categorySelect"
+                  class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+              <!-- Search -->
+              <div class="lg:col-span-7">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Search</label>
+                <div class="relative">
+                  <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                    <!-- search icon -->
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="7"/>
+                      <path d="M21 21l-4.3-4.3"/>
+                    </svg>
+                  </span>
+                  <input id="searchBox" name="q"
+                         th:value="${q}"
+                         class="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-2.5 bg-white
+                                focus:outline-none focus:ring-2 focus:ring-slate-300"
+                         placeholder="Search product (press / to focus)"/>
+                </div>
+              </div>
+
+              <!-- Category -->
+              <div class="lg:col-span-3">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Category</label>
+                <select id="categorySelect" name="categoryId"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option value="">All</option>
+                  <option th:each="c : ${categories}"
+                          th:value="${c.id}"
+                          th:selected="${categoryId == c.id}"
+                          th:text="${c.name}"></option>
+                </select>
+              </div>
+
+              <!-- Filter button -->
+              <div class="lg:col-span-2">
+                <button class="h-[42px] w-full rounded-xl bg-slate-900 text-white px-5 text-sm font-semibold
+                               hover:bg-slate-800 transition active:scale-[0.99]">
+                  Filter
+                </button>
+              </div>
+            </form>
+
+            <form action="/pos/quick-add" method="post" data-quick-add
+                  hx-post="/pos/quick-add" hx-target="#cartPanel" hx-swap="outerHTML"
+                  class="w-full sm:w-52">
+              <input type="hidden" name="q" value=""/>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Quick add</label>
+              <button class="h-[42px] w-full rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700
+                             hover:bg-slate-50 transition active:scale-[0.99]">
+                Add from search
+              </button>
+            </form>
+
+            <!-- Barcode input form (same action/method) -->
+            <form id="barcodeForm" action="/pos/scan" method="post"
+                  hx-post="/pos/scan"
+                  hx-target="#cartContainer"
+                  hx-swap="outerHTML"
+                  hx-on="htmx:afterRequest: this.reset()"
+                  class="w-full lg:w-auto flex flex-col sm:flex-row sm:items-end gap-2">
+              <div class="w-full sm:w-72">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Barcode</label>
+                <div class="relative">
+                  <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                    <!-- barcode icon -->
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 7v10"/>
+                      <path d="M7 7v10"/>
+                      <path d="M10 7v10"/>
+                      <path d="M13 7v10"/>
+                      <path d="M16 7v10"/>
+                      <path d="M19 7v10"/>
+                    </svg>
+                  </span>
+                  <input name="barcode" id="barcodeInput"
+                         class="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-2.5 bg-white
+                                focus:outline-none focus:ring-2 focus:ring-slate-300"
+                         placeholder="Scan barcode & Enter"
+                         autocomplete="off"/>
+                </div>
+              </div>
+
+              <button class="h-[42px] rounded-xl bg-slate-900 text-white px-5 text-sm font-semibold
+                             hover:bg-slate-800 transition active:scale-[0.99]">
+                Scan
+              </button>
+            </form>
+          </div>
+
+          <!-- Shortcut hint -->
+          <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2">
+            <span>Shortcuts:</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="font-mono rounded-md border border-slate-200 bg-white px-2 py-0.5">/</span>
+              <span>focus search</span>
+            </span>
+            <span class="text-slate-400">·</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="font-mono rounded-md border border-slate-200 bg-white px-2 py-0.5">F8</span>
+              <span>focus barcode</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-6">
+      <div class="grid grid-cols-12 gap-6">
+        <!-- Products -->
+        <section class="col-span-12 lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="text-base font-semibold">Products</div>
+              <div class="text-sm text-slate-500">Click an item to add to cart</div>
+            </div>
+          </div>
+
+          <div class="p-5">
+            <div id="pinnedSection" class="mb-4 hidden">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-800">Pinned items</div>
+                <button type="button"
+                        class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition"
+                        data-action="clear-pins">
+                  Clear
+                </button>
+              </div>
+              <div id="pinnedGrid" class="mt-3 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+            </div>
+            <div th:replace="~{pos/fragments :: productGridWrap}"></div>
+          </div>
+        </section>
+
+        <!-- Cart -->
+        <aside class="col-span-12 lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <div class="text-base font-semibold">Cart</div>
+              <div class="text-sm text-slate-500">Review items and checkout</div>
+            </div>
+          </div>
+
+          <div class="p-5">
+            <div th:replace="~{pos/fragments :: cartContainer}"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Keyboard shortcut: "/" focuses search
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+        e.preventDefault();
+        document.getElementById("searchBox").focus();
+      }
+      // Barcode scanners usually focus input automatically, but you can force it:
+      if (e.key === "F8") document.getElementById("barcodeInput").focus();
+    });
+
+    const formatMoney = (value) => {
+      const num = Number.parseFloat(value);
+      if (!Number.isFinite(num)) return "$0.00";
+      return `$${num.toFixed(2)}`;
+    };
+
+    const getCartPanel = () => document.getElementById("cartPanel");
+
+    const updateCashChange = () => {
+      const panel = getCartPanel();
+      if (!panel) return;
+      const input = panel.querySelector("#cashReceived");
+      const changeEl = panel.querySelector("#cashChange");
+      const statusEl = panel.querySelector("#cashStatus");
+      if (!input || !changeEl || !statusEl) return;
+      const total = Number.parseFloat(panel.dataset.total || "0");
+      const received = Number.parseFloat(input.value || "0");
+      if (!Number.isFinite(total) || !Number.isFinite(received)) return;
+      const diff = received - total;
+      if (diff >= 0) {
+        statusEl.textContent = "Change";
+        changeEl.textContent = formatMoney(diff);
+      } else {
+        statusEl.textContent = "Remaining";
+        changeEl.textContent = formatMoney(Math.abs(diff));
+      }
+    };
+
+    const pinKey = "pos.pinned.v1";
+    const maxPins = 12;
+
+    const loadPins = () => {
+      try {
+        const raw = localStorage.getItem(pinKey);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch {
+        return [];
+      }
+    };
+
+    const savePins = (pins) => {
+      try {
+        localStorage.setItem(pinKey, JSON.stringify(pins));
+      } catch {
+        // ignore storage failures
+      }
+    };
+
+    const escapeHtml = (value) => {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    };
+
+    const renderPins = () => {
+      const section = document.getElementById("pinnedSection");
+      const grid = document.getElementById("pinnedGrid");
+      if (!section || !grid) return;
+      const pins = loadPins();
+      if (!pins.length) {
+        section.classList.add("hidden");
+        grid.innerHTML = "";
+        return;
+      }
+      section.classList.remove("hidden");
+      grid.innerHTML = pins.map((p) => {
+        const name = escapeHtml(p.name || "Item");
+        const price = formatMoney(p.price || 0);
+        const image = p.image ? `<img src="${escapeHtml(p.image)}" alt="" class="h-24 w-full object-cover rounded-xl border border-slate-200">` : "";
+        return `
+          <div class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+            ${image}
+            <div class="mt-2 text-sm font-semibold text-slate-900 truncate">${name}</div>
+            <div class="text-xs text-slate-500">${price}</div>
+            <div class="mt-2 flex items-center gap-2">
+              <form action="/pos/cart/add/${escapeHtml(p.id)}" method="post"
+                    hx-post="/pos/cart/add/${escapeHtml(p.id)}" hx-target="#cartPanel" hx-swap="outerHTML"
+                    class="m-0">
+                <button class="rounded-xl bg-slate-900 text-white px-3 py-1.5 text-xs font-semibold hover:bg-slate-800 transition">
+                  Add
+                </button>
+              </form>
+              <button type="button" data-unpin-id="${escapeHtml(p.id)}"
+                      class="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
+                Unpin
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      if (window.htmx) window.htmx.process(grid);
+    };
+
+    const syncPinToggles = () => {
+      const pins = loadPins();
+      const pinned = new Set(pins.map((p) => String(p.id)));
+      document.querySelectorAll(".pin-toggle").forEach((el) => {
+        const id = String(el.dataset.productId || "");
+        const active = pinned.has(id);
+        el.setAttribute("aria-pressed", active ? "true" : "false");
+        el.classList.toggle("bg-slate-900", active);
+        el.classList.toggle("border-slate-900", active);
+        el.classList.toggle("text-white", active);
+        el.classList.toggle("bg-white/90", !active);
+        el.classList.toggle("border-slate-200", !active);
+        el.classList.toggle("text-slate-700", !active);
+      });
+    };
+
+    const togglePin = (el) => {
+      const data = {
+        id: String(el.dataset.productId || ""),
+        name: el.dataset.productName || "Item",
+        price: el.dataset.productPrice || "0",
+        image: el.dataset.productImage || ""
+      };
+      if (!data.id) return;
+      const pins = loadPins();
+      const idx = pins.findIndex((p) => String(p.id) === data.id);
+      if (idx >= 0) {
+        pins.splice(idx, 1);
+      } else {
+        pins.unshift(data);
+      }
+      const trimmed = pins.slice(0, maxPins);
+      savePins(trimmed);
+      renderPins();
+      syncPinToggles();
+    };
+
+    document.addEventListener("click", (e) => {
+      const pin = e.target.closest(".pin-toggle");
+      if (pin) {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePin(pin);
+        return;
+      }
+
+      const unpin = e.target.closest("[data-unpin-id]");
+      if (unpin) {
+        e.preventDefault();
+        const id = String(unpin.getAttribute("data-unpin-id"));
+        const pins = loadPins().filter((p) => String(p.id) !== id);
+        savePins(pins);
+        renderPins();
+        syncPinToggles();
+        return;
+      }
+
+      const clearPins = e.target.closest("[data-action='clear-pins']");
+      if (clearPins) {
+        e.preventDefault();
+        savePins([]);
+        renderPins();
+        syncPinToggles();
+        return;
+      }
+
+      const discountBtn = e.target.closest(".discount-quick");
+      if (discountBtn) {
+        e.preventDefault();
+        const panel = getCartPanel();
+        if (!panel) return;
+        const pct = Number.parseFloat(discountBtn.getAttribute("data-discount-pct") || "0");
+        const typeSelect = panel.querySelector("select[name='discountType']");
+        const input = panel.querySelector("input[name='discountValue']");
+        if (!input) return;
+        if (typeSelect) typeSelect.value = "PERCENT";
+        input.value = Number.isFinite(pct) ? pct.toFixed(2) : "0.00";
+        if (input.form) input.form.requestSubmit();
+        return;
+      }
+
+      const cashBtn = e.target.closest(".cash-quick");
+      if (cashBtn) {
+        e.preventDefault();
+        const panel = getCartPanel();
+        if (!panel) return;
+        const input = panel.querySelector("#cashReceived");
+        if (!input) return;
+        const total = Number.parseFloat(panel.dataset.total || "0");
+        if (!Number.isFinite(total)) return;
+        const add = Number.parseFloat(cashBtn.getAttribute("data-cash-add") || "0");
+        const exact = cashBtn.getAttribute("data-cash-mode") === "exact";
+        const value = exact ? total : total + add;
+        input.value = value.toFixed(2);
+        updateCashChange();
+      }
+    });
+
+    document.addEventListener("submit", (e) => {
+      const form = e.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (!form.matches("[data-quick-add]")) return;
+      const input = form.querySelector("input[name='q']");
+      const source = document.getElementById("searchBox");
+      if (input && source) input.value = source.value;
+    }, true);
+
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "cashReceived") {
+        updateCashChange();
+      }
+    });
+
+    document.addEventListener("htmx:afterSwap", (e) => {
+      if (!e.target) return;
+      if (["productGridWrap", "cartPanel", "cartContainer"].includes(e.target.id)) {
+        renderPins();
+        syncPinToggles();
+        updateCashChange();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderPins();
+      syncPinToggles();
+      updateCashChange();
+    });
+
+    // Fallback: if HTMX didn't load (offline/CDN blocked), do minimal AJAX swaps.
+    (function () {
+      if (window.htmx) return;
+
+      const toQueryString = (formData) => {
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+          if (value !== null && value !== undefined) params.append(key, value.toString());
+        }
+        return params.toString();
+      };
+
+      const resolveTarget = (el) => {
+        const selector = el.getAttribute("hx-target");
+        if (!selector) return null;
+        return document.querySelector(selector);
+      };
+
+      const performSwap = (target, html, swap) => {
+        if (!target) return;
+        if (swap === "outerHTML") {
+          target.outerHTML = html;
+        } else {
+          target.innerHTML = html;
+        }
+      };
+
+      const afterRequest = (el) => {
+        const hxOn = el.getAttribute("hx-on");
+        if (hxOn && hxOn.includes("afterRequest") && typeof el.reset === "function") {
+          el.reset();
+        }
+      };
+
+      const ajaxRequest = async (options) => {
+        const { url, method, body, triggerEl, target, swap, pushUrl } = options;
+        const headers = { "HX-Request": "true" };
+        if (target && target.id) headers["HX-Target"] = target.id;
+
+        const response = await fetch(url, { method, body, headers });
+        const html = await response.text();
+        performSwap(target, html, swap);
+        if (pushUrl) history.pushState({}, "", url);
+        if (triggerEl) afterRequest(triggerEl);
+      };
+
+      const submitForm = async (form, triggerEl) => {
+        const method = (form.getAttribute("hx-post") ? "POST" : "GET").toUpperCase();
+        const urlAttr = form.getAttribute("hx-post") || form.getAttribute("hx-get") || form.action;
+        const swap = form.getAttribute("hx-swap") || "innerHTML";
+        const pushUrl = form.getAttribute("hx-push-url") === "true";
+        const target = resolveTarget(form);
+        const formData = new FormData(form);
+
+        if (method === "GET") {
+          const qs = toQueryString(formData);
+          const url = qs ? `${urlAttr}?${qs}` : urlAttr;
+          return ajaxRequest({ url, method, triggerEl: form, target, swap, pushUrl });
+        }
+
+        return ajaxRequest({ url: urlAttr, method, body: formData, triggerEl: form, target, swap, pushUrl });
+      };
+
+      document.addEventListener("submit", (e) => {
+        if (window.htmx) return;
+        const form = e.target;
+        if (!(form instanceof HTMLFormElement)) return;
+        if (!form.hasAttribute("hx-post") && !form.hasAttribute("hx-get")) return;
+        e.preventDefault();
+        submitForm(form, form).catch(() => form.submit());
+      });
+
+      document.addEventListener("change", (e) => {
+        if (window.htmx) return;
+        const form = e.target && e.target.closest("form");
+        if (!form) return;
+        const trigger = form.getAttribute("hx-trigger");
+        if (!trigger || !trigger.includes("change")) return;
+        if (trigger.includes("from:#categorySelect") && !e.target.matches("#categorySelect")) return;
+        submitForm(form, form).catch(() => form.submit());
+      });
+
+      document.addEventListener("click", (e) => {
+        if (window.htmx) return;
+        const link = e.target.closest("a[hx-get]");
+        if (!link) return;
+        e.preventDefault();
+        const url = link.getAttribute("hx-get") || link.getAttribute("href");
+        const target = resolveTarget(link);
+        const swap = link.getAttribute("hx-swap") || "innerHTML";
+        const pushUrl = link.getAttribute("hx-push-url") === "true";
+        ajaxRequest({ url, method: "GET", target, swap, pushUrl, triggerEl: link })
+          .catch(() => { window.location.href = url; });
+      });
+    })();
+  </script>
+</body>
+</html>

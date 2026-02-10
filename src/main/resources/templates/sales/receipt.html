@@ -1,0 +1,428 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Receipt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Print rules (UI only; no logic change) */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; padding: 0 !important; }
+      .print-card { box-shadow: none !important; border: none !important; }
+      .print-pad { padding: 0 !important; }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 p-6">
+  <header class="no-print mb-6 bg-white/80 backdrop-blur border border-slate-200 rounded-2xl">
+    <div class="w-full px-6 py-4">
+      <div class="grid grid-cols-3 items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+              <path d="M9 7h6M9 11h6M9 15h4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-lg font-semibold">Receipt</div>
+            <div class="text-xs text-slate-500">Sale details</div>
+          </div>
+        </div>
+
+        <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+          <div class="relative group">
+            <a href="/"
+               class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 6h12v4H6V6z"/>
+                <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                <path d="M9 14h6"/>
+              </svg>
+              <span>POS</span>
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </a>
+            <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                        opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                        group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+              <a href="/pos"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                Open POS
+              </a>
+              <a href="/"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                Dashboard
+              </a>
+            </div>
+          </div>
+          <div sec:authorize="hasRole('ADMIN')" class="relative group">
+            <a href="/analytics"
+               class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3v18h18"/>
+                <path d="M7 14l3-3 4 4 5-6"/>
+              </svg>
+              <span>Analytics</span>
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </a>
+            <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                        opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                        group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+              <a href="/analytics"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                Overview
+              </a>
+              <a href="/"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                Dashboard
+              </a>
+            </div>
+          </div>
+          <div sec:authorize="hasRole('ADMIN')" class="relative group">
+            <a href="/products"
+               class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                <path d="M3 8v8l9 5 9-5V8"/>
+              </svg>
+              <span>Inventory Management</span>
+              <span th:if="${lowStockCount > 0}"
+                    class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                <span th:text="${lowStockCount}">0</span>
+              </span>
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </a>
+            <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                        opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                        group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+              <a href="/products"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                All Products
+              </a>
+              <a href="/products/new"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                New Product
+              </a>
+              <a href="/products?lowStock=true"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                Low Stock
+              </a>
+              <a href="/categories"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                Categories
+              </a>
+              <a href="/categories/new"
+                 class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                New Category
+              </a>
+            </div>
+          </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/sales"
+               class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+                <path d="M9 7h6M9 11h6M9 15h4"/>
+              </svg>
+              <span>Sales</span>
+              <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </a>
+            <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                        opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                        group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/sales"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Sales
+                </a>
+              </div>
+            </div>
+          </nav>
+
+        <div class="flex items-center justify-end gap-2">
+          <a href="/sales"
+             class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
+            Back to sales
+          </a>
+          <a sec:authorize="isAnonymous()" href="/login"
+             class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
+            Login
+          </a>
+          <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+            <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-md mx-auto">
+    <div class="print-card bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="print-pad p-6">
+        <!-- Success Banner -->
+        <div th:if="${successMessage}"
+             class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <div class="font-semibold">Success</div>
+          <div class="mt-0.5" th:text="${successMessage}">Payment received. Receipt ready.</div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-xl font-bold tracking-tight">My Store</div>
+            <div class="mt-1 text-sm text-slate-500">
+              <span th:text="${@uiFormat.dateTime(sale.createdAt)}"></span>
+            </div>
+            <div class="text-sm text-slate-600">
+              Receipt / Sale #<span class="font-semibold text-slate-900" th:text="${sale.id}"></span>
+            </div>
+            <div class="text-xs text-slate-500">
+              Cashier: <span class="font-semibold text-slate-700" th:text="${sale.cashierUsername ?: '—'}">cashier</span>
+            </div>
+            <div class="text-xs text-slate-500" th:if="${sale.customer != null}">
+              Customer:
+              <span class="font-semibold text-slate-700" th:text="${sale.customer.name}">Customer</span>
+              <span th:if="${sale.customer.phone}" class="text-slate-400">•</span>
+              <span th:text="${sale.customer.phone}">phone</span>
+            </div>
+          </div>
+
+          <div class="shrink-0 text-right">
+            <div class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold"
+                 th:classappend="${sale.status != null and sale.status.name() == 'VOID'} ? ' border-rose-200 bg-rose-50 text-rose-700' : (${sale.status != null and sale.status.name() != 'PAID'} ? ' border-amber-200 bg-amber-50 text-amber-700' : ' border-emerald-200 bg-emerald-50 text-emerald-700')">
+              <span class="mr-2 h-2 w-2 rounded-full"
+                    th:classappend="${sale.status != null and sale.status.name() == 'VOID'} ? ' bg-rose-500' : (${sale.status != null and sale.status.name() != 'PAID'} ? ' bg-amber-500' : ' bg-emerald-500')"></span>
+              <span th:text="${sale.status}">PAID</span>
+            </div>
+            <div class="mt-3 text-xs text-slate-500">Total</div>
+            <div class="text-2xl font-bold text-slate-900" th:text="${@uiFormat.money(sale.total)}">$0.00</div>
+            <div class="mt-2 text-xs text-slate-500">Payment</div>
+            <div class="mt-1 flex flex-wrap justify-end gap-2">
+              <span th:if="${sale.payments == null or #lists.isEmpty(sale.payments)}"
+                    class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                <span th:text="${sale.paymentMethod}">CASH</span>
+                <span class="text-slate-400" th:text="${@uiFormat.money(sale.total)}">$0.00</span>
+              </span>
+              <span th:each="p : ${sale.payments}"
+                    class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                <span th:text="${p.method}">CASH</span>
+                <span class="text-slate-400" th:text="${@uiFormat.money(p.amount)}">$0.00</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div class="text-xs font-semibold text-slate-700">Customer summary</div>
+            <div th:if="${customerSummary != null}" class="mt-2 text-sm text-slate-700">
+              <div class="font-semibold text-slate-900" th:text="${customerSummary.customer.name}">Customer</div>
+              <div class="text-xs text-slate-500" th:if="${customerSummary.customer.phone != null}"
+                   th:text="${customerSummary.customer.phone}">phone</div>
+              <div class="mt-2 grid grid-cols-2 gap-2 text-xs">
+                <div class="rounded-lg bg-white p-2">
+                  <div class="text-slate-500">Visits</div>
+                  <div class="font-semibold text-slate-900" th:text="${customerSummary.visits}">0</div>
+                </div>
+                <div class="rounded-lg bg-white p-2">
+                  <div class="text-slate-500">Points</div>
+                  <div class="font-semibold text-slate-900" th:text="${customerSummary.customer.points != null ? customerSummary.customer.points : 0}">0</div>
+                </div>
+                <div class="rounded-lg bg-white p-2 col-span-2">
+                  <div class="text-slate-500">Lifetime spend</div>
+                  <div class="font-semibold text-slate-900" th:text="${@uiFormat.money(customerSummary.lifetimeSpend)}">$0.00</div>
+                </div>
+                <div class="rounded-lg bg-white p-2 col-span-2">
+                  <div class="text-slate-500">Points earned (this sale)</div>
+                  <div class="font-semibold text-slate-900" th:text="${sale.pointsEarned != null ? sale.pointsEarned : 0}">0</div>
+                </div>
+                <div class="rounded-lg bg-white p-2 col-span-2">
+                  <div class="text-slate-500">Last purchase</div>
+                  <div class="font-semibold text-slate-900"
+                       th:text="${customerSummary.lastPurchase != null ? @uiFormat.dateTime(customerSummary.lastPurchase) : '-'}">-</div>
+                </div>
+              </div>
+            </div>
+            <div th:if="${customerSummary == null}" class="mt-2 text-xs text-slate-500">
+              Walk-in customer.
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div class="text-xs font-semibold text-slate-700">Timeline</div>
+            <ul class="mt-2 space-y-2 text-xs text-slate-600">
+              <li class="flex items-center justify-between">
+                <span>Sale created</span>
+                <span th:text="${@uiFormat.dateTime(sale.createdAt)}">—</span>
+              </li>
+              <li th:if="${sale.status != null and sale.status.name() == 'VOID'}"
+                  class="flex items-center justify-between text-rose-700">
+                <span>Sale voided</span>
+                <span>—</span>
+              </li>
+              <li th:if="${sale.status != null and sale.status.name() == 'PARTIALLY_RETURNED'}"
+                  class="flex items-center justify-between text-amber-700">
+                <span>Partial return processed</span>
+                <span>—</span>
+              </li>
+              <li th:if="${sale.status != null and sale.status.name() == 'RETURNED'}"
+                  class="flex items-center justify-between text-amber-700">
+                <span>Full return processed</span>
+                <span>—</span>
+              </li>
+              <li th:if="${sale.refundedTotal != null and sale.refundedTotal > 0}"
+                  class="flex items-center justify-between text-amber-700">
+                <span>Refunded total</span>
+                <span th:text="${@uiFormat.money(sale.refundedTotal)}">$0.00</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="my-5 border-t border-slate-200"></div>
+
+        <!-- Items -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-semibold text-slate-900">Items</div>
+            <div class="text-xs text-slate-500" th:text="${sale.items.size() + ' item(s)'}">0 item(s)</div>
+          </div>
+
+          <div th:each="it : ${sale.items}"
+               class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="font-semibold text-slate-900 truncate" th:text="${it.product.name}">Product</div>
+              <div class="mt-0.5 text-sm text-slate-500"
+                   th:text="${it.qty + ' ' + @uiFormat.unitLabel(it.unitType) + ' × ' + @uiFormat.money(it.unitPrice)}">1 × $0.00</div>
+              <div class="mt-0.5 text-xs text-slate-400"
+                   th:if="${it.unitType != null and it.unitType.name() != 'PIECE'}"
+                   th:text="${'Unit size: ' + it.unitSize + ' pcs/' + @uiFormat.unitLabel(it.unitType)}">Unit size</div>
+              <div class="mt-0.5 text-xs text-slate-400"
+                   th:if="${it.priceTier != null and it.priceTier.name() == 'WHOLESALE'}">
+                Wholesale price
+              </div>
+              <div class="mt-0.5 text-xs text-amber-600"
+                   th:if="${it.returnedQty != null and it.returnedQty > 0}"
+                   th:text="${'Returned: ' + it.returnedQty}">Returned</div>
+              <div class="mt-1 text-xs text-slate-500"
+                   th:if="${it.note != null and !#strings.isEmpty(it.note)}"
+                   th:text="${'Note: ' + it.note}">Note</div>
+            </div>
+            <div class="shrink-0 font-semibold text-slate-900" th:text="${@uiFormat.money(it.lineTotal)}">$0.00</div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="my-5 border-t border-dashed border-slate-200"></div>
+
+        <!-- Totals -->
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between text-slate-700">
+            <span>Subtotal</span>
+            <span class="font-medium text-slate-900" th:text="${@uiFormat.money(sale.subtotal)}">$0.00</span>
+          </div>
+
+          <div class="flex justify-between text-slate-700">
+            <span th:text="${sale.discountType != null and sale.discountType.name() == 'PERCENT' and sale.discountValue != null ? 'Discount (' + sale.discountValue + '%)' : 'Discount'}">Discount</span>
+            <span class="font-medium text-slate-900" th:text="${@uiFormat.money(sale.discount)}">$0.00</span>
+          </div>
+          <div class="text-xs text-slate-500"
+               th:if="${sale.discountReason != null and !#strings.isEmpty(sale.discountReason)}"
+               th:text="${'Reason: ' + sale.discountReason}">Reason</div>
+
+          <div class="flex justify-between text-slate-700">
+            <span>Tax</span>
+            <span class="font-medium text-slate-900" th:text="${@uiFormat.money(sale.tax)}">$0.00</span>
+          </div>
+
+          <div class="pt-3 mt-2 border-t border-slate-200 flex justify-between text-base font-bold text-slate-900">
+            <span>Total</span>
+            <span th:text="${@uiFormat.money(sale.total)}">$0.00</span>
+          </div>
+          <div class="flex justify-between text-slate-700" th:if="${sale.refundedTotal != null and sale.refundedTotal > 0}">
+            <span>Refunded</span>
+            <span class="font-medium text-slate-900" th:text="${@uiFormat.money(sale.refundedTotal)}">$0.00</span>
+          </div>
+          <div class="flex justify-between text-slate-700"
+               th:if="${sale.refundedTotal != null and sale.refundedTotal > 0 and sale.total != null}">
+            <span>Net total</span>
+            <span class="font-medium text-slate-900"
+                  th:text="${@uiFormat.money(sale.total.subtract(sale.refundedTotal))}">$0.00</span>
+          </div>
+          <div class="flex justify-between text-slate-700" th:if="${profit != null}">
+            <span>Profit</span>
+            <span class="font-medium text-slate-900" th:text="${@uiFormat.money(profit.profit)}">$0.00</span>
+          </div>
+          <div class="flex justify-between text-slate-700" th:if="${profit != null}">
+            <span>Margin</span>
+            <span class="font-medium text-slate-900"
+                  th:text="${#numbers.formatDecimal(profit.marginPct, 1, 2)} + '%'">0%</span>
+          </div>
+          <div class="text-xs text-amber-600" th:if="${profit != null and profit.missingCost}">
+            Cost price missing for some items.
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2 rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+            <div class="text-sm font-semibold text-slate-900">Thank you for your purchase!</div>
+            <div class="mt-1 text-xs text-slate-500">Please keep this receipt for your records.</div>
+            <div class="mt-2 text-xs text-slate-500">
+              Returns accepted within 7 days with receipt. Items must be unused.
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
+            <div class="text-xs text-slate-500">Receipt ID</div>
+            <div class="mt-1 text-lg font-semibold text-slate-900" th:text="${sale.id}">0</div>
+            <div class="mt-2 text-[10px] uppercase tracking-wide text-slate-400">Scan to verify</div>
+            <div class="mt-2 mx-auto h-16 w-16 rounded-lg border border-dashed border-slate-300 bg-slate-50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="no-print p-4 border-t border-slate-200 bg-white">
+        <div class="flex gap-2">
+          <button onclick="window.print()"
+                  class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition">
+            Print
+          </button>
+          <a th:href="@{'/sales/' + ${sale.id} + '/receipt/pdf'}"
+             class="w-full text-center rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+            Download PDF
+          </a>
+          <a th:if="${sale.status != null and sale.status.name() != 'VOID' and sale.status.name() != 'RETURNED'}"
+             th:href="@{'/sales/' + ${sale.id} + '/return'}"
+             class="w-full text-center rounded-xl border border-amber-200 bg-amber-50 py-2.5 text-sm font-semibold text-amber-800 hover:bg-amber-100 transition">
+            Return
+          </a>
+          <a href="/"
+             class="w-full text-center rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+            Back
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script th:if="${autoPrint}">
+    window.addEventListener('load', () => {
+      window.print();
+    });
+  </script>
+</body>
+</html>

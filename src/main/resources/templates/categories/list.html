@@ -1,0 +1,567 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Categories</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      animation: riseIn 0.6s ease-out both;
+    }
+    .reveal.delay-1 { animation-delay: 0.05s; }
+    .reveal.delay-2 { animation-delay: 0.1s; }
+    .reveal.delay-3 { animation-delay: 0.15s; }
+    .line-clamp-2{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div class="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl"></div>
+    <div class="absolute top-40 -left-24 h-96 w-96 rounded-full bg-slate-200/60 blur-3xl"></div>
+    <div class="absolute -bottom-32 right-10 h-96 w-96 rounded-full bg-amber-200/30 blur-3xl"></div>
+  </div>
+  <div class="min-h-screen relative">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+            <!-- grid icon -->
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 6h7v7H4V6zM13 6h7v7h-7V6zM4 15h7v7H4v-7zM13 15h7v7h-7v-7z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-xl sm:text-2xl font-bold leading-tight">Categories</div>
+            <div class="text-sm text-slate-500">Organize products</div>
+          </div>
+          </div>
+
+          <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+            <div class="relative group">
+              <a href="/"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 6h12v4H6V6z"/>
+                  <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                  <path d="M9 14h6"/>
+                </svg>
+                <span>POS</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/pos"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Open POS
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/analytics"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M7 14l3-3 4 4 5-6"/>
+                </svg>
+                <span>Analytics</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/analytics"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Overview
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/products"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                  <path d="M3 8v8l9 5 9-5V8"/>
+                </svg>
+                <span>Inventory Management</span>
+                <span th:if="${lowStockCount > 0}"
+                      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                  <span th:text="${lowStockCount}">0</span>
+                </span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/products"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Products
+                </a>
+                <a href="/products/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Product
+                </a>
+                <a href="/products?lowStock=true"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Low Stock
+                </a>
+                <a href="/categories"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Categories
+                </a>
+                <a href="/categories/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Category
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/sales"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+                  <path d="M9 7h6M9 11h6M9 15h4"/>
+                </svg>
+                <span>Sales</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/sales"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Sales
+                </a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <a href="/categories/new" class="rounded-xl bg-slate-900 text-white px-4 py-2 font-semibold hover:bg-slate-800 transition">
+              New Category
+            </a>
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Login
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-8">
+      <section class="reveal mb-8 rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 lg:p-8 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div class="max-w-xl">
+            <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Category Studio
+            </div>
+            <h1 class="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
+              Category control center
+            </h1>
+            <p class="mt-2 text-sm text-slate-600">
+              Keep categories tidy, active, and linked to the products that need attention.
+            </p>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+            <div class="rounded-2xl border border-slate-200 bg-white/80 p-4">
+              <div class="text-xs uppercase tracking-wide text-slate-500">Total</div>
+              <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${totalCategories}">0</div>
+              <div class="text-xs text-slate-500 mt-1">
+                With products <span class="font-semibold text-slate-700" th:text="${categoriesWithProducts}">0</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white/80 p-4">
+              <div class="text-xs uppercase tracking-wide text-slate-500">Active</div>
+              <div class="mt-2 text-2xl font-semibold text-emerald-700" th:text="${activeCategories}">0</div>
+              <div class="text-xs text-slate-500 mt-1">
+                Inactive <span class="font-semibold text-slate-700" th:text="${inactiveCategories}">0</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white/80 p-4">
+              <div class="text-xs uppercase tracking-wide text-slate-500">Products</div>
+              <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${totalProducts}">0</div>
+              <div class="text-xs text-slate-500 mt-1">Across all categories</div>
+            </div>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div class="text-xs uppercase tracking-wide text-amber-700">Low Stock</div>
+              <div class="mt-2 text-2xl font-semibold text-amber-800" th:text="${lowStockProducts}">0</div>
+              <div class="text-xs text-amber-700 mt-1">Items need attention</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filters -->
+      <form method="get" action="/categories"
+            class="reveal delay-1 mb-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <div class="p-5 lg:p-6">
+          <input type="hidden" name="status" th:value="${status}"/>
+          <div class="flex flex-col gap-5">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <div class="text-base font-semibold">Filters</div>
+                <div class="text-sm text-slate-500">Search and segment your catalog</div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</span>
+                <a th:href="@{/categories(q=${q}, size=${pageSize})}"
+                   class="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
+                   th:classappend="${status == null || status == ''} ? ' border-slate-900 bg-slate-900 text-white' : ' border-slate-200 bg-white text-slate-600 hover:bg-slate-50'">
+                  All
+                </a>
+                <a th:href="@{/categories(q=${q}, status='active', size=${pageSize})}"
+                   class="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
+                   th:classappend="${status == 'active'} ? ' border-emerald-600 bg-emerald-600 text-white' : ' border-slate-200 bg-white text-slate-600 hover:bg-slate-50'">
+                  Active
+                </a>
+                <a th:href="@{/categories(q=${q}, status='inactive', size=${pageSize})}"
+                   class="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
+                   th:classappend="${status == 'inactive'} ? ' border-rose-600 bg-rose-600 text-white' : ' border-slate-200 bg-white text-slate-600 hover:bg-slate-50'">
+                  Inactive
+                </a>
+              </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+              <div class="w-full lg:max-w-xl">
+                <label class="block text-xs font-medium text-slate-600 mb-1">Search</label>
+                <div class="relative">
+                  <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="7"/>
+                      <path d="M21 21l-4.3-4.3"/>
+                    </svg>
+                  </span>
+                  <input name="q" th:value="${q}"
+                         class="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2.5 bg-white
+                                focus:outline-none focus:ring-2 focus:ring-slate-300"
+                         placeholder="Name or description"/>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-end gap-2">
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-1">Rows</label>
+                  <select name="size"
+                          class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm"
+                          onchange="this.form.submit()">
+                    <option value="10" th:selected="${pageSize == 10}">10</option>
+                    <option value="20" th:selected="${pageSize == 20}">20</option>
+                    <option value="50" th:selected="${pageSize == 50}">50</option>
+                  </select>
+                </div>
+                <button
+                  class="rounded-xl bg-slate-900 text-white px-4 py-2.5 text-sm font-semibold hover:bg-slate-800 transition">
+                  Search
+                </button>
+                <a th:href="@{/categories}"
+                  class="rounded-xl border border-slate-200 px-4 py-2.5 bg-white text-sm font-medium hover:bg-slate-50 transition">
+                  Reset
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Error (same logic) -->
+      <div th:if="${error}"
+           class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700"
+           th:text="${error}">
+        Error
+      </div>
+
+      <!-- Table -->
+      <div class="reveal delay-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <div>
+            <div class="text-base font-semibold">Category list</div>
+            <div class="text-sm text-slate-500">Edit, reorder, and jump to product lists</div>
+          </div>
+          <form id="bulkForm" action="/categories/bulk" method="post" class="flex flex-wrap items-center gap-2">
+            <input type="hidden" name="q" th:value="${q}"/>
+            <input type="hidden" name="status" th:value="${status}"/>
+            <input type="hidden" name="size" th:value="${pageSize}"/>
+            <span id="selectedCount" class="text-xs font-semibold text-slate-500">0 selected</span>
+            <select name="action"
+                    class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+              <option value="deactivate">Deactivate</option>
+              <option value="activate">Activate</option>
+              <option value="delete">Delete</option>
+            </select>
+            <button id="bulkApplyBtn" disabled
+                    class="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm font-semibold hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              Apply
+            </button>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-left text-slate-600">
+              <tr>
+                <th class="px-3 py-3 font-semibold">Order</th>
+                <th class="px-3 py-3 font-semibold">
+                  <input id="selectAll" type="checkbox" class="rounded border-slate-300"/>
+                </th>
+                <th class="px-3 py-3 font-semibold">Image</th>
+                <th class="px-5 py-3 font-semibold">Name</th>
+                <th class="px-5 py-3 font-semibold">Products</th>
+                <th class="px-5 py-3 font-semibold">Low Stock</th>
+                <th class="px-5 py-3 font-semibold">Active</th>
+                <th class="px-5 py-3 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="categoryTableBody" class="divide-y divide-slate-100"
+                   th:attr="data-page=${page}, data-page-size=${pageSize}">
+              <tr th:if="${#lists.isEmpty(categories)}">
+                <td class="px-5 py-6 text-slate-500" colspan="8">No categories yet.</td>
+              </tr>
+
+              <tr th:each="c : ${categories}" class="hover:bg-slate-50/70 transition"
+                  th:attr="data-id=${c.id}" draggable="true">
+                <td class="px-3 py-4 text-slate-500">
+                  <div class="flex items-center gap-2">
+                    <span class="drag-handle cursor-grab text-slate-400" title="Drag to reorder">⋮⋮</span>
+                    <span class="sort-order" th:text="${c.sortOrder != null ? c.sortOrder : '-'}">0</span>
+                  </div>
+                </td>
+                <td class="px-3 py-4">
+                  <input type="checkbox" name="ids" th:value="${c.id}" form="bulkForm"
+                         class="rowCheck rounded border-slate-300"/>
+                </td>
+                <td class="px-3 py-4">
+                  <img th:if="${c.imageUrl != null and !#strings.isEmpty(c.imageUrl)}"
+                       th:src="${c.imageUrl}"
+                       alt=""
+                       class="h-11 w-11 rounded-xl object-cover border border-slate-200 bg-white"/>
+                  <div th:if="${c.imageUrl == null or #strings.isEmpty(c.imageUrl)}"
+                       class="h-11 w-11 rounded-xl bg-slate-100 border border-slate-200"></div>
+                </td>
+                <td class="px-5 py-4">
+                  <div class="font-medium text-slate-900" th:text="${c.name}">Category</div>
+                  <div class="text-xs text-slate-500 line-clamp-2" th:text="${c.description}">Description</div>
+                </td>
+                <td class="px-5 py-4">
+                  <a th:href="@{/products(categoryId=${c.id})}"
+                     class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition">
+                    <span th:text="${productCounts[c.id] != null ? productCounts[c.id] : 0}">0</span>
+                    <span class="text-xs font-medium text-slate-500">products</span>
+                  </a>
+                </td>
+                <td class="px-5 py-4">
+                  <a th:href="@{/products(categoryId=${c.id}, lowStock=true)}"
+                     class="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 hover:text-amber-900 transition">
+                    <span th:text="${lowStockCounts[c.id] != null ? lowStockCounts[c.id] : 0}">0</span>
+                    <span class="text-xs font-medium text-amber-700/80">low</span>
+                  </a>
+                </td>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-3 min-w-[170px]">
+                    <span th:if="${c.active == true}"
+                          class="inline-flex w-20 items-center justify-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold leading-none text-emerald-800">
+                      Active
+                    </span>
+                    <span th:unless="${c.active == true}"
+                          class="inline-flex w-20 items-center justify-center rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold leading-none text-rose-800">
+                      Inactive
+                    </span>
+                    <form th:action="@{'/categories/' + ${c.id} + '/toggle-active'}" method="post" class="m-0">
+                      <input type="hidden" name="q" th:value="${q}"/>
+                      <input type="hidden" name="page" th:value="${page}"/>
+                      <input type="hidden" name="status" th:value="${status}"/>
+                      <input type="hidden" name="size" th:value="${pageSize}"/>
+                      <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               class="sr-only peer"
+                               th:checked="${c.active == true}"
+                               aria-label="Toggle active"
+                               onchange="this.form.submit()"/>
+                        <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-emerald-500 transition-colors
+                                    after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5
+                                    after:bg-white after:rounded-full after:transition-transform
+                                    peer-checked:after:translate-x-5">
+                        </div>
+                      </label>
+                    </form>
+                  </div>
+                </td>
+
+                <td class="px-5 py-4 text-right whitespace-nowrap">
+                  <a th:href="@{'/categories/' + ${c.id} + '/edit'}"
+                     class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 transition">
+                    Edit
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 20h9"/>
+                      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                    </svg>
+                  </a>
+
+                  <form th:action="@{'/categories/' + ${c.id} + '/delete'}" method="post" class="inline"
+                        onsubmit="return confirm('Delete this category?');">
+                    <input type="hidden" name="q" th:value="${q}"/>
+                    <input type="hidden" name="page" th:value="${page}"/>
+                    <input type="hidden" name="status" th:value="${status}"/>
+                    <input type="hidden" name="size" th:value="${pageSize}"/>
+                    <button
+                      class="ml-2 inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 transition">
+                      Delete
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18"/>
+                        <path d="M8 6V4h8v2"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                      </svg>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="px-5 py-4 border-t border-slate-200 flex items-center justify-between">
+          <a th:if="${hasPrev}"
+             th:href="@{/categories(page=${prevPage}, q=${q}, status=${status}, size=${pageSize})}"
+             class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+            Prev
+          </a>
+          <div class="text-xs text-slate-500">
+            Page <span th:text="${page + 1}">1</span> of <span th:text="${totalPages}">1</span>
+          </div>
+          <a th:if="${hasNext}"
+             th:href="@{/categories(page=${nextPage}, q=${q}, status=${status}, size=${pageSize})}"
+             class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+            Next
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Select all
+    const selectAll = document.getElementById("selectAll");
+    const bulkApplyBtn = document.getElementById("bulkApplyBtn");
+    const selectedCount = document.getElementById("selectedCount");
+
+    function updateSelectedCount() {
+      const rows = Array.from(document.querySelectorAll(".rowCheck"));
+      const count = rows.filter(cb => cb.checked).length;
+      if (selectedCount) selectedCount.textContent = `${count} selected`;
+      if (bulkApplyBtn) bulkApplyBtn.disabled = count === 0;
+    }
+
+    selectAll?.addEventListener("change", () => {
+      document.querySelectorAll(".rowCheck").forEach(cb => { cb.checked = selectAll.checked; });
+      updateSelectedCount();
+    });
+    document.querySelectorAll(".rowCheck").forEach(cb => {
+      cb.addEventListener("change", updateSelectedCount);
+    });
+    updateSelectedCount();
+
+    document.getElementById("bulkForm")?.addEventListener("submit", (e) => {
+      const action = e.target.querySelector("select[name='action']")?.value;
+      if (action === "delete") {
+        const ok = confirm("Delete selected categories?");
+        if (!ok) e.preventDefault();
+      }
+    });
+
+    // Drag reorder
+    const tbody = document.getElementById("categoryTableBody");
+    let draggingRow = null;
+
+    function updateOrderNumbers() {
+      Array.from(tbody.querySelectorAll("tr[data-id]")).forEach((row, idx) => {
+        const el = row.querySelector(".sort-order");
+        if (el) el.textContent = idx + 1;
+      });
+    }
+
+    function updateOrderOnServer() {
+      const ids = Array.from(tbody.querySelectorAll("tr[data-id]")).map(row => Number(row.dataset.id));
+      const page = Number(tbody.dataset.page || 0);
+      const pageSize = Number(tbody.dataset.pageSize || 20);
+      const payload = { ids, page, pageSize };
+      fetch("/categories/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+    }
+
+    tbody?.addEventListener("dragstart", (e) => {
+      if (!e.target.closest(".drag-handle")) return;
+      const row = e.target.closest("tr[data-id]");
+      if (!row) return;
+      draggingRow = row;
+      row.classList.add("opacity-50");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", "");
+    });
+
+    tbody?.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const row = e.target.closest("tr[data-id]");
+      if (!row || row === draggingRow) return;
+      const rect = row.getBoundingClientRect();
+      const next = (e.clientY - rect.top) > (rect.height / 2);
+      row.parentNode.insertBefore(draggingRow, next ? row.nextSibling : row);
+    });
+
+    tbody?.addEventListener("dragend", () => {
+      if (draggingRow) draggingRow.classList.remove("opacity-50");
+      draggingRow = null;
+      updateOrderNumbers();
+      updateOrderOnServer();
+    });
+  </script>
+</body>
+</html>

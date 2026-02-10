@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Receipt PDF</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      color: #0f172a;
+      font-size: 12px;
+      margin: 28px;
+    }
+    .page {
+      border: 1px solid #e2e8f0;
+      padding: 20px 24px 18px;
+    }
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0b1f3a;
+      letter-spacing: 0.2px;
+    }
+    .brand-sub {
+      margin-top: 2px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #64748b;
+    }
+    .muted { color: #64748b; }
+    .right { text-align: right; }
+    .status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid #cbd5f5;
+      color: #1f4a7c;
+      background: #eef2ff;
+    }
+    .total {
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0b1f3a;
+    }
+    .divider {
+      height: 2px;
+      background: #0b1f3a;
+      margin: 12px 0 16px;
+    }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e2e8f0;
+    }
+    .info-table td {
+      padding: 8px 10px;
+      vertical-align: top;
+      border-right: 1px solid #e2e8f0;
+    }
+    .info-table td:last-child { border-right: none; }
+    .info-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #475569;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .info-line { margin-bottom: 2px; }
+    .section { margin-top: 16px; }
+    table.items {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table.items th {
+      text-align: left;
+      font-size: 11px;
+      color: #334155;
+      background: #f1f5f9;
+      padding: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    table.items td {
+      padding: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .qty, .price, .line { text-align: right; }
+    .totals-wrap {
+      margin-top: 12px;
+      display: table;
+      width: 100%;
+    }
+    table.totals {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e2e8f0;
+    }
+    table.totals td {
+      padding: 6px 10px;
+    }
+    table.totals .label { color: #64748b; }
+    table.totals .grand {
+      font-size: 13px;
+      font-weight: 700;
+      border-top: 2px solid #0b1f3a;
+      color: #0b1f3a;
+    }
+    .payment-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #475569;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    table.payment {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e2e8f0;
+    }
+    table.payment td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    table.payment tr:last-child td { border-bottom: none; }
+    .footer {
+      margin-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      font-size: 10px;
+      color: #64748b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <table class="header-table">
+      <tr>
+        <td>
+          <div class="brand-name">My Store</div>
+          <div class="brand-sub">Enterprise Receipt</div>
+          <div class="muted">Generated: <span th:text="${#temporals.format(generatedAt, 'yyyy-MM-dd HH:mm')}">-</span></div>
+        </td>
+        <td class="right">
+          <div class="status" th:text="${sale.status}">PAID</div>
+          <div class="total" th:text="${'$' + #numbers.formatDecimal((sale.total ?: 0), 1, 2)}">$0.00</div>
+          <div class="muted">Sale #<span th:text="${sale.id}">0</span></div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="divider"></div>
+
+    <table class="info-table">
+      <tr>
+        <td>
+          <div class="info-title">Bill To</div>
+          <div th:if="${sale.customer != null}">
+            <div class="info-line" th:text="${sale.customer.name}">Customer</div>
+            <div class="muted" th:if="${sale.customer.phone != null}" th:text="${sale.customer.phone}">phone</div>
+            <div class="muted" th:if="${sale.customer.email != null}" th:text="${sale.customer.email}">email</div>
+          </div>
+          <div th:if="${sale.customer == null}" class="muted">Walk-in customer</div>
+        </td>
+        <td>
+          <div class="info-title">Receipt Info</div>
+          <div class="info-line">Date:
+            <span th:text="${sale.createdAt != null ? #temporals.format(sale.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</span>
+          </div>
+          <div class="info-line">Cashier: <span th:text="${sale.cashierUsername ?: '—'}">-</span></div>
+          <div class="info-line">
+            Payment:
+            <span th:if="${sale.payments == null or #lists.isEmpty(sale.payments)}"
+                  th:text="${sale.paymentMethod}">CASH</span>
+            <span th:if="${sale.payments != null and !#lists.isEmpty(sale.payments)}">MIXED</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="section">
+      <table class="items">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="qty">Qty</th>
+            <th class="price">Unit</th>
+            <th class="line">Line Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="it : ${sale.items}">
+            <td>
+              <div th:text="${it.product != null ? it.product.name : 'Item'}">Item</div>
+              <div class="muted" th:if="${it.unitType != null and it.unitType.name() != 'PIECE'}"
+                   th:text="${'Unit size: ' + it.unitSize + ' pcs/' + @uiFormat.unitLabel(it.unitType)}">Unit size</div>
+              <div class="muted" th:if="${it.priceTier != null and it.priceTier.name() == 'WHOLESALE'}">Wholesale price</div>
+            </td>
+            <td class="qty" th:text="${it.qty + ' ' + @uiFormat.unitLabel(it.unitType)}">1</td>
+            <td class="price" th:text="${'$' + #numbers.formatDecimal((it.unitPrice ?: 0), 1, 2)}">$0.00</td>
+            <td class="line" th:text="${'$' + #numbers.formatDecimal((it.lineTotal ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals-wrap">
+      <table class="totals">
+        <tbody>
+          <tr>
+            <td class="label">Subtotal</td>
+            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.subtotal ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+          <tr>
+            <td class="label"
+                th:text="${sale.discountType != null and sale.discountType.name() == 'PERCENT' and sale.discountValue != null ? 'Discount (' + sale.discountValue + '%)' : 'Discount'}">Discount</td>
+            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.discount ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+          <tr th:if="${sale.discountReason != null and !#strings.isEmpty(sale.discountReason)}">
+            <td class="label">Discount reason</td>
+            <td class="right" th:text="${sale.discountReason}">Reason</td>
+          </tr>
+          <tr>
+            <td class="label">Tax</td>
+            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.tax ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+          <tr>
+            <td class="grand">Total</td>
+            <td class="right grand" th:text="${'$' + #numbers.formatDecimal((sale.total ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+          <tr th:if="${sale.refundedTotal != null and sale.refundedTotal > 0}">
+            <td class="label">Refunded</td>
+            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.refundedTotal ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+          <tr th:if="${sale.refundedTotal != null and sale.refundedTotal > 0 and sale.total != null}">
+            <td class="label">Net total</td>
+            <td class="right"
+                th:text="${'$' + #numbers.formatDecimal(sale.total.subtract(sale.refundedTotal), 1, 2)}">$0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="payment-title">Payment Breakdown</div>
+      <table class="payment">
+        <tbody>
+          <tr th:if="${sale.payments == null or #lists.isEmpty(sale.payments)}">
+            <td th:text="${sale.paymentMethod}">CASH</td>
+            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.total ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+          <tr th:each="p : ${sale.payments}">
+            <td th:text="${p.method}">CASH</td>
+            <td class="right" th:text="${'$' + #numbers.formatDecimal((p.amount ?: 0), 1, 2)}">$0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      Thank you for your purchase. Returns accepted within 7 days with receipt.
+    </div>
+  </div>
+</body>
+</html>

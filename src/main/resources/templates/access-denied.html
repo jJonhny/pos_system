@@ -1,0 +1,67 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Access Denied</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-100 text-slate-900">
+  <!-- subtle background decoration (UI only) -->
+  <div class="absolute inset-0 -z-10">
+    <div class="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-rose-200/40 blur-3xl"></div>
+    <div class="absolute -bottom-28 -right-28 h-80 w-80 rounded-full bg-slate-200/60 blur-3xl"></div>
+  </div>
+
+  <div class="min-h-screen flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-xl">
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <!-- Top accent -->
+        <div class="h-1.5 bg-gradient-to-r from-rose-500 via-rose-400 to-slate-900"></div>
+
+        <div class="p-7 sm:p-8 text-center">
+          <!-- Icon -->
+          <div class="mx-auto mb-5 h-14 w-14 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 grid place-items-center shadow-sm">
+            <svg viewBox="0 0 24 24" class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 9v4"/>
+              <path d="M12 17h.01"/>
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
+          </div>
+
+          <div class="text-2xl sm:text-3xl font-bold tracking-tight">Access denied</div>
+          <div class="mt-2 text-sm sm:text-base text-slate-600">
+            You don’t have permission to view this page. If you think this is a mistake, contact an administrator.
+          </div>
+
+          <!-- Helpful info row (UI only) -->
+          <div class="mt-5 inline-flex flex-wrap items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            <span class="font-mono rounded-md bg-white border border-slate-200 px-2 py-1">403</span>
+            <span>Forbidden</span>
+            <span class="text-slate-400">•</span>
+            <span>Check your role/permissions</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-7 flex flex-col sm:flex-row gap-2 justify-center">
+            <a href="/"
+               class="rounded-xl bg-slate-900 text-white px-5 py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
+              Go to POS
+            </a>
+            <a href="/login"
+               class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Login
+            </a>
+          </div>
+
+          <!-- Optional: link-like helper (UI only) -->
+          <div class="mt-6 text-xs text-slate-500">
+            If you continue seeing this page, sign in with the correct account or ask an admin to grant access.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

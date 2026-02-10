@@ -1,0 +1,1162 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen flex flex-col">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3v18h18"/>
+                <path d="M7 14l3-3 4 4 5-6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Analytics</div>
+              <div class="text-sm text-slate-500">Sales performance overview</div>
+            </div>
+          </div>
+
+          <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+            <div class="relative group">
+              <a href="/"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 6h12v4H6V6z"/>
+                  <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
+                  <path d="M9 14h6"/>
+                </svg>
+                <span>POS</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/pos"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Open POS
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/analytics"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                  <path d="M7 14l3-3 4 4 5-6"/>
+                </svg>
+                <span>Analytics</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/analytics"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Overview
+                </a>
+                <a href="/"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Dashboard
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/products"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                  <path d="M3 8v8l9 5 9-5V8"/>
+                </svg>
+                <span>Inventory Management</span>
+                <span th:if="${lowStockCount > 0}"
+                      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                  <span th:text="${lowStockCount}">0</span>
+                </span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/products"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Products
+                </a>
+                <a href="/products/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Product
+                </a>
+                <a href="/products?lowStock=true"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Low Stock
+                </a>
+                <a href="/categories"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Categories
+                </a>
+                <a href="/categories/new"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  New Category
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/sales"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
+                  <path d="M9 7h6M9 11h6M9 15h4"/>
+                </svg>
+                <span>Sales</span>
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/sales"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Sales
+                </a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="flex items-center justify-end gap-2">
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
+              Login
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full px-6 lg:px-10 py-10">
+      <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+        <div class="text-base font-semibold">Analytics Dashboard</div>
+        <div class="text-sm text-slate-500">Track trends, payments, and revenue share.</div>
+      </section>
+
+      <section class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Net Revenue</div>
+          <div class="mt-2 text-2xl font-semibold" th:text="${'$' + #numbers.formatDecimal(netRevenueTotal, 1, 2)}">$0.00</div>
+          <div class="text-xs text-slate-500 mt-1">
+            <span th:text="${saleCount}">0</span> sale(s)
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Avg Order Value</div>
+          <div class="mt-2 text-2xl font-semibold" th:text="${'$' + #numbers.formatDecimal(avgOrderValue, 1, 2)}">$0.00</div>
+          <div class="text-xs text-slate-500 mt-1">Basket size metric</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Avg Items / Sale</div>
+          <div class="mt-2 text-2xl font-semibold" th:text="${#numbers.formatDecimal(avgItemsPerSale, 1, 1)}">0</div>
+          <div class="text-xs text-slate-500 mt-1">Basket size</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Tax Total</div>
+          <div class="mt-2 text-2xl font-semibold" th:text="${'$' + #numbers.formatDecimal(taxTotal, 1, 2)}">$0.00</div>
+          <div class="text-xs text-slate-500 mt-1">VAT/GST reporting</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Discount Rate</div>
+          <div class="mt-2 text-2xl font-semibold" th:text="${#numbers.formatDecimal(discountRatePercent, 1, 1)} + '%'">0%</div>
+          <div class="text-xs text-slate-500 mt-1">
+            Total discounts <span th:text="${'$' + #numbers.formatDecimal(discountTotal, 1, 2)}">$0.00</span>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Refund Rate</div>
+          <div class="mt-2 text-2xl font-semibold"
+               th:text="${saleCount > 0 ? (#numbers.formatDecimal(refundCount * 100.0 / saleCount, 1, 1) + '%') : '0%'}">0%</div>
+          <div class="text-xs text-slate-500 mt-1">
+            Refunds <span th:text="${'$' + #numbers.formatDecimal(refundTotal, 1, 2)}">$0.00</span>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Split Payments</div>
+          <div class="mt-2 text-2xl font-semibold" th:text="${#numbers.formatDecimal(splitPaymentRatePercent, 1, 1)} + '%'">0%</div>
+          <div class="text-xs text-slate-500 mt-1">Mixed payment usage</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Sales by Store/Terminal</div>
+          <div class="mt-2 text-sm text-slate-600">Not configured</div>
+          <div class="text-xs text-slate-500 mt-1">Add store or terminal IDs to enable</div>
+        </div>
+      </section>
+
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-base font-semibold">Sales Trend</div>
+              <div class="text-sm text-slate-500">Daily vs monthly sales</div>
+            </div>
+            <div class="flex items-center gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+              <button id="salesModeDaily" class="rounded-md px-2.5 py-1.5 bg-white shadow-sm">Daily</button>
+              <button id="salesModeMonthly" class="rounded-md px-2.5 py-1.5 text-slate-600">Monthly</button>
+            </div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="salesLineChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Payment Methods</div>
+            <div class="text-sm text-slate-500">Cash / Card / QR (last 7 days)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="paymentStackChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-base font-semibold">Top Performers</div>
+              <div class="text-sm text-slate-500">Products or categories by revenue</div>
+            </div>
+            <div class="flex items-center gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+              <button id="topModeProducts" class="rounded-md px-2.5 py-1.5 bg-white shadow-sm">Products</button>
+              <button id="topModeCategories" class="rounded-md px-2.5 py-1.5 text-slate-600">Categories</button>
+            </div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="topBarChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Revenue Share</div>
+            <div class="text-sm text-slate-500">Category mix</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="revenueDonutChart" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Sales by Cashier</div>
+            <div class="text-sm text-slate-500">Top performers by revenue</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="cashierBarChart" height="160"></canvas>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Sales by Day</div>
+            <div class="text-sm text-slate-500">Revenue by weekday</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="dayOfWeekChart" height="160"></canvas>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Sales by Hour</div>
+            <div class="text-sm text-slate-500">Revenue by hour</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="hourlySalesChart" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Cashier Performance</div>
+          <div class="text-sm text-slate-500">Sales volume, basket size, and speed</div>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-slate-600">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">Cashier</th>
+                  <th class="px-4 py-3 font-semibold">Revenue</th>
+                  <th class="px-4 py-3 font-semibold">Transactions</th>
+                  <th class="px-4 py-3 font-semibold">Avg Order</th>
+                  <th class="px-4 py-3 font-semibold">Items / Minute</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr th:if="${#lists.isEmpty(cashierPerformance)}">
+                  <td colspan="5" class="px-4 py-4 text-slate-500">No cashier data yet.</td>
+                </tr>
+                <tr th:each="c : ${cashierPerformance}">
+                  <td class="px-4 py-3 font-semibold text-slate-900" th:text="${c.cashier}">cashier</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(c.revenue, 1, 2)}">$0.00</td>
+                  <td class="px-4 py-3" th:text="${c.transactions}">0</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(c.avgOrderValue, 1, 2)}">$0.00</td>
+                  <td class="px-4 py-3" th:text="${#numbers.formatDecimal(c.itemsPerMinute, 1, 2)}">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Low stock + profit + quantity -->
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Low Stock Trend</div>
+            <div class="text-sm text-slate-500">Estimated daily count (assumes no restocks)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="lowStockTrendChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Low Stock by Category</div>
+            <div class="text-sm text-slate-500">Current low-stock items</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="lowStockCategoryChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-base font-semibold">Gross Profit</div>
+              <div class="text-sm text-slate-500">Revenue vs cost (last 7 days)</div>
+            </div>
+            <div class="text-xs text-slate-500">
+              Margin <span th:text="${#numbers.formatDecimal(grossMarginPercent, 1, 1)}">0</span>%
+            </div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="grossProfitChart" height="160"></canvas>
+          </div>
+          <div class="mt-4 grid grid-cols-3 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Revenue</div>
+              <div class="font-semibold" th:text="${'$' + #numbers.formatDecimal(grossRevenueTotal, 1, 2)}">$0.00</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Profit</div>
+              <div class="font-semibold" th:text="${'$' + #numbers.formatDecimal(grossProfitTotal, 1, 2)}">$0.00</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Voids</div>
+              <div class="font-semibold">
+                <span th:text="${voidCount}">0</span>
+                <span class="text-xs text-slate-500 ml-1" th:text="${'$' + #numbers.formatDecimal(voidTotal, 1, 2)}">$0.00</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1">Refunds not tracked</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Top Products by Quantity</div>
+            <div class="text-sm text-slate-500">Units sold (all time)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="topQtyChart" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">SKU Performance</div>
+          <div class="text-sm text-slate-500">Revenue, units, and margin</div>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-slate-600">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">SKU</th>
+                  <th class="px-4 py-3 font-semibold">Revenue</th>
+                  <th class="px-4 py-3 font-semibold">Units</th>
+                  <th class="px-4 py-3 font-semibold">Margin</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr th:if="${#lists.isEmpty(skuPerformance)}">
+                  <td colspan="4" class="px-4 py-4 text-slate-500">No SKU data yet.</td>
+                </tr>
+                <tr th:each="p : ${skuPerformance}">
+                  <td class="px-4 py-3 font-semibold text-slate-900" th:text="${p.name}">SKU</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(p.revenue, 1, 2)}">$0.00</td>
+                  <td class="px-4 py-3" th:text="${p.qty}">0</td>
+                  <td class="px-4 py-3" th:text="${#numbers.formatDecimal(p.marginPercent, 1, 1)} + '%'">0%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Category Performance</div>
+          <div class="text-sm text-slate-500">Revenue and gross margin</div>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-slate-600">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">Category</th>
+                  <th class="px-4 py-3 font-semibold">Revenue</th>
+                  <th class="px-4 py-3 font-semibold">Margin</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr th:if="${#lists.isEmpty(categoryPerformance)}">
+                  <td colspan="3" class="px-4 py-4 text-slate-500">No category data yet.</td>
+                </tr>
+                <tr th:each="c : ${categoryPerformance}">
+                  <td class="px-4 py-3 font-semibold text-slate-900" th:text="${c.name}">Category</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(c.revenue, 1, 2)}">$0.00</td>
+                  <td class="px-4 py-3" th:text="${#numbers.formatDecimal(c.marginPercent, 1, 1)} + '%'">0%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3 text-xs text-slate-500">Supplier margin not tracked.</div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Discount Impact</div>
+          <div class="text-sm text-slate-500">Promo vs non-promo margin</div>
+          <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Discounted Revenue</div>
+              <div class="font-semibold" th:text="${'$' + #numbers.formatDecimal(discountRevenue, 1, 2)}">$0.00</div>
+              <div class="text-xs text-slate-500 mt-1">
+                Margin <span th:text="${#numbers.formatDecimal(discountMarginPercent, 1, 1)}">0</span>%
+              </div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Non-Discount Revenue</div>
+              <div class="font-semibold" th:text="${'$' + #numbers.formatDecimal(nonDiscountRevenue, 1, 2)}">$0.00</div>
+              <div class="text-xs text-slate-500 mt-1">
+                Margin <span th:text="${#numbers.formatDecimal(nonDiscountMarginPercent, 1, 1)}">0</span>%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Leakage Signals</div>
+          <div class="text-sm text-slate-500">Discounts, voids, refunds</div>
+          <div class="mt-4 grid grid-cols-3 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Discounts</div>
+              <div class="font-semibold" th:text="${'$' + #numbers.formatDecimal(discountTotal, 1, 2)}">$0.00</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Voids</div>
+              <div class="font-semibold" th:text="${voidCount}">0</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Refunds</div>
+              <div class="font-semibold" th:text="${refundCount}">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inventory turnover -->
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Fast Movers (30 days)</div>
+            <div class="text-sm text-slate-500">Highest units sold</div>
+          </div>
+          <div class="mt-4 space-y-3">
+            <div th:each="m : ${fastMovers}"
+                 class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-slate-900 truncate" th:text="${m.name}">Product</div>
+                <div class="text-xs text-slate-500">
+                  Sold <span th:text="${m.qtySold}">0</span>
+                  · Stock <span th:text="${m.stockQty != null ? m.stockQty : '-'}">-</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-500">
+                Days of stock:
+                <span th:text="${m.daysOfStock != null ? #numbers.formatDecimal(m.daysOfStock, 1, 1) : 'N/A'}">0</span>
+              </div>
+            </div>
+            <div th:if="${#lists.isEmpty(fastMovers)}" class="text-sm text-slate-500">No sales yet.</div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Slow Movers (30 days)</div>
+            <div class="text-sm text-slate-500">Lowest units sold</div>
+          </div>
+          <div class="mt-4 space-y-3">
+            <div th:each="m : ${slowMovers}"
+                 class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-slate-900 truncate" th:text="${m.name}">Product</div>
+                <div class="text-xs text-slate-500">
+                  Sold <span th:text="${m.qtySold}">0</span>
+                  · Stock <span th:text="${m.stockQty != null ? m.stockQty : '-'}">-</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-500">
+                Days of stock:
+                <span th:text="${m.daysOfStock != null ? #numbers.formatDecimal(m.daysOfStock, 1, 1) : 'N/A'}">0</span>
+              </div>
+            </div>
+            <div th:if="${#lists.isEmpty(slowMovers)}" class="text-sm text-slate-500">No sales yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-base font-semibold">Inventory & Replenishment</div>
+              <div class="text-sm text-slate-500">Stock health and reorder guidance</div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Low stock</div>
+              <div class="font-semibold" th:text="${lowStockCount}">0</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Out of stock</div>
+              <div class="font-semibold" th:text="${outOfStockCount}">0</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Dead stock cost</div>
+              <div class="font-semibold" th:text="${'$' + #numbers.formatDecimal(deadStockCost, 1, 2)}">$0.00</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Sell-through (30d)</div>
+              <div class="font-semibold" th:text="${#numbers.formatDecimal(sellThroughPercent, 1, 1)} + '%'">0%</div>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-slate-600">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">Reorder</th>
+                  <th class="px-4 py-3 font-semibold">Stock</th>
+                  <th class="px-4 py-3 font-semibold">Avg Daily</th>
+                  <th class="px-4 py-3 font-semibold">Days of Stock</th>
+                  <th class="px-4 py-3 font-semibold">Low Stock</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr th:if="${#lists.isEmpty(reorderRecommendations)}">
+                  <td colspan="5" class="px-4 py-4 text-slate-500">No reorder alerts.</td>
+                </tr>
+                <tr th:each="r : ${reorderRecommendations}">
+                  <td class="px-4 py-3 font-semibold text-slate-900" th:text="${r.name}">Product</td>
+                  <td class="px-4 py-3" th:text="${r.stockQty}">0</td>
+                  <td class="px-4 py-3" th:text="${#numbers.formatDecimal(r.avgDaily, 1, 2)}">0</td>
+                  <td class="px-4 py-3" th:text="${#numbers.formatDecimal(r.daysOfStock, 1, 1)}">0</td>
+                  <td class="px-4 py-3" th:text="${r.lowStock ? 'Yes' : 'No'}">No</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-2 text-xs text-slate-500">Reorder list uses 30-day demand; lead time and stock variance are not tracked.</div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Customer & Loyalty</div>
+          <div class="text-sm text-slate-500">New vs returning, RFM, and CLV</div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">New customers</div>
+              <div class="font-semibold" th:text="${newCustomerCount}">0</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">
+              <div class="text-xs text-slate-500">Returning customers</div>
+              <div class="font-semibold" th:text="${returningCustomerCount}">0</div>
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <div class="text-sm font-semibold text-slate-700">Top RFM</div>
+              <div class="mt-2 overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr>
+                      <th class="px-4 py-3 font-semibold">Customer</th>
+                      <th class="px-4 py-3 font-semibold">Recency (days)</th>
+                      <th class="px-4 py-3 font-semibold">Frequency</th>
+                      <th class="px-4 py-3 font-semibold">Monetary</th>
+                      <th class="px-4 py-3 font-semibold">Score</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr th:if="${#lists.isEmpty(topCustomerRfm)}">
+                      <td colspan="5" class="px-4 py-4 text-slate-500">No customer data yet.</td>
+                    </tr>
+                    <tr th:each="c : ${topCustomerRfm}">
+                      <td class="px-4 py-3 font-semibold text-slate-900" th:text="${c.name}">Customer</td>
+                      <td class="px-4 py-3" th:text="${c.recencyDays}">0</td>
+                      <td class="px-4 py-3" th:text="${c.frequency}">0</td>
+                      <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(c.monetary, 1, 2)}">$0.00</td>
+                      <td class="px-4 py-3" th:text="${c.score}">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-700">Top CLV (Lifetime Spend)</div>
+              <div class="mt-2 overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr>
+                      <th class="px-4 py-3 font-semibold">Customer</th>
+                      <th class="px-4 py-3 font-semibold">Monetary</th>
+                      <th class="px-4 py-3 font-semibold">Frequency</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr th:if="${#lists.isEmpty(topCustomerClv)}">
+                      <td colspan="3" class="px-4 py-4 text-slate-500">No customer data yet.</td>
+                    </tr>
+                    <tr th:each="c : ${topCustomerClv}">
+                      <td class="px-4 py-3 font-semibold text-slate-900" th:text="${c.name}">Customer</td>
+                      <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(c.monetary, 1, 2)}">$0.00</td>
+                      <td class="px-4 py-3" th:text="${c.frequency}">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2 text-xs text-slate-500">Cohorts and retention trends require customer IDs across periods.</div>
+        </div>
+      </section>
+
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Operations & Staff</div>
+          <div class="text-sm text-slate-500">Shift performance and cash variance</div>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-slate-600">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">Cashier</th>
+                  <th class="px-4 py-3 font-semibold">Hours</th>
+                  <th class="px-4 py-3 font-semibold">Sales</th>
+                  <th class="px-4 py-3 font-semibold">Sales / Hr</th>
+                  <th class="px-4 py-3 font-semibold">Cash Var</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr th:if="${#lists.isEmpty(shiftPerformance)}">
+                  <td colspan="5" class="px-4 py-4 text-slate-500">No closed shifts yet.</td>
+                </tr>
+                <tr th:each="s : ${shiftPerformance}">
+                  <td class="px-4 py-3 font-semibold text-slate-900" th:text="${s.cashier}">cashier</td>
+                  <td class="px-4 py-3" th:text="${#numbers.formatDecimal(s.hours, 1, 2)}">0</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(s.totalSales, 1, 2)}">$0.00</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(s.salesPerHour, 1, 2)}">$0.00</td>
+                  <td class="px-4 py-3" th:text="${'$' + #numbers.formatDecimal(s.cashVariance, 1, 2)}">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-2 text-xs text-slate-500">
+            Cash variance total <span th:text="${'$' + #numbers.formatDecimal(cashVarianceTotal, 1, 2)}">$0.00</span>,
+            avg <span th:text="${'$' + #numbers.formatDecimal(cashVarianceAvg, 1, 2)}">$0.00</span>
+          </div>
+          <div class="mt-1 text-xs text-slate-500">Queue time proxies not tracked.</div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Exceptions & Fraud Signals</div>
+          <div class="text-sm text-slate-500">Spot leakage and anomalies</div>
+          <div class="mt-4 grid grid-cols-1 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2" th:each="e : ${exceptionStats}">
+              <div class="flex items-center justify-between">
+                <div class="font-semibold text-slate-900" th:text="${e.label}">Label</div>
+                <div class="text-slate-700" th:text="${e.value}">0</div>
+              </div>
+              <div class="text-xs text-slate-500 mt-1" th:text="${e.note}">Note</div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-1 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2" th:each="f : ${fraudSignals}">
+              <div class="flex items-center justify-between">
+                <div class="font-semibold text-slate-900" th:text="${f.label}">Label</div>
+                <div class="text-slate-700" th:text="${f.value}">0</div>
+              </div>
+              <div class="text-xs text-slate-500 mt-1" th:text="${f.note}">Note</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="text-base font-semibold">Compliance & Audit</div>
+          <div class="text-sm text-slate-500">Tax reporting, invoice integrity, and audit trails</div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+            <div class="rounded-xl border border-slate-200 bg-white px-3 py-2" th:each="c : ${complianceStats}">
+              <div class="font-semibold text-slate-900" th:text="${c.label}">Label</div>
+              <div class="text-slate-700 mt-1" th:text="${c.value}">0</div>
+              <div class="text-xs text-slate-500 mt-1" th:text="${c.note}">Note</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Heatmap -->
+      <section class="mt-8">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-base font-semibold">Hourly Sales Heatmap</div>
+              <div class="text-sm text-slate-500">Transactions by day and hour</div>
+            </div>
+            <div class="text-xs text-slate-500">Darker = busier</div>
+          </div>
+
+          <div class="mt-4 space-y-2">
+            <div class="flex justify-between text-[10px] text-slate-400 pl-10 pr-1">
+              <span>0</span><span>4</span><span>8</span><span>12</span><span>16</span><span>20</span><span>23</span>
+            </div>
+            <div class="space-y-2">
+              <div th:each="row, rowStat : ${heatmapValues}" class="flex items-center gap-2">
+                <div class="w-8 text-[10px] text-slate-500" th:text="${heatmapDays[rowStat.index]}">Mon</div>
+                <div class="grid gap-1 flex-1" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
+                  <div th:each="cell, cellStat : ${row}"
+                       th:with="ratio=${heatmapMax > 0 ? (cell * 1.0 / heatmapMax) : 0},
+                                alpha=${0.1 + (0.7 * ratio)}"
+                       th:style="'background-color: rgba(15, 23, 42, ' + ${alpha} + ');'"
+                       th:attr="title=${heatmapDays[rowStat.index]} + ' ' + ${heatmapHours[cellStat.index]} + ':00 - ' + ${cell} + ' sales'"
+                       class="h-4 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script th:inline="javascript">
+    const dailyLabels = /*[[${dailyLabels}]]*/ [];
+    const dailySales = /*[[${dailySales}]]*/ [];
+    const monthlyLabels = /*[[${monthlyLabels}]]*/ [];
+    const monthlySales = /*[[${monthlySales}]]*/ [];
+    const topProductLabels = /*[[${topProductLabels}]]*/ [];
+    const topProductValues = /*[[${topProductValues}]]*/ [];
+    const topCategoryLabels = /*[[${topCategoryLabels}]]*/ [];
+    const topCategoryValues = /*[[${topCategoryValues}]]*/ [];
+    const paymentLabels = /*[[${paymentLabels}]]*/ [];
+    const paymentCash = /*[[${paymentCash}]]*/ [];
+    const paymentCard = /*[[${paymentCard}]]*/ [];
+    const paymentQr = /*[[${paymentQr}]]*/ [];
+    const revenueShareLabels = /*[[${revenueShareLabels}]]*/ [];
+    const revenueShareValues = /*[[${revenueShareValues}]]*/ [];
+    const topQtyLabels = /*[[${topQtyLabels}]]*/ [];
+    const topQtyValues = /*[[${topQtyValues}]]*/ [];
+    const grossProfitLabels = /*[[${grossProfitLabels}]]*/ [];
+    const grossRevenueValues = /*[[${grossRevenueValues}]]*/ [];
+    const grossCostValues = /*[[${grossCostValues}]]*/ [];
+    const grossProfitValues = /*[[${grossProfitValues}]]*/ [];
+    const lowStockTrendLabels = /*[[${lowStockTrendLabels}]]*/ [];
+    const lowStockTrendCounts = /*[[${lowStockTrendCounts}]]*/ [];
+    const lowStockCategoryLabels = /*[[${lowStockCategoryLabels}]]*/ [];
+    const lowStockCategoryCounts = /*[[${lowStockCategoryCounts}]]*/ [];
+    const cashierLabels = /*[[${cashierPerformance.![cashier]}]]*/ [];
+    const cashierSales = /*[[${cashierPerformance.![revenue]}]]*/ [];
+    const dayOfWeekLabels = /*[[${dayOfWeekLabels}]]*/ [];
+    const dayOfWeekRevenue = /*[[${dayOfWeekRevenue}]]*/ [];
+    const hourLabels = /*[[${hourLabels}]]*/ [];
+    const hourRevenue = /*[[${hourRevenue}]]*/ [];
+
+    function formatMoney(value) {
+      if (typeof value !== "number") return value;
+      return "$" + value.toFixed(2);
+    }
+
+    const lineCtx = document.getElementById("salesLineChart");
+    const lineChart = lineCtx ? new Chart(lineCtx, {
+      type: "line",
+      data: {
+        labels: dailyLabels,
+        datasets: [{
+          label: "Sales",
+          data: dailySales,
+          borderColor: "#0f172a",
+          backgroundColor: "rgba(15, 23, 42, 0.1)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+          pointBackgroundColor: "#0f172a"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: "index",
+            intersect: false,
+            callbacks: { label: (ctx) => formatMoney(ctx.parsed.y) }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: "rgba(148,163,184,0.35)" } }
+        }
+      }
+    }) : null;
+
+    function setSalesMode(mode) {
+      if (!lineChart) return;
+      if (mode === "monthly") {
+        lineChart.data.labels = monthlyLabels;
+        lineChart.data.datasets[0].data = monthlySales;
+        document.getElementById("salesModeMonthly").classList.add("bg-white", "shadow-sm");
+        document.getElementById("salesModeMonthly").classList.remove("text-slate-600");
+        document.getElementById("salesModeDaily").classList.remove("bg-white", "shadow-sm");
+        document.getElementById("salesModeDaily").classList.add("text-slate-600");
+      } else {
+        lineChart.data.labels = dailyLabels;
+        lineChart.data.datasets[0].data = dailySales;
+        document.getElementById("salesModeDaily").classList.add("bg-white", "shadow-sm");
+        document.getElementById("salesModeDaily").classList.remove("text-slate-600");
+        document.getElementById("salesModeMonthly").classList.remove("bg-white", "shadow-sm");
+        document.getElementById("salesModeMonthly").classList.add("text-slate-600");
+      }
+      lineChart.update();
+    }
+
+    document.getElementById("salesModeDaily")?.addEventListener("click", () => setSalesMode("daily"));
+    document.getElementById("salesModeMonthly")?.addEventListener("click", () => setSalesMode("monthly"));
+
+    const paymentCtx = document.getElementById("paymentStackChart");
+    if (paymentCtx) {
+      new Chart(paymentCtx, {
+        type: "bar",
+        data: {
+          labels: paymentLabels,
+          datasets: [
+            { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+            { label: "Card", data: paymentCard, backgroundColor: "#334155" },
+            { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.parsed.y)}` } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: { stacked: true, grid: { color: "rgba(148,163,184,0.35)" } }
+          }
+        }
+      });
+    }
+
+    const topCtx = document.getElementById("topBarChart");
+    const topChart = topCtx ? new Chart(topCtx, {
+      type: "bar",
+      data: {
+        labels: topProductLabels,
+        datasets: [{
+          label: "Revenue",
+          data: topProductValues,
+          backgroundColor: "#0f172a"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => formatMoney(ctx.parsed.y) } }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: "rgba(148,163,184,0.35)" } }
+        }
+      }
+    }) : null;
+
+    function setTopMode(mode) {
+      if (!topChart) return;
+      if (mode === "categories") {
+        topChart.data.labels = topCategoryLabels;
+        topChart.data.datasets[0].data = topCategoryValues;
+        document.getElementById("topModeCategories").classList.add("bg-white", "shadow-sm");
+        document.getElementById("topModeCategories").classList.remove("text-slate-600");
+        document.getElementById("topModeProducts").classList.remove("bg-white", "shadow-sm");
+        document.getElementById("topModeProducts").classList.add("text-slate-600");
+      } else {
+        topChart.data.labels = topProductLabels;
+        topChart.data.datasets[0].data = topProductValues;
+        document.getElementById("topModeProducts").classList.add("bg-white", "shadow-sm");
+        document.getElementById("topModeProducts").classList.remove("text-slate-600");
+        document.getElementById("topModeCategories").classList.remove("bg-white", "shadow-sm");
+        document.getElementById("topModeCategories").classList.add("text-slate-600");
+      }
+      topChart.update();
+    }
+
+    document.getElementById("topModeProducts")?.addEventListener("click", () => setTopMode("products"));
+    document.getElementById("topModeCategories")?.addEventListener("click", () => setTopMode("categories"));
+
+    const donutCtx = document.getElementById("revenueDonutChart");
+    if (donutCtx) {
+      new Chart(donutCtx, {
+        type: "doughnut",
+        data: {
+          labels: revenueShareLabels,
+          datasets: [{
+            data: revenueShareValues,
+            backgroundColor: ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5f5", "#e2e8f0"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatMoney(ctx.parsed)}` } }
+          }
+        }
+      });
+    }
+
+    const lowStockTrendCtx = document.getElementById("lowStockTrendChart");
+    if (lowStockTrendCtx) {
+      new Chart(lowStockTrendCtx, {
+        type: "line",
+        data: {
+          labels: lowStockTrendLabels,
+          datasets: [{
+            label: "Low stock count",
+            data: lowStockTrendCounts,
+            borderColor: "#d97706",
+            backgroundColor: "rgba(217, 119, 6, 0.15)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            pointBackgroundColor: "#d97706"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" }, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    const lowStockCategoryCtx = document.getElementById("lowStockCategoryChart");
+    if (lowStockCategoryCtx) {
+      new Chart(lowStockCategoryCtx, {
+        type: "bar",
+        data: {
+          labels: lowStockCategoryLabels,
+          datasets: [{
+            label: "Low stock",
+            data: lowStockCategoryCounts,
+            backgroundColor: "#f59e0b"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" }, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    const grossProfitCtx = document.getElementById("grossProfitChart");
+    if (grossProfitCtx) {
+      new Chart(grossProfitCtx, {
+        type: "bar",
+        data: {
+          labels: grossProfitLabels,
+          datasets: [
+            { label: "Revenue", data: grossRevenueValues, backgroundColor: "#0f172a" },
+            { label: "Cost", data: grossCostValues, backgroundColor: "#94a3b8" },
+            { label: "Profit", data: grossProfitValues, type: "line", borderColor: "#22c55e", backgroundColor: "rgba(34, 197, 94, 0.15)", tension: 0.35, fill: false }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.parsed.y)}` } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          }
+        }
+      });
+    }
+
+    const topQtyCtx = document.getElementById("topQtyChart");
+    if (topQtyCtx) {
+      new Chart(topQtyCtx, {
+        type: "bar",
+        data: {
+          labels: topQtyLabels,
+          datasets: [{
+            label: "Units",
+            data: topQtyValues,
+            backgroundColor: "#0f172a"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" }, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    const cashierCtx = document.getElementById("cashierBarChart");
+    if (cashierCtx) {
+      new Chart(cashierCtx, {
+        type: "bar",
+        data: {
+          labels: cashierLabels,
+          datasets: [{
+            label: "Revenue",
+            data: cashierSales,
+            backgroundColor: "#0f172a"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          }
+        }
+      });
+    }
+
+    const dayCtx = document.getElementById("dayOfWeekChart");
+    if (dayCtx) {
+      new Chart(dayCtx, {
+        type: "bar",
+        data: {
+          labels: dayOfWeekLabels,
+          datasets: [{
+            label: "Revenue",
+            data: dayOfWeekRevenue,
+            backgroundColor: "#334155"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          }
+        }
+      });
+    }
+
+    const hourCtx = document.getElementById("hourlySalesChart");
+    if (hourCtx) {
+      new Chart(hourCtx, {
+        type: "line",
+        data: {
+          labels: hourLabels,
+          datasets: [{
+            label: "Revenue",
+            data: hourRevenue,
+            borderColor: "#0f172a",
+            backgroundColor: "rgba(15, 23, 42, 0.1)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 2,
+            pointBackgroundColor: "#0f172a"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="productGridWrap" id="productGridWrap">
+  <div th:replace="~{pos/fragments :: productGrid}"></div>
+
+  <div class="mt-5 flex items-center justify-between">
+    <a th:if="${page > 0}"
+       th:href="@{/pos(page=${prevPage}, q=${q}, categoryId=${categoryId})}"
+       th:attr="hx-get=@{/pos(page=${prevPage}, q=${q}, categoryId=${categoryId})}"
+       hx-target="#productGridWrap"
+       hx-swap="outerHTML"
+       hx-push-url="true"
+       class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+      Prev
+    </a>
+    <div class="text-xs text-slate-500">
+      Page <span th:text="${page + 1}">1</span>
+    </div>
+    <a th:if="${hasNext}"
+       th:href="@{/pos(page=${nextPage}, q=${q}, categoryId=${categoryId})}"
+       th:attr="hx-get=@{/pos(page=${nextPage}, q=${q}, categoryId=${categoryId})}"
+       hx-target="#productGridWrap"
+       hx-swap="outerHTML"
+       hx-push-url="true"
+       class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+      Next
+    </a>
+  </div>
+</div>
+
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="productGrid">
+  <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div th:replace="~{pos/fragments :: productGridItems}"></div>
+  </div>
+</div>
+
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="productGridItems" th:remove="tag">
+  <form th:each="p : ${products}"
+        method="post"
+        th:action="@{'/pos/cart/add/' + ${p.id}}"
+        th:attr="hx-post=@{'/pos/cart/add/' + ${p.id}}"
+        hx-target="#cartPanel"
+        hx-swap="outerHTML"
+        class="w-full">
+
+    <button type="submit"
+            class="group w-full text-left"
+            title="Add to cart"
+            aria-label="Add to cart">
+
+      <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm
+                  transition hover:shadow-md">
+        <div class="relative bg-slate-50">
+          <img th:if="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
+               th:src="${p.imageUrl}"
+               alt=""
+               class="h-72 w-full object-cover transition duration-300 group-hover:scale-[1.03]"/>
+
+          <div th:if="${p.imageUrl == null or #strings.isEmpty(p.imageUrl)}"
+               class="h-72 w-full grid place-items-center text-slate-400">
+            No image
+          </div>
+
+          <div th:if="${p.lowStock}"
+               class="absolute left-3 top-3 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+            Low
+          </div>
+
+          <div class="absolute right-3 top-3">
+            <div class="pin-toggle h-10 w-10 rounded-full bg-white/90 border border-slate-200 shadow-sm grid place-items-center
+                        text-slate-700 hover:bg-slate-900 hover:text-white transition"
+                 role="button" tabindex="0" aria-pressed="false" title="Pin item"
+                 th:attr="data-product-id=${p.id}, data-product-name=${p.name}, data-product-price=${p.price}, data-product-image=${p.imageUrl != null ? p.imageUrl : ''}">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 7h12l-1 6H7L6 7z"/>
+                <path d="M9 13l-1.5 7L12 17l4.5 3L15 13"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="absolute right-3 top-1/2 -translate-y-1/2
+                      opacity-0 group-hover:opacity-100 transition">
+            <div class="h-11 w-11 rounded-full bg-white/90 border border-slate-200 shadow-sm grid place-items-center">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <div class="text-base font-semibold text-slate-900 leading-snug line-clamp-2"
+               th:text="${p.name}">
+            Product
+          </div>
+
+          <div class="mt-1 text-xs text-slate-500 truncate"
+               th:text="${p.sku}">
+            SKU
+          </div>
+
+          <div class="mt-2 text-lg font-bold text-slate-900"
+               th:text="${@uiFormat.money(p.price)}">
+            $0.00
+          </div>
+          <div class="text-xs text-slate-500" th:if="${p.wholesalePrice != null}">
+            Wholesale: <span th:text="${@uiFormat.money(p.wholesalePrice)}">$0.00</span>
+          </div>
+        </div>
+      </div>
+    </button>
+  </form>
+
+  <div th:if="${#lists.isEmpty(products)}"
+       class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+    No products found.
+  </div>
+</div>
+
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="cartContainer" id="cartContainer">
+  <div id="scanError" th:replace="~{pos/fragments :: scanError}"></div>
+  <div id="cartPanel" th:replace="~{pos/fragments :: cartPanel}"></div>
+</div>
+
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="scanError">
+  <div th:if="${scanError}"
+       class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div class="font-semibold">Scan error</div>
+    <div class="mt-0.5" th:text="${scanError}">Barcode not found</div>
+  </div>
+</div>
+
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="cartPanel" id="cartPanel"
+     th:attr="data-subtotal=${cart.subtotal}, data-total=${cart.total}">
+  <div th:if="${checkoutSuccess}"
+       class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+    <div class="font-semibold">Checkout complete</div>
+    <div class="mt-0.5" th:text="${checkoutSuccess}">Payment received.</div>
+    <a th:if="${receiptUrl}" th:href="${receiptUrl}"
+       class="mt-2 inline-flex items-center text-emerald-700 text-xs font-semibold hover:underline">
+      Open receipt
+    </a>
+  </div>
+
+  <div th:if="${cartError}"
+       class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <div class="font-semibold">Cart issue</div>
+    <div class="mt-0.5" th:text="${cartError}">Product is inactive</div>
+  </div>
+
+  <div th:if="${shiftMessage}"
+       class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+    <div class="font-semibold">Shift update</div>
+    <div class="mt-0.5" th:text="${shiftMessage}">Shift closed.</div>
+  </div>
+
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <div class="text-base font-semibold">Cart</div>
+      <div class="text-sm text-slate-500" th:text="${cart.items.size()} + ' items'">0 items</div>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    <div th:each="ci : ${cart.items}"
+         class="rounded-2xl border border-slate-200 bg-white p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 truncate" th:text="${ci.name}">Name</div>
+          <div class="mt-1 text-sm text-slate-500"
+               th:text="${ci.qty + ' ' + @uiFormat.unitLabel(ci.unitType) + ' × ' + @uiFormat.money(ci.unitPrice)}">0</div>
+          <div class="mt-0.5 text-xs text-slate-400"
+               th:if="${ci.unitType != null and ci.unitType.name() != 'PIECE'}"
+               th:text="${'Unit size: ' + ci.unitSize + ' pcs/' + @uiFormat.unitLabel(ci.unitType)}">Unit size</div>
+          <div class="mt-0.5 text-xs text-amber-600"
+               th:if="${ci.priceTier != null and ci.priceTier.name() == 'WHOLESALE'}">
+            Wholesale pricing
+          </div>
+        </div>
+        <div class="shrink-0 font-semibold text-slate-900" th:text="${@uiFormat.money(ci.lineTotal)}">$0.00</div>
+      </div>
+
+      <form action="/pos/cart/note" method="post" class="mt-2"
+            hx-post="/pos/cart/note" hx-target="#cartPanel" hx-swap="outerHTML" hx-trigger="change">
+        <input type="hidden" name="productId" th:value="${ci.productId}"/>
+        <input name="note" type="text" maxlength="140" placeholder="Add note (optional)"
+               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"
+               th:value="${ci.note}"/>
+      </form>
+
+      <form action="/pos/cart/unit" method="post" class="mt-2 flex items-center gap-2"
+            hx-post="/pos/cart/unit" hx-trigger="change" hx-target="#cartPanel" hx-swap="outerHTML">
+        <input type="hidden" name="productId" th:value="${ci.productId}"/>
+        <label class="text-xs font-semibold text-slate-600">Unit</label>
+        <select name="unitType"
+                class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs
+                       focus:outline-none focus:ring-2 focus:ring-slate-300">
+          <option value="PIECE" th:selected="${ci.unitType.name() == 'PIECE'}">Piece</option>
+          <option value="BOX" th:selected="${ci.unitType.name() == 'BOX'}">Box</option>
+          <option value="CASE" th:selected="${ci.unitType.name() == 'CASE'}">Case</option>
+        </select>
+      </form>
+
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <form action="/pos/cart/update" method="post" class="m-0 inline-flex"
+              hx-post="/pos/cart/update" hx-target="#cartPanel" hx-swap="outerHTML">
+          <input type="hidden" name="productId" th:value="${ci.productId}"/>
+          <input type="hidden" name="qty" th:value="${ci.qty-1}"/>
+          <button class="h-9 w-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition">-</button>
+        </form>
+
+        <form action="/pos/cart/update" method="post" class="m-0 inline-flex"
+              hx-post="/pos/cart/update" hx-trigger="change" hx-target="#cartPanel" hx-swap="outerHTML">
+          <input type="hidden" name="productId" th:value="${ci.productId}"/>
+          <input name="qty" type="number" min="1"
+                 class="h-9 w-16 text-center rounded-xl border border-slate-200 bg-white
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"
+                 th:value="${ci.qty}"/>
+        </form>
+
+        <form action="/pos/cart/update" method="post" class="m-0 inline-flex"
+              hx-post="/pos/cart/update" hx-target="#cartPanel" hx-swap="outerHTML">
+          <input type="hidden" name="productId" th:value="${ci.productId}"/>
+          <input type="hidden" name="qty" th:value="${ci.qty+1}"/>
+          <button class="h-9 w-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition">+</button>
+        </form>
+
+        <form th:action="@{'/pos/cart/remove/' + ${ci.productId}}" method="post" class="m-0 inline-flex ml-auto"
+              th:attr="hx-post=@{'/pos/cart/remove/' + ${ci.productId}}" hx-target="#cartPanel" hx-swap="outerHTML">
+          <button class="h-9 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-medium text-red-700 hover:bg-red-100 transition">
+            Remove
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(cart.items)}"
+         class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+      Cart is empty. Add products from the left.
+    </div>
+  </div>
+
+  <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+    <div class="text-sm font-semibold text-slate-800">Customer</div>
+    <div th:if="${currentCustomer != null}" class="flex items-start justify-between gap-3">
+      <div>
+        <div class="text-sm font-semibold text-slate-900" th:text="${currentCustomer.name}">Customer</div>
+        <div class="text-xs text-slate-500">
+          <span th:text="${currentCustomer.phone}">phone</span>
+          <span th:if="${currentCustomer.email}" class="text-slate-400">•</span>
+          <span th:text="${currentCustomer.email}">email</span>
+        </div>
+        <div class="mt-1 text-xs text-slate-600">
+          Points: <span class="font-semibold" th:text="${currentCustomer.points}">0</span>
+        </div>
+        <div class="mt-1 text-xs text-amber-600" th:if="${currentCustomer.wholesale == true}">
+          Wholesale customer
+        </div>
+      </div>
+      <form action="/pos/cart/customer/clear" method="post" class="m-0"
+            hx-post="/pos/cart/customer/clear" hx-target="#cartPanel" hx-swap="outerHTML">
+        <button class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition">
+          Remove
+        </button>
+      </form>
+    </div>
+
+    <div th:if="${currentCustomer == null}" class="space-y-2">
+      <form action="/pos/cart/customer/lookup" method="post" class="m-0 flex gap-2"
+            hx-post="/pos/cart/customer/lookup" hx-target="#cartPanel" hx-swap="outerHTML">
+        <input name="query" type="text" placeholder="Phone or email"
+               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
+          Find
+        </button>
+      </form>
+      <form action="/pos/cart/customer/create" method="post" class="m-0 grid grid-cols-1 gap-2"
+            hx-post="/pos/cart/customer/create" hx-target="#cartPanel" hx-swap="outerHTML">
+        <input name="name" type="text" placeholder="Customer name"
+               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        <div class="grid grid-cols-2 gap-2">
+          <input name="phone" type="text" placeholder="Phone"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+          <input name="email" type="email" placeholder="Email"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        </div>
+        <label class="inline-flex items-center gap-2 text-xs text-slate-600">
+          <input type="checkbox" name="wholesale" value="true"
+                 class="rounded border-slate-300"/>
+          Wholesale customer
+        </label>
+        <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition">
+          Create & attach
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+    <div class="text-sm font-semibold text-slate-800">Held sales</div>
+    <form action="/pos/hold" method="post" class="m-0 flex gap-2"
+          hx-post="/pos/hold" hx-target="#cartPanel" hx-swap="outerHTML">
+      <input name="label" type="text" placeholder="Label (optional)"
+             class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                    focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+      <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
+        Hold
+      </button>
+    </form>
+    <div th:if="${holds != null and !#lists.isEmpty(holds)}" class="space-y-2">
+      <div th:each="h : ${holds}"
+           class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+        <div>
+          <div class="font-semibold text-slate-800" th:text="${h.label}">Held sale</div>
+          <div class="text-slate-500" th:text="${@uiFormat.dateTime(h.createdAt)}">time</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <form th:action="@{'/pos/holds/' + ${h.id} + '/resume'}" method="post" class="m-0"
+                th:attr="hx-post=@{'/pos/holds/' + ${h.id} + '/resume'}"
+                hx-target="#cartPanel" hx-swap="outerHTML">
+            <button class="rounded-lg bg-slate-900 text-white px-2 py-1 text-[11px] font-semibold hover:bg-slate-800 transition">
+              Resume
+            </button>
+          </form>
+          <form th:action="@{'/pos/holds/' + ${h.id} + '/delete'}" method="post" class="m-0"
+                th:attr="hx-post=@{'/pos/holds/' + ${h.id} + '/delete'}"
+                hx-target="#cartPanel" hx-swap="outerHTML">
+            <button class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold hover:bg-slate-50 transition">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div th:if="${holds == null or #lists.isEmpty(holds)}" class="text-xs text-slate-500">
+      No held sales yet.
+    </div>
+  </div>
+
+  <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+    <div class="text-sm font-semibold text-slate-800">Shift</div>
+    <div th:if="${openShift != null}" class="space-y-2">
+      <div class="text-xs text-slate-600">
+        Opened: <span class="font-semibold" th:text="${@uiFormat.dateTime(openShift.openedAt)}">time</span>
+      </div>
+      <div class="text-xs text-slate-600">
+        Opening cash: <span class="font-semibold" th:text="${@uiFormat.money(openShift.openingCash)}">$0.00</span>
+      </div>
+      <form action="/pos/shift/close" method="post" class="m-0 flex gap-2"
+            hx-post="/pos/shift/close" hx-target="#cartPanel" hx-swap="outerHTML">
+        <input name="closingCash" type="number" step="0.01" min="0" placeholder="Closing cash"
+               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
+          Close
+        </button>
+      </form>
+    </div>
+    <div th:if="${openShift == null}" class="space-y-2">
+      <form action="/pos/shift/open" method="post" class="m-0 flex gap-2"
+            hx-post="/pos/shift/open" hx-target="#cartPanel" hx-swap="outerHTML">
+        <input name="openingCash" type="number" step="0.01" min="0" placeholder="Opening cash"
+               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
+          Open shift
+        </button>
+      </form>
+      <div class="text-xs text-slate-500">Open a shift to start checkout.</div>
+    </div>
+  </div>
+
+  <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+    <div class="text-sm font-semibold text-slate-800">Adjustments</div>
+    <div class="grid grid-cols-2 gap-2">
+      <form action="/pos/cart/discount" method="post" class="m-0"
+            hx-post="/pos/cart/discount" hx-target="#cartPanel" hx-swap="outerHTML">
+        <label class="block text-xs text-slate-500">Discount</label>
+        <div class="mt-1 flex items-center gap-2">
+          <select name="discountType"
+                  class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-sm
+                         focus:outline-none focus:ring-2 focus:ring-slate-300">
+            <option value="AMOUNT"
+                    th:selected="${cart.discountType != null and cart.discountType.name() == 'AMOUNT'}">$</option>
+            <option value="PERCENT"
+                    th:selected="${cart.discountType != null and cart.discountType.name() == 'PERCENT'}">%</option>
+          </select>
+          <input type="number" step="0.01" min="0" name="discountValue"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"
+                 th:value="${cart.discountValue}"/>
+          <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
+            Apply
+          </button>
+        </div>
+        <input type="text" name="discountReason" placeholder="Reason (optional)"
+               class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"
+               th:value="${cart.discountReason}"/>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button type="button" class="discount-quick rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold hover:bg-slate-50 transition" data-discount-pct="5">5%</button>
+          <button type="button" class="discount-quick rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold hover:bg-slate-50 transition" data-discount-pct="10">10%</button>
+          <button type="button" class="discount-quick rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold hover:bg-slate-50 transition" data-discount-pct="15">15%</button>
+        </div>
+      </form>
+
+      <form action="/pos/cart/tax" method="post" class="m-0"
+            hx-post="/pos/cart/tax" hx-target="#cartPanel" hx-swap="outerHTML">
+        <label class="block text-xs text-slate-500">Tax %</label>
+        <div class="mt-1 flex items-center gap-2">
+          <input type="number" step="0.01" min="0" name="taxRate"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"
+                 th:value="${cart.taxRatePercent}"/>
+          <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
+            Apply
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="flex justify-between text-sm text-slate-700">
+      <span>Subtotal</span><span class="font-medium" th:text="${@uiFormat.money(cart.subtotal)}">0</span>
+    </div>
+    <div class="flex justify-between text-sm text-slate-700">
+      <span th:text="${cart.discountType != null and cart.discountType.name() == 'PERCENT' ? 'Discount (' + cart.discountValue + '%)' : 'Discount'}">Discount</span>
+      <span class="font-medium" th:text="${@uiFormat.money(cart.discount)}">0</span>
+    </div>
+    <div class="text-xs text-slate-500"
+         th:if="${cart.discountReason != null and !#strings.isEmpty(cart.discountReason)}"
+         th:text="${'Reason: ' + cart.discountReason}">Reason</div>
+    <div class="flex justify-between text-sm text-slate-700">
+      <span>Tax</span><span class="font-medium" th:text="${@uiFormat.money(cart.tax)}">0</span>
+    </div>
+    <div class="flex justify-between text-base font-semibold text-slate-900 pt-2 border-t border-slate-200">
+      <span>Total</span><span th:text="${@uiFormat.money(cart.total)}">0</span>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-3">
+      <div class="text-xs font-semibold text-slate-700">Cash tender</div>
+      <div class="mt-2 grid grid-cols-1 gap-2">
+        <input id="cashReceived" type="number" step="0.01" min="0"
+               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-slate-300"
+               placeholder="Cash received"/>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-mode="exact">Exact</button>
+          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-add="5">+5</button>
+          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-add="10">+10</button>
+          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-add="20">+20</button>
+        </div>
+        <div class="text-xs text-slate-600">
+          <span id="cashStatus">Change</span>: <span id="cashChange">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-3">
+      <div class="text-xs font-semibold text-slate-700">Split payment</div>
+      <form action="/pos/checkout/split" method="post" class="mt-2 space-y-2"
+            hx-post="/pos/checkout/split" hx-target="#cartContainer" hx-swap="outerHTML">
+        <div class="grid grid-cols-2 gap-2">
+          <select name="method1"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                         focus:outline-none focus:ring-2 focus:ring-slate-300">
+            <option value="">Method</option>
+            <option value="CASH">Cash</option>
+            <option value="CARD">Card</option>
+            <option value="QR">QR</option>
+          </select>
+          <input name="amount1" type="number" step="0.01" min="0" placeholder="Amount"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <select name="method2"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                         focus:outline-none focus:ring-2 focus:ring-slate-300">
+            <option value="">Method</option>
+            <option value="CASH">Cash</option>
+            <option value="CARD">Card</option>
+            <option value="QR">QR</option>
+          </select>
+          <input name="amount2" type="number" step="0.01" min="0" placeholder="Amount"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <select name="method3"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                         focus:outline-none focus:ring-2 focus:ring-slate-300">
+            <option value="">Method</option>
+            <option value="CASH">Cash</option>
+            <option value="CARD">Card</option>
+            <option value="QR">QR</option>
+          </select>
+          <input name="amount3" type="number" step="0.01" min="0" placeholder="Amount"
+                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+        </div>
+        <button class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition">
+          Pay split
+        </button>
+      </form>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 pt-3">
+      <form action="/pos/checkout" method="post"
+            hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
+        <input type="hidden" name="method" value="CASH"/>
+        <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
+          Cash
+        </button>
+      </form>
+      <form action="/pos/checkout" method="post"
+            hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
+        <input type="hidden" name="method" value="CARD"/>
+        <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
+          Card
+        </button>
+      </form>
+      <form action="/pos/checkout" method="post"
+            hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
+        <input type="hidden" name="method" value="QR"/>
+        <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
+          QR
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
