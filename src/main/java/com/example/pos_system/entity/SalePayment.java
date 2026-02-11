@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,4 +29,13 @@ public class SalePayment {
     private PaymentMethod method;
 
     private BigDecimal amount;
+
+    @Column(length = 8)
+    private String currencyCode;
+
+    @Column(precision = 18, scale = 8)
+    private BigDecimal currencyRate;
+
+    @Column(precision = 18, scale = 4)
+    private BigDecimal foreignAmount;
 }

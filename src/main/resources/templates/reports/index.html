@@ -3,31 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Process Return</title>
+  <title>Reports</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { animation: riseIn 0.6s ease-out both; }
+    .reveal.delay-1 { animation-delay: 0.05s; }
+    .reveal.delay-2 { animation-delay: 0.1s; }
+  </style>
 </head>
 
 <body class="bg-slate-100 text-slate-900">
-  <div class="min-h-screen">
+  <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div class="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl"></div>
+    <div class="absolute top-40 -left-24 h-96 w-96 rounded-full bg-slate-200/60 blur-3xl"></div>
+    <div class="absolute -bottom-32 right-10 h-96 w-96 rounded-full bg-amber-200/30 blur-3xl"></div>
+  </div>
+
+  <div class="min-h-screen relative">
     <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
       <div class="w-full px-6 lg:px-10 py-5">
         <div class="grid grid-cols-3 items-center gap-4">
           <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
-                <path d="M9 7h6M9 11h6M9 15h4"/>
+                <path d="M4 4h16v16H4z"/>
+                <path d="M8 8h8M8 12h8M8 16h6"/>
               </svg>
             </div>
             <div>
-              <div class="text-xl sm:text-2xl font-bold leading-tight">Process Return</div>
-              <div class="text-sm text-slate-500">Sale #<span th:text="${sale.id}">0</span></div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Reports</div>
+              <div class="text-sm text-slate-500">Exports and summaries</div>
             </div>
           </div>
 
           <nav class="hidden lg:flex items-center justify-center gap-4 text-[13px] font-semibold">
             <div class="relative group">
-              <a href="/"
+              <a href="/pos"
                  class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M6 6h12v4H6V6z"/>
@@ -98,17 +119,9 @@
                    class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
                   New Product
                 </a>
-                <a href="/products?lowStock=true"
-                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
-                  Low Stock
-                </a>
                 <a href="/categories"
                    class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
                   Categories
-                </a>
-                <a href="/categories/new"
-                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
-                  New Category
                 </a>
               </div>
             </div>
@@ -131,12 +144,10 @@
                 </a>
               </div>
             </div>
-          
-            
             <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
               <a href="/reports"
-                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-900 bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M4 4h16v16H4z"/>
                   <path d="M8 8h8M8 12h8M8 16h6"/>
                 </svg>
@@ -150,7 +161,7 @@
                    class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
                   Sales Reports
                 </a>
-                <a href="/reports/sales.xlsx"
+                <a th:href="@{/reports/sales.xlsx(from=${from}, to=${to})}"
                    class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
                   Export Sales (Excel)
                 </a>
@@ -186,10 +197,14 @@
             </div>
           </nav>
 
-          <div class="flex flex-wrap items-center justify-end gap-2">
-            <a th:href="@{'/sales/' + ${sale.id} + '/receipt'}"
+          <div class="flex items-center justify-end gap-2">
+            <a href="/"
                class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
-              Back to receipt
+              Dashboard
+            </a>
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Login
             </a>
             <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
               <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -203,162 +218,86 @@
     </header>
 
     <main class="w-full px-6 lg:px-10 py-8">
-      <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="text-sm text-slate-600">
-          Select quantities to return. Refunds are prorated based on discount and tax.
-        </div>
-      </div>
-
-      <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
-          <span class="inline-flex items-center rounded-full bg-slate-900 px-2.5 py-1 text-white">1</span>
-          <span>Select items</span>
-          <span class="text-slate-300">—</span>
-          <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">2</span>
-          <span>Reason</span>
-          <span class="text-slate-300">—</span>
-          <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">3</span>
-          <span>Review</span>
-        </div>
-      </div>
-
-      <form th:action="@{'/sales/' + ${sale.id} + '/return'}" method="post"
-            class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-0">
-          <div class="lg:col-span-2 border-b lg:border-b-0 lg:border-r border-slate-200">
-            <div class="px-5 py-4 border-b border-slate-200">
-              <div class="text-base font-semibold">Items</div>
-              <div class="text-sm text-slate-500">Returnable quantities per item</div>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead class="bg-slate-50 text-left text-slate-600">
-                  <tr>
-                    <th class="px-5 py-3 font-semibold">Product</th>
-                    <th class="px-5 py-3 font-semibold">Sold</th>
-                    <th class="px-5 py-3 font-semibold">Returned</th>
-                    <th class="px-5 py-3 font-semibold">Return Qty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr th:each="it : ${sale.items}" class="border-t border-slate-100">
-                    <td class="px-5 py-4">
-                      <div class="font-semibold text-slate-900" th:text="${it.product.name}">Product</div>
-                      <div class="text-xs text-slate-500" th:text="${@uiFormat.money(it.unitPrice)}">$0.00</div>
-                      <div class="text-[11px] text-slate-400"
-                           th:if="${it.unitType != null and it.unitType.name() != 'PIECE'}"
-                           th:text="${'Unit size: ' + it.unitSize + ' pcs/' + @uiFormat.unitLabel(it.unitType)}">Unit size</div>
-                    </td>
-                    <td class="px-5 py-4"
-                        th:text="${it.qty + ' ' + @uiFormat.unitLabel(it.unitType)}">0</td>
-                    <td class="px-5 py-4" th:text="${it.returnedQty != null ? it.returnedQty : 0}">0</td>
-                    <td class="px-5 py-4">
-                      <input type="number" min="0"
-                             th:attr="max=${(it.qty != null ? it.qty : 0) - (it.returnedQty != null ? it.returnedQty : 0)}, data-unit-price=${it.unitPrice}"
-                             th:name="${'returnQty_' + it.id}"
-                             class="return-qty w-24 rounded-lg border border-slate-200 px-3 py-2 text-sm
-                                    focus:outline-none focus:ring-2 focus:ring-slate-300"/>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="px-5 py-4 border-t border-slate-200">
-              <div class="text-base font-semibold">Reason</div>
-              <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-medium text-slate-600 mb-1">Return reason</label>
-                  <select name="reason"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    <option value="">Select reason</option>
-                    <option>Damaged</option>
-                    <option>Wrong item</option>
-                    <option>No longer needed</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-600 mb-1">Condition</label>
-                  <select name="condition"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    <option value="">Select condition</option>
-                    <option>New</option>
-                    <option>Opened</option>
-                    <option>Used</option>
-                    <option>Damaged</option>
-                  </select>
-                </div>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-1 space-y-6">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal">
+            <div class="text-sm text-slate-500">Transactions</div>
+            <div class="mt-2 text-3xl font-semibold text-slate-900" th:text="${salesCount}">0</div>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div class="text-[10px] uppercase tracking-wide">Total Revenue</div>
+                <div class="mt-1 text-sm font-semibold text-slate-900"
+                     th:text="${@uiFormat.money(totalRevenue)}">$0.00</div>
               </div>
-              <div class="mt-3">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Notes (optional)</label>
-                <textarea name="note" rows="3"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
-                          placeholder="Add any notes for this return"></textarea>
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div class="text-[10px] uppercase tracking-wide">Avg Ticket</div>
+                <div class="mt-1 text-sm font-semibold text-slate-900"
+                     th:text="${@uiFormat.money(avgTicket)}">$0.00</div>
               </div>
             </div>
           </div>
 
-          <div class="px-5 py-4">
-            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <div class="text-xs font-semibold text-slate-700">Review</div>
-              <div class="mt-2 text-sm text-slate-600">
-                Estimated subtotal (before discount/tax):
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal delay-1">
+            <div class="text-base font-semibold">Filter Range</div>
+            <div class="text-sm text-slate-500">Adjust export date range</div>
+            <form action="/reports" method="get" class="mt-4 space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">From</label>
+                <input type="date" name="from"
+                       th:value="${from}"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300"/>
               </div>
-              <div class="mt-2 text-2xl font-bold text-slate-900" id="estimatedSubtotal">$0.00</div>
-              <div class="mt-2 text-xs text-slate-500">
-                Final refund is prorated based on discount and tax.
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">To</label>
+                <input type="date" name="to"
+                       th:value="${to}"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300"/>
               </div>
-              <div class="mt-4 text-xs text-slate-500">
-                Items selected: <span id="itemsSelected">0</span>
-              </div>
-            </div>
-
-            <div class="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
-              <div class="text-xs font-semibold text-slate-700">Policy</div>
-              <div class="mt-2 text-xs text-slate-500">
-                Returns are accepted within 7 days of purchase. Items must be unused and in original packaging.
-              </div>
-            </div>
+              <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold
+                             hover:bg-slate-800 transition active:scale-[0.99]">
+                Apply Range
+              </button>
+            </form>
           </div>
         </div>
 
-        <div class="px-5 py-4 border-t border-slate-200 flex justify-end gap-2">
-          <a th:href="@{'/sales/' + ${sale.id} + '/receipt'}"
-             class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
-            Cancel
-          </a>
-          <button class="rounded-xl bg-slate-900 text-white px-4 py-2 font-semibold hover:bg-slate-800 transition">
-            Process return
-          </button>
+        <div class="xl:col-span-2">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal delay-2">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-base font-semibold">Sales Export</div>
+                <div class="text-sm text-slate-500">Download detailed sales data for Excel or CSV</div>
+              </div>
+              <div class="text-xs text-slate-500">
+                Range:
+                <span th:text="${from != null ? @uiFormat.date(from) : 'All'}">All</span>
+                –
+                <span th:text="${to != null ? @uiFormat.date(to) : 'All'}">All</span>
+              </div>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <a th:href="@{/reports/sales.xlsx(from=${from}, to=${to})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 text-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-800 transition">
+                Export Excel (.xlsx)
+              </a>
+              <a th:href="@{/sales/export(from=${from}, to=${to})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-50 transition">
+                Export CSV
+              </a>
+            </div>
+
+            <div class="mt-6 text-xs text-slate-500">
+              Tip: Use Excel export for pivot tables. CSV is ideal for quick sharing.
+            </div>
+          </div>
         </div>
-      </form>
+      </div>
     </main>
   </div>
-  <script>
-    const qtyInputs = Array.from(document.querySelectorAll('.return-qty'));
-    const estimateEl = document.getElementById('estimatedSubtotal');
-    const itemsSelectedEl = document.getElementById('itemsSelected');
-
-    function recalcEstimate() {
-      let total = 0;
-      let items = 0;
-      qtyInputs.forEach(input => {
-        const qty = Number(input.value || 0);
-        const price = Number(input.getAttribute('data-unit-price') || 0);
-        if (qty > 0) {
-          total += qty * price;
-          items += qty;
-        }
-      });
-      if (estimateEl) estimateEl.textContent = `$${total.toFixed(2)}`;
-      if (itemsSelectedEl) itemsSelectedEl.textContent = String(items);
-    }
-
-    qtyInputs.forEach(input => input.addEventListener('input', recalcEstimate));
-    recalcEstimate();
-  </script>
 </body>
 </html>

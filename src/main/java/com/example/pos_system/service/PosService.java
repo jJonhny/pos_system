@@ -32,9 +32,10 @@ public class PosService {
         this.discountAuditRepo = discountAuditRepo;
     }
 
-    public Sale checkout(Cart cart, PaymentMethod method, String cashierUsername, Customer customer, Shift shift) {
+    public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
 
+        PaymentMethod method = payment == null ? PaymentMethod.CASH : payment.getMethod();
         Sale sale = new Sale();
         sale.setCreatedAt(LocalDateTime.now());
         sale.setPaymentMethod(method);
@@ -79,10 +80,15 @@ public class PosService {
             sale.getItems().add(si);
         }
 
-        SalePayment payment = new SalePayment();
+        if (payment == null) {
+            payment = new SalePayment();
+            payment.setMethod(method);
+            payment.setAmount(sale.getTotal());
+        }
         payment.setSale(sale);
-        payment.setMethod(method);
-        payment.setAmount(sale.getTotal());
+        if (payment.getAmount() == null) {
+            payment.setAmount(sale.getTotal());
+        }
         sale.getPayments().add(payment);
 
         applyLoyaltyPoints(sale, customer);

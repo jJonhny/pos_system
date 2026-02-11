@@ -152,7 +152,7 @@
         </td>
         <td class="right">
           <div class="status" th:text="${sale.status}">PAID</div>
-          <div class="total" th:text="${'$' + #numbers.formatDecimal((sale.total ?: 0), 1, 2)}">$0.00</div>
+          <div class="total" th:text="${@uiFormat.money(sale.total)}">$0.00</div>
           <div class="muted">Sale #<span th:text="${sale.id}">0</span></div>
         </td>
       </tr>
@@ -206,8 +206,8 @@
               <div class="muted" th:if="${it.priceTier != null and it.priceTier.name() == 'WHOLESALE'}">Wholesale price</div>
             </td>
             <td class="qty" th:text="${it.qty + ' ' + @uiFormat.unitLabel(it.unitType)}">1</td>
-            <td class="price" th:text="${'$' + #numbers.formatDecimal((it.unitPrice ?: 0), 1, 2)}">$0.00</td>
-            <td class="line" th:text="${'$' + #numbers.formatDecimal((it.lineTotal ?: 0), 1, 2)}">$0.00</td>
+            <td class="price" th:text="${@uiFormat.money(it.unitPrice)}">$0.00</td>
+            <td class="line" th:text="${@uiFormat.money(it.lineTotal)}">$0.00</td>
           </tr>
         </tbody>
       </table>
@@ -218,12 +218,12 @@
         <tbody>
           <tr>
             <td class="label">Subtotal</td>
-            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.subtotal ?: 0), 1, 2)}">$0.00</td>
+            <td class="right" th:text="${@uiFormat.money(sale.subtotal)}">$0.00</td>
           </tr>
           <tr>
             <td class="label"
                 th:text="${sale.discountType != null and sale.discountType.name() == 'PERCENT' and sale.discountValue != null ? 'Discount (' + sale.discountValue + '%)' : 'Discount'}">Discount</td>
-            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.discount ?: 0), 1, 2)}">$0.00</td>
+            <td class="right" th:text="${@uiFormat.money(sale.discount)}">$0.00</td>
           </tr>
           <tr th:if="${sale.discountReason != null and !#strings.isEmpty(sale.discountReason)}">
             <td class="label">Discount reason</td>
@@ -231,20 +231,19 @@
           </tr>
           <tr>
             <td class="label">Tax</td>
-            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.tax ?: 0), 1, 2)}">$0.00</td>
+            <td class="right" th:text="${@uiFormat.money(sale.tax)}">$0.00</td>
           </tr>
           <tr>
             <td class="grand">Total</td>
-            <td class="right grand" th:text="${'$' + #numbers.formatDecimal((sale.total ?: 0), 1, 2)}">$0.00</td>
+            <td class="right grand" th:text="${@uiFormat.money(sale.total)}">$0.00</td>
           </tr>
           <tr th:if="${sale.refundedTotal != null and sale.refundedTotal > 0}">
             <td class="label">Refunded</td>
-            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.refundedTotal ?: 0), 1, 2)}">$0.00</td>
+            <td class="right" th:text="${@uiFormat.money(sale.refundedTotal)}">$0.00</td>
           </tr>
           <tr th:if="${sale.refundedTotal != null and sale.refundedTotal > 0 and sale.total != null}">
             <td class="label">Net total</td>
-            <td class="right"
-                th:text="${'$' + #numbers.formatDecimal(sale.total.subtract(sale.refundedTotal), 1, 2)}">$0.00</td>
+            <td class="right" th:text="${@uiFormat.money(sale.total.subtract(sale.refundedTotal))}">$0.00</td>
           </tr>
         </tbody>
       </table>
@@ -256,11 +255,15 @@
         <tbody>
           <tr th:if="${sale.payments == null or #lists.isEmpty(sale.payments)}">
             <td th:text="${sale.paymentMethod}">CASH</td>
-            <td class="right" th:text="${'$' + #numbers.formatDecimal((sale.total ?: 0), 1, 2)}">$0.00</td>
+            <td class="right" th:text="${@uiFormat.money(sale.total)}">$0.00</td>
           </tr>
           <tr th:each="p : ${sale.payments}">
             <td th:text="${p.method}">CASH</td>
-            <td class="right" th:text="${'$' + #numbers.formatDecimal((p.amount ?: 0), 1, 2)}">$0.00</td>
+            <td class="right">
+              <span th:text="${@uiFormat.money(p.amount)}">$0.00</span>
+              <span th:if="${p.currencyCode != null and p.foreignAmount != null}"
+                    th:text="${' (' + @uiFormat.moneyForCurrency(p.foreignAmount, p.currencyCode) + ')'}">(KHR 0)</span>
+            </td>
           </tr>
         </tbody>
       </table>

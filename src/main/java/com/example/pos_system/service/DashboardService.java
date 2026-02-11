@@ -9,6 +9,7 @@ import com.example.pos_system.dto.ReorderRecommendation;
 import com.example.pos_system.dto.ShiftPerformance;
 import com.example.pos_system.dto.SimpleStat;
 import com.example.pos_system.dto.SkuPerformance;
+import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.PaymentMethod;
 import com.example.pos_system.entity.Product;
 import com.example.pos_system.entity.Sale;
@@ -54,11 +55,13 @@ public class DashboardService {
     private final SaleRepo saleRepo;
     private final ProductRepo productRepo;
     private final ShiftRepo shiftRepo;
+    private final CurrencyService currencyService;
 
-    public DashboardService(SaleRepo saleRepo, ProductRepo productRepo, ShiftRepo shiftRepo) {
+    public DashboardService(SaleRepo saleRepo, ProductRepo productRepo, ShiftRepo shiftRepo, CurrencyService currencyService) {
         this.saleRepo = saleRepo;
         this.productRepo = productRepo;
         this.shiftRepo = shiftRepo;
+        this.currencyService = currencyService;
     }
 
     public DashboardStats buildStats() {
@@ -110,6 +113,13 @@ public class DashboardService {
         Map<String, BigDecimal> categoryTotals = new LinkedHashMap<>();
         Map<String, Integer> productQtyTotals = new LinkedHashMap<>();
         Map<Long, Integer> productQty30d = new LinkedHashMap<>();
+        Map<String, BigDecimal> currencyTotals = new LinkedHashMap<>();
+
+        String baseCurrencyCode = "BASE";
+        Currency baseCurrency = currencyService.getBaseCurrency();
+        if (baseCurrency != null && baseCurrency.getCode() != null && !baseCurrency.getCode().isBlank()) {
+            baseCurrencyCode = baseCurrency.getCode().trim().toUpperCase(Locale.ENGLISH);
+        }
 
         int[][] heatmap = new int[7][24];
         long voidCount = 0;
@@ -198,6 +208,22 @@ public class DashboardService {
                 } else if (sale.getPaymentMethod() != null) {
                     map.put(sale.getPaymentMethod(), map.get(sale.getPaymentMethod()).add(saleTotal));
                 }
+            }
+
+            if (sale.getPayments() != null && !sale.getPayments().isEmpty()) {
+                for (var payment : sale.getPayments()) {
+                    if (payment.getAmount() == null) continue;
+                    String code = payment.getCurrencyCode();
+                    if (code == null || code.isBlank()) {
+                        code = baseCurrencyCode;
+                    } else {
+                        code = code.trim().toUpperCase(Locale.ENGLISH);
+                    }
+                    currencyTotals.put(code, currencyTotals.getOrDefault(code, BigDecimal.ZERO).add(payment.getAmount()));
+                }
+            } else if (saleTotal.compareTo(BigDecimal.ZERO) > 0) {
+                currencyTotals.put(baseCurrencyCode,
+                        currencyTotals.getOrDefault(baseCurrencyCode, BigDecimal.ZERO).add(saleTotal));
             }
 
             YearMonth saleMonth = YearMonth.from(saleDate);
@@ -365,6 +391,7 @@ public class DashboardService {
         }
 
         RevenueShare revenueShare = buildRevenueShare(categoryTotals, TOP_N);
+        RevenueShare currencyShare = buildRevenueShare(currencyTotals, TOP_N);
 
         List<Double> grossRevenueValues = dailyRange.stream().map(d -> toDouble(grossRevenueDaily.get(d))).toList();
         List<Double> grossCostValues = dailyRange.stream().map(d -> toDouble(grossCostDaily.get(d))).toList();
@@ -643,6 +670,8 @@ public class DashboardService {
                 paymentQr,
                 revenueShare.labels,
                 revenueShare.values,
+                currencyShare.labels,
+                currencyShare.values,
                 topQtyLabels,
                 topQtyValues,
                 dailyLabels,

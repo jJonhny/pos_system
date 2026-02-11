@@ -7,12 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserSeeder implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(UserSeeder.class);
     private final AppUserRepo appUserRepo;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${app.seed.admin.username:admin}")
     private String adminUsername;
@@ -26,8 +28,9 @@ public class UserSeeder implements CommandLineRunner {
     @Value("${app.seed.cashier.password:cashier123}")
     private String cashierPassword;
 
-    public UserSeeder(AppUserRepo appUserRepo) {
+    public UserSeeder(AppUserRepo appUserRepo, PasswordEncoder passwordEncoder) {
         this.appUserRepo = appUserRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -36,13 +39,13 @@ public class UserSeeder implements CommandLineRunner {
 
         AppUser admin = new AppUser();
         admin.setUsername(adminUsername);
-        admin.setPassword(adminPassword);
+        admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRole(UserRole.ADMIN);
         appUserRepo.save(admin);
 
         AppUser cashier = new AppUser();
         cashier.setUsername(cashierUsername);
-        cashier.setPassword(cashierPassword);
+        cashier.setPassword(passwordEncoder.encode(cashierPassword));
         cashier.setRole(UserRole.CASHIER);
         appUserRepo.save(cashier);
 

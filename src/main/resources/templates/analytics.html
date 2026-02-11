@@ -26,7 +26,7 @@
             </div>
           </div>
 
-          <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+          <nav class="hidden lg:flex items-center justify-center gap-4 text-[13px] font-semibold">
             <div class="relative group">
               <a href="/"
                  class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
@@ -36,9 +36,6 @@
                   <path d="M9 14h6"/>
                 </svg>
                 <span>POS</span>
-                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
               </a>
               <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                           opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
@@ -54,7 +51,7 @@
                 </a>
               </div>
             </div>
-            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
               <a href="/analytics"
                  class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
@@ -62,9 +59,6 @@
                   <path d="M7 14l3-3 4 4 5-6"/>
                 </svg>
                 <span>Analytics</span>
-                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
               </a>
               <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                           opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
@@ -80,21 +74,18 @@
                 </a>
               </div>
             </div>
-            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
               <a href="/products"
                  class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
                   <path d="M3 8v8l9 5 9-5V8"/>
                 </svg>
-                <span>Inventory Management</span>
+                <span>Inventory</span>
                 <span th:if="${lowStockCount > 0}"
                       class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
                   <span th:text="${lowStockCount}">0</span>
                 </span>
-                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
               </a>
               <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                           opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
@@ -122,7 +113,7 @@
                 </a>
               </div>
             </div>
-            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
               <a href="/sales"
                  class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
@@ -130,9 +121,6 @@
                   <path d="M9 7h6M9 11h6M9 15h4"/>
                 </svg>
                 <span>Sales</span>
-                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
               </a>
               <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                           opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
@@ -144,6 +132,59 @@
                 </a>
               </div>
             </div>
+          
+            
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
+              <a href="/reports"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16v16H4z"/>
+                  <path d="M8 8h8M8 12h8M8 16h6"/>
+                </svg>
+                <span>Reports</span>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/reports"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Sales Reports
+                </a>
+                <a href="/reports/sales.xlsx"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Export Sales (Excel)
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/users"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0z"/>
+                  <path d="M3 20a7 7 0 0 1 18 0"/>
+                </svg>
+                <span>Users</span>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/users"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Users
+                </a>
+                <a href="/users#new-user"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Add User
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" href="/currencies"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Currency Management
+                </a>
+
+              </div>
+            </div>
           </nav>
 
           <div class="flex items-center justify-end gap-2">
@@ -152,6 +193,7 @@
               Login
             </a>
             <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
               <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
                 Logout
               </button>
@@ -217,6 +259,34 @@
         </div>
       </section>
 
+      <section class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Peak Day</div>
+          <div class="mt-2 text-lg font-semibold" id="insightPeakDay">No data</div>
+          <div class="text-xs text-slate-500 mt-1" id="insightPeakDayValue">—</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Peak Hour</div>
+          <div class="mt-2 text-lg font-semibold" id="insightPeakHour">No data</div>
+          <div class="text-xs text-slate-500 mt-1" id="insightPeakHourValue">—</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Top Cashier</div>
+          <div class="mt-2 text-lg font-semibold" id="insightTopCashier">No data</div>
+          <div class="text-xs text-slate-500 mt-1" id="insightTopCashierValue">—</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Quick Actions</div>
+          <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+            <a href="/reports" class="rounded-lg border border-slate-200 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reports</a>
+            <a href="/reports/sales.xlsx" class="rounded-lg border border-slate-200 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Export Sales</a>
+            <a href="/pos" class="rounded-lg border border-slate-200 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Open POS</a>
+            <a sec:authorize="hasRole('ADMIN')" href="/currencies"
+               class="rounded-lg border border-slate-200 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Currencies</a>
+          </div>
+        </div>
+      </section>
+
       <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div class="flex items-start justify-between gap-4">
@@ -267,6 +337,38 @@
           </div>
           <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
             <canvas id="revenueDonutChart" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Payment Mix</div>
+            <div class="text-sm text-slate-500">Total share (last 7 days)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="paymentMixChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Currency Mix</div>
+            <div class="text-sm text-slate-500">Share by currency (base amount)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="currencyMixChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Top Customers</div>
+            <div class="text-sm text-slate-500">Lifetime spend (top 5)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="topCustomerChart" height="160"></canvas>
           </div>
         </div>
       </section>
@@ -817,10 +919,54 @@
     const dayOfWeekRevenue = /*[[${dayOfWeekRevenue}]]*/ [];
     const hourLabels = /*[[${hourLabels}]]*/ [];
     const hourRevenue = /*[[${hourRevenue}]]*/ [];
+    const currencyShareLabels = /*[[${currencyShareLabels}]]*/ [];
+    const currencyShareValues = /*[[${currencyShareValues}]]*/ [];
+    const topCustomerLabels = /*[[${topCustomerClv.![name]}]]*/ [];
+    const topCustomerValues = /*[[${topCustomerClv.![monetary]}]]*/ [];
 
     function formatMoney(value) {
       if (typeof value !== "number") return value;
       return "$" + value.toFixed(2);
+    }
+
+    function sumValues(values) {
+      if (!Array.isArray(values)) return 0;
+      return values.reduce((acc, val) => acc + (typeof val === "number" ? val : 0), 0);
+    }
+
+    function maxIndex(values) {
+      if (!Array.isArray(values) || values.length === 0) return -1;
+      let max = values[0];
+      let idx = 0;
+      for (let i = 1; i < values.length; i++) {
+        if (values[i] > max) {
+          max = values[i];
+          idx = i;
+        }
+      }
+      return idx;
+    }
+
+    function setInsight(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    const peakDayIdx = maxIndex(dayOfWeekRevenue);
+    if (peakDayIdx >= 0) {
+      setInsight("insightPeakDay", dayOfWeekLabels[peakDayIdx] || "Unknown");
+      setInsight("insightPeakDayValue", formatMoney(dayOfWeekRevenue[peakDayIdx] || 0));
+    }
+    const peakHourIdx = maxIndex(hourRevenue);
+    if (peakHourIdx >= 0) {
+      const hourLabel = hourLabels[peakHourIdx] != null ? hourLabels[peakHourIdx] : "--";
+      setInsight("insightPeakHour", `${hourLabel}:00`);
+      setInsight("insightPeakHourValue", formatMoney(hourRevenue[peakHourIdx] || 0));
+    }
+    const topCashierIdx = maxIndex(cashierSales);
+    if (topCashierIdx >= 0) {
+      setInsight("insightTopCashier", cashierLabels[topCashierIdx] || "Unknown");
+      setInsight("insightTopCashierValue", formatMoney(cashierSales[topCashierIdx] || 0));
     }
 
     const lineCtx = document.getElementById("salesLineChart");
@@ -971,6 +1117,77 @@
           plugins: {
             legend: { position: "bottom" },
             tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatMoney(ctx.parsed)}` } }
+          }
+        }
+      });
+    }
+
+    const paymentMixCtx = document.getElementById("paymentMixChart");
+    if (paymentMixCtx) {
+      new Chart(paymentMixCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["Cash", "Card", "QR"],
+          datasets: [{
+            data: [sumValues(paymentCash), sumValues(paymentCard), sumValues(paymentQr)],
+            backgroundColor: ["#0f172a", "#334155", "#94a3b8"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatMoney(ctx.parsed)}` } }
+          }
+        }
+      });
+    }
+
+    const currencyMixCtx = document.getElementById("currencyMixChart");
+    if (currencyMixCtx) {
+      new Chart(currencyMixCtx, {
+        type: "doughnut",
+        data: {
+          labels: currencyShareLabels,
+          datasets: [{
+            data: currencyShareValues,
+            backgroundColor: ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5f5", "#e2e8f0"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatMoney(ctx.parsed)}` } }
+          }
+        }
+      });
+    }
+
+    const topCustomerCtx = document.getElementById("topCustomerChart");
+    if (topCustomerCtx) {
+      new Chart(topCustomerCtx, {
+        type: "bar",
+        data: {
+          labels: topCustomerLabels,
+          datasets: [{
+            label: "Spend",
+            data: topCustomerValues,
+            backgroundColor: "#0f172a"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => formatMoney(ctx.parsed.y) } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: "rgba(148,163,184,0.35)" } }
           }
         }
       });

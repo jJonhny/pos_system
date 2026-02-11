@@ -1,0 +1,298 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Currency Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+  <style>
+    body {
+      font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-3 items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1v22"/>
+                <path d="M17 5H9a4 4 0 0 0 0 8h6a4 4 0 0 1 0 8H6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Currency Management</div>
+              <div class="text-sm text-slate-500">Manage exchange rates and active currencies</div>
+            </div>
+          </div>
+
+          <nav class="hidden lg:flex items-center justify-center gap-4 text-[13px] font-semibold">
+            <a href="/" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">Dashboard</a>
+            <a href="/users" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">Users</a>
+            <a href="/pos" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">POS</a>
+          </nav>
+
+          <div class="flex items-center justify-end gap-2">
+            <form action="/currencies/refresh" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition text-sm font-semibold">
+                Refresh rates
+              </button>
+            </form>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-8">
+      <div class="mb-6">
+        <div th:if="${success}"
+             class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <div class="font-semibold">Success</div>
+          <div class="mt-0.5" th:text="${success}">Action completed.</div>
+        </div>
+        <div th:if="${error}"
+             class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div class="font-semibold">Action failed</div>
+          <div class="mt-0.5" th:text="${error}">Something went wrong.</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-1 space-y-6">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+            <div class="text-base font-semibold">Base currency</div>
+            <div class="text-sm text-slate-500">All totals are stored in base currency.</div>
+            <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-xs text-slate-500">Current base</div>
+              <div class="text-lg font-semibold text-slate-900" th:text="${baseCurrency.code + ' · ' + baseCurrency.name}">USD · US Dollar</div>
+              <div class="text-xs text-slate-500" th:text="${'Symbol: ' + baseCurrency.symbol + ' · Decimals: ' + baseCurrency.fractionDigits}">Symbol</div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+            <div class="text-base font-semibold">Add currency</div>
+            <div class="text-sm text-slate-500">Rate is base per 1 unit (e.g. USD per 1 KHR).</div>
+            <form action="/currencies" method="post" class="mt-4 space-y-3">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Code</label>
+                <input name="code" type="text" maxlength="8" placeholder="KHR"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300" required/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Name</label>
+                <input name="name" type="text" placeholder="Cambodian Riel"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300" required/>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-1">Symbol</label>
+                  <input name="symbol" type="text" placeholder="៛"
+                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                                focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-600 mb-1">Decimals</label>
+                  <input name="fractionDigits" type="number" min="0" max="6" value="2"
+                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                                focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Rate to base</label>
+                <input name="rateToBase" type="number" step="0.00000001" min="0"
+                       placeholder="0.00025"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300" required/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Active</label>
+                <select name="active"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option value="true" selected>Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+              <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold
+                             hover:bg-slate-800 transition active:scale-[0.99]">
+                Add currency
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="xl:col-span-2 space-y-6">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div class="text-base font-semibold">Exchange rate trend</div>
+                <div class="text-sm text-slate-500">Last 30 updates per currency</div>
+              </div>
+              <form action="/currencies" method="get" class="flex items-center gap-2">
+                <label class="text-xs font-semibold text-slate-500">Currency</label>
+                <select name="chartCode"
+                        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                               focus:outline-none focus:ring-2 focus:ring-slate-300"
+                        onchange="this.form.submit()">
+                  <option th:each="c : ${currencies}"
+                          th:value="${c.code}"
+                          th:selected="${chartCode == c.code}"
+                          th:text="${c.code}">USD</option>
+                </select>
+              </form>
+            </div>
+            <div class="mt-4 h-64">
+              <canvas id="rateChart"></canvas>
+            </div>
+            <div class="mt-3 text-[11px] text-slate-400">
+              Rates by <a href="https://www.exchangerate-api.com" class="underline hover:text-slate-600">ExchangeRate-API</a>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <div class="text-base font-semibold">Currencies</div>
+                <div class="text-sm text-slate-500">Update rates, decimals, or set a base currency</div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600">
+                  <tr>
+                    <th class="text-left px-6 py-3 font-semibold">Code</th>
+                    <th class="text-left px-6 py-3 font-semibold">Name</th>
+                    <th class="text-left px-6 py-3 font-semibold">Symbol</th>
+                    <th class="text-left px-6 py-3 font-semibold">Rate to base</th>
+                    <th class="text-left px-6 py-3 font-semibold">Decimals</th>
+                    <th class="text-left px-6 py-3 font-semibold">Status</th>
+                    <th class="text-left px-6 py-3 font-semibold">Updated</th>
+                    <th class="text-left px-6 py-3 font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr th:each="c : ${currencies}">
+                    <td class="px-6 py-4 font-semibold text-slate-900" th:text="${c.code}">USD</td>
+                    <td class="px-6 py-4">
+                        <input name="name" type="text" th:value="${c.name}"
+                               th:attr="form=${'currency-form-' + c.id}"
+                               class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs w-40
+                                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input name="symbol" type="text" th:value="${c.symbol}"
+                               th:attr="form=${'currency-form-' + c.id}"
+                               class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs w-16
+                                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input name="rateToBase" type="number" step="0.00000001" min="0"
+                               th:value="${c.rateToBase}"
+                               th:attr="form=${'currency-form-' + c.id}"
+                               th:disabled="${c.base}"
+                               class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs w-28
+                                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input name="fractionDigits" type="number" min="0" max="6"
+                               th:value="${c.fractionDigits}"
+                               th:attr="form=${'currency-form-' + c.id}"
+                               class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs w-16
+                                      focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                    </td>
+                    <td class="px-6 py-4">
+                        <select name="active"
+                                th:attr="form=${'currency-form-' + c.id}"
+                                class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs
+                                       focus:outline-none focus:ring-2 focus:ring-slate-300"
+                                th:disabled="${c.base}">
+                          <option value="true" th:selected="${c.active}">Active</option>
+                          <option value="false" th:selected="${!c.active}">Inactive</option>
+                        </select>
+                    </td>
+                    <td class="px-6 py-4 text-xs text-slate-500" th:text="${c.updatedAt != null ? #temporals.format(c.updatedAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+                    <td class="px-6 py-4">
+                        <form th:id="${'currency-form-' + c.id}" th:action="@{'/currencies/' + ${c.id}}" method="post" class="m-0">
+                          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        </form>
+                        <div class="flex items-center gap-2">
+                          <button th:attr="form=${'currency-form-' + c.id}"
+                                  class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition">
+                            Save
+                          </button>
+                          <button th:if="${!c.base}"
+                                  class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition"
+                                  th:attr="form=${'currency-form-' + c.id}"
+                                  th:formaction="@{'/currencies/' + ${c.id} + '/base'}"
+                                  formmethod="post">
+                            Set base
+                          </button>
+                          <span th:if="${c.base}" class="text-[11px] font-semibold text-emerald-700">Base</span>
+                        </div>
+                    </td>
+                  </tr>
+                  <tr th:if="${#lists.isEmpty(currencies)}">
+                    <td colspan="8" class="px-6 py-6 text-center text-slate-500">No currencies configured.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script th:inline="javascript">
+    const rateLabels = [[${rateLabels}]];
+    const rateValues = [[${rateValues}]];
+    const ctx = document.getElementById("rateChart");
+    if (ctx) {
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: rateLabels,
+          datasets: [{
+            label: "Rate to base",
+            data: rateValues,
+            borderColor: "#0f172a",
+            backgroundColor: "rgba(15, 23, 42, 0.15)",
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { display: true, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
+            y: { display: true }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

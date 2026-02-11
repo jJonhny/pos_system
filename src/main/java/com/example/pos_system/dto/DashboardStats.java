@@ -17,6 +17,8 @@ public record DashboardStats(
         List<Double> paymentQr,
         List<String> revenueShareLabels,
         List<Double> revenueShareValues,
+        List<String> currencyShareLabels,
+        List<Double> currencyShareValues,
         List<String> topQtyLabels,
         List<Double> topQtyValues,
         List<String> grossProfitLabels,

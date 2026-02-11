@@ -41,6 +41,8 @@ public class HomeController {
         model.addAttribute("paymentQr", stats.paymentQr());
         model.addAttribute("revenueShareLabels", stats.revenueShareLabels());
         model.addAttribute("revenueShareValues", stats.revenueShareValues());
+        model.addAttribute("currencyShareLabels", stats.currencyShareLabels());
+        model.addAttribute("currencyShareValues", stats.currencyShareValues());
         model.addAttribute("topQtyLabels", stats.topQtyLabels());
         model.addAttribute("topQtyValues", stats.topQtyValues());
         model.addAttribute("grossProfitLabels", stats.grossProfitLabels());

@@ -4,6 +4,7 @@ import com.example.pos_system.dto.Cart;
 import com.example.pos_system.dto.CartItem;
 import com.example.pos_system.entity.*;
 import com.example.pos_system.repository.*;
+import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.PosService;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,6 +40,7 @@ public class PosController {
   private final CustomerRepo customerRepo;
   private final ShiftRepo shiftRepo;
   private final SaleRepo saleRepo;
+  private final CurrencyService currencyService;
 
   public PosController(ProductRepo productRepo,
                        CategoryRepo categoryRepo,
@@ -46,7 +48,8 @@ public class PosController {
                        HeldSaleRepo heldSaleRepo,
                        CustomerRepo customerRepo,
                        ShiftRepo shiftRepo,
-                       SaleRepo saleRepo) {
+                       SaleRepo saleRepo,
+                       CurrencyService currencyService) {
     this.productRepo = productRepo;
     this.categoryRepo = categoryRepo;
     this.posService = posService;
@@ -54,6 +57,7 @@ public class PosController {
     this.customerRepo = customerRepo;
     this.shiftRepo = shiftRepo;
     this.saleRepo = saleRepo;
+    this.currencyService = currencyService;
   }
 
   @ModelAttribute("cart")
@@ -717,6 +721,8 @@ public class PosController {
 
   private void enrichCartModel(Model model, Cart cart) {
     model.addAttribute("cart", cart);
+    model.addAttribute("baseCurrency", currencyService.getBaseCurrency());
+    model.addAttribute("currencies", currencyService.getActiveCurrencies());
     String username = currentUsername();
     if (username != null) {
       model.addAttribute("holds", heldSaleRepo.findByCashierUsernameOrderByCreatedAtDesc(username));
@@ -742,12 +748,32 @@ public class PosController {
     return customerRepo.findById(customerId).orElse(null);
   }
 
-  private void addPayment(List<SalePayment> payments, PaymentMethod method, BigDecimal amount) {
-    if (method == null || amount == null) return;
-    if (amount.compareTo(BigDecimal.ZERO) <= 0) return;
+  private void addSplitPayment(List<SalePayment> payments, PaymentMethod method, BigDecimal foreignAmount,
+                               String currencyCode, Currency baseCurrency) {
+    if (method == null || foreignAmount == null) return;
+    if (foreignAmount.compareTo(BigDecimal.ZERO) <= 0) return;
+    Currency currency = null;
+    if (currencyCode != null && !currencyCode.isBlank()) {
+      Currency found = currencyService.findByCode(currencyCode);
+      if (found != null && Boolean.TRUE.equals(found.getActive())) {
+        currency = found;
+      }
+    }
+    Currency effectiveCurrency = currency != null ? currency : baseCurrency;
+    BigDecimal rate = effectiveCurrency != null && effectiveCurrency.getRateToBase() != null
+            ? effectiveCurrency.getRateToBase()
+            : BigDecimal.ONE;
+    if (rate.compareTo(BigDecimal.ZERO) <= 0) rate = BigDecimal.ONE;
+    BigDecimal baseAmount = foreignAmount.multiply(rate).setScale(2, RoundingMode.HALF_UP);
+
     SalePayment payment = new SalePayment();
     payment.setMethod(method);
-    payment.setAmount(amount.setScale(2, RoundingMode.HALF_UP));
+    payment.setAmount(baseAmount);
+    if (effectiveCurrency != null) {
+      payment.setCurrencyCode(effectiveCurrency.getCode());
+      payment.setCurrencyRate(rate);
+      payment.setForeignAmount(foreignAmount.setScale(2, RoundingMode.HALF_UP));
+    }
     payments.add(payment);
   }
 
@@ -757,8 +783,43 @@ public class PosController {
     return total.subtract(refunded);
   }
 
+  private SalePayment buildPayment(PaymentMethod method, BigDecimal baseTotal,
+                                   String currencyCode, BigDecimal currencyRate, BigDecimal foreignAmount) {
+    SalePayment payment = new SalePayment();
+    payment.setMethod(method);
+    Currency baseCurrency = currencyService.getBaseCurrency();
+
+    BigDecimal baseAmount = baseTotal == null ? BigDecimal.ZERO : baseTotal;
+    if (method == PaymentMethod.CASH && currencyCode != null && foreignAmount != null) {
+      Currency currency = currencyService.findByCode(currencyCode);
+      if (currency != null && Boolean.TRUE.equals(currency.getActive())) {
+        BigDecimal effectiveRate = currency.getRateToBase();
+        if (effectiveRate != null && effectiveRate.compareTo(BigDecimal.ZERO) > 0) {
+          baseAmount = foreignAmount.multiply(effectiveRate).setScale(2, RoundingMode.HALF_UP);
+          payment.setCurrencyCode(currency.getCode());
+          payment.setCurrencyRate(effectiveRate);
+          payment.setForeignAmount(foreignAmount);
+        }
+      } else if (currencyRate != null && currencyRate.compareTo(BigDecimal.ZERO) > 0) {
+        baseAmount = foreignAmount.multiply(currencyRate).setScale(2, RoundingMode.HALF_UP);
+        payment.setCurrencyCode(currencyCode);
+        payment.setCurrencyRate(currencyRate);
+        payment.setForeignAmount(foreignAmount);
+      }
+    } else if (baseCurrency != null) {
+      payment.setCurrencyCode(baseCurrency.getCode());
+      payment.setCurrencyRate(BigDecimal.ONE);
+      payment.setForeignAmount(baseAmount.setScale(2, RoundingMode.HALF_UP));
+    }
+    payment.setAmount(baseAmount.setScale(2, RoundingMode.HALF_UP));
+    return payment;
+  }
+
   @PostMapping("/checkout")
   public String checkout(@RequestParam PaymentMethod method,
+                         @RequestParam(required = false) String currencyCode,
+                         @RequestParam(required = false) BigDecimal currencyRate,
+                         @RequestParam(required = false) BigDecimal foreignAmount,
                          @ModelAttribute("cart") Cart cart,
                          SessionStatus sessionStatus,
                          RedirectAttributes redirectAttributes,
@@ -784,7 +845,8 @@ public class PosController {
         return "redirect:/pos?cartError=Open+a+shift+before+checkout.";
       }
       Customer customer = loadCustomer(cart.getCustomerId());
-      Sale sale = posService.checkout(cart, method, username, customer, openShift);
+      SalePayment payment = buildPayment(method, cart.getTotal(), currencyCode, currencyRate, foreignAmount);
+      Sale sale = posService.checkout(cart, payment, username, customer, openShift);
       sessionStatus.setComplete(); // clears session cart
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
@@ -810,10 +872,13 @@ public class PosController {
   @PostMapping("/checkout/split")
   public String checkoutSplit(@RequestParam(required = false) PaymentMethod method1,
                               @RequestParam(required = false) BigDecimal amount1,
+                              @RequestParam(required = false) String currencyCode1,
                               @RequestParam(required = false) PaymentMethod method2,
                               @RequestParam(required = false) BigDecimal amount2,
+                              @RequestParam(required = false) String currencyCode2,
                               @RequestParam(required = false) PaymentMethod method3,
                               @RequestParam(required = false) BigDecimal amount3,
+                              @RequestParam(required = false) String currencyCode3,
                               @ModelAttribute("cart") Cart cart,
                               SessionStatus sessionStatus,
                               RedirectAttributes redirectAttributes,
@@ -828,9 +893,10 @@ public class PosController {
       return "redirect:/pos?scanError=Cart+is+empty";
     }
     List<SalePayment> payments = new ArrayList<>();
-    addPayment(payments, method1, amount1);
-    addPayment(payments, method2, amount2);
-    addPayment(payments, method3, amount3);
+    Currency baseCurrency = currencyService.getBaseCurrency();
+    addSplitPayment(payments, method1, amount1, currencyCode1, baseCurrency);
+    addSplitPayment(payments, method2, amount2, currencyCode2, baseCurrency);
+    addSplitPayment(payments, method3, amount3, currencyCode3, baseCurrency);
     if (payments.isEmpty()) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", "Enter at least one payment amount.");
@@ -842,7 +908,8 @@ public class PosController {
     BigDecimal total = payments.stream()
             .map(SalePayment::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-    if (total.compareTo(cart.getTotal()) != 0) {
+    BigDecimal expectedTotal = cart.getTotal() == null ? BigDecimal.ZERO : cart.getTotal();
+    if (total.subtract(expectedTotal).abs().compareTo(new BigDecimal("0.01")) > 0) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", "Split total must equal cart total.");
         enrichCartModel(model, cart);

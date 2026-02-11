@@ -18,7 +18,8 @@
   </style>
 </head>
 
-<body class="bg-slate-100 text-slate-900">
+<body class="bg-slate-100 text-slate-900"
+      th:attr="data-base-symbol=${baseCurrency.symbol}, data-base-code=${baseCurrency.code}, data-base-decimals=${baseCurrency.fractionDigits}">
   <!-- soft background accents (UI only) -->
   <div class="absolute inset-0 -z-10">
     <div class="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-slate-300/30 blur-3xl"></div>
@@ -47,7 +48,7 @@
               </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-medium">
+            <nav class="hidden lg:flex items-center justify-center gap-4 text-[13px] font-semibold">
               <div class="relative group">
                 <a href="/"
                    class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
@@ -57,9 +58,6 @@
                     <path d="M9 14h6"/>
                   </svg>
                   <span>POS</span>
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
                 </a>
                 <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                             opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
@@ -74,7 +72,7 @@
                   </a>
                 </div>
               </div>
-              <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
                 <a href="/analytics"
                    class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                   <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
@@ -82,9 +80,6 @@
                     <path d="M7 14l3-3 4 4 5-6"/>
                   </svg>
                   <span>Analytics</span>
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
                 </a>
                 <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                             opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
@@ -99,21 +94,18 @@
                   </a>
                 </div>
               </div>
-              <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
                 <a href="/products"
                    class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                   <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
                     <path d="M3 8v8l9 5 9-5V8"/>
                   </svg>
-                  <span>Inventory Management</span>
+                  <span>Inventory</span>
                   <span th:if="${lowStockCount > 0}"
                         class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
                     <span th:text="${lowStockCount}">0</span>
                   </span>
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
                 </a>
                 <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                             opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
@@ -140,7 +132,7 @@
                   </a>
                 </div>
               </div>
-            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
                 <a href="/sales"
                    class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
                   <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
@@ -148,9 +140,6 @@
                     <path d="M9 7h6M9 11h6M9 15h4"/>
                   </svg>
                   <span>Sales</span>
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9l6 6 6-6"/>
-                  </svg>
                 </a>
                 <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
                             opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
@@ -161,7 +150,60 @@
                   </a>
                 </div>
               </div>
-            </nav>
+            
+            
+            <div sec:authorize="hasAnyRole('ADMIN','MANAGER')" class="relative group">
+              <a href="/reports"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16v16H4z"/>
+                  <path d="M8 8h8M8 12h8M8 16h6"/>
+                </svg>
+                <span>Reports</span>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/reports"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Sales Reports
+                </a>
+                <a href="/reports/sales.xlsx"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Export Sales (Excel)
+                </a>
+              </div>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="relative group">
+              <a href="/users"
+                 class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0z"/>
+                  <path d="M3 20a7 7 0 0 1 18 0"/>
+                </svg>
+                <span>Users</span>
+              </a>
+              <div class="absolute left-0 top-full z-50 mt-0 w-52 rounded-xl border border-slate-200 bg-white p-2 shadow-lg
+                          opacity-0 pointer-events-none translate-y-1 transition duration-150 ease-out
+                          group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0
+                          group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0">
+                <a href="/users"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  All Users
+                </a>
+                <a href="/users#new-user"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Add User
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" href="/currencies"
+                   class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition">
+                  Currency Management
+                </a>
+
+              </div>
+            </div>
+          </nav>
 
             <div class="flex flex-wrap items-center justify-end gap-2">
               <a sec:authorize="isAnonymous()" href="/login"
@@ -170,6 +212,7 @@
                 Login
               </a>
               <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700
                                hover:bg-slate-50 transition">
                   Logout
@@ -232,6 +275,7 @@
             <form action="/pos/quick-add" method="post" data-quick-add
                   hx-post="/pos/quick-add" hx-target="#cartPanel" hx-swap="outerHTML"
                   class="w-full sm:w-52">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
               <input type="hidden" name="q" value=""/>
               <label class="block text-xs font-medium text-slate-600 mb-1">Quick add</label>
               <button class="h-[42px] w-full rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700
@@ -247,6 +291,7 @@
                   hx-swap="outerHTML"
                   hx-on="htmx:afterRequest: this.reset()"
                   class="w-full lg:w-auto flex flex-col sm:flex-row sm:items-end gap-2">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
               <div class="w-full sm:w-72">
                 <label class="block text-xs font-medium text-slate-600 mb-1">Barcode</label>
                 <div class="relative">
@@ -348,13 +393,72 @@
       if (e.key === "F8") document.getElementById("barcodeInput").focus();
     });
 
-    const formatMoney = (value) => {
-      const num = Number.parseFloat(value);
-      if (!Number.isFinite(num)) return "$0.00";
-      return `$${num.toFixed(2)}`;
+    const getBaseCurrency = () => {
+      const panel = getCartPanel();
+      const symbol = (panel && panel.dataset.baseSymbol) || document.body.dataset.baseSymbol || "$";
+      const code = (panel && panel.dataset.baseCode) || document.body.dataset.baseCode || "USD";
+      const decimalsRaw = (panel && panel.dataset.baseDecimals) || document.body.dataset.baseDecimals || "2";
+      const decimals = Number.parseInt(decimalsRaw, 10);
+      return { symbol, code, decimals: Number.isFinite(decimals) ? decimals : 2 };
     };
 
+    const formatCurrency = (value, currency) => {
+      const num = Number.parseFloat(value);
+      if (!Number.isFinite(num)) return "-";
+      const decimals = Number.isFinite(currency?.decimals) ? currency.decimals : 2;
+      const fixed = num.toFixed(decimals);
+      if (currency?.symbol) return `${currency.symbol}${fixed}`;
+      if (currency?.code) return `${fixed} ${currency.code}`;
+      return fixed;
+    };
+
+    const formatMoney = (value) => formatCurrency(value, getBaseCurrency());
+
     const getCartPanel = () => document.getElementById("cartPanel");
+
+    const getSelectedCurrency = () => {
+      const panel = getCartPanel();
+      if (!panel) return null;
+      const select = panel.querySelector("#cashCurrency");
+      if (!select) return null;
+      const option = select.selectedOptions && select.selectedOptions[0];
+      const rate = option ? Number.parseFloat(option.getAttribute("data-rate") || "0") : 0;
+      const decimals = option ? Number.parseInt(option.getAttribute("data-decimals") || "2", 10) : 2;
+      return {
+        code: option ? option.value : "",
+        symbol: option ? option.getAttribute("data-symbol") : "",
+        rate: Number.isFinite(rate) ? rate : 0,
+        decimals: Number.isFinite(decimals) ? decimals : 2
+      };
+    };
+
+    const syncCashHidden = () => {
+      const panel = getCartPanel();
+      if (!panel) return;
+      const currency = getSelectedCurrency();
+      const input = panel.querySelector("#cashReceived");
+      const codeInput = panel.querySelector("#cashCurrencyCode");
+      const rateInput = panel.querySelector("#cashCurrencyRate");
+      const foreignInput = panel.querySelector("#cashForeignAmount");
+      if (!currency || !codeInput || !rateInput || !foreignInput) return;
+      const received = Number.parseFloat(input?.value || "0");
+      codeInput.value = currency.code || "";
+      rateInput.value = currency.rate ? currency.rate.toString() : "";
+      foreignInput.value = Number.isFinite(received) ? received.toString() : "";
+    };
+
+    const cashCurrencyKey = "pos.cash.currency";
+
+    const applyStoredCurrency = () => {
+      const panel = getCartPanel();
+      if (!panel) return;
+      const select = panel.querySelector("#cashCurrency");
+      if (!select) return;
+      const stored = localStorage.getItem(cashCurrencyKey);
+      if (stored) {
+        select.value = stored;
+      }
+    };
 
     const updateCashChange = () => {
       const panel = getCartPanel();
@@ -362,18 +466,38 @@
       const input = panel.querySelector("#cashReceived");
       const changeEl = panel.querySelector("#cashChange");
       const statusEl = panel.querySelector("#cashStatus");
+      const totalForeignEl = panel.querySelector("#cashTotalForeign");
+      const changeBaseEl = panel.querySelector("#cashChangeBase");
+      const rateTextEl = panel.querySelector("#cashRateText");
       if (!input || !changeEl || !statusEl) return;
-      const total = Number.parseFloat(panel.dataset.total || "0");
-      const received = Number.parseFloat(input.value || "0");
-      if (!Number.isFinite(total) || !Number.isFinite(received)) return;
-      const diff = received - total;
-      if (diff >= 0) {
+      const base = getBaseCurrency();
+      const currency = getSelectedCurrency() || base;
+      const rate = currency.rate && currency.rate > 0 ? currency.rate : 1;
+      const totalBase = Number.parseFloat(panel.dataset.total || "0");
+      const receivedForeign = Number.parseFloat(input.value || "0");
+      if (!Number.isFinite(totalBase) || !Number.isFinite(receivedForeign)) return;
+      const totalForeign = rate > 0 ? totalBase / rate : totalBase;
+      const diffForeign = receivedForeign - totalForeign;
+      const diffBase = diffForeign * rate;
+      if (diffForeign >= 0) {
         statusEl.textContent = "Change";
-        changeEl.textContent = formatMoney(diff);
+        changeEl.textContent = formatCurrency(diffForeign, currency);
       } else {
         statusEl.textContent = "Remaining";
-        changeEl.textContent = formatMoney(Math.abs(diff));
+        changeEl.textContent = formatCurrency(Math.abs(diffForeign), currency);
       }
+      if (input && currency && currency.code) {
+        input.placeholder = `Cash received (${currency.code})`;
+      }
+      if (totalForeignEl) totalForeignEl.textContent = formatCurrency(totalForeign, currency);
+      if (changeBaseEl) changeBaseEl.textContent = formatCurrency(Math.abs(diffBase), base);
+      if (rateTextEl) {
+        const rateText = Number.isFinite(rate)
+          ? rate.toFixed(Math.max(4, base.decimals || 2))
+          : "-";
+        rateTextEl.textContent = `Rate: 1 ${currency.code || ''} = ${rateText} ${base.code || ''}`;
+      }
+      syncCashHidden();
     };
 
     const pinKey = "pos.pinned.v1";
@@ -446,6 +570,7 @@
               <form action="/pos/cart/add/${escapeHtml(p.id)}" method="post"
                     hx-post="/pos/cart/add/${escapeHtml(p.id)}" hx-target="#cartPanel" hx-swap="outerHTML"
                     class="mt-2">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button class="w-full rounded-xl bg-slate-900 text-white px-3 py-1.5 text-xs font-semibold hover:bg-slate-800 transition">
                   Add
                 </button>
@@ -547,10 +672,13 @@
         if (!input) return;
         const total = Number.parseFloat(panel.dataset.total || "0");
         if (!Number.isFinite(total)) return;
+        const currency = getSelectedCurrency() || getBaseCurrency();
+        const rate = currency.rate && currency.rate > 0 ? currency.rate : 1;
         const add = Number.parseFloat(cashBtn.getAttribute("data-cash-add") || "0");
         const exact = cashBtn.getAttribute("data-cash-mode") === "exact";
-        const value = exact ? total : total + add;
-        input.value = value.toFixed(2);
+        const valueBase = exact ? total : total + add;
+        const valueForeign = rate > 0 ? valueBase / rate : valueBase;
+        input.value = valueForeign.toFixed(currency.decimals || 2);
         updateCashChange();
       }
     });
@@ -570,9 +698,27 @@
       }
     });
 
+    document.addEventListener("change", (e) => {
+      if (e.target && e.target.id === "cashCurrency") {
+        try {
+          localStorage.setItem(cashCurrencyKey, e.target.value || "");
+        } catch {
+          // ignore storage errors
+        }
+        const panel = getCartPanel();
+        const input = panel ? panel.querySelector("#cashReceived") : null;
+        if (input) {
+          const code = e.target.value || "";
+          input.placeholder = code ? `Cash received (${code})` : "Cash received";
+        }
+        updateCashChange();
+      }
+    });
+
     document.addEventListener("htmx:afterSwap", (e) => {
       if (!e.target) return;
       if (["productGridWrap", "cartPanel", "cartContainer"].includes(e.target.id)) {
+        applyStoredCurrency();
         renderPins();
         syncPinToggles();
         updateCashChange();
@@ -580,6 +726,7 @@
     });
 
     document.addEventListener("DOMContentLoaded", () => {
+      applyStoredCurrency();
       renderPins();
       syncPinToggles();
       updateCashChange();
