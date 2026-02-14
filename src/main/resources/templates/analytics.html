@@ -990,6 +990,9 @@
     const cashierTransactions = /*[[${cashierPerformance.![transactions]}]]*/ [];
     const cashierAvgOrder = /*[[${cashierPerformance.![avgOrderValue]}]]*/ [];
     const cashierItemsPerMinute = /*[[${cashierPerformance.![itemsPerMinute]}]]*/ [];
+    const heatmapDays = /*[[${heatmapDays}]]*/ [];
+    const heatmapHours = /*[[${heatmapHours}]]*/ [];
+    const heatmapValues = /*[[${heatmapValues}]]*/ [];
 
     function formatMoney(value) {
       if (typeof value !== "number") return value;
@@ -3534,8 +3537,7 @@
         }
       ];
 
-      function renderChart(targetId, definition) {
-        const target = document.getElementById(targetId);
+      function renderChart(target, definition) {
         if (!target) return;
         const fn = renderer[definition.key];
         if (typeof fn !== "function") {
@@ -3545,9 +3547,13 @@
         try {
           fn(target);
           requestAnimationFrame(() => {
-            const width = target.clientWidth || 320;
-            const height = target.clientHeight || 176;
-            Plotly.relayout(target, { width, height });
+            try {
+              const width = target.clientWidth || 320;
+              const height = target.clientHeight || 176;
+              Plotly.relayout(target, { width, height });
+            } catch (error) {
+              console.warn("Advanced chart resize skipped:", definition.name, error);
+            }
           });
         } catch (error) {
           console.error("Advanced chart render failed:", definition.name, error);
@@ -3568,6 +3574,8 @@
         grid.className = "mt-3 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4";
         section.appendChild(grid);
 
+        galleryRoot.appendChild(section);
+
         group.charts.forEach((chart, chartIdx) => {
           const card = document.createElement("div");
           card.className = "rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 overflow-hidden";
@@ -3584,10 +3592,8 @@
           card.appendChild(plot);
 
           grid.appendChild(card);
-          renderChart(plotId, chart);
+          renderChart(plot, chart);
         });
-
-        galleryRoot.appendChild(section);
       });
     }
 
