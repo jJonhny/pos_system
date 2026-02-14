@@ -41,6 +41,19 @@ class AnalyticsPageIntegrationTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("lollipopChart")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("dotPlotChart")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("radarComparisonChart")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("polarComparisonChart")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("polarComparisonChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendLineChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendMultiLineChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendStepLineChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendAreaChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendStackedAreaChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendStreamgraphChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendTimelineChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendCandlestickChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("trendOhlcChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("advancedChartGallery")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Part-to-Whole Charts")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Distribution Charts")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Advanced / Specialized Charts")));
     }
 }
