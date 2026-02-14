@@ -39,6 +39,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +75,10 @@ public class SalesController {
                      @RequestParam(required = false) BigDecimal maxTotal,
                      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                     @RequestParam(defaultValue = "dateDesc") String sort,
                      @RequestParam(defaultValue = "0") int page,
                      Model model) {
-    List<Sale> filtered = filterSales(q, method, status, cashier, customer, minTotal, maxTotal, from, to);
+    List<Sale> filtered = sortSales(filterSales(q, method, status, cashier, customer, minTotal, maxTotal, from, to), sort);
     int total = filtered.size();
     int totalPages = total == 0 ? 1 : (int) Math.ceil(total / (double) PAGE_SIZE);
     int maxPage = Math.max(0, totalPages - 1);
@@ -92,6 +94,7 @@ public class SalesController {
     model.addAttribute("summaryToday", summarize(filtered, today, today, includeVoid));
     model.addAttribute("summaryWeek", summarize(filtered, weekStart, today, includeVoid));
     model.addAttribute("summaryMonth", summarize(filtered, monthStart, today, includeVoid));
+    model.addAttribute("filteredSnapshot", buildSnapshot(filtered));
 
     model.addAttribute("sales", pageItems);
     model.addAttribute("page", pageNum);
@@ -109,6 +112,7 @@ public class SalesController {
     model.addAttribute("maxTotal", maxTotal);
     model.addAttribute("from", from);
     model.addAttribute("to", to);
+    model.addAttribute("sort", sort);
     model.addAttribute("profitById", buildProfitMap(pageItems));
     model.addAttribute("customerSummaryById", buildCustomerSummaryMap(pageItems));
     return "sales/list";
@@ -118,7 +122,7 @@ public class SalesController {
   public String receipt(@PathVariable Long id,
                         @RequestParam(required = false) String print,
                         Model model) {
-    Sale sale = saleRepo.findById(id).orElseThrow();
+    Sale sale = saleRepo.findByIdForReceipt(id).orElseThrow();
     model.addAttribute("sale", sale);
     model.addAttribute("profit", calculateProfit(sale));
     model.addAttribute("customerSummary", buildCustomerSummary(sale.getCustomer()));
@@ -136,17 +140,7 @@ public class SalesController {
   @GetMapping("/{id}/receipt/pdf")
   @Transactional(readOnly = true)
   public void receiptPdf(@PathVariable Long id, HttpServletResponse response) throws IOException {
-    Sale sale = saleRepo.findById(id).orElseThrow();
-    if (sale.getItems() != null) {
-      sale.getItems().forEach(item -> {
-        if (item.getProduct() != null) {
-          item.getProduct().getName();
-        }
-      });
-    }
-    if (sale.getPayments() != null) {
-      sale.getPayments().size();
-    }
+    Sale sale = saleRepo.findByIdForReceipt(id).orElseThrow();
 
     String html = receiptPdfService.renderReceiptPdf(sale);
     if (html == null || html.isBlank()) {
@@ -209,10 +203,11 @@ public class SalesController {
                         @RequestParam(required = false) BigDecimal maxTotal,
                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                        @RequestParam(defaultValue = "dateDesc") String sort,
                         HttpServletResponse response) throws IOException {
     List<Sale> filtered = (ids != null && !ids.isEmpty())
             ? saleRepo.findAllById(ids)
-            : filterSales(q, method, status, cashier, customer, minTotal, maxTotal, from, to);
+            : sortSales(filterSales(q, method, status, cashier, customer, minTotal, maxTotal, from, to), sort);
 
     response.setContentType("text/csv");
     response.setHeader("Content-Disposition", "attachment; filename=\"sales-export.csv\"");
@@ -255,6 +250,60 @@ public class SalesController {
     if (to != null) stream = stream.filter(s -> s.getCreatedAt() != null &&
       !s.getCreatedAt().toLocalDate().isAfter(to));
     return stream.toList();
+  }
+
+  private List<Sale> sortSales(List<Sale> sales, String sort) {
+    Comparator<Sale> createdAtAsc = Comparator.comparing(Sale::getCreatedAt,
+            Comparator.nullsLast(Comparator.naturalOrder()));
+    Comparator<Sale> totalAsc = Comparator.comparing(s -> safeAmount(s.getTotal()));
+    Comparator<Sale> idAsc = Comparator.comparing(Sale::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+    Comparator<Sale> customerAsc = Comparator.comparing(
+            s -> s.getCustomer() == null || s.getCustomer().getName() == null
+                    ? ""
+                    : s.getCustomer().getName().toLowerCase()
+    );
+    Comparator<Sale> cashierAsc = Comparator.comparing(
+            s -> s.getCashierUsername() == null ? "" : s.getCashierUsername().toLowerCase()
+    );
+    Comparator<Sale> statusAsc = Comparator.comparing(
+            s -> s.getStatus() == null ? "" : s.getStatus().name()
+    );
+
+    Comparator<Sale> comparator = switch (sort == null ? "" : sort) {
+      case "dateAsc" -> createdAtAsc;
+      case "totalDesc" -> totalAsc.reversed().thenComparing(idAsc.reversed());
+      case "totalAsc" -> totalAsc.thenComparing(idAsc.reversed());
+      case "idDesc" -> idAsc.reversed();
+      case "idAsc" -> idAsc;
+      case "cashierAsc" -> cashierAsc.thenComparing(createdAtAsc.reversed());
+      case "customerAsc" -> customerAsc.thenComparing(createdAtAsc.reversed());
+      case "statusAsc" -> statusAsc.thenComparing(createdAtAsc.reversed());
+      default -> createdAtAsc.reversed();
+    };
+    return sales.stream().sorted(comparator).toList();
+  }
+
+  private SalesSnapshot buildSnapshot(List<Sale> sales) {
+    BigDecimal gross = BigDecimal.ZERO;
+    BigDecimal net = BigDecimal.ZERO;
+    BigDecimal refunded = BigDecimal.ZERO;
+    int voidCount = 0;
+    int paidCount = 0;
+
+    for (Sale sale : sales) {
+      gross = gross.add(safeAmount(sale.getTotal()));
+      refunded = refunded.add(safeAmount(sale.getRefundedTotal()));
+      if (sale.getStatus() == SaleStatus.VOID) {
+        voidCount++;
+        continue;
+      }
+      paidCount++;
+      net = net.add(safeNetTotal(sale));
+    }
+    BigDecimal avgTicket = paidCount == 0
+            ? BigDecimal.ZERO
+            : net.divide(BigDecimal.valueOf(paidCount), 2, RoundingMode.HALF_UP);
+    return new SalesSnapshot(sales.size(), gross, net, refunded, voidCount, avgTicket);
   }
 
   private boolean matchesQuery(Sale sale, String query, BigDecimal amountQuery) {
@@ -421,6 +470,31 @@ public class SalesController {
 
     public BigDecimal getTotal() { return total; }
     public int getCount() { return count; }
+  }
+
+  private static class SalesSnapshot {
+    private final int count;
+    private final BigDecimal gross;
+    private final BigDecimal net;
+    private final BigDecimal refunded;
+    private final int voidCount;
+    private final BigDecimal avgTicket;
+
+    private SalesSnapshot(int count, BigDecimal gross, BigDecimal net, BigDecimal refunded, int voidCount, BigDecimal avgTicket) {
+      this.count = count;
+      this.gross = gross;
+      this.net = net;
+      this.refunded = refunded;
+      this.voidCount = voidCount;
+      this.avgTicket = avgTicket;
+    }
+
+    public int getCount() { return count; }
+    public BigDecimal getGross() { return gross; }
+    public BigDecimal getNet() { return net; }
+    public BigDecimal getRefunded() { return refunded; }
+    public int getVoidCount() { return voidCount; }
+    public BigDecimal getAvgTicket() { return avgTicket; }
   }
 
   private Map<Long, ProfitInfo> buildProfitMap(List<Sale> sales) {

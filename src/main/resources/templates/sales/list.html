@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sales</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .sales-table-compact th,
+    .sales-table-compact td {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+  </style>
 </head>
 
 <body class="bg-slate-100 text-slate-900">
@@ -46,11 +53,20 @@
     </header>
 
     <main class="w-full px-6 lg:px-10 py-8">
-      <div class="mb-6 flex justify-end">
-        <a href="/"
-           class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-800 transition">
-          Open POS
-        </a>
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-sm text-slate-500">
+          Review, export, and manage transaction history.
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="toggleDensity" type="button"
+                  class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+            Compact rows
+          </button>
+          <a href="/"
+             class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-800 transition">
+            Open POS
+          </a>
+        </div>
       </div>
 
       <div th:if="${successMessage}"
@@ -72,29 +88,53 @@
               <div class="text-base font-semibold">Filters</div>
               <div class="text-sm text-slate-500">Search and narrow your sales history</div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               <button class="rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800 transition">
                 Filter
               </button>
               <a href="/sales" class="rounded-xl border border-slate-200 px-4 py-2 bg-white text-sm font-medium hover:bg-slate-50 transition">
                 Reset
               </a>
+              <button id="clearSearch" type="button"
+                      class="rounded-xl border border-slate-200 px-4 py-2 bg-white text-sm font-medium hover:bg-slate-50 transition">
+                Clear search
+              </button>
               <button type="button" onclick="window.print()"
                       class="rounded-xl border border-slate-200 px-4 py-2 bg-white text-sm font-medium hover:bg-slate-50 transition">
                 Export PDF
               </button>
-              <a th:href="@{/sales/export(q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to})}"
+              <a th:href="@{/sales/export(q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to}, sort=${sort})}"
                  class="rounded-xl border border-slate-200 px-4 py-2 bg-white text-sm font-medium hover:bg-slate-50 transition">
                 Export CSV
               </a>
             </div>
           </div>
 
+          <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-500 font-semibold">Quick range:</span>
+            <button type="button" data-date-range="today"
+                    class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Today
+            </button>
+            <button type="button" data-date-range="7"
+                    class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Last 7 days
+            </button>
+            <button type="button" data-date-range="30"
+                    class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Last 30 days
+            </button>
+            <button type="button" data-date-range="month"
+                    class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Month to date
+            </button>
+          </div>
+
           <div class="mt-4 grid grid-cols-1 md:grid-cols-6 gap-3">
             <!-- Same logic -->
             <div class="md:col-span-2">
               <label class="block text-xs font-medium text-slate-600 mb-1">Search</label>
-              <input name="q" placeholder="Search receipt ID, product, cashier"
+              <input id="salesSearchInput" name="q" placeholder="Search receipt ID, product, cashier"
                      class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                      th:value="${q}">
             </div>
@@ -127,14 +167,14 @@
 
             <div>
               <label class="block text-xs font-medium text-slate-600 mb-1">From</label>
-              <input type="date" name="from"
+              <input id="salesFromDate" type="date" name="from"
                      class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                      th:value="${from}">
             </div>
 
             <div>
               <label class="block text-xs font-medium text-slate-600 mb-1">To</label>
-              <input type="date" name="to"
+              <input id="salesToDate" type="date" name="to"
                      class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                      th:value="${to}">
             </div>
@@ -163,6 +203,22 @@
                      class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                      th:value="${maxTotal}">
             </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Sort</label>
+              <select name="sort"
+                      class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="dateDesc" th:selected="${sort == null or sort == 'dateDesc'}">Date (newest)</option>
+                <option value="dateAsc" th:selected="${sort == 'dateAsc'}">Date (oldest)</option>
+                <option value="totalDesc" th:selected="${sort == 'totalDesc'}">Total (high to low)</option>
+                <option value="totalAsc" th:selected="${sort == 'totalAsc'}">Total (low to high)</option>
+                <option value="idDesc" th:selected="${sort == 'idDesc'}">ID (high to low)</option>
+                <option value="idAsc" th:selected="${sort == 'idAsc'}">ID (low to high)</option>
+                <option value="cashierAsc" th:selected="${sort == 'cashierAsc'}">Cashier (A-Z)</option>
+                <option value="customerAsc" th:selected="${sort == 'customerAsc'}">Customer (A-Z)</option>
+                <option value="statusAsc" th:selected="${sort == 'statusAsc'}">Status (A-Z)</option>
+              </select>
+            </div>
           </div>
         </div>
       </form>
@@ -171,7 +227,7 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="action" id="bulkActionInput">
         <input type="hidden" name="redirect"
-               th:value="@{/sales(page=${page}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to})}">
+               th:value="@{/sales(page=${page}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to}, sort=${sort})}">
         <div id="bulkIds"></div>
       </form>
 
@@ -223,17 +279,51 @@
         </div>
       </div>
 
+      <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Filtered Sales</div>
+          <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${filteredSnapshot.count}">0</div>
+          <div class="mt-1 text-xs text-slate-500">Results after filters</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Gross Total</div>
+          <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${@uiFormat.money(filteredSnapshot.gross)}">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">Before refunds</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Net Total</div>
+          <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${@uiFormat.money(filteredSnapshot.net)}">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">Excluding voided sales</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Refunded</div>
+          <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${@uiFormat.money(filteredSnapshot.refunded)}">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">
+            Voided: <span th:text="${filteredSnapshot.voidCount}">0</span>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Avg Ticket</div>
+          <div class="mt-2 text-2xl font-semibold text-slate-900" th:text="${@uiFormat.money(filteredSnapshot.avgTicket)}">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">Per non-void sale</div>
+        </div>
+      </div>
+
       <!-- Table -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
             <div class="text-base font-semibold">Sales list</div>
-            <div class="text-sm text-slate-500">Expand a row to see items</div>
+            <div class="text-sm text-slate-500">
+              Expand a row to see items
+              <span th:text="${'· Showing ' + (sales.size() > 0 ? (page * 20 + 1) : 0) + '-' + (page * 20 + sales.size()) + ' of ' + filteredSnapshot.count}">· Showing 0-0 of 0</span>
+            </div>
           </div>
+          <div class="text-xs text-slate-500">Sort: <span th:text="${sort ?: 'dateDesc'}">dateDesc</span></div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+        <div class="overflow-x-auto" id="salesTableWrap">
+          <table id="salesTable" class="w-full text-sm">
             <thead class="bg-slate-50 text-left text-slate-600">
               <tr>
                 <th class="px-5 py-3 font-semibold">
@@ -345,7 +435,7 @@
                           method="post" th:action="@{'/sales/' + ${s.id} + '/void'}" class="m-0">
                       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                       <input type="hidden" name="redirect"
-                             th:value="@{/sales(page=${page}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to})}">
+                             th:value="@{/sales(page=${page}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to}, sort=${sort})}">
                       <button type="submit"
                               th:onclick="'return confirm(\'Void sale #' + ${s.id} + '?\')'"
                               class="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition">
@@ -480,7 +570,7 @@
 
         <div class="px-5 py-4 border-t border-slate-200 flex items-center justify-between">
           <a th:if="${hasPrev}"
-             th:href="@{/sales(page=${prevPage}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to})}"
+             th:href="@{/sales(page=${prevPage}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to}, sort=${sort})}"
              class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
             Prev
           </a>
@@ -488,7 +578,7 @@
             Page <span th:text="${page + 1}">1</span> of <span th:text="${totalPages}">1</span>
           </div>
           <a th:if="${hasNext}"
-             th:href="@{/sales(page=${nextPage}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to})}"
+             th:href="@{/sales(page=${nextPage}, q=${q}, method=${method}, status=${status}, cashier=${cashier}, customer=${customer}, minTotal=${minTotal}, maxTotal=${maxTotal}, from=${from}, to=${to}, sort=${sort})}"
              class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
             Next
           </a>
@@ -497,6 +587,72 @@
     </main>
   </div>
   <script>
+    const filterForm = document.querySelector('form[action="/sales"]');
+    const searchInput = document.getElementById('salesSearchInput');
+    const fromDateInput = document.getElementById('salesFromDate');
+    const toDateInput = document.getElementById('salesToDate');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const densityToggle = document.getElementById('toggleDensity');
+    const table = document.getElementById('salesTable');
+
+    function formatDateForInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function applyDateRange(rangeType) {
+      if (!fromDateInput || !toDateInput || !filterForm) return;
+      const today = new Date();
+      const end = formatDateForInput(today);
+      let startDate = new Date(today);
+      if (rangeType === 'today') {
+        // Keep start as today.
+      } else if (rangeType === 'month') {
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      } else {
+        const days = Number.parseInt(rangeType, 10);
+        if (!Number.isFinite(days) || days <= 0) return;
+        startDate.setDate(today.getDate() - (days - 1));
+      }
+      fromDateInput.value = formatDateForInput(startDate);
+      toDateInput.value = end;
+      filterForm.submit();
+    }
+
+    document.querySelectorAll('[data-date-range]').forEach((button) => {
+      button.addEventListener('click', () => applyDateRange(button.getAttribute('data-date-range') || ''));
+    });
+
+    if (clearSearchBtn && searchInput) {
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+      });
+    }
+
+    if (densityToggle && table) {
+      densityToggle.addEventListener('click', () => {
+        const compact = table.classList.toggle('sales-table-compact');
+        densityToggle.textContent = compact ? 'Comfortable rows' : 'Compact rows';
+      });
+    }
+
+    document.addEventListener('keydown', (event) => {
+      const active = document.activeElement;
+      const isTypingField = active && (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA' ||
+        active.tagName === 'SELECT' ||
+        active.isContentEditable
+      );
+      if (event.key === '/' && !isTypingField && searchInput) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
+
     document.querySelectorAll('[data-toggle-details]').forEach((button) => {
       button.addEventListener('click', () => {
         const targetId = button.getAttribute('data-toggle-details');
@@ -562,6 +718,9 @@
           return;
         }
         if (action === 'void') {
+          if (!confirm(`Void ${ids.length} selected sale(s)?`)) {
+            return;
+          }
           const form = document.getElementById('bulkForm');
           const inputAction = document.getElementById('bulkActionInput');
           const idsContainer = document.getElementById('bulkIds');
