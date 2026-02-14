@@ -32,6 +32,8 @@ public class SecurityConfig {
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"))
                         .requestMatchers("/analytics").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"))
+                        .requestMatchers("/marketing/**", "/pos-setting/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER')"))
                         .requestMatchers("/", "/pos/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_USE_POS')"))
                         .requestMatchers("/sales/*/receipt").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(

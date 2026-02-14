@@ -34,11 +34,7 @@
             </div>
           </div>
 
-          <nav class="hidden lg:flex items-center justify-center gap-4 text-[13px] font-semibold">
-            <a href="/" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">Dashboard</a>
-            <a href="/users" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">Users</a>
-            <a href="/pos" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">POS</a>
-          </nav>
+                    <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
           <div class="flex items-center justify-end gap-2">
             <form action="/currencies/refresh" method="post" class="m-0">
