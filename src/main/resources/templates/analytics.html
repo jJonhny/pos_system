@@ -244,6 +244,65 @@
         </div>
       </section>
 
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Revenue Decomposition</div>
+            <div class="text-sm text-slate-500">Gross revenue, leakage, and net contribution</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="revenueBridgeChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Customer Mix</div>
+            <div class="text-sm text-slate-500">New vs returning customer share</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="customerMixChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Promo Margin Profile</div>
+            <div class="text-sm text-slate-500">Discounted vs non-discounted margin and profit</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="marginCompareChart" height="160"></canvas>
+          </div>
+          <div class="mt-3 text-xs text-slate-500">
+            Margin gap:
+            <span class="font-semibold text-slate-700"
+                  th:text="${#numbers.formatDecimal(nonDiscountMarginPercent - discountMarginPercent, 1, 1)} + '%'">0%</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Shift Cash Variance</div>
+            <div class="text-sm text-slate-500">Variance by cashier (closed shifts)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="shiftVarianceChart" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Cashier Efficiency Matrix</div>
+            <div class="text-sm text-slate-500">Transactions vs average order value (bubble size = items/min)</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="cashierEfficiencyChart" height="140"></canvas>
+          </div>
+        </div>
+      </section>
+
       <section class="mt-6">
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div class="text-base font-semibold">Cashier Performance</div>
@@ -764,10 +823,33 @@
     const currencyShareValues = /*[[${currencyShareValues}]]*/ [];
     const topCustomerLabels = /*[[${topCustomerClv.![name]}]]*/ [];
     const topCustomerValues = /*[[${topCustomerClv.![monetary]}]]*/ [];
+    const grossRevenueTotal = /*[[${grossRevenueTotal}]]*/ 0;
+    const netRevenueTotalValue = /*[[${netRevenueTotal}]]*/ 0;
+    const discountTotalValue = /*[[${discountTotal}]]*/ 0;
+    const refundTotalValue = /*[[${refundTotal}]]*/ 0;
+    const newCustomerCountValue = /*[[${newCustomerCount}]]*/ 0;
+    const returningCustomerCountValue = /*[[${returningCustomerCount}]]*/ 0;
+    const discountRevenueValue = /*[[${discountRevenue}]]*/ 0;
+    const discountProfitValue = /*[[${discountProfit}]]*/ 0;
+    const nonDiscountRevenueValue = /*[[${nonDiscountRevenue}]]*/ 0;
+    const nonDiscountProfitValue = /*[[${nonDiscountProfit}]]*/ 0;
+    const discountMarginPercentValue = /*[[${discountMarginPercent}]]*/ 0;
+    const nonDiscountMarginPercentValue = /*[[${nonDiscountMarginPercent}]]*/ 0;
+    const shiftLabels = /*[[${shiftPerformance.![cashier]}]]*/ [];
+    const shiftVarianceValues = /*[[${shiftPerformance.![cashVariance]}]]*/ [];
+    const cashierTransactions = /*[[${cashierPerformance.![transactions]}]]*/ [];
+    const cashierAvgOrder = /*[[${cashierPerformance.![avgOrderValue]}]]*/ [];
+    const cashierItemsPerMinute = /*[[${cashierPerformance.![itemsPerMinute]}]]*/ [];
 
     function formatMoney(value) {
       if (typeof value !== "number") return value;
       return "$" + value.toFixed(2);
+    }
+
+    function toNumber(value) {
+      if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : 0;
     }
 
     function sumValues(values) {
@@ -1211,6 +1293,218 @@
           scales: {
             x: { grid: { display: false } },
             y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          }
+        }
+      });
+    }
+
+    const revenueBridgeCtx = document.getElementById("revenueBridgeChart");
+    if (revenueBridgeCtx) {
+      const bridgeLabels = ["Gross Revenue", "Discounts", "Refunds", "Net Revenue"];
+      const bridgeValues = [
+        toNumber(grossRevenueTotal),
+        -toNumber(discountTotalValue),
+        -toNumber(refundTotalValue),
+        toNumber(netRevenueTotalValue)
+      ];
+      new Chart(revenueBridgeCtx, {
+        type: "bar",
+        data: {
+          labels: bridgeLabels,
+          datasets: [{
+            label: "Amount",
+            data: bridgeValues,
+            backgroundColor: bridgeValues.map((value) => value >= 0 ? "#0f172a" : "#dc2626")
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => formatMoney(toNumber(ctx.parsed.y)) } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              grid: { color: "rgba(148,163,184,0.35)" },
+              ticks: { callback: (value) => formatMoney(toNumber(value)) }
+            }
+          }
+        }
+      });
+    }
+
+    const customerMixCtx = document.getElementById("customerMixChart");
+    if (customerMixCtx) {
+      new Chart(customerMixCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["New", "Returning"],
+          datasets: [{
+            data: [toNumber(newCustomerCountValue), toNumber(returningCustomerCountValue)],
+            backgroundColor: ["#334155", "#0f172a"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${toNumber(ctx.parsed)}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    const marginCompareCtx = document.getElementById("marginCompareChart");
+    if (marginCompareCtx) {
+      new Chart(marginCompareCtx, {
+        data: {
+          labels: ["Discounted", "Non-discounted"],
+          datasets: [
+            {
+              type: "bar",
+              label: "Revenue",
+              data: [toNumber(discountRevenueValue), toNumber(nonDiscountRevenueValue)],
+              backgroundColor: "#334155",
+              yAxisID: "y"
+            },
+            {
+              type: "bar",
+              label: "Profit",
+              data: [toNumber(discountProfitValue), toNumber(nonDiscountProfitValue)],
+              backgroundColor: "#64748b",
+              yAxisID: "y"
+            },
+            {
+              type: "line",
+              label: "Margin %",
+              data: [toNumber(discountMarginPercentValue), toNumber(nonDiscountMarginPercentValue)],
+              borderColor: "#16a34a",
+              backgroundColor: "rgba(22, 163, 74, 0.15)",
+              yAxisID: "y1",
+              tension: 0.3,
+              pointRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              position: "left",
+              grid: { color: "rgba(148,163,184,0.35)" },
+              ticks: { callback: (value) => formatMoney(toNumber(value)) }
+            },
+            y1: {
+              position: "right",
+              grid: { drawOnChartArea: false },
+              ticks: { callback: (value) => `${toNumber(value).toFixed(1)}%` }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ctx.dataset.yAxisID === "y1"
+                  ? `${ctx.dataset.label}: ${toNumber(ctx.parsed.y).toFixed(1)}%`
+                  : `${ctx.dataset.label}: ${formatMoney(toNumber(ctx.parsed.y))}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    const shiftVarianceCtx = document.getElementById("shiftVarianceChart");
+    if (shiftVarianceCtx) {
+      const varianceValues = shiftVarianceValues.map((v) => toNumber(v));
+      new Chart(shiftVarianceCtx, {
+        type: "bar",
+        data: {
+          labels: shiftLabels,
+          datasets: [{
+            label: "Cash Variance",
+            data: varianceValues,
+            backgroundColor: varianceValues.map((value) => value >= 0 ? "#059669" : "#dc2626")
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (ctx) => formatMoney(toNumber(ctx.parsed.y)) } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              grid: { color: "rgba(148,163,184,0.35)" },
+              ticks: { callback: (value) => formatMoney(toNumber(value)) }
+            }
+          }
+        }
+      });
+    }
+
+    const cashierEfficiencyCtx = document.getElementById("cashierEfficiencyChart");
+    if (cashierEfficiencyCtx) {
+      const efficiencyPoints = cashierLabels.map((name, idx) => {
+        const tx = toNumber(cashierTransactions[idx]);
+        const avg = toNumber(cashierAvgOrder[idx]);
+        const speed = toNumber(cashierItemsPerMinute[idx]);
+        const revenue = toNumber(cashierSales[idx]);
+        return {
+          x: tx,
+          y: avg,
+          r: Math.max(5, Math.min(20, 6 + speed * 120)),
+          cashier: name,
+          speed: speed,
+          revenue: revenue
+        };
+      });
+      new Chart(cashierEfficiencyCtx, {
+        type: "bubble",
+        data: {
+          datasets: [{
+            label: "Cashier",
+            data: efficiencyPoints,
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            borderColor: "#0f172a"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const point = ctx.raw || {};
+                  return `${point.cashier || "Cashier"} · Tx ${toNumber(point.x)} · Avg ${formatMoney(toNumber(point.y))} · Items/min ${toNumber(point.speed).toFixed(2)} · Rev ${formatMoney(toNumber(point.revenue))}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Transactions" },
+              grid: { color: "rgba(148,163,184,0.2)" },
+              ticks: { precision: 0 }
+            },
+            y: {
+              title: { display: true, text: "Average Order Value ($)" },
+              grid: { color: "rgba(148,163,184,0.2)" },
+              ticks: { callback: (value) => formatMoney(toNumber(value)) }
+            }
           }
         }
       });
