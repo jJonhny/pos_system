@@ -52,8 +52,8 @@ class AnalyticsPageIntegrationTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("trendCandlestickChart")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("trendOhlcChart")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("advancedChartGallery")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Part-to-Whole Charts")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Distribution Charts")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Advanced / Specialized Charts")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Revenue Composition Views")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sales Distribution Views")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Advanced Insight Views")));
     }
 }
