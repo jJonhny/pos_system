@@ -617,6 +617,7 @@
     };
 
     const terminalIdKey = "pos.terminal.id";
+    let clientCheckoutId = null;
 
     const generateTerminalId = () => {
       const random = Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -642,6 +643,29 @@
         }
       });
       return terminalId;
+    };
+
+    const generateClientCheckoutId = () => {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `chk_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    };
+
+    const syncClientCheckoutIdFields = (root) => {
+      const panel = getCartPanel();
+      const hasCheckoutSuccess = !!panel?.querySelector("[data-checkout-success='true']");
+      const hasCartItems = !!panel?.querySelector("[data-cart-item]");
+      if (!clientCheckoutId || hasCheckoutSuccess || !hasCartItems) {
+        clientCheckoutId = generateClientCheckoutId();
+      }
+      const scope = root || document;
+      scope.querySelectorAll(".client-checkout-id-field").forEach((input) => {
+        if (input instanceof HTMLInputElement && input.value !== clientCheckoutId) {
+          input.value = clientCheckoutId;
+        }
+      });
+      return clientCheckoutId;
     };
 
     let terminalHeaderBound = false;
@@ -1090,6 +1114,7 @@
 
     const afterCartSwap = () => {
       syncTerminalIdFields(document);
+      syncClientCheckoutIdFields(document);
       applyProductListingState();
       applyStoredCurrency();
       renderPins();

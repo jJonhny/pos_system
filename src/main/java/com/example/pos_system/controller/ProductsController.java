@@ -207,6 +207,15 @@ public class ProductsController {
         }
         String summary = "Imported " + result.created + " created, " + result.updated + " updated, "
                 + result.skipped + " skipped, " + result.failed + " failed.";
+        inventoryService.recordImportSummary(
+                file.getOriginalFilename(),
+                allowCreate,
+                createCategories,
+                result.created,
+                result.updated,
+                result.skipped,
+                result.failed
+        );
         redirectAttributes.addFlashAttribute("importSummary", summary);
         if (result.failed == 0) {
             redirectAttributes.addFlashAttribute("success", "Import completed. " + summary);

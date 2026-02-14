@@ -13,7 +13,9 @@ import com.example.pos_system.repository.AppUserRepo;
 import com.example.pos_system.repository.AuditEventRepo;
 import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.ProductRepo;
+import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.repository.ShiftRepo;
+import com.example.pos_system.service.CheckoutAttemptService;
 import com.example.pos_system.service.InventoryService;
 import com.example.pos_system.service.PosService;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,23 +52,52 @@ class AuditEventIntegrationTests {
     @Autowired
     private ShiftRepo shiftRepo;
     @Autowired
+    private SaleRepo saleRepo;
+    @Autowired
+    private CheckoutAttemptService checkoutAttemptService;
+    @Autowired
     private AppUserRepo appUserRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Test
     @WithMockUser(username = "audit_admin", roles = "ADMIN")
-    void checkoutWritesAuditEvent() {
+    void checkoutIdempotencyCreatesSingleSaleAndSingleAuditEvent() {
         ensureActor("audit_admin");
-        Product product = createProduct("AUD-CHECKOUT-01", 25);
-        Shift shift = createShift("audit_admin");
+        Product product = createProduct("AUD-CHECKOUT-01", 1);
+        String terminalId = "TERM-AUDIT-01";
+        Shift shift = createShift("audit_admin", terminalId);
+        long saleCountBefore = saleRepo.count();
+        AtomicInteger operationCalls = new AtomicInteger();
+        String clientCheckoutId = UUID.randomUUID().toString();
 
-        Cart cart = new Cart();
-        cart.add(product);
+        CheckoutAttemptService.CheckoutResult first = checkoutAttemptService.process(
+                clientCheckoutId,
+                terminalId,
+                () -> {
+                    operationCalls.incrementAndGet();
+                    Cart cart = new Cart();
+                    cart.add(productRepo.findById(product.getId()).orElseThrow());
+                    SalePayment payment = new SalePayment();
+                    payment.setMethod(PaymentMethod.CASH);
+                    return posService.checkout(cart, payment, "audit_admin", null, shift, terminalId);
+                }
+        );
 
-        SalePayment payment = new SalePayment();
-        payment.setMethod(PaymentMethod.CASH);
-        posService.checkout(cart, payment, "audit_admin", null, shift);
+        CheckoutAttemptService.CheckoutResult second = checkoutAttemptService.process(
+                clientCheckoutId,
+                terminalId,
+                () -> {
+                    operationCalls.incrementAndGet();
+                    throw new IllegalStateException("Idempotent replay should not execute checkout again.");
+                }
+        );
+
+        assertThat(operationCalls.get()).isEqualTo(1);
+        assertThat(second.replayed()).isTrue();
+        assertThat(first.sale().getId()).isEqualTo(second.sale().getId());
+        assertThat(saleRepo.count()).isEqualTo(saleCountBefore + 1);
+        assertThat(auditEventRepo.countByActionType("POS_CHECKOUT")).isEqualTo(1);
 
         var event = auditEventRepo.findTopByActionTypeOrderByTimestampDesc("POS_CHECKOUT").orElse(null);
         assertThat(event).isNotNull();
@@ -76,21 +110,21 @@ class AuditEventIntegrationTests {
 
     @Test
     @WithMockUser(username = "audit_admin", roles = "ADMIN")
-    void stockAdjustmentWritesAuditEvent() {
+    void stockAdjustmentAuditPreventsNegativeInventory() {
         ensureActor("audit_admin");
-        Product product = createProduct("AUD-STOCK-01", 7);
+        Product product = createProduct("AUD-STOCK-01", 3);
 
-        inventoryService.quickUpdate(product.getId(), null, "12");
+        inventoryService.bulkAdjustStock(List.of(product.getId()), "remove", "10");
 
         Product updated = productRepo.findById(product.getId()).orElseThrow();
-        assertThat(updated.getStockQty()).isEqualTo(12);
+        assertThat(updated.getStockQty()).isEqualTo(0);
 
-        var event = auditEventRepo.findTopByActionTypeOrderByTimestampDesc("STOCK_ADJUSTMENT").orElse(null);
+        var event = auditEventRepo.findTopByActionTypeOrderByTimestampDesc("STOCK_BULK_UPDATE").orElse(null);
         assertThat(event).isNotNull();
         assertThat(event.getActorUsername()).isEqualTo("audit_admin");
         assertThat(event.getTargetType()).isEqualTo("PRODUCT");
-        assertThat(event.getTargetId()).isEqualTo(String.valueOf(product.getId()));
-        assertThat(event.getAfterJson()).contains("\"stockQty\":12");
+        assertThat(event.getTargetId()).isEqualTo("bulk");
+        assertThat(event.getAfterJson()).contains("\"stockQty\":0");
     }
 
     private Product createProduct(String sku, int stockQty) {
@@ -110,9 +144,10 @@ class AuditEventIntegrationTests {
         return productRepo.save(product);
     }
 
-    private Shift createShift(String username) {
+    private Shift createShift(String username, String terminalId) {
         Shift shift = new Shift();
         shift.setCashierUsername(username);
+        shift.setTerminalId(terminalId);
         shift.setOpenedAt(LocalDateTime.now());
         shift.setStatus(ShiftStatus.OPEN);
         shift.setOpeningCash(new BigDecimal("10.00"));

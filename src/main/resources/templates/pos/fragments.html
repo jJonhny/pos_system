@@ -181,6 +181,7 @@
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="cartPanel" id="cartPanel"
      th:attr="data-subtotal=${cart.subtotal}, data-discount=${cart.discount}, data-tax=${cart.tax}, data-total=${cart.total}, data-base-code=${baseCurrency.code}, data-base-symbol=${baseCurrency.symbol}, data-base-decimals=${baseCurrency.fractionDigits}">
   <div th:if="${checkoutSuccess}"
+       data-checkout-success="true"
        class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
     <div class="font-semibold">Checkout complete</div>
     <div class="mt-0.5" th:text="${checkoutSuccess}">Payment received.</div>
@@ -655,6 +656,8 @@
             hx-post="/pos/checkout/split" hx-target="#cartContainer" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
+        <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
+               th:value="${T(java.util.UUID).randomUUID().toString()}"/>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
           <select name="method1"
                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
@@ -729,6 +732,8 @@
             hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
+        <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
+               th:value="${T(java.util.UUID).randomUUID().toString()}"/>
         <input type="hidden" name="method" value="CASH"/>
         <input type="hidden" name="currencyCode" id="cashCurrencyCode"/>
         <input type="hidden" name="currencyRate" id="cashCurrencyRate"/>
@@ -741,6 +746,8 @@
             hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
+        <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
+               th:value="${T(java.util.UUID).randomUUID().toString()}"/>
         <input type="hidden" name="method" value="CARD"/>
         <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
           Card
@@ -750,6 +757,8 @@
             hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
+        <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
+               th:value="${T(java.util.UUID).randomUUID().toString()}"/>
         <input type="hidden" name="method" value="QR"/>
         <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
           QR

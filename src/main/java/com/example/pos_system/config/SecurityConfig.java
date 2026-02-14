@@ -26,7 +26,7 @@ public class SecurityConfig {
                                 "hasRole('ADMIN') or hasAuthority('PERM_MANAGE_USERS')"))
                         .requestMatchers("/currencies/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasRole('ADMIN')"))
-                        .requestMatchers("/audit-events/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                        .requestMatchers("/admin/audit/**", "/audit-events/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasRole('ADMIN')"))
                         .requestMatchers("/reports/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"))

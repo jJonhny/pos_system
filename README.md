@@ -93,7 +93,7 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 - `http://localhost:8080/reports`
 - `http://localhost:8080/users`
 - `http://localhost:8080/currencies`
-- `http://localhost:8080/audit-events` (ADMIN only)
+- `http://localhost:8080/admin/audit` (ADMIN only)
 
 **Access Control**
 - ADMIN: full access
@@ -109,14 +109,17 @@ Passwords are stored with BCrypt. Legacy `{noop}` (or plain) passwords are suppo
 **Audit Logging**
 - Audit events are stored in `audit_event` with immutable, append-only semantics.
 - Logged actions include:
-- POS cart discounts and cart price overrides
-- POS checkout (single and split payments, including currency metadata)
+- POS cart discounts, tax overrides, and cart line price overrides
+- POS checkout (single and split payments, including multi-currency metadata)
+- POS hold cart and resume hold
 - Sale void and returns
-- Product stock adjustments and bulk stock updates
+- Product stock adjustments, bulk stock updates, and import summaries
 - Currency create/update/base/rate refresh changes
 - User account, role, permission, MFA, and password administration changes
-- Admin search UI: `GET /audit-events` with filters for date range, username, and action type.
+- Admin search UI: `GET /admin/audit` with filters for date range, username, action type, target type, and target id.
+- Checkout idempotency: `checkout_attempt` table enforces unique `(terminal_id, client_checkout_id)` to prevent duplicate sales on retries.
 - SQL migration script (for environments not relying on JPA auto-schema): `src/main/resources/sql/audit_events.sql`.
+- SQL migration script for checkout idempotency: `src/main/resources/sql/checkout_attempts.sql`.
 - Shift schema migration script (manual): `src/main/resources/sql/shift_management.sql`.
 
 Retention recommendation:

@@ -65,10 +65,16 @@ public class SalesService {
                 refundSubtotal = refundSubtotal.add(item.getUnitPrice().multiply(BigDecimal.valueOf(requested)));
             }
             Product product = item.getProduct();
-            if (product != null && product.getStockQty() != null) {
+            if (product != null && product.getId() != null) {
+                Product lockedProduct = productRepo.findByIdForUpdate(product.getId()).orElse(product);
                 int unitSize = unitSize(item);
-                product.setStockQty(product.getStockQty() + (requested * unitSize));
-                productRepo.save(product);
+                Integer currentStock = lockedProduct.getStockQty();
+                if (currentStock == null) {
+                    currentStock = 0;
+                }
+                lockedProduct.setStockQty(currentStock + (requested * unitSize));
+                productRepo.save(lockedProduct);
+                product = lockedProduct;
             }
             Map<String, Object> returnedRow = new LinkedHashMap<>();
             returnedRow.put("saleItemId", item.getId());

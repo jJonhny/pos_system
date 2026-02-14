@@ -65,8 +65,7 @@ public class PosService {
         sale.setRefundedTotal(BigDecimal.ZERO);
 
         for (CartItem ci : cart.getItems()) {
-            Product p = productRepo.findById(ci.getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+            Product p = lockProduct(ci.getProductId());
 
             if (p.getStockQty() != null && p.getStockQty() < ci.getEffectiveQty()) {
                 throw new IllegalStateException("Insufficient stock for " + p.getName());
@@ -136,8 +135,7 @@ public class PosService {
         sale.setRefundedTotal(BigDecimal.ZERO);
 
         for (CartItem ci : cart.getItems()) {
-            Product p = productRepo.findById(ci.getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+            Product p = lockProduct(ci.getProductId());
 
             if (p.getStockQty() != null && p.getStockQty() < ci.getEffectiveQty()) {
                 throw new IllegalStateException("Insufficient stock for " + p.getName());
@@ -292,5 +290,13 @@ public class PosService {
         String trimmed = terminalId.trim();
         if (trimmed.isEmpty()) return null;
         return trimmed.length() <= 128 ? trimmed : trimmed.substring(0, 128);
+    }
+
+    private Product lockProduct(Long productId) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Product not found");
+        }
+        return productRepo.findByIdForUpdate(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
     }
 }

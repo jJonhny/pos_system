@@ -23,7 +23,7 @@ public class InventoryService {
     }
 
     public Product quickUpdate(Long id, String price, String stockQty) {
-        Product product = productRepo.findById(id).orElseThrow();
+        Product product = productRepo.findByIdForUpdate(id).orElseThrow();
         Map<String, Object> before = productSnapshot(product);
         boolean changedPrice = false;
         boolean changedStock = false;
@@ -80,7 +80,10 @@ public class InventoryService {
             throw new IllegalArgumentException("Bulk quantity must be a positive number.");
         }
         int delta = "remove".equalsIgnoreCase(operation) ? -qtyValue : qtyValue;
-        List<Product> products = productRepo.findAllById(ids);
+        List<Product> products = new ArrayList<>();
+        for (Long id : ids) {
+            productRepo.findByIdForUpdate(id).ifPresent(products::add);
+        }
         List<Map<String, Object>> before = new ArrayList<>();
         List<Map<String, Object>> after = new ArrayList<>();
 
@@ -108,6 +111,24 @@ public class InventoryService {
         metadata.put("affectedProducts", products.size());
         auditEventService.record("STOCK_BULK_UPDATE", "PRODUCT", "bulk", before, after, metadata);
         return products.size();
+    }
+
+    public void recordImportSummary(String filename,
+                                    boolean allowCreate,
+                                    boolean createCategories,
+                                    int created,
+                                    int updated,
+                                    int skipped,
+                                    int failed) {
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("filename", filename);
+        metadata.put("allowCreate", allowCreate);
+        metadata.put("createCategories", createCategories);
+        metadata.put("created", created);
+        metadata.put("updated", updated);
+        metadata.put("skipped", skipped);
+        metadata.put("failed", failed);
+        auditEventService.record("STOCK_IMPORT", "PRODUCT", "import", null, null, metadata);
     }
 
     private Map<String, Object> productSnapshot(Product product) {

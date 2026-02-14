@@ -3,6 +3,7 @@ package com.example.pos_system.service;
 import com.example.pos_system.dto.Cart;
 import com.example.pos_system.dto.CartItem;
 import com.example.pos_system.entity.DiscountType;
+import com.example.pos_system.entity.HeldSale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,21 @@ public class PosCartService {
     }
 
     @Transactional
+    public void applyTax(Cart cart, BigDecimal taxRatePercent) {
+        Map<String, Object> before = cartSnapshot(cart);
+        BigDecimal safeRatePercent = taxRatePercent == null ? BigDecimal.ZERO : taxRatePercent.max(BigDecimal.ZERO);
+        if (safeRatePercent.compareTo(new BigDecimal("100")) > 0) {
+            safeRatePercent = new BigDecimal("100");
+        }
+        BigDecimal rate = safeRatePercent.divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP);
+        cart.setTaxRate(rate);
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("taxRatePercent", safeRatePercent);
+        metadata.put("taxRate", rate);
+        auditEventService.record("POS_CART_TAX_OVERRIDE", "CART", "session", before, cartSnapshot(cart), metadata);
+    }
+
+    @Transactional
     public void recordPriceOverride(Cart cart, CartItem before, CartItem after, String reason) {
         if (before == null || after == null) return;
         if (!hasPriceChange(before, after)) return;
@@ -53,6 +69,27 @@ public class PosCartService {
         metadata.put("cartTotal", cart.getTotal());
         auditEventService.record("POS_CART_PRICE_OVERRIDE", "CART_ITEM", after.getProductId(),
                 beforeState, afterState, metadata);
+    }
+
+    @Transactional
+    public void recordHoldCart(Cart cart, HeldSale hold) {
+        if (cart == null || hold == null) return;
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("holdId", hold.getId());
+        metadata.put("label", hold.getLabel());
+        metadata.put("itemCount", hold.getItems() == null ? 0 : hold.getItems().size());
+        metadata.put("customerId", hold.getCustomer() == null ? null : hold.getCustomer().getId());
+        auditEventService.record("POS_HOLD_CART", "HOLD", hold.getId(), cartSnapshot(cart), null, metadata);
+    }
+
+    @Transactional
+    public void recordResumeHold(HeldSale hold, Cart cart) {
+        if (hold == null || cart == null) return;
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("label", hold.getLabel());
+        metadata.put("itemCount", hold.getItems() == null ? 0 : hold.getItems().size());
+        metadata.put("customerId", hold.getCustomer() == null ? null : hold.getCustomer().getId());
+        auditEventService.record("POS_RESUME_HOLD", "HOLD", hold.getId(), null, cartSnapshot(cart), metadata);
     }
 
     private boolean hasPriceChange(CartItem before, CartItem after) {
@@ -74,6 +111,7 @@ public class PosCartService {
         snapshot.put("discount", cart.getDiscount());
         snapshot.put("discountReason", cart.getDiscountReason());
         snapshot.put("taxRate", cart.getTaxRate());
+        snapshot.put("taxRatePercent", cart.getTaxRatePercent());
         snapshot.put("tax", cart.getTax());
         snapshot.put("total", cart.getTotal());
         snapshot.put("itemCount", cart.getItems().size());

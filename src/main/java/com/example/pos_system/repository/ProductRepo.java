@@ -5,9 +5,11 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 
 public interface ProductRepo extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
@@ -24,6 +26,9 @@ public interface ProductRepo extends JpaRepository<Product, Long>, JpaSpecificat
     Page<Product> findByCategory_Id(Long categoryId, Pageable pageable);
     Optional<Product> findByBarcode(String barcode);
     Optional<Product> findBySkuIgnoreCase(String sku);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Product p where p.id = :id")
+    Optional<Product> findByIdForUpdate(@Param("id") Long id);
     boolean existsByCategory_Id(Long categoryId);
     java.util.List<Product> findByCategory_Id(Long categoryId, Sort sort);
 

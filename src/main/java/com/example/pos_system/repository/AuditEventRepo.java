@@ -13,4 +13,9 @@ public interface AuditEventRepo extends JpaRepository<AuditEvent, Long>, JpaSpec
 
     @Query("select distinct a.actionType from AuditEvent a order by a.actionType asc")
     List<String> findDistinctActionTypes();
+
+    @Query("select distinct a.targetType from AuditEvent a order by a.targetType asc")
+    List<String> findDistinctTargetTypes();
+
+    long countByActionType(String actionType);
 }

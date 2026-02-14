@@ -20,3 +20,6 @@ CREATE TABLE IF NOT EXISTS audit_event (
 CREATE INDEX idx_audit_event_timestamp ON audit_event (timestamp);
 CREATE INDEX idx_audit_event_actor_username ON audit_event (actor_username);
 CREATE INDEX idx_audit_event_action_type ON audit_event (action_type);
+CREATE INDEX idx_audit_event_action_timestamp ON audit_event (action_type, timestamp);
+CREATE INDEX idx_audit_event_actor_user_timestamp ON audit_event (actor_user_id, timestamp);
+CREATE INDEX idx_audit_event_target ON audit_event (target_type, target_id);

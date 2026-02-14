@@ -4,6 +4,7 @@ import com.example.pos_system.dto.Cart;
 import com.example.pos_system.dto.CartItem;
 import com.example.pos_system.entity.*;
 import com.example.pos_system.repository.*;
+import com.example.pos_system.service.CheckoutAttemptService;
 import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.PosCartService;
 import com.example.pos_system.service.PosService;
@@ -46,6 +47,7 @@ public class PosController {
   private final ShiftService shiftService;
   private final CurrencyService currencyService;
   private final PosCartService posCartService;
+  private final CheckoutAttemptService checkoutAttemptService;
 
   public PosController(ProductRepo productRepo,
                        CategoryRepo categoryRepo,
@@ -54,7 +56,8 @@ public class PosController {
                        CustomerRepo customerRepo,
                        ShiftService shiftService,
                        CurrencyService currencyService,
-                       PosCartService posCartService) {
+                       PosCartService posCartService,
+                       CheckoutAttemptService checkoutAttemptService) {
     this.productRepo = productRepo;
     this.categoryRepo = categoryRepo;
     this.posService = posService;
@@ -63,6 +66,7 @@ public class PosController {
     this.shiftService = shiftService;
     this.currencyService = currencyService;
     this.posCartService = posCartService;
+    this.checkoutAttemptService = checkoutAttemptService;
   }
 
   @ModelAttribute("cart")
@@ -345,7 +349,8 @@ public class PosController {
       item.setNote(ci.getNote());
       hold.getItems().add(item);
     }
-    heldSaleRepo.save(hold);
+    HeldSale savedHold = heldSaleRepo.save(hold);
+    posCartService.recordHoldCart(cart, savedHold);
     cart.clear();
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
@@ -389,6 +394,7 @@ public class PosController {
     if (hold.getCustomer() != null) {
       cart.setCustomerId(hold.getCustomer().getId());
     }
+    posCartService.recordResumeHold(hold, cart);
     heldSaleRepo.delete(hold);
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
@@ -521,12 +527,7 @@ public class PosController {
   public String updateTax(@RequestParam(required = false) BigDecimal taxRate,
                           @RequestHeader(value = "HX-Request", required = false) String hxRequest,
                           @ModelAttribute("cart") Cart cart, Model model) {
-    BigDecimal safeRate = taxRate == null ? BigDecimal.ZERO : taxRate.max(BigDecimal.ZERO);
-    if (safeRate.compareTo(new BigDecimal("100")) > 0) {
-      safeRate = new BigDecimal("100");
-    }
-    BigDecimal rate = safeRate.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
-    cart.setTaxRate(rate);
+    posCartService.applyTax(cart, taxRate);
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
@@ -919,6 +920,7 @@ public class PosController {
                          @RequestParam(required = false) BigDecimal currencyRate,
                          @RequestParam(required = false) BigDecimal foreignAmount,
                          @RequestParam(required = false) String terminalId,
+                         @RequestParam(required = false) String clientCheckoutId,
                          @ModelAttribute("cart") Cart cart,
                          SessionStatus sessionStatus,
                          RedirectAttributes redirectAttributes,
@@ -950,16 +952,24 @@ public class PosController {
       }
       Customer customer = loadCustomer(cart.getCustomerId());
       SalePayment payment = buildPayment(method, cart.getTotal(), currencyCode, currencyRate, foreignAmount);
-      Sale sale = posService.checkout(cart, payment, username, customer, openShift, resolvedTerminalId);
+      String checkoutTerminalId = resolvedTerminalId;
+      CheckoutAttemptService.CheckoutResult result = checkoutAttemptService.process(
+              clientCheckoutId,
+              checkoutTerminalId,
+              () -> posService.checkout(cart, payment, username, customer, openShift, checkoutTerminalId)
+      );
+      Sale sale = result.sale();
       sessionStatus.setComplete(); // clears session cart
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
         enrichCartModel(model, fresh, resolvedTerminalId);
-        model.addAttribute("checkoutSuccess", "Payment received. Receipt ready.");
+        model.addAttribute("checkoutSuccess",
+                result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
         model.addAttribute("receiptUrl", "/sales/" + sale.getId() + "/receipt");
         return "pos/fragments :: cartContainer";
       }
-      redirectAttributes.addFlashAttribute("successMessage", "Payment received. Receipt ready.");
+      redirectAttributes.addFlashAttribute("successMessage",
+              result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
       return "redirect:/sales/" + sale.getId() + "/receipt";
     } catch (IllegalStateException ex) {
       String message = ex.getMessage() == null ? "Checkout failed." : ex.getMessage();
@@ -983,6 +993,7 @@ public class PosController {
                               @RequestParam(required = false) BigDecimal amount3,
                               @RequestParam(required = false) String currencyCode3,
                               @RequestParam(required = false) String terminalId,
+                              @RequestParam(required = false) String clientCheckoutId,
                               @ModelAttribute("cart") Cart cart,
                               SessionStatus sessionStatus,
                               RedirectAttributes redirectAttributes,
@@ -1038,16 +1049,24 @@ public class PosController {
         resolvedTerminalId = openShift.getTerminalId();
       }
       Customer customer = loadCustomer(cart.getCustomerId());
-      Sale sale = posService.checkoutSplit(cart, payments, username, customer, openShift, resolvedTerminalId);
+      String checkoutTerminalId = resolvedTerminalId;
+      CheckoutAttemptService.CheckoutResult result = checkoutAttemptService.process(
+              clientCheckoutId,
+              checkoutTerminalId,
+              () -> posService.checkoutSplit(cart, payments, username, customer, openShift, checkoutTerminalId)
+      );
+      Sale sale = result.sale();
       sessionStatus.setComplete();
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
         enrichCartModel(model, fresh, resolvedTerminalId);
-        model.addAttribute("checkoutSuccess", "Payment received. Receipt ready.");
+        model.addAttribute("checkoutSuccess",
+                result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
         model.addAttribute("receiptUrl", "/sales/" + sale.getId() + "/receipt");
         return "pos/fragments :: cartContainer";
       }
-      redirectAttributes.addFlashAttribute("successMessage", "Payment received. Receipt ready.");
+      redirectAttributes.addFlashAttribute("successMessage",
+              result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
       return "redirect:/sales/" + sale.getId() + "/receipt";
     } catch (IllegalStateException ex) {
       String message = ex.getMessage() == null ? "Checkout failed." : ex.getMessage();
