@@ -1,9 +1,10 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<nav th:fragment="mainNav" class="hidden lg:flex items-center justify-center gap-4 text-[13px] font-semibold">
+<nav th:fragment="mainNav"
+     class="hidden lg:flex items-center justify-start xl:justify-center gap-3 text-[12px] font-semibold min-w-0 overflow-x-auto">
   <a href="/pos"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M6 6h12v4H6V6z"/>
       <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
@@ -14,51 +15,51 @@
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_SALES')"
      href="/sales"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
       <path d="M9 7h6M9 11h6M9 15h4"/>
     </svg>
-    <span>Sales Management</span>
+    <span>Sales</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')"
      href="/products"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
       <path d="M3 8v8l9 5 9-5V8"/>
     </svg>
-    <span>Commodity Management</span>
+    <span>Commodity</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER')"
      href="/marketing"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M3 7h18"/>
       <path d="M5 7v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"/>
       <path d="M9 11h6"/>
       <path d="M9 15h6"/>
     </svg>
-    <span>Marketing Management</span>
+    <span>Marketing</span>
   </a>
 
   <a sec:authorize="hasRole('ADMIN')"
      href="/currencies"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="9"/>
       <path d="M8 10h8"/>
       <path d="M8 14h8"/>
       <path d="M12 7v10"/>
     </svg>
-    <span>Financial Management</span>
+    <span>Financial</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER')"
      href="/pos-setting"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8z"/>
       <path d="M3 12h2m14 0h2M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M18.4 5.6L17 7m-10 10l-1.4 1.4"/>
@@ -68,17 +69,17 @@
 
   <a sec:authorize="isAuthenticated()"
      href="/users/password"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
       <path d="M3 21a9 9 0 0 1 18 0"/>
     </svg>
-    <span>Account Management</span>
+    <span>Account</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"
      href="/analytics"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M3 3v18h18"/>
       <path d="M7 14l3-3 4 4 5-6"/>
@@ -88,7 +89,7 @@
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"
      href="/reports"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M4 4h16v16H4z"/>
       <path d="M8 8h8M8 12h8M8 16h6"/>
@@ -98,12 +99,12 @@
 
   <a sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_MANAGE_USERS')"
      href="/users"
-     class="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0z"/>
       <path d="M3 20a7 7 0 0 1 18 0"/>
     </svg>
-    <span>User Management</span>
+    <span>User</span>
   </a>
 </nav>
 </body>
