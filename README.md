@@ -1,139 +1,276 @@
 # POS System
 
-**Overview**
-Spring Boot + Thymeleaf point‑of‑sale application with inventory, sales tracking, multi‑currency payments, and analytics.
+Production-ready Point of Sale system built with **Spring Boot + Thymeleaf + HTMX**.
 
-**Features**
-- POS checkout with cart discounts (fixed amount or percent), split payments, and optional reason
-- Shift management with per-currency opening float, cash in/out events, cash refund tracking, and close reconciliation
-- Multi‑currency tendering with live FX refresh and currency management
-- Inventory management for products and categories, low‑stock insights
-- Inventory integrity ledger (`stock_movement`) with stock guardrails (negative stock blocked unless product allows it)
-- Supplier management + Purchase Orders + Goods Receipt posting
-- Sales history with returns, receipts, and PDF export
-- Reports with Excel export
-- Analytics dashboard (sales trends, payment mix, inventory health, customers, staff, compliance)
-- User management with roles (ADMIN, MANAGER, CASHIER) and fine‑grained permissions
-- Immutable audit logging for sensitive actions (checkout, discounts, void/return, inventory, currency, user changes)
+## Overview
 
-**Tech Stack**
-- Codex from ChatGPT
-- Java 25, Spring Boot 4.0.2
-- Spring MVC + Thymeleaf
-- Spring Data JPA + MySQL
-- Spring Security
-- Tailwind CSS + Chart.js
-- openhtmltopdf (receipt PDFs)
+This project delivers an end-to-end retail workflow:
 
-**Requirements**
+- fast cashier POS with split/multi-currency checkout
+- inventory integrity with stock movement ledger
+- supplier receiving (PO + GRN)
+- shift/cash-drawer reconciliation
+- analytics + report exports
+- security, RBAC, and immutable audit logging
+- optional local POS bridge for ESC/POS printing and drawer open
+
+---
+
+## Completed Feature Scope
+
+### POS & Checkout
+
+- Product search, category filter, quick-add by SKU/barcode, scanner flow
+- Cart with quantity/unit changes, notes, customer attach/create, clear cart
+- Cart discount/price/tax override audit coverage
+- Hold cart / resume cart
+- Split payments and multi-currency tendering
+- Idempotent checkout (`clientCheckoutId` + terminal guard) to prevent duplicates
+- Receipt page, PDF receipt, and reprint actions
+- POS keyboard + usability enhancements (recent/pinned items, quick totals, filters)
+
+### Shift & Cash Drawer
+
+- Open shift with opening float (per currency JSON)
+- Cash events during shift: `CASH_IN`, `CASH_OUT`, `DRAWER_OPEN`
+- Close shift with counted cash, expected cash, variance, notes
+- Manager/admin approval required for high variance (configurable threshold)
+- Shift summary reporting + Excel export
+
+### Hardware & Terminal Settings
+
+- Terminal/register management (`/pos-setting`)
+- Per-terminal receipt header/footer, tax ID, default currency
+- Printer mode: `BRIDGE` or `PDF`
+- Bridge print payload endpoint + drawer open endpoint
+- Test print and test drawer actions
+- Fallback behavior when bridge is unavailable (PDF/manual drawer)
+- Optional camera scanner flag per terminal
+
+### Inventory, Products, Categories
+
+- Product CRUD with pricing tiers, stock settings, active toggle
+- Category CRUD with sorting and active status
+- Bulk stock operations + CSV/XLSX import/export
+- Clipboard image paste support (`Ctrl/Cmd + V`) on product/category forms
+- Drag/drop image support with preview before save
+- Upload overflow handling with user-friendly error (no raw Whitelabel 413)
+
+### Stock Movement Ledger & Integrity
+
+- Unified `stock_movement` ledger (`SALE`, `RETURN`, `VOID`, `RECEIVE`, `ADJUSTMENT`, `IMPORT`, etc.)
+- Transactional on-hand updates
+- Negative stock blocked unless `allowNegativeStock=true`
+- Inventory movements screen + CSV/XLSX export
+
+### Suppliers, Purchase Orders, Goods Receipt
+
+- Supplier CRUD
+- Purchase order create/edit/list with line items
+- Goods receipt posting (linked/unlinked to PO)
+- Automatic PO status progression (`DRAFT`, `SENT`, `PARTIAL`, `RECEIVED`, `CANCELED`)
+- Receiving report + Excel export
+
+### Sales, Returns, Voids
+
+- Sales list with filters, sorting, pagination, CSV export
+- Bulk actions (void/export/reprint)
+- Return flow with refund math and customer point adjustment
+- Void flow with stock compensation movements
+- Transactional return/void service logic
+
+### Currency & Financial
+
+- Currency CRUD + activate/deactivate
+- Base currency switch
+- FX refresh from configurable provider
+- Currency analytics dashboard (converter + trend/volatility/freshness charts)
+
+### Analytics & Reports
+
+- Main analytics dashboard with KPI cards and operational insights
+- Chart.js + Plotly chart coverage (trends, composition, distribution, relationships, advanced gallery)
+- Report center:
+  - Sales Excel (`/reports/sales.xlsx`)
+  - Shift Excel (`/reports/shifts.xlsx`)
+  - Inventory ledger Excel (`/reports/inventory-ledger.xlsx`)
+  - Receiving Excel (`/reports/receiving.xlsx`)
+
+### Security, Users, Auditing
+
+- Spring Security login flow with access-denied handling
+- Roles: `ADMIN`, `MANAGER`, `CASHIER`
+- Permission-based overrides (authorities emitted as `PERM_*`)
+- User admin: role/status/password/permissions/MFA + bulk actions
+- Immutable `audit_event` log for sensitive POS/admin/inventory/currency actions
+- Admin audit search UI (`/admin/audit`, alias `/audit-events`)
+
+---
+
+## Architecture
+
+- **Backend:** Spring Boot 4, Spring MVC, Spring Data JPA, Spring Security
+- **Frontend:** Thymeleaf templates + HTMX partial swaps + Tailwind CSS
+- **Database:** MySQL (runtime), H2 (tests)
+- **Charts:** Chart.js + Plotly
+- **PDF:** openhtmltopdf
+
+Key principle used across modules:
+
+- business logic in services (`@Transactional` where required)
+- thin MVC controllers
+- no SPA rewrite (server-rendered pages + HTMX fragments)
+
+---
+
+## Requirements
+
 - JDK 25
 - MySQL 8+
+- (Optional) Node.js for local POS bridge
 
-**Setup**
-1. Create the database.
+---
+
+## Local Setup
+
+1. Create database:
 
 ```sql
 CREATE DATABASE pos_db;
 ```
 
-2. Update database credentials in `src/main/resources/application.properties`.
+2. Configure DB in `src/main/resources/application.properties`:
 
-```
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/pos_db?useSSL=false&serverTimezone=UTC
 spring.datasource.username=root
 spring.datasource.password=
 ```
 
-3. Run the application.
+3. Run:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-**Currency & FX**
-Currency settings are configured in `src/main/resources/application.properties`:
+4. Login:
 
-```
+- Admin: `admin` / `admin123`
+- Cashier: `cashier` / `cashier123`
+
+> These are seeded only when user table is empty. Change passwords immediately.
+
+---
+
+## Important Configuration
+
+### Currency / FX
+
+```properties
 app.currency.base=USD
 app.currency.rate-url=https://open.er-api.com/v6/latest/{base}
 app.currency.rate-path=rates
 app.currency.refresh-ms=3600000
 ```
 
-Shift variance approval threshold (base currency):
+### Shift close variance threshold
 
-```
+```properties
 app.shift.variance-threshold=20.00
 ```
 
-Shift expected-cash formula:
-- `expected = opening float + cash sales + cash in - cash out - cash refunds`
-- Closing a shift above the configured variance threshold requires manager/admin approval.
+Expected cash formula:
 
-The rate URL should return a JSON object with a `rates` map keyed by currency code. The default free endpoint is rate‑limited and typically updates once per day.
+`opening float + cash sales + cash in - cash out - cash refunds`
 
-**Default Users**
-- Admin: `admin` / `admin123`
-- Cashier: `cashier` / `cashier123`
+### Multipart upload limits
 
-These are created only when the user table is empty. You can override them using properties:
-- `app.seed.admin.username`
-- `app.seed.admin.password`
-- `app.seed.cashier.username`
-- `app.seed.cashier.password`
-
-**Dev Sample Data**
-Run with the `dev` profile to seed sample categories, products, and a sample sale.
-
-```bash
-SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+```properties
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=12MB
 ```
 
-**Key Routes**
-- `http://localhost:8080/login`
-- `http://localhost:8080/pos`
-- `http://localhost:8080/products`
-- `http://localhost:8080/categories`
-- `http://localhost:8080/sales`
-- `http://localhost:8080/analytics`
-- `http://localhost:8080/reports`
-- `http://localhost:8080/inventory/movements`
-- `http://localhost:8080/suppliers`
-- `http://localhost:8080/purchases/po`
-- `http://localhost:8080/users`
-- `http://localhost:8080/currencies`
-- `http://localhost:8080/admin/audit` (ADMIN only)
+Oversized uploads are redirected to friendly errors:
 
-**Access Control**
-- ADMIN: full access
-- MANAGER: analytics, reports, inventory, sales
-- CASHIER: POS and receipts only
-- Permissions can grant access to specific modules beyond roles.
+- `/products?error=uploadTooLarge`
+- `/categories?error=uploadTooLarge`
 
-Details are in `src/main/java/com/example/pos_system/config/SecurityConfig.java`.
+---
 
-**Security Note**
-Passwords are stored with BCrypt. Legacy `{noop}` (or plain) passwords are supported and upgraded on login.
+## POS Bridge (Optional Hardware Companion)
 
-**Audit Logging**
-- Audit events are stored in `audit_event` with immutable, append-only semantics.
-- Logged actions include:
-- POS cart discounts, tax overrides, and cart line price overrides
-- POS checkout (single and split payments, including multi-currency metadata)
-- POS hold cart and resume hold
-- Sale void and returns
-- Product stock adjustments, bulk stock updates, and import summaries
-- Currency create/update/base/rate refresh changes
-- User account, role, permission, MFA, and password administration changes
-- Admin search UI: `GET /admin/audit` with filters for date range, username, action type, target type, and target id.
-- Checkout idempotency: `checkout_attempt` table enforces unique `(terminal_id, client_checkout_id)` to prevent duplicate sales on retries.
-- SQL migration script (for environments not relying on JPA auto-schema): `src/main/resources/sql/audit_events.sql`.
-- SQL migration script for checkout idempotency: `src/main/resources/sql/checkout_attempts.sql`.
-- Shift schema migration script (manual): `src/main/resources/sql/shift_management.sql`.
-- Inventory ledger + supplier receiving migration script (manual): `src/main/resources/sql/inventory_movements_and_purchases.sql`.
-- Shift summary report supports date range + cashier + terminal filters and Excel export (`/reports/shifts.xlsx`).
-- Inventory ledger report (`/reports/inventory-ledger`) and receiving report (`/reports/receiving`) support filtering and Excel export.
+Sample bridge implementation:
 
-Retention recommendation:
-- Keep audit events for at least 12-24 months for operational/compliance investigations.
-- For high-volume environments, archive older records (for example monthly) to cold storage before deleting from the primary table.
+- `bridge/pos-bridge-node`
+- Docs: `bridge/pos-bridge-node/README.md`
+
+Bridge endpoints:
+
+- `POST /print`
+- `POST /drawer/open`
+- `GET /health`
+
+Main app hardware endpoints:
+
+- `POST /pos/checkout/{saleId}/print`
+- `POST /pos/drawer/open`
+
+---
+
+## Routes (Main)
+
+- `/login`
+- `/pos`
+- `/sales`
+- `/products`
+- `/categories`
+- `/commodity`
+- `/marketing`
+- `/suppliers`
+- `/purchases/po`
+- `/inventory/movements`
+- `/currencies`
+- `/analytics`
+- `/reports`
+- `/pos-setting`
+- `/users`
+- `/users/password`
+- `/admin/audit` (alias `/audit-events`)
+
+---
+
+## Schema / Migration Scripts
+
+The app currently uses JPA schema update by default. Manual SQL scripts are provided for controlled environments:
+
+- `src/main/resources/sql/audit_events.sql`
+- `src/main/resources/sql/checkout_attempts.sql`
+- `src/main/resources/sql/shift_management.sql`
+- `src/main/resources/sql/inventory_movements_and_purchases.sql`
+- `src/main/resources/sql/pos_hardware_terminal_settings.sql`
+
+---
+
+## Testing
+
+Run full test suite:
+
+```bash
+./mvnw test
+```
+
+Examples of focused runs:
+
+```bash
+./mvnw -Dtest=PosAddToCartIntegrationTest test
+./mvnw -Dtest=AnalyticsPageIntegrationTest test
+./mvnw -Dtest=ImagePasteUploadUiIntegrationTest,UploadTooLargeMessageIntegrationTest test
+```
+
+---
+
+## Additional Docs
+
+- `docs.md` – recent implementation notes (clipboard image upload, upload-size handling, POS UI fixes)
+- `MANUAL_TEST_POS.md` – manual POS test checklist
+- `guidelines.md` – codebase conventions/pattern notes
