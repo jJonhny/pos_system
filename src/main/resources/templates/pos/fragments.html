@@ -56,18 +56,17 @@
         class="product-card-wrapper h-full w-full">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-    <button type="submit"
-            class="group block h-full w-full text-left"
-            title="Add to cart"
-            aria-label="Add to cart">
+    <div class="group block h-full w-full text-left cursor-pointer"
+         data-action="add-product-card"
+         title="Add to cart"
+         aria-label="Add to cart">
 
-      <div class="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col
-                  transition hover:shadow-lg">
-        <div class="product-image-wrap relative h-56 bg-slate-50">
+      <div class="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col transition hover:shadow-lg">
+        <div class="product-image-wrap relative h-56 overflow-hidden bg-slate-50 flex items-center justify-center p-3">
           <img th:if="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
                th:src="${p.imageUrl}"
                alt=""
-               class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]"/>
+               class="h-full w-full object-contain object-center block"/>
 
           <div th:if="${p.imageUrl == null or #strings.isEmpty(p.imageUrl)}"
                class="h-full w-full grid place-items-center text-slate-400">
@@ -156,7 +155,8 @@
           </div>
         </div>
       </div>
-    </button>
+    </div>
+    <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Add</button>
   </form>
 
   <div th:if="${#lists.isEmpty(products)}"

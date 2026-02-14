@@ -2,17 +2,16 @@ package com.example.pos_system.controller;
 
 import com.example.pos_system.entity.AppUser;
 import com.example.pos_system.entity.Permission;
-import com.example.pos_system.entity.UserAuditLog;
 import com.example.pos_system.entity.UserRole;
 import com.example.pos_system.repository.AppUserRepo;
 import com.example.pos_system.repository.UserAuditLogRepo;
+import com.example.pos_system.service.UserAdminService;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,13 +31,13 @@ import java.util.Set;
 public class UsersController {
     private static final int PAGE_SIZE = 20;
     private final AppUserRepo appUserRepo;
-    private final PasswordEncoder passwordEncoder;
     private final UserAuditLogRepo auditLogRepo;
+    private final UserAdminService userAdminService;
 
-    public UsersController(AppUserRepo appUserRepo, PasswordEncoder passwordEncoder, UserAuditLogRepo auditLogRepo) {
+    public UsersController(AppUserRepo appUserRepo, UserAuditLogRepo auditLogRepo, UserAdminService userAdminService) {
         this.appUserRepo = appUserRepo;
-        this.passwordEncoder = passwordEncoder;
         this.auditLogRepo = auditLogRepo;
+        this.userAdminService = userAdminService;
     }
 
     @GetMapping
@@ -86,6 +84,7 @@ public class UsersController {
                              @RequestParam(required = false) Boolean mustResetPassword,
                              @RequestParam(required = false) Boolean mfaRequired,
                              @RequestParam(required = false) List<Permission> permissions,
+                             Authentication authentication,
                              RedirectAttributes redirectAttributes) {
         String normalized = username == null ? "" : username.trim();
         if (normalized.isEmpty()) {
@@ -101,17 +100,17 @@ public class UsersController {
             return "redirect:/users";
         }
 
-        AppUser user = new AppUser();
-        user.setUsername(normalized);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRole(role);
-        user.setActive(active == null || active);
-        user.setMustResetPassword(mustResetPassword == null || mustResetPassword);
-        user.setMfaRequired(mfaRequired != null && mfaRequired);
-        if (permissions != null && !permissions.isEmpty()) {
-            user.setPermissions(new HashSet<>(permissions));
-        }
-        appUserRepo.save(user);
+        Set<Permission> permissionSet = permissions == null ? new HashSet<>() : new HashSet<>(permissions);
+        userAdminService.createUser(
+                normalized,
+                password,
+                role,
+                active == null || active,
+                mustResetPassword == null || mustResetPassword,
+                mfaRequired != null && mfaRequired,
+                permissionSet,
+                authentication
+        );
 
         redirectAttributes.addFlashAttribute("success", "User created.");
         return "redirect:/users";
@@ -135,9 +134,7 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("error", "You must keep at least one admin account.");
             return "redirect:/users";
         }
-        user.setRole(role);
-        appUserRepo.save(user);
-        logAction(authentication, user, "ROLE_UPDATE", "Role set to " + role.name());
+        userAdminService.updateRole(user, role, authentication, "Role set to " + role.name());
         redirectAttributes.addFlashAttribute("success", "Role updated.");
         return "redirect:/users";
     }
@@ -157,12 +154,8 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("error", "Password is required.");
             return "redirect:/users";
         }
-        user.setPassword(passwordEncoder.encode(password));
-        if (temporary == null || temporary) {
-            user.setMustResetPassword(true);
-        }
-        appUserRepo.save(user);
-        logAction(authentication, user, "PASSWORD_RESET", "Password reset by admin.");
+        userAdminService.resetPassword(user, password, temporary == null || temporary,
+                authentication, "Password reset by admin.");
         redirectAttributes.addFlashAttribute("success", "Password updated.");
         return "redirect:/users";
     }
@@ -181,9 +174,8 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("error", "You cannot deactivate your own account.");
             return "redirect:/users";
         }
-        user.setActive(active);
-        appUserRepo.save(user);
-        logAction(authentication, user, active ? "ACTIVATE" : "DEACTIVATE", "Status set to " + (active ? "active" : "inactive"));
+        userAdminService.updateStatus(user, active, authentication,
+                "Status set to " + (active ? "active" : "inactive"));
         redirectAttributes.addFlashAttribute("success", "Status updated.");
         return "redirect:/users";
     }
@@ -203,9 +195,7 @@ public class UsersController {
             return "redirect:/users";
         }
         Set<Permission> newPerms = permissions == null ? new HashSet<>() : new HashSet<>(permissions);
-        user.setPermissions(newPerms);
-        appUserRepo.save(user);
-        logAction(authentication, user, "PERMISSIONS_UPDATE", "Permissions updated: " + newPerms);
+        userAdminService.updatePermissions(user, newPerms, authentication, "Permissions updated: " + newPerms);
         redirectAttributes.addFlashAttribute("success", "Permissions updated.");
         return "redirect:/users";
     }
@@ -224,9 +214,7 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("error", "You cannot change your own MFA requirement.");
             return "redirect:/users";
         }
-        user.setMfaRequired(required);
-        appUserRepo.save(user);
-        logAction(authentication, user, "MFA_REQUIRED", "MFA required set to " + required);
+        userAdminService.updateMfa(user, required, authentication, "MFA required set to " + required);
         redirectAttributes.addFlashAttribute("success", "MFA requirement updated.");
         return "redirect:/users";
     }
@@ -249,70 +237,8 @@ public class UsersController {
             return "redirect:/users";
         }
 
-        int updated = 0;
-        for (AppUser user : users) {
-            if (isSelf(authentication, user)) {
-                continue;
-            }
-            switch (action) {
-                case "activate" -> {
-                    user.setActive(true);
-                    updated++;
-                    logAction(authentication, user, "ACTIVATE", "Bulk activate.");
-                }
-                case "deactivate" -> {
-                    user.setActive(false);
-                    updated++;
-                    logAction(authentication, user, "DEACTIVATE", "Bulk deactivate.");
-                }
-                case "role" -> {
-                    if (role == null) break;
-                    if (user.getRole() == UserRole.ADMIN && role != UserRole.ADMIN
-                            && appUserRepo.countByRole(UserRole.ADMIN) <= 1) {
-                        break;
-                    }
-                    user.setRole(role);
-                    updated++;
-                    logAction(authentication, user, "ROLE_UPDATE", "Bulk role set to " + role.name());
-                }
-                case "add-perm" -> {
-                    if (permission == null) break;
-                    Set<Permission> perms = user.getPermissions() == null ? new HashSet<>() : new HashSet<>(user.getPermissions());
-                    perms.add(permission);
-                    user.setPermissions(perms);
-                    updated++;
-                    logAction(authentication, user, "PERMISSIONS_ADD", "Added permission " + permission.name());
-                }
-                case "remove-perm" -> {
-                    if (permission == null) break;
-                    Set<Permission> perms = user.getPermissions() == null ? new HashSet<>() : new HashSet<>(user.getPermissions());
-                    perms.remove(permission);
-                    user.setPermissions(perms);
-                    updated++;
-                    logAction(authentication, user, "PERMISSIONS_REMOVE", "Removed permission " + permission.name());
-                }
-                case "reset-password" -> {
-                    if (password == null || password.isBlank()) break;
-                    user.setPassword(passwordEncoder.encode(password));
-                    user.setMustResetPassword(true);
-                    updated++;
-                    logAction(authentication, user, "PASSWORD_RESET", "Bulk password reset.");
-                }
-                case "require-mfa" -> {
-                    user.setMfaRequired(true);
-                    updated++;
-                    logAction(authentication, user, "MFA_REQUIRED", "Bulk require MFA.");
-                }
-                case "clear-mfa" -> {
-                    user.setMfaRequired(false);
-                    updated++;
-                    logAction(authentication, user, "MFA_REQUIRED", "Bulk clear MFA requirement.");
-                }
-                default -> {
-                }
-            }
-        }
-        appUserRepo.saveAll(users);
+        String selfUsername = authentication == null ? null : authentication.getName();
+        int updated = userAdminService.applyBulkAction(users, action, role, permission, password, authentication, selfUsername);
         redirectAttributes.addFlashAttribute("success", "Bulk action applied to " + updated + " users.");
         return "redirect:/users";
     }
@@ -340,10 +266,7 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("error", "User not found.");
             return "redirect:/login";
         }
-        user.setPassword(passwordEncoder.encode(password));
-        user.setMustResetPassword(false);
-        appUserRepo.save(user);
-        logAction(authentication, user, "PASSWORD_CHANGE", "User updated their password.");
+        userAdminService.updateOwnPassword(user, password, authentication);
         redirectAttributes.addFlashAttribute("success", "Password updated.");
         return "redirect:/";
     }
@@ -369,15 +292,5 @@ public class UsersController {
         if (authentication == null || user == null) return false;
         String currentUsername = authentication.getName();
         return currentUsername != null && currentUsername.equalsIgnoreCase(user.getUsername());
-    }
-
-    private void logAction(Authentication authentication, AppUser target, String action, String details) {
-        UserAuditLog log = new UserAuditLog();
-        log.setActorUsername(authentication == null ? "system" : authentication.getName());
-        log.setTargetUsername(target == null ? null : target.getUsername());
-        log.setAction(action);
-        log.setDetails(details);
-        log.setCreatedAt(LocalDateTime.now());
-        auditLogRepo.save(log);
     }
 }

@@ -12,6 +12,7 @@ import com.example.pos_system.repository.CustomerRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.service.ReceiptPdfService;
+import com.example.pos_system.service.SalesService;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -52,13 +53,15 @@ public class SalesController {
   private final ProductRepo productRepo;
   private final CustomerRepo customerRepo;
   private final ReceiptPdfService receiptPdfService;
+  private final SalesService salesService;
 
   public SalesController(SaleRepo saleRepo, ProductRepo productRepo, CustomerRepo customerRepo,
-                         ReceiptPdfService receiptPdfService) {
+                         ReceiptPdfService receiptPdfService, SalesService salesService) {
     this.saleRepo = saleRepo;
     this.productRepo = productRepo;
     this.customerRepo = customerRepo;
     this.receiptPdfService = receiptPdfService;
+    this.salesService = salesService;
   }
 
   @GetMapping
@@ -165,110 +168,32 @@ public class SalesController {
   }
 
   @PostMapping("/{id}/return")
-  @Transactional
   public String processReturn(@PathVariable Long id,
                               @RequestParam java.util.Map<String, String> params,
                               RedirectAttributes redirectAttributes) {
-    Sale sale = saleRepo.findById(id).orElseThrow();
-    if (sale.getStatus() == SaleStatus.VOID) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Cannot return a voided sale.");
+    try {
+      SalesService.ReturnOutcome outcome = salesService.processReturn(id, params);
+      redirectAttributes.addFlashAttribute("successMessage",
+              "Return processed. Refund: $" + outcome.refundTotal().setScale(2, java.math.RoundingMode.HALF_UP));
+      return "redirect:/sales/" + outcome.saleId() + "/receipt";
+    } catch (IllegalArgumentException ex) {
+      redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+      if ("No return quantities selected.".equals(ex.getMessage())) {
+        return "redirect:/sales/" + id + "/return";
+      }
       return "redirect:/sales";
     }
-    if (sale.getStatus() == SaleStatus.RETURNED) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Sale is already fully returned.");
-      return "redirect:/sales";
-    }
-    boolean anyReturn = false;
-    BigDecimal refundSubtotal = BigDecimal.ZERO;
-    for (SaleItem item : sale.getItems()) {
-      String key = "returnQty_" + item.getId();
-      if (!params.containsKey(key)) continue;
-      int requested = parseInt(params.get(key));
-      int qty = item.getQty() == null ? 0 : item.getQty();
-      int returned = item.getReturnedQty() == null ? 0 : item.getReturnedQty();
-      int remaining = Math.max(0, qty - returned);
-      if (requested <= 0) continue;
-      if (requested > remaining) requested = remaining;
-      if (requested <= 0) continue;
-      anyReturn = true;
-      item.setReturnedQty(returned + requested);
-      if (item.getUnitPrice() != null) {
-        refundSubtotal = refundSubtotal.add(item.getUnitPrice().multiply(BigDecimal.valueOf(requested)));
-      }
-      Product product = item.getProduct();
-      if (product != null && product.getStockQty() != null) {
-        int unitSize = unitSize(item);
-        product.setStockQty(product.getStockQty() + (requested * unitSize));
-        productRepo.save(product);
-      }
-    }
-
-    if (!anyReturn) {
-      redirectAttributes.addFlashAttribute("errorMessage", "No return quantities selected.");
-      return "redirect:/sales/" + id + "/return";
-    }
-
-    BigDecimal saleSubtotal = safeAmount(sale.getSubtotal());
-    BigDecimal saleDiscount = safeAmount(sale.getDiscount());
-    BigDecimal saleTax = safeAmount(sale.getTax());
-
-    BigDecimal discountRatio = saleSubtotal.compareTo(BigDecimal.ZERO) == 0
-            ? BigDecimal.ZERO
-            : saleDiscount.divide(saleSubtotal, 4, java.math.RoundingMode.HALF_UP);
-    BigDecimal taxableBase = saleSubtotal.subtract(saleDiscount);
-    BigDecimal taxRatio = taxableBase.compareTo(BigDecimal.ZERO) == 0
-            ? BigDecimal.ZERO
-            : saleTax.divide(taxableBase, 4, java.math.RoundingMode.HALF_UP);
-
-    BigDecimal refundDiscount = refundSubtotal.multiply(discountRatio);
-    BigDecimal refundTaxable = refundSubtotal.subtract(refundDiscount);
-    BigDecimal refundTax = refundTaxable.multiply(taxRatio);
-    BigDecimal refundTotal = refundSubtotal.subtract(refundDiscount).add(refundTax);
-
-    BigDecimal refunded = safeAmount(sale.getRefundedTotal()).add(refundTotal);
-    BigDecimal saleTotal = safeAmount(sale.getTotal());
-    if (refunded.compareTo(saleTotal) > 0) refunded = saleTotal;
-    sale.setRefundedTotal(refunded);
-
-    boolean fullyReturned = sale.getItems().stream()
-            .allMatch(it -> {
-              int qty = it.getQty() == null ? 0 : it.getQty();
-              int returned = it.getReturnedQty() == null ? 0 : it.getReturnedQty();
-              return returned >= qty;
-            });
-    if (fullyReturned) {
-      sale.setStatus(SaleStatus.RETURNED);
-    } else {
-      sale.setStatus(SaleStatus.PARTIALLY_RETURNED);
-    }
-
-    Customer customer = sale.getCustomer();
-    if (customer != null) {
-      int pointsToDeduct = refundTotal.compareTo(BigDecimal.ZERO) <= 0 ? 0
-              : refundTotal.setScale(0, java.math.RoundingMode.FLOOR).intValue();
-      int current = customer.getPoints() == null ? 0 : customer.getPoints();
-      customer.setPoints(Math.max(0, current - pointsToDeduct));
-      Integer earned = sale.getPointsEarned() == null ? 0 : sale.getPointsEarned();
-      sale.setPointsEarned(Math.max(0, earned - pointsToDeduct));
-      customerRepo.save(customer);
-    }
-
-    saleRepo.save(sale);
-    redirectAttributes.addFlashAttribute("successMessage", "Return processed. Refund: $" + refundTotal.setScale(2, java.math.RoundingMode.HALF_UP));
-    return "redirect:/sales/" + id + "/receipt";
   }
 
   @PostMapping("/{id}/void")
   public String voidSale(@PathVariable Long id,
                          @RequestParam(required = false) String redirect,
                          RedirectAttributes redirectAttributes) {
-    Sale sale = saleRepo.findById(id).orElseThrow();
-    if (sale.getStatus() == SaleStatus.VOID) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Sale #" + id + " is already voided.");
+    SalesService.VoidOutcome outcome = salesService.voidSale(id);
+    if (!outcome.changed()) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Sale #" + outcome.saleId() + " is already voided.");
     } else {
-      sale.setStatus(SaleStatus.VOID);
-      saleRepo.save(sale);
-      redirectAttributes.addFlashAttribute("successMessage", "Sale #" + id + " has been voided.");
+      redirectAttributes.addFlashAttribute("successMessage", "Sale #" + outcome.saleId() + " has been voided.");
     }
     return "redirect:" + (redirect == null || redirect.isBlank() ? "/sales" : redirect);
   }
@@ -476,14 +401,6 @@ public class SalesController {
       case CASE -> "case";
       default -> "pc";
     };
-  }
-
-  private int parseInt(String value) {
-    try {
-      return Integer.parseInt(value);
-    } catch (NumberFormatException ex) {
-      return 0;
-    }
   }
 
   private String csv(String value) {

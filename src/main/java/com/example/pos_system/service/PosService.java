@@ -13,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -23,13 +26,15 @@ public class PosService {
     private final SaleRepo saleRepo;
     private final CustomerRepo customerRepo;
     private final DiscountAuditRepo discountAuditRepo;
+    private final AuditEventService auditEventService;
 
     public PosService(ProductRepo productRepo, SaleRepo saleRepo, CustomerRepo customerRepo,
-                      DiscountAuditRepo discountAuditRepo) {
+                      DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService) {
         this.productRepo = productRepo;
         this.saleRepo = saleRepo;
         this.customerRepo = customerRepo;
         this.discountAuditRepo = discountAuditRepo;
+        this.auditEventService = auditEventService;
     }
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
@@ -94,6 +99,7 @@ public class PosService {
         applyLoyaltyPoints(sale, customer);
         Sale saved = saleRepo.save(sale);
         recordDiscountAudit(saved, cart, cashierUsername);
+        recordCheckoutAudit("POS_CHECKOUT", saved, cart);
         return saved;
     }
 
@@ -153,6 +159,7 @@ public class PosService {
         applyLoyaltyPoints(sale, customer);
         Sale saved = saleRepo.save(sale);
         recordDiscountAudit(saved, cart, cashierUsername);
+        recordCheckoutAudit("POS_CHECKOUT_SPLIT", saved, cart);
         return saved;
     }
 
@@ -189,5 +196,79 @@ public class PosService {
         audit.setReason(reason);
         audit.setAppliedBy(cashierUsername);
         discountAuditRepo.save(audit);
+    }
+
+    private void recordCheckoutAudit(String actionType, Sale sale, Cart cart) {
+        if (sale == null || cart == null) return;
+        auditEventService.record(
+                actionType,
+                "SALE",
+                sale.getId(),
+                cartSnapshot(cart),
+                saleSnapshot(sale),
+                Map.of("paymentCount", sale.getPayments() == null ? 0 : sale.getPayments().size())
+        );
+    }
+
+    private Map<String, Object> cartSnapshot(Cart cart) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("subtotal", cart.getSubtotal());
+        snapshot.put("discountType", cart.getDiscountType() == null ? null : cart.getDiscountType().name());
+        snapshot.put("discountValue", cart.getDiscountValue());
+        snapshot.put("discount", cart.getDiscount());
+        snapshot.put("taxRate", cart.getTaxRate());
+        snapshot.put("tax", cart.getTax());
+        snapshot.put("total", cart.getTotal());
+        snapshot.put("customerId", cart.getCustomerId());
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (CartItem item : cart.getItems()) {
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("productId", item.getProductId());
+            value.put("name", item.getName());
+            value.put("qty", item.getQty());
+            value.put("unitSize", item.getUnitSize());
+            value.put("unitPrice", item.getUnitPrice());
+            value.put("lineTotal", item.getLineTotal());
+            value.put("priceTier", item.getPriceTier() == null ? null : item.getPriceTier().name());
+            value.put("unitType", item.getUnitType() == null ? null : item.getUnitType().name());
+            value.put("note", item.getNote());
+            items.add(value);
+        }
+        snapshot.put("items", items);
+        return snapshot;
+    }
+
+    private Map<String, Object> saleSnapshot(Sale sale) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("saleId", sale.getId());
+        snapshot.put("createdAt", sale.getCreatedAt());
+        snapshot.put("status", sale.getStatus() == null ? null : sale.getStatus().name());
+        snapshot.put("cashierUsername", sale.getCashierUsername());
+        snapshot.put("subtotal", sale.getSubtotal());
+        snapshot.put("discountType", sale.getDiscountType() == null ? null : sale.getDiscountType().name());
+        snapshot.put("discountValue", sale.getDiscountValue());
+        snapshot.put("discount", sale.getDiscount());
+        snapshot.put("tax", sale.getTax());
+        snapshot.put("total", sale.getTotal());
+        snapshot.put("paymentMethod", sale.getPaymentMethod() == null ? null : sale.getPaymentMethod().name());
+        snapshot.put("customerId", sale.getCustomer() == null ? null : sale.getCustomer().getId());
+        snapshot.put("shiftId", sale.getShift() == null ? null : sale.getShift().getId());
+        snapshot.put("payments", paymentSnapshot(sale));
+        return snapshot;
+    }
+
+    private List<Map<String, Object>> paymentSnapshot(Sale sale) {
+        List<Map<String, Object>> payments = new ArrayList<>();
+        if (sale.getPayments() == null) return payments;
+        for (SalePayment payment : sale.getPayments()) {
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("method", payment.getMethod() == null ? null : payment.getMethod().name());
+            value.put("amount", payment.getAmount());
+            value.put("currencyCode", payment.getCurrencyCode());
+            value.put("currencyRate", payment.getCurrencyRate());
+            value.put("foreignAmount", payment.getForeignAmount());
+            payments.add(value);
+        }
+        return payments;
     }
 }

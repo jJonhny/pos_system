@@ -29,6 +29,7 @@ public class CurrencyService {
     private static final Logger log = LoggerFactory.getLogger(CurrencyService.class);
     private final CurrencyRepo currencyRepo;
     private final CurrencyRateLogRepo rateLogRepo;
+    private final AuditEventService auditEventService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -52,9 +53,10 @@ public class CurrencyService {
 
     private volatile Currency baseCache;
 
-    public CurrencyService(CurrencyRepo currencyRepo, CurrencyRateLogRepo rateLogRepo) {
+    public CurrencyService(CurrencyRepo currencyRepo, CurrencyRateLogRepo rateLogRepo, AuditEventService auditEventService) {
         this.currencyRepo = currencyRepo;
         this.rateLogRepo = rateLogRepo;
+        this.auditEventService = auditEventService;
     }
 
     @Transactional
@@ -113,6 +115,7 @@ public class CurrencyService {
     @Transactional
     public Currency createCurrency(String code, String name, String symbol, BigDecimal rateToBase,
                                    Integer fractionDigits, Boolean active) {
+        Map<String, Object> before = null;
         Currency currency = new Currency();
         currency.setCode(normalizeCode(code));
         currency.setName(name == null ? "" : name.trim());
@@ -124,6 +127,7 @@ public class CurrencyService {
         currency.setUpdatedAt(LocalDateTime.now());
         Currency saved = currencyRepo.save(currency);
         recordRateLog(saved);
+        auditEventService.record("CURRENCY_CREATE", "CURRENCY", saved.getId(), before, currencySnapshot(saved), null);
         return saved;
     }
 
@@ -132,6 +136,7 @@ public class CurrencyService {
                                    Integer fractionDigits, Boolean active) {
         Currency currency = currencyRepo.findById(id).orElse(null);
         if (currency == null) return null;
+        Map<String, Object> before = currencySnapshot(currency);
         if (name != null) currency.setName(name.trim());
         if (symbol != null) currency.setSymbol(symbol.trim());
         if (rateToBase != null) currency.setRateToBase(rateToBase);
@@ -140,6 +145,7 @@ public class CurrencyService {
         currency.setUpdatedAt(LocalDateTime.now());
         Currency saved = currencyRepo.save(currency);
         recordRateLog(saved);
+        auditEventService.record("CURRENCY_UPDATE", "CURRENCY", saved.getId(), before, currencySnapshot(saved), null);
         return saved;
     }
 
@@ -148,6 +154,7 @@ public class CurrencyService {
         Currency newBase = currencyRepo.findById(id).orElse(null);
         if (newBase == null) return false;
         Currency oldBase = currencyRepo.findByBaseTrue().orElse(null);
+        Map<String, Object> before = oldBase == null ? null : currencySnapshot(oldBase);
         BigDecimal factor = newBase.getRateToBase();
         if (factor == null || factor.compareTo(BigDecimal.ZERO) <= 0) {
             factor = BigDecimal.ONE;
@@ -170,6 +177,9 @@ public class CurrencyService {
             recordRateLog(oldBase);
         }
         recordRateLog(newBase);
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("previousBaseId", oldBase == null ? null : oldBase.getId());
+        auditEventService.record("CURRENCY_SET_BASE", "CURRENCY", newBase.getId(), before, currencySnapshot(newBase), metadata);
         return true;
     }
 
@@ -213,6 +223,19 @@ public class CurrencyService {
         currencyRepo.saveAll(all);
         if (!logs.isEmpty()) {
             rateLogRepo.saveAll(logs);
+        }
+        if (updated > 0) {
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("baseCurrency", base == null ? null : base.getCode());
+            metadata.put("updatedCount", updated);
+            auditEventService.record(
+                    "CURRENCY_RATES_REFRESH",
+                    "CURRENCY",
+                    base == null ? null : base.getId(),
+                    null,
+                    null,
+                    metadata
+            );
         }
         return updated;
     }
@@ -272,5 +295,20 @@ public class CurrencyService {
         log.setRateToBase(rateToBase);
         log.setCreatedAt(LocalDateTime.now());
         return log;
+    }
+
+    private Map<String, Object> currencySnapshot(Currency currency) {
+        if (currency == null) return null;
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("id", currency.getId());
+        snapshot.put("code", currency.getCode());
+        snapshot.put("name", currency.getName());
+        snapshot.put("symbol", currency.getSymbol());
+        snapshot.put("rateToBase", currency.getRateToBase());
+        snapshot.put("active", currency.getActive());
+        snapshot.put("base", currency.getBase());
+        snapshot.put("fractionDigits", currency.getFractionDigits());
+        snapshot.put("updatedAt", currency.getUpdatedAt());
+        return snapshot;
     }
 }

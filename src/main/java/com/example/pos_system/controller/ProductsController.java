@@ -4,6 +4,7 @@ import com.example.pos_system.entity.Product;
 import com.example.pos_system.entity.Category;
 import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.ProductRepo;
+import com.example.pos_system.service.InventoryService;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -50,10 +50,12 @@ public class ProductsController {
     private static final int PAGE_SIZE = 20;
     private final ProductRepo productRepo;
     private final CategoryRepo categoryRepo;
+    private final InventoryService inventoryService;
 
-    public ProductsController(ProductRepo productRepo, CategoryRepo categoryRepo) {
+    public ProductsController(ProductRepo productRepo, CategoryRepo categoryRepo, InventoryService inventoryService) {
         this.productRepo = productRepo;
         this.categoryRepo = categoryRepo;
+        this.inventoryService = inventoryService;
     }
 
     @GetMapping
@@ -314,45 +316,17 @@ public class ProductsController {
                               @RequestParam(required = false) String dir,
                               @RequestParam(required = false) Integer page,
                               RedirectAttributes redirectAttributes) {
-        Product product = productRepo.findById(id).orElseThrow();
-        boolean changed = false;
-
-        if (hasText(price)) {
-            BigDecimal parsedPrice = parseBigDecimal(price);
-            if (parsedPrice == null || parsedPrice.compareTo(BigDecimal.ZERO) < 0) {
-                redirectAttributes.addFlashAttribute("error", "Invalid price value.");
-                return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                        stockMin, stockMax, sort, dir, page);
-            }
-            product.setPrice(parsedPrice);
-            changed = true;
+        try {
+            Product updated = inventoryService.quickUpdate(id, price, stockQty);
+            redirectAttributes.addFlashAttribute("success", "Updated " + safeName(updated) + ".");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
-
-        if (hasText(stockQty)) {
-            Integer parsedStock = parseInteger(stockQty);
-            if (parsedStock == null || parsedStock < 0) {
-                redirectAttributes.addFlashAttribute("error", "Invalid stock quantity.");
-                return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                        stockMin, stockMax, sort, dir, page);
-            }
-            product.setStockQty(parsedStock);
-            changed = true;
-        }
-
-        if (!changed) {
-            redirectAttributes.addFlashAttribute("error", "No changes provided for quick update.");
-            return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                    stockMin, stockMax, sort, dir, page);
-        }
-
-        productRepo.save(product);
-        redirectAttributes.addFlashAttribute("success", "Updated " + safeName(product) + ".");
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
                 stockMin, stockMax, sort, dir, page);
     }
 
     @PostMapping("/bulk-stock")
-    @Transactional
     public String bulkStockAdjust(@RequestParam(required = false) List<Long> ids,
                                   @RequestParam(required = false) String operation,
                                   @RequestParam(required = false) String qty,
@@ -368,29 +342,12 @@ public class ProductsController {
                                   @RequestParam(required = false) String dir,
                                   @RequestParam(required = false) Integer page,
                                   RedirectAttributes redirectAttributes) {
-        if (ids == null || ids.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Select at least one product for bulk update.");
-            return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                    stockMin, stockMax, sort, dir, page);
+        try {
+            int updated = inventoryService.bulkAdjustStock(ids, operation, qty);
+            redirectAttributes.addFlashAttribute("success", "Adjusted stock for " + updated + " products.");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
-
-        Integer qtyValue = parseInteger(qty);
-        if (qtyValue == null || qtyValue <= 0) {
-            redirectAttributes.addFlashAttribute("error", "Bulk quantity must be a positive number.");
-            return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                    stockMin, stockMax, sort, dir, page);
-        }
-
-        int delta = "remove".equalsIgnoreCase(operation) ? -qtyValue : qtyValue;
-        List<Product> products = productRepo.findAllById(ids);
-        for (Product product : products) {
-            Integer current = product.getStockQty();
-            int next = (current == null ? 0 : current) + delta;
-            if (next < 0) next = 0;
-            product.setStockQty(next);
-        }
-        productRepo.saveAll(products);
-        redirectAttributes.addFlashAttribute("success", "Adjusted stock for " + products.size() + " products.");
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
                 stockMin, stockMax, sort, dir, page);
     }

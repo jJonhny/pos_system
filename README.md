@@ -11,6 +11,7 @@ Spring Boot + Thymeleaf point‑of‑sale application with inventory, sales trac
 - Reports with Excel export
 - Analytics dashboard (sales trends, payment mix, inventory health, customers, staff, compliance)
 - User management with roles (ADMIN, MANAGER, CASHIER) and fine‑grained permissions
+- Immutable audit logging for sensitive actions (checkout, discounts, void/return, inventory, currency, user changes)
 
 **Tech Stack**
 - Codex from ChatGPT
@@ -85,6 +86,7 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 - `http://localhost:8080/reports`
 - `http://localhost:8080/users`
 - `http://localhost:8080/currencies`
+- `http://localhost:8080/audit-events` (ADMIN only)
 
 **Access Control**
 - ADMIN: full access
@@ -96,3 +98,19 @@ Details are in `src/main/java/com/example/pos_system/config/SecurityConfig.java`
 
 **Security Note**
 Passwords are stored with BCrypt. Legacy `{noop}` (or plain) passwords are supported and upgraded on login.
+
+**Audit Logging**
+- Audit events are stored in `audit_event` with immutable, append-only semantics.
+- Logged actions include:
+- POS cart discounts and cart price overrides
+- POS checkout (single and split payments, including currency metadata)
+- Sale void and returns
+- Product stock adjustments and bulk stock updates
+- Currency create/update/base/rate refresh changes
+- User account, role, permission, MFA, and password administration changes
+- Admin search UI: `GET /audit-events` with filters for date range, username, and action type.
+- SQL migration script (for environments not relying on JPA auto-schema): `src/main/resources/sql/audit_events.sql`.
+
+Retention recommendation:
+- Keep audit events for at least 12-24 months for operational/compliance investigations.
+- For high-volume environments, archive older records (for example monthly) to cold storage before deleting from the primary table.

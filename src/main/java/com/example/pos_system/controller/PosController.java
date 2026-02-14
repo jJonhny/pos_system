@@ -5,6 +5,7 @@ import com.example.pos_system.dto.CartItem;
 import com.example.pos_system.entity.*;
 import com.example.pos_system.repository.*;
 import com.example.pos_system.service.CurrencyService;
+import com.example.pos_system.service.PosCartService;
 import com.example.pos_system.service.PosService;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,6 +42,7 @@ public class PosController {
   private final ShiftRepo shiftRepo;
   private final SaleRepo saleRepo;
   private final CurrencyService currencyService;
+  private final PosCartService posCartService;
 
   public PosController(ProductRepo productRepo,
                        CategoryRepo categoryRepo,
@@ -49,7 +51,8 @@ public class PosController {
                        CustomerRepo customerRepo,
                        ShiftRepo shiftRepo,
                        SaleRepo saleRepo,
-                       CurrencyService currencyService) {
+                       CurrencyService currencyService,
+                       PosCartService posCartService) {
     this.productRepo = productRepo;
     this.categoryRepo = categoryRepo;
     this.posService = posService;
@@ -58,6 +61,7 @@ public class PosController {
     this.shiftRepo = shiftRepo;
     this.saleRepo = saleRepo;
     this.currencyService = currencyService;
+    this.posCartService = posCartService;
   }
 
   @ModelAttribute("cart")
@@ -210,6 +214,7 @@ public class PosController {
       return redirectWithCartError(error);
     }
     Customer customer = loadCustomer(cart.getCustomerId());
+    CartItem beforeItem = copyCartItem(item);
     PriceTier priceTier = autoPriceTier(p, customer, item.getQty(), unitSize);
     String error = validateSaleable(p, priceTier, unitType);
     if (error != null) {
@@ -223,6 +228,8 @@ public class PosController {
     cart.setUnit(productId, unitType, unitSize);
     BigDecimal unitPrice = resolveUnitPrice(p, priceTier, unitSize);
     cart.setPriceTier(productId, priceTier, unitPrice);
+    CartItem afterItem = cart.getItem(productId);
+    posCartService.recordPriceOverride(cart, beforeItem, afterItem, "unit-change");
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
@@ -489,20 +496,7 @@ public class PosController {
                                @RequestParam(required = false) String discountReason,
                                @RequestHeader(value = "HX-Request", required = false) String hxRequest,
                                @ModelAttribute("cart") Cart cart, Model model) {
-    DiscountType safeType = discountType == null ? DiscountType.AMOUNT : discountType;
-    BigDecimal safeValue = discountValue == null ? BigDecimal.ZERO : discountValue.max(BigDecimal.ZERO);
-    if (safeType == DiscountType.PERCENT && safeValue.compareTo(new BigDecimal("100")) > 0) {
-      safeValue = new BigDecimal("100");
-    }
-    if (safeType == DiscountType.AMOUNT) {
-      BigDecimal subtotal = cart.getSubtotal();
-      if (subtotal != null && safeValue.compareTo(subtotal) > 0) {
-        safeValue = subtotal;
-      }
-    }
-    cart.setDiscountType(safeType);
-    cart.setDiscountValue(safeValue);
-    cart.setDiscountReason(discountReason);
+    posCartService.applyDiscount(cart, discountType, discountValue, discountReason);
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
@@ -966,5 +960,13 @@ public class PosController {
     String name = auth.getName();
     if (name == null || "anonymousUser".equalsIgnoreCase(name)) return null;
     return name;
+  }
+
+  private CartItem copyCartItem(CartItem item) {
+    if (item == null) return null;
+    CartItem copy = new CartItem(item.getProductId(), item.getName(), item.getUnitPrice(), item.getQty(),
+            item.getPriceTier(), item.getUnitType(), item.getUnitSize());
+    copy.setNote(item.getNote());
+    return copy;
   }
 }
