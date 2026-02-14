@@ -38,6 +38,10 @@ public class PosService {
     }
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
+        return checkout(cart, payment, cashierUsername, customer, shift, null);
+    }
+
+    public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
 
         PaymentMethod method = payment == null ? PaymentMethod.CASH : payment.getMethod();
@@ -46,6 +50,7 @@ public class PosService {
         sale.setPaymentMethod(method);
         sale.setStatus(SaleStatus.PAID);
         sale.setCashierUsername(cashierUsername);
+        sale.setTerminalId(sanitizeTerminalId(terminalId));
         sale.setCustomer(customer);
         sale.setShift(shift);
 
@@ -104,6 +109,10 @@ public class PosService {
     }
 
     public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift) {
+        return checkoutSplit(cart, payments, cashierUsername, customer, shift, null);
+    }
+
+    public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
         if (payments == null || payments.isEmpty()) throw new IllegalStateException("No payments provided");
 
@@ -112,6 +121,7 @@ public class PosService {
         sale.setPaymentMethod(PaymentMethod.MIXED);
         sale.setStatus(SaleStatus.PAID);
         sale.setCashierUsername(cashierUsername);
+        sale.setTerminalId(sanitizeTerminalId(terminalId));
         sale.setCustomer(customer);
         sale.setShift(shift);
 
@@ -200,13 +210,17 @@ public class PosService {
 
     private void recordCheckoutAudit(String actionType, Sale sale, Cart cart) {
         if (sale == null || cart == null) return;
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("paymentCount", sale.getPayments() == null ? 0 : sale.getPayments().size());
+        metadata.put("terminalId", sale.getTerminalId());
+        metadata.put("shiftId", sale.getShift() == null ? null : sale.getShift().getId());
         auditEventService.record(
                 actionType,
                 "SALE",
                 sale.getId(),
                 cartSnapshot(cart),
                 saleSnapshot(sale),
-                Map.of("paymentCount", sale.getPayments() == null ? 0 : sale.getPayments().size())
+                metadata
         );
     }
 
@@ -253,6 +267,7 @@ public class PosService {
         snapshot.put("paymentMethod", sale.getPaymentMethod() == null ? null : sale.getPaymentMethod().name());
         snapshot.put("customerId", sale.getCustomer() == null ? null : sale.getCustomer().getId());
         snapshot.put("shiftId", sale.getShift() == null ? null : sale.getShift().getId());
+        snapshot.put("terminalId", sale.getTerminalId());
         snapshot.put("payments", paymentSnapshot(sale));
         return snapshot;
     }
@@ -270,5 +285,12 @@ public class PosService {
             payments.add(value);
         }
         return payments;
+    }
+
+    private String sanitizeTerminalId(String terminalId) {
+        if (terminalId == null) return null;
+        String trimmed = terminalId.trim();
+        if (trimmed.isEmpty()) return null;
+        return trimmed.length() <= 128 ? trimmed : trimmed.substring(0, 128);
     }
 }

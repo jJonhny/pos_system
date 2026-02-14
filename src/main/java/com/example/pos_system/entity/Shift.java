@@ -6,6 +6,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +22,19 @@ public class Shift {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 100)
+    private String openedBy;
+
+    @Column(length = 100)
     private String cashierUsername;
+
     private LocalDateTime openedAt;
+
+    @Column(length = 100)
+    private String closedBy;
+
     private LocalDateTime closedAt;
+
     private BigDecimal openingCash;
     private BigDecimal closingCash;
 
@@ -30,6 +42,40 @@ public class Shift {
     private BigDecimal cashTotal;
     private BigDecimal cardTotal;
     private BigDecimal qrTotal;
+
+    @Column(precision = 18, scale = 2)
+    private BigDecimal cashInTotal;
+
+    @Column(precision = 18, scale = 2)
+    private BigDecimal cashOutTotal;
+
+    @Column(precision = 18, scale = 2)
+    private BigDecimal expectedCash;
+
+    @Column(precision = 18, scale = 2)
+    private BigDecimal varianceCash;
+
+    @Column(length = 128)
+    private String terminalId;
+
+    @Column(length = 1000)
+    private String closeNotes;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String openingFloatJson;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String countedAmountsJson;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String expectedAmountsJson;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String varianceAmountsJson;
 
     @Enumerated(EnumType.STRING)
     private ShiftStatus status;

@@ -7,6 +7,7 @@ import com.example.pos_system.repository.*;
 import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.PosCartService;
 import com.example.pos_system.service.PosService;
+import com.example.pos_system.service.ShiftService;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
@@ -21,13 +22,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/pos")
@@ -39,8 +43,7 @@ public class PosController {
   private final PosService posService;
   private final HeldSaleRepo heldSaleRepo;
   private final CustomerRepo customerRepo;
-  private final ShiftRepo shiftRepo;
-  private final SaleRepo saleRepo;
+  private final ShiftService shiftService;
   private final CurrencyService currencyService;
   private final PosCartService posCartService;
 
@@ -49,8 +52,7 @@ public class PosController {
                        PosService posService,
                        HeldSaleRepo heldSaleRepo,
                        CustomerRepo customerRepo,
-                       ShiftRepo shiftRepo,
-                       SaleRepo saleRepo,
+                       ShiftService shiftService,
                        CurrencyService currencyService,
                        PosCartService posCartService) {
     this.productRepo = productRepo;
@@ -58,8 +60,7 @@ public class PosController {
     this.posService = posService;
     this.heldSaleRepo = heldSaleRepo;
     this.customerRepo = customerRepo;
-    this.shiftRepo = shiftRepo;
-    this.saleRepo = saleRepo;
+    this.shiftService = shiftService;
     this.currencyService = currencyService;
     this.posCartService = posCartService;
   }
@@ -407,75 +408,90 @@ public class PosController {
   }
 
   @PostMapping("/shift/open")
-  public String openShift(@RequestParam(required = false) BigDecimal openingCash,
+  public String openShift(@RequestParam Map<String, String> params,
+                          @RequestParam(required = false) String terminalId,
                           @RequestHeader(value = "HX-Request", required = false) String hxRequest,
                           @ModelAttribute("cart") Cart cart,
+                          HttpServletRequest request,
                           Model model) {
     String username = currentUsername();
     if (username == null) {
       model.addAttribute("cartError", "Sign in to open a shift.");
-      enrichCartModel(model, cart);
+      enrichCartModel(model, cart, resolveTerminalId(null, request));
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/login";
     }
-    if (findOpenShift(username) != null) {
-      model.addAttribute("cartError", "Shift already open.");
-      enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Shift+already+open.";
+    try {
+      Map<String, BigDecimal> openingByCurrency = parseCurrencyAmounts(params, "opening_");
+      String resolvedTerminalId = resolveTerminalId(terminalId, request);
+      shiftService.openShift(username, resolvedTerminalId, openingByCurrency);
+      enrichCartModel(model, cart, resolvedTerminalId);
+      model.addAttribute("shiftMessage", "Shift opened.");
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
+    } catch (IllegalStateException ex) {
+      model.addAttribute("cartError", ex.getMessage());
+      enrichCartModel(model, cart, resolveTerminalId(terminalId, request));
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=" + encode(ex.getMessage());
     }
-    Shift shift = new Shift();
-    shift.setCashierUsername(username);
-    shift.setOpenedAt(LocalDateTime.now());
-    shift.setOpeningCash(openingCash == null ? BigDecimal.ZERO : openingCash.max(BigDecimal.ZERO));
-    shift.setStatus(ShiftStatus.OPEN);
-    shiftRepo.save(shift);
-    enrichCartModel(model, cart);
-    return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
+  }
+
+  @PostMapping("/shift/cash-event")
+  public String addShiftCashEvent(@RequestParam ShiftCashEventType eventType,
+                                  @RequestParam(required = false) String currencyCode,
+                                  @RequestParam(required = false) BigDecimal amount,
+                                  @RequestParam(required = false) String reason,
+                                  @RequestParam(required = false) String terminalId,
+                                  @RequestHeader(value = "HX-Request", required = false) String hxRequest,
+                                  @ModelAttribute("cart") Cart cart,
+                                  HttpServletRequest request,
+                                  Model model) {
+    String username = currentUsername();
+    String resolvedTerminalId = resolveTerminalId(terminalId, request);
+    try {
+      shiftService.addCashEvent(username, resolvedTerminalId, eventType, currencyCode, amount, reason);
+      enrichCartModel(model, cart, resolvedTerminalId);
+      model.addAttribute("shiftMessage", "Cash movement recorded.");
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
+    } catch (IllegalStateException ex) {
+      model.addAttribute("cartError", ex.getMessage());
+      enrichCartModel(model, cart, resolvedTerminalId);
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=" + encode(ex.getMessage());
+    }
   }
 
   @PostMapping("/shift/close")
-  public String closeShift(@RequestParam(required = false) BigDecimal closingCash,
+  public String closeShift(@RequestParam Map<String, String> params,
+                           @RequestParam(required = false) String notes,
+                           @RequestParam(required = false) String terminalId,
                            @RequestHeader(value = "HX-Request", required = false) String hxRequest,
                            @ModelAttribute("cart") Cart cart,
+                           HttpServletRequest request,
                            Model model) {
     String username = currentUsername();
-    Shift shift = findOpenShift(username);
-    if (shift == null) {
-      model.addAttribute("cartError", "No open shift to close.");
-      enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=No+open+shift+to+close.";
+    String resolvedTerminalId = resolveTerminalId(terminalId, request);
+    Map<String, BigDecimal> countedByCurrency = parseCurrencyAmounts(params, "counted_");
+    try {
+      ShiftService.ShiftCloseResult result = shiftService.closeShift(
+              username,
+              resolvedTerminalId,
+              countedByCurrency,
+              notes,
+              hasManagerPrivileges()
+      );
+      BigDecimal totalSales = result.shift().getTotalSales() == null ? BigDecimal.ZERO : result.shift().getTotalSales();
+      BigDecimal variance = result.shift().getVarianceCash() == null ? BigDecimal.ZERO : result.shift().getVarianceCash();
+      model.addAttribute("shiftMessage", "Shift closed. Total sales: "
+              + currencyService.getBaseCurrency().getSymbol()
+              + totalSales.setScale(2, RoundingMode.HALF_UP)
+              + " | Variance: "
+              + currencyService.getBaseCurrency().getSymbol()
+              + variance.setScale(2, RoundingMode.HALF_UP));
+      enrichCartModel(model, cart, resolvedTerminalId);
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
+    } catch (IllegalStateException ex) {
+      model.addAttribute("cartError", ex.getMessage());
+      enrichCartModel(model, cart, resolvedTerminalId);
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=" + encode(ex.getMessage());
     }
-    shift.setClosedAt(LocalDateTime.now());
-    shift.setClosingCash(closingCash == null ? BigDecimal.ZERO : closingCash.max(BigDecimal.ZERO));
-    shift.setStatus(ShiftStatus.CLOSED);
-    List<Sale> sales = saleRepo.findByShift_Id(shift.getId());
-    BigDecimal totalSales = BigDecimal.ZERO;
-    BigDecimal cashTotal = BigDecimal.ZERO;
-    BigDecimal cardTotal = BigDecimal.ZERO;
-    BigDecimal qrTotal = BigDecimal.ZERO;
-    for (Sale sale : sales) {
-      if (sale.getStatus() == SaleStatus.VOID) continue;
-      BigDecimal net = safeNetTotal(sale);
-      totalSales = totalSales.add(net);
-      if (sale.getPayments() != null && !sale.getPayments().isEmpty()) {
-        for (SalePayment payment : sale.getPayments()) {
-          if (payment.getMethod() == PaymentMethod.CASH) cashTotal = cashTotal.add(payment.getAmount());
-          if (payment.getMethod() == PaymentMethod.CARD) cardTotal = cardTotal.add(payment.getAmount());
-          if (payment.getMethod() == PaymentMethod.QR) qrTotal = qrTotal.add(payment.getAmount());
-        }
-      } else if (sale.getPaymentMethod() != null) {
-        if (sale.getPaymentMethod() == PaymentMethod.CASH) cashTotal = cashTotal.add(net);
-        if (sale.getPaymentMethod() == PaymentMethod.CARD) cardTotal = cardTotal.add(net);
-        if (sale.getPaymentMethod() == PaymentMethod.QR) qrTotal = qrTotal.add(net);
-      }
-    }
-    shift.setTotalSales(totalSales);
-    shift.setCashTotal(cashTotal);
-    shift.setCardTotal(cardTotal);
-    shift.setQrTotal(qrTotal);
-    shiftRepo.save(shift);
-    enrichCartModel(model, cart);
-    model.addAttribute("shiftMessage", "Shift closed. Total sales: $" + totalSales.setScale(2, java.math.RoundingMode.HALF_UP));
-    return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
   @GetMapping("/cart/update")
@@ -709,21 +725,59 @@ public class PosController {
   }
 
   private String redirectWithCartError(String message) {
-    String encoded = org.springframework.web.util.UriUtils.encode(message, java.nio.charset.StandardCharsets.UTF_8);
-    return "redirect:/pos?cartError=" + encoded;
+    return "redirect:/pos?cartError=" + encode(message);
+  }
+
+  private String encode(String message) {
+    return org.springframework.web.util.UriUtils.encode(
+            message == null ? "" : message,
+            java.nio.charset.StandardCharsets.UTF_8
+    );
   }
 
   private void enrichCartModel(Model model, Cart cart) {
+    enrichCartModel(model, cart, null);
+  }
+
+  private void enrichCartModel(Model model, Cart cart, String terminalId) {
     model.addAttribute("cart", cart);
     model.addAttribute("baseCurrency", currencyService.getBaseCurrency());
     model.addAttribute("currencies", currencyService.getActiveCurrencies());
+    model.addAttribute("shiftVarianceThreshold", shiftService.varianceThreshold());
     String username = currentUsername();
     if (username != null) {
       model.addAttribute("holds", heldSaleRepo.findByCashierUsernameOrderByCreatedAtDesc(username));
-      model.addAttribute("openShift", findOpenShift(username));
+      Shift openShift = findOpenShift(username, terminalId);
+      model.addAttribute("openShift", openShift);
+      if (openShift != null) {
+        model.addAttribute("shiftCashEvents", shiftService.listCashEvents(openShift.getId()));
+        Map<String, BigDecimal> openingAmounts = shiftService.parseAmounts(openShift.getOpeningFloatJson());
+        Map<String, BigDecimal> expectedAmounts = shiftService.parseAmounts(openShift.getExpectedAmountsJson());
+        if (expectedAmounts.isEmpty() && openShift.getStatus() == ShiftStatus.OPEN) {
+          expectedAmounts = shiftService.previewReconciliation(openShift, Map.of()).expectedByCurrency();
+        }
+        model.addAttribute("shiftOpeningAmounts", openingAmounts);
+        model.addAttribute("shiftExpectedAmounts", expectedAmounts);
+        model.addAttribute("shiftCountedAmounts", shiftService.parseAmounts(openShift.getCountedAmountsJson()));
+        model.addAttribute("shiftVarianceAmounts", shiftService.parseAmounts(openShift.getVarianceAmountsJson()));
+        model.addAttribute("terminalId", sanitizeTerminalId(terminalId) != null ? sanitizeTerminalId(terminalId) : openShift.getTerminalId());
+      } else {
+        model.addAttribute("shiftCashEvents", List.of());
+        model.addAttribute("shiftOpeningAmounts", Map.of());
+        model.addAttribute("shiftExpectedAmounts", Map.of());
+        model.addAttribute("shiftCountedAmounts", Map.of());
+        model.addAttribute("shiftVarianceAmounts", Map.of());
+        model.addAttribute("terminalId", sanitizeTerminalId(terminalId));
+      }
     } else {
       model.addAttribute("holds", List.of());
       model.addAttribute("openShift", null);
+      model.addAttribute("shiftCashEvents", List.of());
+      model.addAttribute("shiftOpeningAmounts", Map.of());
+      model.addAttribute("shiftExpectedAmounts", Map.of());
+      model.addAttribute("shiftCountedAmounts", Map.of());
+      model.addAttribute("shiftVarianceAmounts", Map.of());
+      model.addAttribute("terminalId", sanitizeTerminalId(terminalId));
     }
     if (cart.getCustomerId() != null) {
       customerRepo.findById(cart.getCustomerId()).ifPresent(c -> model.addAttribute("currentCustomer", c));
@@ -733,8 +787,64 @@ public class PosController {
   }
 
   private Shift findOpenShift(String username) {
+    return findOpenShift(username, null);
+  }
+
+  private Shift findOpenShift(String username, String terminalId) {
     if (username == null || username.isBlank()) return null;
-    return shiftRepo.findByCashierUsernameAndStatus(username, ShiftStatus.OPEN).orElse(null);
+    return shiftService.findOpenShift(username, sanitizeTerminalId(terminalId)).orElse(null);
+  }
+
+  private Map<String, BigDecimal> parseCurrencyAmounts(Map<String, String> params, String prefix) {
+    Map<String, BigDecimal> values = new LinkedHashMap<>();
+    if (params == null || prefix == null || prefix.isBlank()) return values;
+    for (Map.Entry<String, String> entry : params.entrySet()) {
+      String key = entry.getKey();
+      if (key == null || !key.startsWith(prefix)) continue;
+      String currency = key.substring(prefix.length()).trim().toUpperCase();
+      if (currency.isBlank()) continue;
+      BigDecimal parsed = parseAmount(entry.getValue());
+      if (parsed == null) continue;
+      values.put(currency, parsed);
+    }
+    return values;
+  }
+
+  private BigDecimal parseAmount(String raw) {
+    if (raw == null || raw.isBlank()) return null;
+    try {
+      BigDecimal value = new BigDecimal(raw.trim());
+      if (value.compareTo(BigDecimal.ZERO) < 0) return BigDecimal.ZERO;
+      return value;
+    } catch (NumberFormatException ex) {
+      return null;
+    }
+  }
+
+  private String resolveTerminalId(String terminalId, HttpServletRequest request) {
+    String explicit = sanitizeTerminalId(terminalId);
+    if (explicit != null) return explicit;
+    if (request == null) return null;
+    String fromHeader = sanitizeTerminalId(request.getHeader("X-Terminal-Id"));
+    if (fromHeader != null) return fromHeader;
+    return sanitizeTerminalId(request.getHeader("X-POS-Terminal"));
+  }
+
+  private String sanitizeTerminalId(String terminalId) {
+    if (terminalId == null) return null;
+    String trimmed = terminalId.trim();
+    if (trimmed.isEmpty()) return null;
+    return trimmed.length() <= 128 ? trimmed : trimmed.substring(0, 128);
+  }
+
+  private boolean hasManagerPrivileges() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null || !auth.isAuthenticated()) return false;
+    return auth.getAuthorities().stream().anyMatch(a -> {
+      String authority = a.getAuthority();
+      if (authority == null) return false;
+      return "ROLE_ADMIN".equals(authority) || "ROLE_MANAGER".equals(authority);
+    });
   }
 
   private Customer loadCustomer(Long customerId) {
@@ -769,12 +879,6 @@ public class PosController {
       payment.setForeignAmount(foreignAmount.setScale(2, RoundingMode.HALF_UP));
     }
     payments.add(payment);
-  }
-
-  private BigDecimal safeNetTotal(Sale sale) {
-    BigDecimal total = sale.getTotal() == null ? BigDecimal.ZERO : sale.getTotal();
-    BigDecimal refunded = sale.getRefundedTotal() == null ? BigDecimal.ZERO : sale.getRefundedTotal();
-    return total.subtract(refunded);
   }
 
   private SalePayment buildPayment(PaymentMethod method, BigDecimal baseTotal,
@@ -814,37 +918,43 @@ public class PosController {
                          @RequestParam(required = false) String currencyCode,
                          @RequestParam(required = false) BigDecimal currencyRate,
                          @RequestParam(required = false) BigDecimal foreignAmount,
+                         @RequestParam(required = false) String terminalId,
                          @ModelAttribute("cart") Cart cart,
                          SessionStatus sessionStatus,
                          RedirectAttributes redirectAttributes,
-                         @RequestHeader(value = "HX-Request", required = false) String hxRequest,
+                          @RequestHeader(value = "HX-Request", required = false) String hxRequest,
+                         HttpServletRequest request,
                          Model model) {
+    String resolvedTerminalId = resolveTerminalId(terminalId, request);
     if (cart.getItems().isEmpty()) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("scanError", "Cart is empty.");
-        enrichCartModel(model, cart);
+        enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
       return "redirect:/pos?scanError=Cart+is+empty";
     }
     try {
       String username = currentUsername();
-      Shift openShift = findOpenShift(username);
+      Shift openShift = findOpenShift(username, resolvedTerminalId);
       if (openShift == null) {
         if (isHtmx(hxRequest)) {
           model.addAttribute("cartError", "Open a shift before checkout.");
-          enrichCartModel(model, cart);
+          enrichCartModel(model, cart, resolvedTerminalId);
           return "pos/fragments :: cartContainer";
         }
         return "redirect:/pos?cartError=Open+a+shift+before+checkout.";
       }
+      if (openShift.getTerminalId() != null && !openShift.getTerminalId().isBlank()) {
+        resolvedTerminalId = openShift.getTerminalId();
+      }
       Customer customer = loadCustomer(cart.getCustomerId());
       SalePayment payment = buildPayment(method, cart.getTotal(), currencyCode, currencyRate, foreignAmount);
-      Sale sale = posService.checkout(cart, payment, username, customer, openShift);
+      Sale sale = posService.checkout(cart, payment, username, customer, openShift, resolvedTerminalId);
       sessionStatus.setComplete(); // clears session cart
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
-        enrichCartModel(model, fresh);
+        enrichCartModel(model, fresh, resolvedTerminalId);
         model.addAttribute("checkoutSuccess", "Payment received. Receipt ready.");
         model.addAttribute("receiptUrl", "/sales/" + sale.getId() + "/receipt");
         return "pos/fragments :: cartContainer";
@@ -855,11 +965,10 @@ public class PosController {
       String message = ex.getMessage() == null ? "Checkout failed." : ex.getMessage();
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", message);
-        enrichCartModel(model, cart);
+        enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
-      String encoded = org.springframework.web.util.UriUtils.encode(message, java.nio.charset.StandardCharsets.UTF_8);
-      return "redirect:/pos?cartError=" + encoded;
+      return "redirect:/pos?cartError=" + encode(message);
     }
   }
 
@@ -873,15 +982,18 @@ public class PosController {
                               @RequestParam(required = false) PaymentMethod method3,
                               @RequestParam(required = false) BigDecimal amount3,
                               @RequestParam(required = false) String currencyCode3,
+                              @RequestParam(required = false) String terminalId,
                               @ModelAttribute("cart") Cart cart,
                               SessionStatus sessionStatus,
                               RedirectAttributes redirectAttributes,
                               @RequestHeader(value = "HX-Request", required = false) String hxRequest,
+                              HttpServletRequest request,
                               Model model) {
+    String resolvedTerminalId = resolveTerminalId(terminalId, request);
     if (cart.getItems().isEmpty()) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("scanError", "Cart is empty.");
-        enrichCartModel(model, cart);
+        enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
       return "redirect:/pos?scanError=Cart+is+empty";
@@ -894,7 +1006,7 @@ public class PosController {
     if (payments.isEmpty()) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", "Enter at least one payment amount.");
-        enrichCartModel(model, cart);
+        enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
       return "redirect:/pos?cartError=Enter+at+least+one+payment+amount.";
@@ -906,28 +1018,31 @@ public class PosController {
     if (total.subtract(expectedTotal).abs().compareTo(new BigDecimal("0.01")) > 0) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", "Split total must equal cart total.");
-        enrichCartModel(model, cart);
+        enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
       return "redirect:/pos?cartError=Split+total+must+equal+cart+total.";
     }
     try {
       String username = currentUsername();
-      Shift openShift = findOpenShift(username);
+      Shift openShift = findOpenShift(username, resolvedTerminalId);
       if (openShift == null) {
         if (isHtmx(hxRequest)) {
           model.addAttribute("cartError", "Open a shift before checkout.");
-          enrichCartModel(model, cart);
+          enrichCartModel(model, cart, resolvedTerminalId);
           return "pos/fragments :: cartContainer";
         }
         return "redirect:/pos?cartError=Open+a+shift+before+checkout.";
       }
+      if (openShift.getTerminalId() != null && !openShift.getTerminalId().isBlank()) {
+        resolvedTerminalId = openShift.getTerminalId();
+      }
       Customer customer = loadCustomer(cart.getCustomerId());
-      Sale sale = posService.checkoutSplit(cart, payments, username, customer, openShift);
+      Sale sale = posService.checkoutSplit(cart, payments, username, customer, openShift, resolvedTerminalId);
       sessionStatus.setComplete();
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
-        enrichCartModel(model, fresh);
+        enrichCartModel(model, fresh, resolvedTerminalId);
         model.addAttribute("checkoutSuccess", "Payment received. Receipt ready.");
         model.addAttribute("receiptUrl", "/sales/" + sale.getId() + "/receipt");
         return "pos/fragments :: cartContainer";
@@ -938,11 +1053,10 @@ public class PosController {
       String message = ex.getMessage() == null ? "Checkout failed." : ex.getMessage();
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", message);
-        enrichCartModel(model, cart);
+        enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
-      String encoded = org.springframework.web.util.UriUtils.encode(message, java.nio.charset.StandardCharsets.UTF_8);
-      return "redirect:/pos?cartError=" + encoded;
+      return "redirect:/pos?cartError=" + encode(message);
     }
   }
 

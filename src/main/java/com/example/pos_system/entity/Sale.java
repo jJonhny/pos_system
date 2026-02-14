@@ -34,6 +34,9 @@ public class Sale {
     @Column(length = 100)
     private String cashierUsername;
 
+    @Column(length = 128)
+    private String terminalId;
+
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 

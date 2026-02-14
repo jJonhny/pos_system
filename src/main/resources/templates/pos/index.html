@@ -616,6 +616,44 @@
       }
     };
 
+    const terminalIdKey = "pos.terminal.id";
+
+    const generateTerminalId = () => {
+      const random = Math.random().toString(36).slice(2, 8).toUpperCase();
+      return `TERM-${random}`;
+    };
+
+    const getTerminalId = () => {
+      let current = readStorage(terminalIdKey, "").trim();
+      if (!current) {
+        current = generateTerminalId();
+        writeStorage(terminalIdKey, current);
+      }
+      return current;
+    };
+
+    const syncTerminalIdFields = (root) => {
+      const scope = root || document;
+      const terminalId = getTerminalId();
+      document.body.dataset.terminalId = terminalId;
+      scope.querySelectorAll(".terminal-id-field").forEach((input) => {
+        if (input instanceof HTMLInputElement && input.value !== terminalId) {
+          input.value = terminalId;
+        }
+      });
+      return terminalId;
+    };
+
+    let terminalHeaderBound = false;
+    const bindHtmxTerminalHeader = () => {
+      if (terminalHeaderBound || !window.htmx) return;
+      terminalHeaderBound = true;
+      document.body.addEventListener("htmx:configRequest", (event) => {
+        if (!event || !event.detail || !event.detail.headers) return;
+        event.detail.headers["X-Terminal-Id"] = getTerminalId();
+      });
+    };
+
     const getProductGrid = () => document.getElementById("productGrid");
 
     const getProductCards = () => {
@@ -1009,7 +1047,8 @@
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "HX-Request": "true"
+          "HX-Request": "true",
+          "X-Terminal-Id": getTerminalId()
         },
         body
       });
@@ -1050,6 +1089,7 @@
     };
 
     const afterCartSwap = () => {
+      syncTerminalIdFields(document);
       applyProductListingState();
       applyStoredCurrency();
       renderPins();
@@ -1354,6 +1394,7 @@
     });
 
     document.addEventListener("DOMContentLoaded", () => {
+      bindHtmxTerminalHeader();
       afterCartSwap();
     });
 
@@ -1393,7 +1434,7 @@
 
       const ajaxRequest = async (options) => {
         const { url, method, body, triggerEl, target, swap, pushUrl } = options;
-        const headers = { "HX-Request": "true" };
+        const headers = { "HX-Request": "true", "X-Terminal-Id": getTerminalId() };
         if (target && target.id) headers["HX-Target"] = target.id;
 
         const response = await fetch(url, { method, body, headers });

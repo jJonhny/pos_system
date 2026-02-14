@@ -5,6 +5,7 @@ Spring Boot + Thymeleaf point‑of‑sale application with inventory, sales trac
 
 **Features**
 - POS checkout with cart discounts (fixed amount or percent), split payments, and optional reason
+- Shift management with per-currency opening float, cash in/out tracking, and close reconciliation
 - Multi‑currency tendering with live FX refresh and currency management
 - Inventory management for products and categories, low‑stock insights
 - Sales history with returns, receipts, and PDF export
@@ -55,6 +56,12 @@ app.currency.base=USD
 app.currency.rate-url=https://open.er-api.com/v6/latest/{base}
 app.currency.rate-path=rates
 app.currency.refresh-ms=3600000
+```
+
+Shift variance approval threshold (base currency):
+
+```
+app.shift.variance-threshold=20.00
 ```
 
 The rate URL should return a JSON object with a `rates` map keyed by currency code. The default free endpoint is rate‑limited and typically updates once per day.
@@ -110,6 +117,7 @@ Passwords are stored with BCrypt. Legacy `{noop}` (or plain) passwords are suppo
 - User account, role, permission, MFA, and password administration changes
 - Admin search UI: `GET /audit-events` with filters for date range, username, and action type.
 - SQL migration script (for environments not relying on JPA auto-schema): `src/main/resources/sql/audit_events.sql`.
+- Shift schema migration script (manual): `src/main/resources/sql/shift_management.sql`.
 
 Retention recommendation:
 - Keep audit events for at least 12-24 months for operational/compliance investigations.
