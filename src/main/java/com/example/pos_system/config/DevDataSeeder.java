@@ -1,17 +1,43 @@
 package com.example.pos_system.config;
 
-import com.example.pos_system.entity.*;
+import com.example.pos_system.dto.Cart;
+import com.example.pos_system.entity.Category;
+import com.example.pos_system.entity.GoodsReceipt;
+import com.example.pos_system.entity.GoodsReceiptItem;
+import com.example.pos_system.entity.PaymentMethod;
+import com.example.pos_system.entity.Product;
+import com.example.pos_system.entity.PurchaseOrder;
+import com.example.pos_system.entity.PurchaseOrderItem;
+import com.example.pos_system.entity.PurchaseOrderStatus;
+import com.example.pos_system.entity.Sale;
+import com.example.pos_system.entity.SalePayment;
+import com.example.pos_system.entity.Shift;
+import com.example.pos_system.entity.ShiftStatus;
+import com.example.pos_system.entity.Supplier;
+import com.example.pos_system.entity.SupplierStatus;
 import com.example.pos_system.repository.CategoryRepo;
+import com.example.pos_system.repository.GoodsReceiptRepo;
 import com.example.pos_system.repository.ProductRepo;
+import com.example.pos_system.repository.PurchaseOrderRepo;
 import com.example.pos_system.repository.SaleRepo;
-
+import com.example.pos_system.repository.SupplierRepo;
+import com.example.pos_system.service.InventoryService;
+import com.example.pos_system.service.PosService;
+import com.example.pos_system.service.ShiftService;
+import com.example.pos_system.service.StockMovementService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Profile("dev")
@@ -19,17 +45,41 @@ public class DevDataSeeder implements CommandLineRunner {
     private final CategoryRepo categoryRepo;
     private final ProductRepo productRepo;
     private final SaleRepo saleRepo;
+    private final SupplierRepo supplierRepo;
+    private final PurchaseOrderRepo purchaseOrderRepo;
+    private final GoodsReceiptRepo goodsReceiptRepo;
+    private final InventoryService inventoryService;
+    private final PosService posService;
+    private final ShiftService shiftService;
+    private final StockMovementService stockMovementService;
 
-    public DevDataSeeder(CategoryRepo categoryRepo, ProductRepo productRepo, SaleRepo saleRepo) {
+    public DevDataSeeder(CategoryRepo categoryRepo,
+                         ProductRepo productRepo,
+                         SaleRepo saleRepo,
+                         SupplierRepo supplierRepo,
+                         PurchaseOrderRepo purchaseOrderRepo,
+                         GoodsReceiptRepo goodsReceiptRepo,
+                         InventoryService inventoryService,
+                         PosService posService,
+                         ShiftService shiftService,
+                         StockMovementService stockMovementService) {
         this.categoryRepo = categoryRepo;
         this.productRepo = productRepo;
         this.saleRepo = saleRepo;
+        this.supplierRepo = supplierRepo;
+        this.purchaseOrderRepo = purchaseOrderRepo;
+        this.goodsReceiptRepo = goodsReceiptRepo;
+        this.inventoryService = inventoryService;
+        this.posService = posService;
+        this.shiftService = shiftService;
+        this.stockMovementService = stockMovementService;
     }
 
     @Override
     public void run(String... args) {
         seedCategoriesAndProducts();
-        seedSampleSale();
+        seedSampleSales();
+        seedSuppliersAndReceiving();
     }
 
     private void seedCategoriesAndProducts() {
@@ -50,67 +100,226 @@ public class DevDataSeeder implements CommandLineRunner {
 
         if (productRepo.count() > 0) return;
 
-        List<Product> products = new ArrayList<>();
-        products.add(newProduct("BEV-001", "100000000001", "Cola 330ml", "1.50", 120, beverages,
-                "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=200&q=80"));
-        products.add(newProduct("BEV-002", "100000000002", "Orange Juice 1L", "3.20", 60, beverages,
-                "https://images.unsplash.com/photo-1542444459-db0f86b5a7b2?auto=format&fit=crop&w=200&q=80"));
-        products.add(newProduct("SNK-001", "100000000101", "Potato Chips", "2.10", 80, snacks,
-                "https://images.unsplash.com/photo-1585238342028-4bbc3b8b2d8b?auto=format&fit=crop&w=200&q=80"));
-        products.add(newProduct("SNK-002", "100000000102", "Chocolate Bar", "1.25", 150, snacks,
-                "https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?auto=format&fit=crop&w=200&q=80"));
-        products.add(newProduct("ESS-001", "100000000201", "Hand Soap", "2.75", 40, essentials,
-                "https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=200&q=80"));
-        products.add(newProduct("ESS-002", "100000000202", "Paper Towels", "4.50", 30, essentials,
-                "https://images.unsplash.com/photo-1614302264631-ef85d1793b79?auto=format&fit=crop&w=200&q=80"));
+        List<ProductSeed> seeds = List.of(
+                new ProductSeed("BEV-001", "100000000001", "Cola 330ml", "1.50", 120, beverages,
+                        "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=200&q=80"),
+                new ProductSeed("BEV-002", "100000000002", "Orange Juice 1L", "3.20", 60, beverages,
+                        "https://images.unsplash.com/photo-1542444459-db0f86b5a7b2?auto=format&fit=crop&w=200&q=80"),
+                new ProductSeed("SNK-001", "100000000101", "Potato Chips", "2.10", 80, snacks,
+                        "https://images.unsplash.com/photo-1585238342028-4bbc3b8b2d8b?auto=format&fit=crop&w=200&q=80"),
+                new ProductSeed("SNK-002", "100000000102", "Chocolate Bar", "1.25", 150, snacks,
+                        "https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?auto=format&fit=crop&w=200&q=80"),
+                new ProductSeed("ESS-001", "100000000201", "Hand Soap", "2.75", 40, essentials,
+                        "https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=200&q=80"),
+                new ProductSeed("ESS-002", "100000000202", "Paper Towels", "4.50", 30, essentials,
+                        "https://images.unsplash.com/photo-1614302264631-ef85d1793b79?auto=format&fit=crop&w=200&q=80")
+        );
 
-        productRepo.saveAll(products);
+        for (ProductSeed seed : seeds) {
+            Product saved = productRepo.save(newProduct(seed));
+            inventoryService.setStockFromImport(
+                    saved.getId(),
+                    seed.stockQty(),
+                    "DEV-SEED-IMPORT:" + seed.sku(),
+                    "Dev seed opening stock"
+            );
+        }
     }
 
-    private void seedSampleSale() {
+    private void seedSampleSales() {
         if (saleRepo.count() > 0) return;
+
+        List<Product> products = productRepo.findAll();
+        if (products.size() < 2) return;
+
+        Shift shift = shiftService.findOpenShift("seed-cashier", "DEV-TERM-01")
+                .orElseGet(() -> shiftService.openShift(
+                        "seed-cashier",
+                        "DEV-TERM-01",
+                        Map.of("USD", new BigDecimal("200.00"))
+                ));
+
+        Cart firstCart = new Cart();
+        firstCart.add(products.get(0));
+        firstCart.add(products.get(1));
+        firstCart.setTaxRate(new BigDecimal("0.07"));
+
+        SalePayment firstPayment = new SalePayment();
+        firstPayment.setMethod(PaymentMethod.CASH);
+        firstPayment.setAmount(firstCart.getTotal().setScale(2, RoundingMode.HALF_UP));
+        posService.checkout(firstCart, firstPayment, "seed-cashier", null, shift, "DEV-TERM-01");
+
+        if (products.size() > 2) {
+            Cart secondCart = new Cart();
+            secondCart.add(products.get(2));
+            secondCart.add(products.get(2));
+            secondCart.setDiscountValue(new BigDecimal("5"));
+            secondCart.setDiscountType(com.example.pos_system.entity.DiscountType.PERCENT);
+
+            SalePayment secondPayment = new SalePayment();
+            secondPayment.setMethod(PaymentMethod.CARD);
+            secondPayment.setAmount(secondCart.getTotal().setScale(2, RoundingMode.HALF_UP));
+            posService.checkout(secondCart, secondPayment, "seed-cashier", null, shift, "DEV-TERM-01");
+        }
+
+        Shift openShift = shiftService.findOpenShift("seed-cashier", "DEV-TERM-01").orElse(null);
+        if (openShift != null && openShift.getStatus() == ShiftStatus.OPEN) {
+            ShiftService.ShiftReconciliationData preview = shiftService.previewReconciliation(openShift, Map.of());
+            Map<String, BigDecimal> counted = new LinkedHashMap<>(preview.expectedByCurrency());
+            if (counted.isEmpty()) {
+                counted.put("USD", BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+            }
+            shiftService.closeShift(
+                    "seed-cashier",
+                    "DEV-TERM-01",
+                    counted,
+                    "Auto-closed by dev seeder",
+                    true
+            );
+        }
+    }
+
+    private void seedSuppliersAndReceiving() {
+        if (supplierRepo.count() > 0 || purchaseOrderRepo.count() > 0 || goodsReceiptRepo.count() > 0) return;
+
         List<Product> products = productRepo.findAll();
         if (products.isEmpty()) return;
 
-        Product p1 = products.get(0);
-        Product p2 = products.size() > 1 ? products.get(1) : p1;
+        Supplier alpha = new Supplier();
+        alpha.setName("Alpha Distribution Co.");
+        alpha.setPhone("+1-555-1001");
+        alpha.setEmail("sales@alpha-dist.example");
+        alpha.setAddress("101 Warehouse Ave, Springfield");
+        alpha.setStatus(SupplierStatus.ACTIVE);
 
-        Sale sale = new Sale();
-        sale.setCreatedAt(LocalDateTime.now().minusDays(1));
-        sale.setPaymentMethod(PaymentMethod.CASH);
-        sale.setStatus(SaleStatus.PAID);
-        sale.setCashierUsername("seed");
+        Supplier beta = new Supplier();
+        beta.setName("Beta FMCG Supply");
+        beta.setPhone("+1-555-2002");
+        beta.setEmail("orders@beta-fmcg.example");
+        beta.setAddress("82 Market Road, Shelbyville");
+        beta.setStatus(SupplierStatus.ACTIVE);
 
-        SaleItem item1 = new SaleItem();
-        item1.setSale(sale);
-        item1.setProduct(p1);
-        item1.setQty(2);
-        item1.setUnitPrice(p1.getPrice());
-        item1.setLineTotal(p1.getPrice().multiply(new BigDecimal("2")));
-        item1.setPriceTier(PriceTier.RETAIL);
-        item1.setUnitType(UnitType.PIECE);
-        item1.setUnitSize(1);
+        supplierRepo.save(alpha);
+        supplierRepo.save(beta);
 
-        SaleItem item2 = new SaleItem();
-        item2.setSale(sale);
-        item2.setProduct(p2);
-        item2.setQty(1);
-        item2.setUnitPrice(p2.getPrice());
-        item2.setLineTotal(p2.getPrice());
-        item2.setPriceTier(PriceTier.RETAIL);
-        item2.setUnitType(UnitType.PIECE);
-        item2.setUnitSize(1);
+        PurchaseOrder po1 = new PurchaseOrder();
+        po1.setSupplier(alpha);
+        po1.setStatus(PurchaseOrderStatus.SENT);
+        po1.setCreatedAt(LocalDateTime.now().minusDays(2));
+        po1.setCreatedBy("seed-admin");
+        po1.setExpectedAt(LocalDate.now().plusDays(2));
+        po1.setCurrency("USD");
+        po1.setNotes("Weekly replenishment");
 
-        sale.getItems().add(item1);
-        sale.getItems().add(item2);
+        addPoItem(po1, products.get(0), 30, new BigDecimal("0.85"));
+        if (products.size() > 1) {
+            addPoItem(po1, products.get(1), 18, new BigDecimal("2.10"));
+        }
+        po1 = purchaseOrderRepo.save(po1);
 
-        BigDecimal subtotal = item1.getLineTotal().add(item2.getLineTotal());
-        sale.setSubtotal(subtotal);
-        sale.setDiscount(BigDecimal.ZERO);
-        sale.setTax(BigDecimal.ZERO);
-        sale.setTotal(subtotal);
+        GoodsReceipt grn1 = new GoodsReceipt();
+        grn1.setPurchaseOrder(po1);
+        grn1.setReceivedAt(LocalDateTime.now().minusDays(1));
+        grn1.setReceivedBy("seed-cashier");
+        grn1.setInvoiceNo("ALPHA-INV-1001");
+        grn1.setNotes("Partial delivery");
+        addGrnItem(grn1, products.get(0), 20, new BigDecimal("0.85"));
+        if (products.size() > 1) {
+            addGrnItem(grn1, products.get(1), 8, new BigDecimal("2.10"));
+        }
+        grn1 = goodsReceiptRepo.save(grn1);
+        applyGoodsReceipt(grn1, "DEV-TERM-01");
+        purchaseOrderRepo.save(po1);
 
-        saleRepo.save(sale);
+        PurchaseOrder po2 = new PurchaseOrder();
+        po2.setSupplier(beta);
+        po2.setStatus(PurchaseOrderStatus.SENT);
+        po2.setCreatedAt(LocalDateTime.now().minusDays(3));
+        po2.setCreatedBy("seed-admin");
+        po2.setExpectedAt(LocalDate.now().plusDays(1));
+        po2.setCurrency("USD");
+        po2.setNotes("Bulk promo restock");
+        Product target = products.size() > 2 ? products.get(2) : products.get(0);
+        addPoItem(po2, target, 50, new BigDecimal("1.15"));
+        po2 = purchaseOrderRepo.save(po2);
+
+        GoodsReceipt grn2 = new GoodsReceipt();
+        grn2.setPurchaseOrder(po2);
+        grn2.setReceivedAt(LocalDateTime.now().minusHours(12));
+        grn2.setReceivedBy("seed-cashier");
+        grn2.setInvoiceNo("BETA-INV-2001");
+        grn2.setNotes("Full delivery");
+        addGrnItem(grn2, target, 50, new BigDecimal("1.15"));
+        grn2 = goodsReceiptRepo.save(grn2);
+        applyGoodsReceipt(grn2, "DEV-TERM-01");
+        purchaseOrderRepo.save(po2);
+    }
+
+    private void applyGoodsReceipt(GoodsReceipt receipt, String terminalId) {
+        if (receipt == null || receipt.getItems() == null || receipt.getItems().isEmpty()) return;
+
+        PurchaseOrder po = receipt.getPurchaseOrder();
+        Map<Long, Integer> receivedByProduct = new HashMap<>();
+        for (GoodsReceiptItem item : receipt.getItems()) {
+            if (item.getProduct() == null || item.getProduct().getId() == null) continue;
+            int qty = item.getReceivedQty() == null ? 0 : item.getReceivedQty();
+            if (qty <= 0) continue;
+
+            stockMovementService.recordReceive(
+                    item.getProduct().getId(),
+                    qty,
+                    item.getUnitCost(),
+                    po == null ? null : po.getCurrency(),
+                    "GRN",
+                    String.valueOf(receipt.getId()),
+                    terminalId,
+                    "Dev seed receiving"
+            );
+            receivedByProduct.merge(item.getProduct().getId(), qty, Integer::sum);
+        }
+
+        if (po == null) return;
+        for (PurchaseOrderItem poItem : po.getItems()) {
+            if (poItem.getProduct() == null || poItem.getProduct().getId() == null) continue;
+            int current = poItem.getReceivedQty() == null ? 0 : poItem.getReceivedQty();
+            int delta = receivedByProduct.getOrDefault(poItem.getProduct().getId(), 0);
+            poItem.setReceivedQty(current + delta);
+        }
+        po.setStatus(resolvePoStatus(po));
+    }
+
+    private PurchaseOrderStatus resolvePoStatus(PurchaseOrder po) {
+        int ordered = 0;
+        int received = 0;
+        for (PurchaseOrderItem item : po.getItems()) {
+            ordered += item.getOrderedQty() == null ? 0 : item.getOrderedQty();
+            received += item.getReceivedQty() == null ? 0 : item.getReceivedQty();
+        }
+        if (ordered <= 0) return PurchaseOrderStatus.DRAFT;
+        if (received <= 0) return PurchaseOrderStatus.SENT;
+        if (received < ordered) return PurchaseOrderStatus.PARTIAL;
+        return PurchaseOrderStatus.RECEIVED;
+    }
+
+    private void addPoItem(PurchaseOrder po, Product product, int orderedQty, BigDecimal unitCost) {
+        PurchaseOrderItem item = new PurchaseOrderItem();
+        item.setPurchaseOrder(po);
+        item.setProduct(product);
+        item.setOrderedQty(orderedQty);
+        item.setReceivedQty(0);
+        item.setUnitCost(unitCost.setScale(4, RoundingMode.HALF_UP));
+        item.setTax(BigDecimal.ZERO.setScale(4, RoundingMode.HALF_UP));
+        item.setDiscount(BigDecimal.ZERO.setScale(4, RoundingMode.HALF_UP));
+        po.getItems().add(item);
+    }
+
+    private void addGrnItem(GoodsReceipt receipt, Product product, int receivedQty, BigDecimal unitCost) {
+        GoodsReceiptItem item = new GoodsReceiptItem();
+        item.setGoodsReceipt(receipt);
+        item.setProduct(product);
+        item.setReceivedQty(receivedQty);
+        item.setUnitCost(unitCost.setScale(4, RoundingMode.HALF_UP));
+        receipt.getItems().add(item);
     }
 
     private Category ensureCategory(String name, Map<String, Category> byName, List<Category> toCreate) {
@@ -126,22 +335,32 @@ public class DevDataSeeder implements CommandLineRunner {
         return c;
     }
 
-    private Product newProduct(String sku, String barcode, String name, String price, int stockQty, Category category, String imageUrl) {
+    private Product newProduct(ProductSeed seed) {
         Product p = new Product();
-        p.setSku(sku);
-        p.setBarcode(barcode);
-        p.setName(name);
-        BigDecimal priceValue = new BigDecimal(price);
+        p.setSku(seed.sku());
+        p.setBarcode(seed.barcode());
+        p.setName(seed.name());
+        BigDecimal priceValue = new BigDecimal(seed.price());
         p.setPrice(priceValue);
-        p.setWholesalePrice(priceValue.multiply(new BigDecimal("0.85")).setScale(2, java.math.RoundingMode.HALF_UP));
+        p.setWholesalePrice(priceValue.multiply(new BigDecimal("0.85")).setScale(2, RoundingMode.HALF_UP));
         p.setWholesaleMinQty(12);
-        p.setCostPrice(priceValue.multiply(new BigDecimal("0.60")).setScale(2, java.math.RoundingMode.HALF_UP));
-        p.setStockQty(stockQty);
+        p.setCostPrice(priceValue.multiply(new BigDecimal("0.60")).setScale(2, RoundingMode.HALF_UP));
+        p.setStockQty(0);
         p.setUnitsPerBox(6);
         p.setUnitsPerCase(24);
         p.setActive(true);
-        p.setCategory(category);
-        p.setImageUrl(imageUrl);
+        p.setAllowNegativeStock(false);
+        p.setCategory(seed.category());
+        p.setImageUrl(seed.imageUrl());
         return p;
+    }
+
+    private record ProductSeed(String sku,
+                               String barcode,
+                               String name,
+                               String price,
+                               int stockQty,
+                               Category category,
+                               String imageUrl) {
     }
 }
