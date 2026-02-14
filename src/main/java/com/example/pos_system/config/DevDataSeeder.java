@@ -180,27 +180,15 @@ public class DevDataSeeder implements CommandLineRunner {
     }
 
     private void seedSuppliersAndReceiving() {
-        if (supplierRepo.count() > 0 || purchaseOrderRepo.count() > 0 || goodsReceiptRepo.count() > 0) return;
+        Map<String, Supplier> suppliersByName = ensureSuppliers();
+        if (purchaseOrderRepo.count() > 0 || goodsReceiptRepo.count() > 0) return;
 
         List<Product> products = productRepo.findAll();
         if (products.isEmpty()) return;
 
-        Supplier alpha = new Supplier();
-        alpha.setName("Alpha Distribution Co.");
-        alpha.setPhone("+1-555-1001");
-        alpha.setEmail("sales@alpha-dist.example");
-        alpha.setAddress("101 Warehouse Ave, Springfield");
-        alpha.setStatus(SupplierStatus.ACTIVE);
-
-        Supplier beta = new Supplier();
-        beta.setName("Beta FMCG Supply");
-        beta.setPhone("+1-555-2002");
-        beta.setEmail("orders@beta-fmcg.example");
-        beta.setAddress("82 Market Road, Shelbyville");
-        beta.setStatus(SupplierStatus.ACTIVE);
-
-        supplierRepo.save(alpha);
-        supplierRepo.save(beta);
+        Supplier alpha = suppliersByName.get("alpha distribution co.");
+        Supplier beta = suppliersByName.get("beta fmcg supply");
+        if (alpha == null || beta == null) return;
 
         PurchaseOrder po1 = new PurchaseOrder();
         po1.setSupplier(alpha);
@@ -253,6 +241,44 @@ public class DevDataSeeder implements CommandLineRunner {
         grn2 = goodsReceiptRepo.save(grn2);
         applyGoodsReceipt(grn2, "DEV-TERM-01");
         purchaseOrderRepo.save(po2);
+    }
+
+    private Map<String, Supplier> ensureSuppliers() {
+        List<SupplierSeed> seeds = List.of(
+                new SupplierSeed("Alpha Distribution Co.", "+1-555-1001", "sales@alpha-dist.example", "101 Warehouse Ave, Springfield"),
+                new SupplierSeed("Beta FMCG Supply", "+1-555-2002", "orders@beta-fmcg.example", "82 Market Road, Shelbyville"),
+                new SupplierSeed("Northline Wholesale", "+1-555-3003", "hello@northline.example", "44 Trade Center Blvd, Capital City"),
+                new SupplierSeed("FreshMart Vendors", "+1-555-4004", "support@freshmart-vendors.example", "29 Orchard Lane, Ogdenville"),
+                new SupplierSeed("Urban Essentials Trading", "+1-555-5005", "sales@urban-essentials.example", "900 Commerce Dr, North Haverbrook"),
+                new SupplierSeed("Sunrise Beverage Partners", "+1-555-6006", "orders@sunrise-bev.example", "12 Bottling St, Springfield")
+        );
+
+        Map<String, Supplier> byName = new HashMap<>();
+        for (Supplier supplier : supplierRepo.findAll()) {
+            if (supplier.getName() == null) continue;
+            byName.put(supplier.getName().trim().toLowerCase(), supplier);
+        }
+
+        List<Supplier> toCreate = new ArrayList<>();
+        for (SupplierSeed seed : seeds) {
+            String key = seed.name().trim().toLowerCase();
+            if (byName.containsKey(key)) continue;
+            Supplier supplier = new Supplier();
+            supplier.setName(seed.name());
+            supplier.setPhone(seed.phone());
+            supplier.setEmail(seed.email());
+            supplier.setAddress(seed.address());
+            supplier.setStatus(SupplierStatus.ACTIVE);
+            toCreate.add(supplier);
+        }
+
+        if (!toCreate.isEmpty()) {
+            List<Supplier> saved = supplierRepo.saveAll(toCreate);
+            for (Supplier supplier : saved) {
+                byName.put(supplier.getName().trim().toLowerCase(), supplier);
+            }
+        }
+        return byName;
     }
 
     private void applyGoodsReceipt(GoodsReceipt receipt, String terminalId) {
@@ -362,5 +388,8 @@ public class DevDataSeeder implements CommandLineRunner {
                                int stockQty,
                                Category category,
                                String imageUrl) {
+    }
+
+    private record SupplierSeed(String name, String phone, String email, String address) {
     }
 }
