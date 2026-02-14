@@ -51,7 +51,14 @@
 </head>
 
 <body class="bg-slate-100 text-slate-900"
-      th:attr="data-base-symbol=${baseCurrency.symbol}, data-base-code=${baseCurrency.code}, data-base-decimals=${baseCurrency.fractionDigits}">
+      th:attr="data-base-symbol=${baseCurrency.symbol},
+               data-base-code=${baseCurrency.code},
+               data-base-decimals=${baseCurrency.fractionDigits},
+               data-preferred-terminal-id=${preferredTerminalId},
+               data-terminal-printer-mode=${terminalSettings != null and terminalSettings.printerMode != null ? terminalSettings.printerMode.name() : 'PDF'},
+               data-terminal-bridge-url=${terminalSettings != null ? terminalSettings.bridgeUrl : ''},
+               data-terminal-auto-print=${terminalSettings != null and terminalSettings.autoPrintEnabled},
+               data-camera-scan-enabled=${terminalSettings != null and terminalSettings.cameraScannerEnabled}">
   <!-- soft background accents (UI only) -->
   <div class="absolute inset-0 -z-10">
     <div class="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-slate-300/30 blur-3xl"></div>
@@ -202,7 +209,33 @@
                              hover:bg-slate-800 transition active:scale-[0.99]">
                 Scan
               </button>
+              <button type="button"
+                      th:if="${terminalSettings != null and terminalSettings.cameraScannerEnabled}"
+                      data-action="camera-toggle"
+                      class="h-[42px] rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700
+                             hover:bg-slate-50 transition active:scale-[0.99]">
+                Camera
+              </button>
             </form>
+          </div>
+
+          <div id="cameraScanPanel"
+               th:if="${terminalSettings != null and terminalSettings.cameraScannerEnabled}"
+               class="hidden rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="text-xs font-semibold text-slate-700">Camera scanner</div>
+              <button type="button"
+                      data-action="camera-stop"
+                      class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-100 transition">
+                Stop
+              </button>
+            </div>
+            <video id="cameraScanVideo"
+                   class="mt-2 w-full max-h-64 rounded-xl border border-slate-200 bg-black/80 object-contain"
+                   autoplay
+                   muted
+                   playsinline></video>
+            <div id="cameraScanStatus" class="mt-2 text-xs text-slate-500">Ready</div>
           </div>
 
           <!-- Shortcut hint -->
@@ -477,7 +510,8 @@
     const getTerminalId = () => {
       let current = readStorage(terminalIdKey, "").trim();
       if (!current) {
-        current = generateTerminalId();
+        const preferred = (document.body.dataset.preferredTerminalId || "").trim();
+        current = preferred || generateTerminalId();
         writeStorage(terminalIdKey, current);
       }
       return current;
@@ -584,9 +618,13 @@
       document.querySelectorAll(".stock-filter").forEach((btn) => {
         const active = btn.getAttribute("data-stock-filter") === mode;
         btn.classList.toggle("bg-slate-900", active);
+        btn.classList.toggle("bg-white", !active);
         btn.classList.toggle("border-slate-900", active);
+        btn.classList.toggle("border-slate-200", !active);
         btn.classList.toggle("text-white", active);
+        btn.classList.toggle("hover:bg-slate-800", active);
         btn.classList.toggle("text-slate-600", !active);
+        btn.classList.toggle("hover:bg-slate-100", !active);
       });
     };
 
@@ -849,6 +887,106 @@
       });
     };
 
+    const buildPostBody = (params) => {
+      const body = new URLSearchParams();
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) body.append(key, value.toString());
+      });
+      const csrf = getCsrfField();
+      if (csrf) body.append(csrf.name, csrf.value);
+      return body;
+    };
+
+    const postJson = async (url, params) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-Terminal-Id": getTerminalId()
+        },
+        body: buildPostBody(params)
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Request failed (${response.status})`);
+      }
+      return response.json();
+    };
+
+    const setBridgeStatus = (message, isError) => {
+      const statusEl = document.querySelector("[data-bridge-status='true']");
+      if (!statusEl) return;
+      statusEl.textContent = message || "";
+      statusEl.classList.toggle("text-emerald-700", !isError);
+      statusEl.classList.toggle("text-rose-700", !!isError);
+    };
+
+    const resolveBridgeUrl = (value) => {
+      const explicit = (value || "").trim();
+      if (explicit) return explicit;
+      const fromBody = (document.body.dataset.terminalBridgeUrl || "").trim();
+      if (fromBody) return fromBody;
+      return "http://127.0.0.1:18765";
+    };
+
+    const bridgeFetch = async (baseUrl, path, payload) => {
+      const trimmed = resolveBridgeUrl(baseUrl).replace(/\/+$/, "");
+      const response = await fetch(`${trimmed}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {})
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Bridge call failed.");
+      }
+      return response.json().catch(() => ({}));
+    };
+
+    const printReceiptViaBridge = async (saleId, reprint = false) => {
+      if (!saleId) return;
+      const payloadResponse = await postJson(`/pos/checkout/${saleId}/print`, {
+        terminalId: getTerminalId(),
+        reprint: reprint ? "true" : "false"
+      });
+
+      const mode = (payloadResponse.printerMode || "PDF").toUpperCase();
+      if (mode !== "BRIDGE") {
+        if (payloadResponse.pdfUrl) window.open(payloadResponse.pdfUrl, "_blank", "noopener,noreferrer");
+        setBridgeStatus("Bridge disabled. Downloaded PDF fallback.", false);
+        return;
+      }
+
+      try {
+        await bridgeFetch(payloadResponse.bridgeUrl, "/print", payloadResponse.payload);
+        setBridgeStatus("Receipt sent to printer.", false);
+      } catch (error) {
+        if (payloadResponse.pdfUrl) window.open(payloadResponse.pdfUrl, "_blank", "noopener,noreferrer");
+        setBridgeStatus("Bridge unavailable. Used PDF fallback.", true);
+      }
+    };
+
+    const openDrawerViaBridge = async (saleId) => {
+      const drawerResponse = await postJson("/pos/drawer/open", {
+        terminalId: getTerminalId(),
+        saleId: saleId || ""
+      });
+      const mode = (drawerResponse.printerMode || "PDF").toUpperCase();
+      if (mode !== "BRIDGE") {
+        setBridgeStatus("Bridge disabled. Open drawer manually.", true);
+        return;
+      }
+      try {
+        await bridgeFetch(drawerResponse.bridgeUrl, "/drawer/open", {
+          terminalId: drawerResponse.terminalId,
+          saleId: saleId || null
+        });
+        setBridgeStatus("Drawer open command sent.", false);
+      } catch (error) {
+        setBridgeStatus("Bridge unavailable. Open drawer manually.", true);
+      }
+    };
+
     const renderPins = () => {
       const section = document.getElementById("pinnedSection");
       const grid = document.getElementById("pinnedGrid");
@@ -911,12 +1049,7 @@
     let clearingCart = false;
 
     const postCartForm = async (url, params, swap) => {
-      const body = new URLSearchParams();
-      Object.entries(params || {}).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) body.append(key, value.toString());
-      });
-      const csrf = getCsrfField();
-      if (csrf) body.append(csrf.name, csrf.value);
+      const body = buildPostBody(params);
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -962,6 +1095,109 @@
       if (ok) clearCart();
     };
 
+    let autoPrintInFlight = false;
+
+    const runCheckoutAutoPrint = async () => {
+      if (autoPrintInFlight) return;
+      const success = document.querySelector("[data-checkout-success='true']");
+      if (!success) return;
+      const saleId = (success.getAttribute("data-checkout-sale-id") || "").trim();
+      if (!saleId) return;
+      const autoPrint = (success.getAttribute("data-auto-print") || "").toLowerCase() === "true";
+      if (!autoPrint) return;
+      const key = `pos.autoprint.${saleId}`;
+      try {
+        if (sessionStorage.getItem(key) === "1") return;
+      } catch {
+        // ignore
+      }
+      autoPrintInFlight = true;
+      try {
+        await printReceiptViaBridge(saleId, false);
+        try {
+          sessionStorage.setItem(key, "1");
+        } catch {
+          // ignore storage failures
+        }
+      } finally {
+        autoPrintInFlight = false;
+      }
+    };
+
+    const isPosContextInput = (target) => {
+      if (!target) return false;
+      if (target.id === "barcodeInput") return false;
+      return isTypingTarget(target);
+    };
+
+    let barcodeRefocusUntil = 0;
+    let barcodeRefocusTimer = null;
+    let barcodeTypingIntervals = [];
+    let barcodeLastKeyAt = 0;
+    let barcodeAutoSubmitTimer = null;
+
+    const scheduleBarcodeRefocus = (delayMs = 180) => {
+      if (barcodeRefocusTimer) window.clearTimeout(barcodeRefocusTimer);
+      barcodeRefocusTimer = window.setTimeout(() => {
+        const input = document.getElementById("barcodeInput");
+        if (!input) return;
+        if (Date.now() < barcodeRefocusUntil) return;
+        const active = document.activeElement;
+        if (isPosContextInput(active)) return;
+        if (active === input) return;
+        input.focus({ preventScroll: true });
+      }, delayMs);
+    };
+
+    const bindBarcodeScannerBehavior = () => {
+      const form = document.getElementById("barcodeForm");
+      const input = document.getElementById("barcodeInput");
+      if (!form || !input) return;
+      if (input.dataset.boundScanner === "true") return;
+      input.dataset.boundScanner = "true";
+
+      input.addEventListener("keydown", (event) => {
+        const now = performance.now();
+        if (event.key && event.key.length === 1) {
+          if (barcodeLastKeyAt > 0) {
+            barcodeTypingIntervals.push(now - barcodeLastKeyAt);
+            if (barcodeTypingIntervals.length > 12) {
+              barcodeTypingIntervals = barcodeTypingIntervals.slice(-12);
+            }
+          }
+          barcodeLastKeyAt = now;
+        }
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (typeof form.requestSubmit === "function") form.requestSubmit();
+          else form.submit();
+        }
+      });
+
+      input.addEventListener("input", () => {
+        if (barcodeAutoSubmitTimer) window.clearTimeout(barcodeAutoSubmitTimer);
+        const value = (input.value || "").trim();
+        if (!value) return;
+        const fastIntervals = barcodeTypingIntervals.filter((delta) => delta > 0 && delta < 40).length;
+        const likelyScanner = fastIntervals >= 4 && value.length >= 5;
+        if (!likelyScanner) return;
+        barcodeAutoSubmitTimer = window.setTimeout(() => {
+          if (typeof form.requestSubmit === "function") form.requestSubmit();
+          else form.submit();
+          barcodeTypingIntervals = [];
+          barcodeLastKeyAt = 0;
+        }, 70);
+      });
+
+      input.addEventListener("blur", () => {
+        barcodeTypingIntervals = [];
+        barcodeLastKeyAt = 0;
+        scheduleBarcodeRefocus(120);
+      });
+
+      scheduleBarcodeRefocus(40);
+    };
+
     const afterCartSwap = () => {
       syncTerminalIdFields(document);
       syncClientCheckoutIdFields(document);
@@ -973,6 +1209,106 @@
       updateCashChange();
       updateQuickTotals();
       restoreCartSelection();
+      bindBarcodeScannerBehavior();
+      scheduleBarcodeRefocus();
+      runCheckoutAutoPrint();
+    };
+
+    const cameraEnabled = (document.body.dataset.cameraScanEnabled || "").toLowerCase() === "true";
+    const cameraState = {
+      active: false,
+      stream: null,
+      detector: null,
+      rafId: null
+    };
+
+    const setCameraStatus = (message, isError) => {
+      const status = document.getElementById("cameraScanStatus");
+      if (!status) return;
+      status.textContent = message || "";
+      status.classList.toggle("text-slate-500", !isError);
+      status.classList.toggle("text-rose-600", !!isError);
+    };
+
+    const stopCameraScanner = () => {
+      cameraState.active = false;
+      if (cameraState.rafId) {
+        window.cancelAnimationFrame(cameraState.rafId);
+        cameraState.rafId = null;
+      }
+      if (cameraState.stream) {
+        cameraState.stream.getTracks().forEach((track) => track.stop());
+        cameraState.stream = null;
+      }
+      const panel = document.getElementById("cameraScanPanel");
+      if (panel) panel.classList.add("hidden");
+      const video = document.getElementById("cameraScanVideo");
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+      }
+      setCameraStatus("Stopped", false);
+      scheduleBarcodeRefocus(40);
+    };
+
+    const runCameraLoop = async () => {
+      if (!cameraState.active) return;
+      const video = document.getElementById("cameraScanVideo");
+      if (!video || !cameraState.detector) return;
+      try {
+        const codes = await cameraState.detector.detect(video);
+        if (codes && codes.length > 0) {
+          const value = (codes[0].rawValue || "").trim();
+          if (value) {
+            const input = document.getElementById("barcodeInput");
+            const form = document.getElementById("barcodeForm");
+            if (input && form) {
+              input.value = value;
+              setCameraStatus(`Scanned: ${value}`, false);
+              stopCameraScanner();
+              if (typeof form.requestSubmit === "function") form.requestSubmit();
+              else form.submit();
+              return;
+            }
+          }
+        }
+      } catch (error) {
+        setCameraStatus("Camera scan failed. Try keyboard scanner.", true);
+      }
+      cameraState.rafId = window.requestAnimationFrame(runCameraLoop);
+    };
+
+    const startCameraScanner = async () => {
+      if (!cameraEnabled) return;
+      if (cameraState.active) {
+        stopCameraScanner();
+        return;
+      }
+      const panel = document.getElementById("cameraScanPanel");
+      const video = document.getElementById("cameraScanVideo");
+      if (!panel || !video) return;
+      if (!("BarcodeDetector" in window)) {
+        setCameraStatus("Camera fallback requires a browser with BarcodeDetector support.", true);
+        panel.classList.remove("hidden");
+        return;
+      }
+      try {
+        cameraState.detector = new window.BarcodeDetector({
+          formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_39", "code_128", "qr_code"]
+        });
+        cameraState.stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false
+        });
+        video.srcObject = cameraState.stream;
+        await video.play();
+        panel.classList.remove("hidden");
+        cameraState.active = true;
+        setCameraStatus("Scanning...", false);
+        runCameraLoop();
+      } catch (error) {
+        setCameraStatus("Unable to access camera. Check permissions.", true);
+      }
     };
 
     const loadRecents = () => {
@@ -1100,6 +1436,57 @@
     };
 
     document.addEventListener("click", (e) => {
+      const printReceiptBtn = e.target.closest("[data-action='print-receipt']");
+      if (printReceiptBtn) {
+        e.preventDefault();
+        const saleId = printReceiptBtn.getAttribute("data-sale-id");
+        printReceiptViaBridge(saleId, false).catch(() => {
+          setBridgeStatus("Unable to print receipt. Use PDF fallback.", true);
+        });
+        return;
+      }
+
+      const reprintBtn = e.target.closest("[data-action='reprint-receipt']");
+      if (reprintBtn) {
+        e.preventDefault();
+        const saleId = reprintBtn.getAttribute("data-sale-id");
+        printReceiptViaBridge(saleId, true).catch(() => {
+          setBridgeStatus("Unable to reprint receipt. Use PDF fallback.", true);
+        });
+        return;
+      }
+
+      const openDrawerBtn = e.target.closest("[data-action='open-drawer']");
+      if (openDrawerBtn) {
+        e.preventDefault();
+        const saleId = openDrawerBtn.getAttribute("data-sale-id");
+        openDrawerViaBridge(saleId).catch(() => {
+          setBridgeStatus("Unable to open drawer automatically.", true);
+        });
+        return;
+      }
+
+      const manualDrawerBtn = e.target.closest("[data-action='drawer-manual']");
+      if (manualDrawerBtn) {
+        e.preventDefault();
+        setBridgeStatus("Please open drawer manually at the register.", true);
+        return;
+      }
+
+      const cameraToggle = e.target.closest("[data-action='camera-toggle']");
+      if (cameraToggle) {
+        e.preventDefault();
+        startCameraScanner();
+        return;
+      }
+
+      const cameraStop = e.target.closest("[data-action='camera-stop']");
+      if (cameraStop) {
+        e.preventDefault();
+        stopCameraScanner();
+        return;
+      }
+
       const pin = e.target.closest(".pin-toggle");
       if (pin) {
         e.preventDefault();
@@ -1204,6 +1591,7 @@
         const valueForeign = rate > 0 ? valueBase / rate : valueBase;
         input.value = valueForeign.toFixed(currency.decimals || 2);
         updateCashChange();
+        return;
       }
 
       const cartItem = e.target.closest("[data-cart-item]");
@@ -1261,6 +1649,29 @@
       }
     });
 
+    document.addEventListener("focusin", (e) => {
+      const target = e.target;
+      if (!target) return;
+      if (target.id === "barcodeInput") {
+        barcodeRefocusUntil = 0;
+        return;
+      }
+      if (isTypingTarget(target)) {
+        barcodeRefocusUntil = Date.now() + 20000;
+      }
+    });
+
+    document.addEventListener("pointerdown", (e) => {
+      const target = e.target;
+      if (!target) return;
+      if (target.closest("#cameraScanPanel")) return;
+      if (isTypingTarget(target) && target.id !== "barcodeInput") {
+        barcodeRefocusUntil = Date.now() + 20000;
+        return;
+      }
+      scheduleBarcodeRefocus(300);
+    });
+
     document.addEventListener("htmx:afterSwap", (e) => {
       if (!e.target) return;
       if (["productGridWrap", "cartPanel", "cartContainer"].includes(e.target.id)) {
@@ -1271,6 +1682,14 @@
     document.addEventListener("DOMContentLoaded", () => {
       bindHtmxTerminalHeader();
       afterCartSwap();
+      scheduleBarcodeRefocus(80);
+      window.setInterval(() => {
+        scheduleBarcodeRefocus(20);
+      }, 1500);
+    });
+
+    window.addEventListener("beforeunload", () => {
+      stopCameraScanner();
     });
 
     // Fallback: if HTMX didn't load (offline/CDN blocked), do minimal AJAX swaps.
