@@ -1,8 +1,10 @@
 package com.example.pos_system.controller;
 
+import com.example.pos_system.dto.CurrencyAnalyticsStats;
 import com.example.pos_system.entity.Currency;
 import com.example.pos_system.repository.CurrencyRateLogRepo;
 import com.example.pos_system.repository.CurrencyRepo;
+import com.example.pos_system.service.CurrencyAnalyticsService;
 import com.example.pos_system.service.CurrencyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,12 +26,17 @@ import java.time.format.DateTimeFormatter;
 public class CurrencyController {
     private final CurrencyRepo currencyRepo;
     private final CurrencyService currencyService;
+    private final CurrencyAnalyticsService currencyAnalyticsService;
     private final CurrencyRateLogRepo rateLogRepo;
     private static final DateTimeFormatter RATE_FMT = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
-    public CurrencyController(CurrencyRepo currencyRepo, CurrencyService currencyService, CurrencyRateLogRepo rateLogRepo) {
+    public CurrencyController(CurrencyRepo currencyRepo,
+                              CurrencyService currencyService,
+                              CurrencyAnalyticsService currencyAnalyticsService,
+                              CurrencyRateLogRepo rateLogRepo) {
         this.currencyRepo = currencyRepo;
         this.currencyService = currencyService;
+        this.currencyAnalyticsService = currencyAnalyticsService;
         this.rateLogRepo = rateLogRepo;
     }
 
@@ -66,6 +73,30 @@ public class CurrencyController {
             model.addAttribute("rateLabels", List.of());
             model.addAttribute("rateValues", List.of());
         }
+
+        CurrencyAnalyticsStats analytics = currencyAnalyticsService.build(currencies, base);
+        model.addAttribute("totalCurrencies", analytics.totalCurrencies());
+        model.addAttribute("activeCurrencies", analytics.activeCurrencies());
+        model.addAttribute("inactiveCurrencies", analytics.inactiveCurrencies());
+        model.addAttribute("strongestCode", analytics.strongestCode());
+        model.addAttribute("weakestCode", analytics.weakestCode());
+        model.addAttribute("rateSpreadPercent", analytics.rateSpreadPercent());
+        model.addAttribute("mostVolatileCode", analytics.mostVolatileCode());
+        model.addAttribute("mostVolatilePercent", analytics.mostVolatilePercent());
+        model.addAttribute("averageVolatilityPercent", analytics.averageVolatilityPercent());
+        model.addAttribute("stalestCode", analytics.stalestCode());
+        model.addAttribute("stalestHours", analytics.stalestHours());
+        model.addAttribute("rateBarLabels", analytics.rateBarLabels());
+        model.addAttribute("rateBarValues", analytics.rateBarValues());
+        model.addAttribute("volatilityLabels", analytics.volatilityLabels());
+        model.addAttribute("volatilityValues", analytics.volatilityValues());
+        model.addAttribute("freshnessLabels", analytics.freshnessLabels());
+        model.addAttribute("freshnessHours", analytics.freshnessHours());
+        model.addAttribute("trendLabels", analytics.trendLabels());
+        model.addAttribute("trendCodes", analytics.trendCodes());
+        model.addAttribute("trendSeries", analytics.trendSeries());
+        model.addAttribute("converterCodes", analytics.converterCodes());
+        model.addAttribute("converterRates", analytics.converterRates());
         return "currencies/list";
     }
 
