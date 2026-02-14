@@ -1,6 +1,7 @@
 package com.example.pos_system.service;
 
 import com.example.pos_system.entity.Product;
+import com.example.pos_system.entity.StockMovementType;
 import com.example.pos_system.repository.ProductRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,13 @@ import java.util.Map;
 public class InventoryService {
     private final ProductRepo productRepo;
     private final AuditEventService auditEventService;
+    private final StockMovementService stockMovementService;
 
-    public InventoryService(ProductRepo productRepo, AuditEventService auditEventService) {
+    public InventoryService(ProductRepo productRepo, AuditEventService auditEventService,
+                            StockMovementService stockMovementService) {
         this.productRepo = productRepo;
         this.auditEventService = auditEventService;
+        this.stockMovementService = stockMovementService;
     }
 
     public Product quickUpdate(Long id, String price, String stockQty) {
@@ -27,6 +31,7 @@ public class InventoryService {
         Map<String, Object> before = productSnapshot(product);
         boolean changedPrice = false;
         boolean changedStock = false;
+        Integer parsedStock = null;
 
         if (hasText(price)) {
             BigDecimal parsedPrice = parseBigDecimal(price);
@@ -40,13 +45,12 @@ public class InventoryService {
         }
 
         if (hasText(stockQty)) {
-            Integer parsedStock = parseInteger(stockQty);
+            parsedStock = parseInteger(stockQty);
             if (parsedStock == null || parsedStock < 0) {
                 throw new IllegalArgumentException("Invalid stock quantity.");
             }
-            Integer current = product.getStockQty();
-            if (current == null || current.intValue() != parsedStock) {
-                product.setStockQty(parsedStock);
+            int current = safeStock(product.getStockQty());
+            if (current != parsedStock) {
                 changedStock = true;
             }
         }
@@ -55,7 +59,21 @@ public class InventoryService {
             throw new IllegalArgumentException("No changes provided for quick update.");
         }
 
-        Product saved = productRepo.save(product);
+        Product saved = changedPrice ? productRepo.save(product) : product;
+        if (changedStock && parsedStock != null) {
+            saved = stockMovementService.adjustToTarget(
+                    saved.getId(),
+                    parsedStock,
+                    saved.getCostPrice(),
+                    null,
+                    StockMovementType.ADJUSTMENT,
+                    "ADJ",
+                    String.valueOf(saved.getId()),
+                    null,
+                    "Quick stock update"
+            );
+        }
+
         Map<String, Object> after = productSnapshot(saved);
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("mode", "quick-update");
@@ -80,37 +98,76 @@ public class InventoryService {
             throw new IllegalArgumentException("Bulk quantity must be a positive number.");
         }
         int delta = "remove".equalsIgnoreCase(operation) ? -qtyValue : qtyValue;
-        List<Product> products = new ArrayList<>();
-        for (Long id : ids) {
-            productRepo.findByIdForUpdate(id).ifPresent(products::add);
-        }
+        String reference = "bulk-" + System.currentTimeMillis();
         List<Map<String, Object>> before = new ArrayList<>();
         List<Map<String, Object>> after = new ArrayList<>();
-
-        for (Product product : products) {
+        int updatedCount = 0;
+        for (Long id : ids) {
+            Product existing = productRepo.findById(id).orElse(null);
+            if (existing == null) continue;
             Map<String, Object> beforeRow = new LinkedHashMap<>();
-            beforeRow.put("id", product.getId());
-            beforeRow.put("stockQty", product.getStockQty());
+            beforeRow.put("id", existing.getId());
+            beforeRow.put("stockQty", existing.getStockQty());
             before.add(beforeRow);
 
-            Integer current = product.getStockQty();
-            int next = (current == null ? 0 : current) + delta;
-            if (next < 0) next = 0;
-            product.setStockQty(next);
+            Product updated = stockMovementService.adjustByDelta(
+                    existing.getId(),
+                    delta,
+                    existing.getCostPrice(),
+                    null,
+                    StockMovementType.ADJUSTMENT,
+                    "ADJ_BULK",
+                    reference,
+                    null,
+                    "Bulk stock " + (delta < 0 ? "remove" : "add")
+            );
 
             Map<String, Object> afterRow = new LinkedHashMap<>();
-            afterRow.put("id", product.getId());
-            afterRow.put("stockQty", product.getStockQty());
+            afterRow.put("id", updated.getId());
+            afterRow.put("stockQty", updated.getStockQty());
             after.add(afterRow);
+            updatedCount++;
         }
-        productRepo.saveAll(products);
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("operation", operation);
         metadata.put("qty", qtyValue);
         metadata.put("delta", delta);
-        metadata.put("affectedProducts", products.size());
+        metadata.put("affectedProducts", updatedCount);
+        metadata.put("reference", reference);
         auditEventService.record("STOCK_BULK_UPDATE", "PRODUCT", "bulk", before, after, metadata);
-        return products.size();
+        return updatedCount;
+    }
+
+    public Product setStockFromAdjustment(Long productId,
+                                          int targetStock,
+                                          String reference,
+                                          String notes) {
+        return syncStockLevel(productId, targetStock, StockMovementType.ADJUSTMENT, reference, notes);
+    }
+
+    public Product setStockFromImport(Long productId,
+                                      int targetStock,
+                                      String reference,
+                                      String notes) {
+        return syncStockLevel(productId, targetStock, StockMovementType.IMPORT, reference, notes);
+    }
+
+    private Product syncStockLevel(Long productId,
+                                   int targetStock,
+                                   StockMovementType movementType,
+                                   String reference,
+                                   String notes) {
+        return stockMovementService.adjustToTarget(
+                productId,
+                targetStock,
+                null,
+                null,
+                movementType,
+                movementType == StockMovementType.IMPORT ? "IMPORT" : "ADJ",
+                reference,
+                null,
+                notes
+        );
     }
 
     public void recordImportSummary(String filename,
@@ -162,5 +219,9 @@ public class InventoryService {
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private int safeStock(Integer value) {
+        return value == null ? 0 : value;
     }
 }

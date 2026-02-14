@@ -38,7 +38,13 @@ public class SecurityConfig {
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_USE_POS')"))
                         .requestMatchers("/sales/*/receipt").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_USE_POS')"))
-                        .requestMatchers("/products/**", "/categories/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                        .requestMatchers("/inventory/movements/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_INVENTORY_VIEW_MOVEMENTS')"))
+                        .requestMatchers("/suppliers/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_SUPPLIERS_MANAGE')"))
+                        .requestMatchers("/purchases/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_PURCHASES_MANAGE') or hasAuthority('PERM_RECEIVING_POST')"))
+                        .requestMatchers("/commodity", "/products/**", "/categories/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')"))
                         .requestMatchers("/sales/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_SALES')"))

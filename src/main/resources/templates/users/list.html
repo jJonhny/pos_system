@@ -53,10 +53,6 @@
                     <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
           <div class="flex items-center justify-end gap-2">
-            <a href="/"
-               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
-              Dashboard
-            </a>
             <a sec:authorize="isAnonymous()" href="/login"
                class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
               Login
@@ -73,6 +69,13 @@
     </header>
 
     <main class="w-full px-6 lg:px-10 py-8">
+      <div class="mb-6 flex justify-end">
+        <a href="/"
+           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+          Dashboard
+        </a>
+      </div>
+
       <div class="mb-6">
         <div th:if="${success}"
              class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">

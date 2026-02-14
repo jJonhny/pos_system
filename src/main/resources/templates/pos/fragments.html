@@ -417,14 +417,30 @@
       <div class="text-xs text-slate-600">
         Terminal: <span class="font-semibold" th:text="${openShift.terminalId != null ? openShift.terminalId : '-'}">TERMINAL</span>
       </div>
-      <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 text-xs text-slate-600">
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
           <div class="text-[10px] uppercase tracking-wide text-slate-500">Expected (base)</div>
-          <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(openShift.expectedCash)}">$0.00</div>
+          <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.expectedBase)}">$0.00</div>
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
           <div class="text-[10px] uppercase tracking-wide text-slate-500">Opening (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(openShift.openingCash)}">$0.00</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash sales (base)</div>
+          <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashSalesBase)}">$0.00</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash refunds (base)</div>
+          <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashRefundBase)}">$0.00</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash in (base)</div>
+          <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashInBase)}">$0.00</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash out (base)</div>
+          <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashOutBase)}">$0.00</div>
         </div>
       </div>
 
@@ -433,6 +449,17 @@
         <div th:if="${shiftOpeningAmounts == null or #maps.isEmpty(shiftOpeningAmounts)}" class="text-xs text-slate-500">No opening amounts recorded.</div>
         <div th:if="${shiftOpeningAmounts != null and !#maps.isEmpty(shiftOpeningAmounts)}" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div th:each="entry : ${shiftOpeningAmounts}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+            <span class="font-semibold text-slate-800" th:text="${entry.key}">USD</span>
+            <span class="float-right" th:text="${@uiFormat.moneyForCurrency(entry.value, entry.key)}">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
+        <div class="text-xs font-semibold text-slate-700">Expected cash by currency</div>
+        <div th:if="${shiftExpectedAmounts == null or #maps.isEmpty(shiftExpectedAmounts)}" class="text-xs text-slate-500">No expected amounts yet.</div>
+        <div th:if="${shiftExpectedAmounts != null and !#maps.isEmpty(shiftExpectedAmounts)}" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div th:each="entry : ${shiftExpectedAmounts}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
             <span class="font-semibold text-slate-800" th:text="${entry.key}">USD</span>
             <span class="float-right" th:text="${@uiFormat.moneyForCurrency(entry.value, entry.key)}">$0.00</span>
           </div>
@@ -457,6 +484,7 @@
             <option th:each="c : ${currencies}" th:value="${c.code}" th:text="${c.code}">USD</option>
           </select>
           <input name="amount" type="number" step="0.01" min="0.01" placeholder="Amount"
+                 required
                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
           <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition">
@@ -464,6 +492,7 @@
           </button>
         </div>
         <input name="reason" type="text" maxlength="255" placeholder="Reason"
+               required
                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                       focus:outline-none focus:ring-2 focus:ring-slate-300"/>
       </form>
@@ -473,7 +502,8 @@
         <div th:if="${shiftCashEvents == null or #lists.isEmpty(shiftCashEvents)}" class="text-xs text-slate-500">No cash movements yet.</div>
         <div th:if="${shiftCashEvents != null and !#lists.isEmpty(shiftCashEvents)}" class="space-y-1">
           <div th:each="evt : ${shiftCashEvents}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
-            <span class="font-semibold text-slate-800" th:text="${evt.eventType.name() == 'CASH_IN' ? 'IN' : 'OUT'}">IN</span>
+            <span class="font-semibold text-slate-800"
+                  th:text="${evt.eventType.name() == 'CASH_IN' ? 'IN' : (evt.eventType.name() == 'CASH_OUT' ? 'OUT' : 'OPEN')}">IN</span>
             <span class="ml-1" th:text="${evt.currencyCode}">USD</span>
             <span class="ml-1 font-semibold" th:text="${@uiFormat.moneyForCurrency(evt.amount, evt.currencyCode)}">$0.00</span>
             <span class="ml-2 text-slate-500" th:text="${evt.reason}">Reason</span>

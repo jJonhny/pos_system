@@ -39,9 +39,6 @@
                     <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
           <div class="flex flex-wrap items-center justify-end gap-2">
-            <a href="/pos" class="rounded-xl bg-slate-900 text-white px-4 py-2 font-semibold hover:bg-slate-800 transition">
-              Open POS
-            </a>
             <a sec:authorize="isAnonymous()" href="/login"
                class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
               Login
@@ -59,6 +56,13 @@
 
     <!-- MAIN -->
     <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-8 lg:py-10">
+      <div class="mb-6 flex justify-end">
+        <a href="/pos"
+           class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-800 transition">
+          Open POS
+        </a>
+      </div>
+
       <!-- Dashboard intro -->
       <section class="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

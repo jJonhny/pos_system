@@ -27,14 +27,17 @@ public class PosService {
     private final CustomerRepo customerRepo;
     private final DiscountAuditRepo discountAuditRepo;
     private final AuditEventService auditEventService;
+    private final StockMovementService stockMovementService;
 
     public PosService(ProductRepo productRepo, SaleRepo saleRepo, CustomerRepo customerRepo,
-                      DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService) {
+                      DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService,
+                      StockMovementService stockMovementService) {
         this.productRepo = productRepo;
         this.saleRepo = saleRepo;
         this.customerRepo = customerRepo;
         this.discountAuditRepo = discountAuditRepo;
         this.auditEventService = auditEventService;
+        this.stockMovementService = stockMovementService;
     }
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
@@ -43,6 +46,7 @@ public class PosService {
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
+        String checkoutTerminalId = requireCheckoutShift(shift, terminalId);
 
         PaymentMethod method = payment == null ? PaymentMethod.CASH : payment.getMethod();
         Sale sale = new Sale();
@@ -50,7 +54,7 @@ public class PosService {
         sale.setPaymentMethod(method);
         sale.setStatus(SaleStatus.PAID);
         sale.setCashierUsername(cashierUsername);
-        sale.setTerminalId(sanitizeTerminalId(terminalId));
+        sale.setTerminalId(checkoutTerminalId);
         sale.setCustomer(customer);
         sale.setShift(shift);
 
@@ -63,16 +67,19 @@ public class PosService {
         sale.setTax(cart.getTax());
         sale.setTotal(cart.getTotal());
         sale.setRefundedTotal(BigDecimal.ZERO);
+        sale = saleRepo.save(sale);
 
         for (CartItem ci : cart.getItems()) {
-            Product p = lockProduct(ci.getProductId());
-
-            if (p.getStockQty() != null && p.getStockQty() < ci.getEffectiveQty()) {
-                throw new IllegalStateException("Insufficient stock for " + p.getName());
-            }
-            if (p.getStockQty() != null) {
-                p.setStockQty(p.getStockQty() - ci.getEffectiveQty());
-            }
+            Product p = stockMovementService.recordSale(
+                    ci.getProductId(),
+                    ci.getEffectiveQty(),
+                    null,
+                    null,
+                    "SALE",
+                    String.valueOf(sale.getId()),
+                    checkoutTerminalId,
+                    "POS checkout"
+            );
 
             SaleItem si = new SaleItem();
             si.setSale(sale);
@@ -114,13 +121,14 @@ public class PosService {
     public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
         if (payments == null || payments.isEmpty()) throw new IllegalStateException("No payments provided");
+        String checkoutTerminalId = requireCheckoutShift(shift, terminalId);
 
         Sale sale = new Sale();
         sale.setCreatedAt(LocalDateTime.now());
         sale.setPaymentMethod(PaymentMethod.MIXED);
         sale.setStatus(SaleStatus.PAID);
         sale.setCashierUsername(cashierUsername);
-        sale.setTerminalId(sanitizeTerminalId(terminalId));
+        sale.setTerminalId(checkoutTerminalId);
         sale.setCustomer(customer);
         sale.setShift(shift);
 
@@ -133,16 +141,19 @@ public class PosService {
         sale.setTax(cart.getTax());
         sale.setTotal(cart.getTotal());
         sale.setRefundedTotal(BigDecimal.ZERO);
+        sale = saleRepo.save(sale);
 
         for (CartItem ci : cart.getItems()) {
-            Product p = lockProduct(ci.getProductId());
-
-            if (p.getStockQty() != null && p.getStockQty() < ci.getEffectiveQty()) {
-                throw new IllegalStateException("Insufficient stock for " + p.getName());
-            }
-            if (p.getStockQty() != null) {
-                p.setStockQty(p.getStockQty() - ci.getEffectiveQty());
-            }
+            Product p = stockMovementService.recordSale(
+                    ci.getProductId(),
+                    ci.getEffectiveQty(),
+                    null,
+                    null,
+                    "SALE",
+                    String.valueOf(sale.getId()),
+                    checkoutTerminalId,
+                    "POS split checkout"
+            );
 
             SaleItem si = new SaleItem();
             si.setSale(sale);
@@ -290,6 +301,19 @@ public class PosService {
         String trimmed = terminalId.trim();
         if (trimmed.isEmpty()) return null;
         return trimmed.length() <= 128 ? trimmed : trimmed.substring(0, 128);
+    }
+
+    private String requireCheckoutShift(Shift shift, String terminalId) {
+        if (shift == null || shift.getId() == null || shift.getStatus() != ShiftStatus.OPEN) {
+            throw new IllegalStateException("Open a shift before checkout.");
+        }
+        String fromShift = sanitizeTerminalId(shift.getTerminalId());
+        String fromRequest = sanitizeTerminalId(terminalId);
+        String resolved = fromShift != null ? fromShift : fromRequest;
+        if (resolved == null) {
+            throw new IllegalStateException("Terminal ID is required for checkout.");
+        }
+        return resolved;
     }
 
     private Product lockProduct(Long productId) {

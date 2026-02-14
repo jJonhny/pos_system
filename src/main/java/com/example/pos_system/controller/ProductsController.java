@@ -113,6 +113,12 @@ public class ProductsController {
         if ("imageUrlTooLong".equals(error)) {
             model.addAttribute("error", "Image URL is too long. Please use a shorter link.");
         }
+        if ("invalidStock".equals(error)) {
+            model.addAttribute("error", "Stock value is invalid or would break stock rules.");
+        }
+        if ("notFound".equals(error)) {
+            model.addAttribute("error", "Product not found.");
+        }
         if ("duplicate".equals(error)) {
             model.addAttribute("error", "SKU or barcode already exists. Please use a unique value.");
         }
@@ -141,6 +147,24 @@ public class ProductsController {
     public String save(@ModelAttribute Product product,
                        @RequestParam(required = false) Long categoryId,
                        @RequestParam(required = false) MultipartFile imageFile) {
+        Integer requestedStock = product.getStockQty();
+        if (requestedStock != null && requestedStock < 0) {
+            return "redirect:/products?error=invalidStock";
+        }
+        Product existing = null;
+        int currentStock = 0;
+        if (product.getId() != null) {
+            existing = productRepo.findById(product.getId()).orElse(null);
+            if (existing == null) {
+                return "redirect:/products?error=notFound";
+            }
+            currentStock = existing.getStockQty() == null ? 0 : existing.getStockQty();
+        }
+        if (requestedStock == null) {
+            requestedStock = product.getId() == null ? 0 : currentStock;
+        }
+        product.setStockQty(currentStock);
+
         normalizeEmptyStrings(product);
         normalizeNumbers(product);
         if (categoryId != null) {
@@ -150,6 +174,9 @@ public class ProductsController {
         }
         if (product.getActive() == null) {
             product.setActive(false);
+        }
+        if (product.getAllowNegativeStock() == null) {
+            product.setAllowNegativeStock(false);
         }
         if (imageFile != null && !imageFile.isEmpty()) {
             if (imageFile.getContentType() == null || !imageFile.getContentType().startsWith("image/")) {
@@ -164,9 +191,17 @@ public class ProductsController {
             return "redirect:/products?error=imageUrlTooLong";
         }
         try {
-            productRepo.save(product);
+            Product saved = productRepo.save(product);
+            inventoryService.setStockFromAdjustment(
+                    saved.getId(),
+                    requestedStock,
+                    "PRODUCT_FORM:" + saved.getId(),
+                    "Product form stock sync"
+            );
         } catch (DataIntegrityViolationException ex) {
             return "redirect:/products?error=duplicate";
+        } catch (IllegalStateException ex) {
+            return "redirect:/products?error=invalidStock";
         }
         return "redirect:/products";
     }
@@ -328,7 +363,7 @@ public class ProductsController {
         try {
             Product updated = inventoryService.quickUpdate(id, price, stockQty);
             redirectAttributes.addFlashAttribute("success", "Updated " + safeName(updated) + ".");
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
@@ -354,7 +389,7 @@ public class ProductsController {
         try {
             int updated = inventoryService.bulkAdjustStock(ids, operation, qty);
             redirectAttributes.addFlashAttribute("success", "Adjusted stock for " + updated + " products.");
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
@@ -725,6 +760,7 @@ public class ProductsController {
             product.setWholesalePrice(wholesale);
         }
 
+        Integer targetStock = null;
         String stockRaw = row.get("stockQty");
         if (hasText(stockRaw)) {
             Integer stockQty = parseInteger(stockRaw);
@@ -736,7 +772,7 @@ public class ProductsController {
                 errors.add("Row " + rowNum + ": stock quantity cannot be negative.");
                 return ImportOutcome.FAILED;
             }
-            product.setStockQty(stockQty);
+            targetStock = stockQty;
         }
         String lowStockRaw = row.get("lowStockThreshold");
         if (hasText(lowStockRaw)) {
@@ -828,10 +864,25 @@ public class ProductsController {
             }
         }
 
+        if (product.getId() == null && product.getStockQty() == null) {
+            product.setStockQty(0);
+        }
+
         try {
-            productRepo.save(product);
+            Product saved = productRepo.save(product);
+            if (targetStock != null) {
+                inventoryService.setStockFromImport(
+                        saved.getId(),
+                        targetStock,
+                        "IMPORT_ROW:" + rowNum,
+                        "Inventory import"
+                );
+            }
         } catch (DataIntegrityViolationException ex) {
             errors.add("Row " + rowNum + ": duplicate SKU or barcode.");
+            return ImportOutcome.FAILED;
+        } catch (IllegalStateException ex) {
+            errors.add("Row " + rowNum + ": " + ex.getMessage());
             return ImportOutcome.FAILED;
         }
 

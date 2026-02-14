@@ -64,7 +64,11 @@ public class ShiftService {
         if (actor == null) {
             throw new IllegalStateException("Sign in to open a shift.");
         }
-        if (findOpenShift(actor, terminalId).isPresent()) {
+        String safeTerminalId = sanitize(terminalId);
+        if (safeTerminalId == null) {
+            throw new IllegalStateException("Terminal ID is required to open a shift.");
+        }
+        if (findOpenShift(actor, safeTerminalId).isPresent()) {
             throw new IllegalStateException("Shift already open.");
         }
         Map<String, BigDecimal> opening = normalizeAmounts(openingFloatByCurrency);
@@ -74,15 +78,17 @@ public class ShiftService {
         Shift shift = new Shift();
         shift.setCashierUsername(actor);
         shift.setOpenedBy(actor);
+        shift.setOpenedByUserId(resolveActorUserId(actor));
         shift.setOpenedAt(LocalDateTime.now());
         shift.setStatus(ShiftStatus.OPEN);
-        shift.setTerminalId(sanitize(terminalId));
+        shift.setTerminalId(safeTerminalId);
 
         BigDecimal openingCashBase = opening.getOrDefault(baseCode, BigDecimal.ZERO);
         shift.setOpeningCash(openingCashBase);
         shift.setOpeningFloatJson(toJson(opening));
         shift.setCashInTotal(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         shift.setCashOutTotal(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        shift.setCashRefundTotal(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         shift.setExpectedCash(openingCashBase);
         shift.setVarianceCash(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
         shift.setTotalSales(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
@@ -97,7 +103,7 @@ public class ShiftService {
                 saved.getId(),
                 null,
                 shiftSnapshot(saved),
-                Map.of("openingFloatByCurrency", opening, "terminalId", sanitize(terminalId))
+                Map.of("openingFloatByCurrency", opening, "terminalId", safeTerminalId)
         );
         return saved;
     }
@@ -115,21 +121,29 @@ public class ShiftService {
         Shift shift = findOpenShift(actor, terminalId)
                 .orElseThrow(() -> new IllegalStateException("No open shift."));
         if (type == null) {
-            throw new IllegalStateException("Select cash-in or cash-out.");
+            throw new IllegalStateException("Select a shift cash event.");
         }
+        boolean drawerOpen = type == ShiftCashEventType.DRAWER_OPEN;
         BigDecimal safeAmount = amount == null ? null : amount.max(BigDecimal.ZERO);
-        if (safeAmount == null || safeAmount.compareTo(BigDecimal.ZERO) <= 0) {
+        if (!drawerOpen && (safeAmount == null || safeAmount.compareTo(BigDecimal.ZERO) <= 0)) {
             throw new IllegalStateException("Amount must be greater than zero.");
         }
-        String safeReason = sanitize(reason);
-        if (safeReason == null) {
+        String safeReason = trimTo(reason, 255);
+        if (!drawerOpen && safeReason == null) {
             throw new IllegalStateException("Reason is required.");
         }
+        if (drawerOpen && safeReason == null) {
+            safeReason = "Drawer opened";
+        }
 
-        Currency currency = resolveCurrency(currencyCode);
+        Currency currency = drawerOpen ? resolveCurrency(baseCode()) : resolveCurrency(currencyCode);
         BigDecimal rate = safeRate(currency);
-        BigDecimal amountScaled = safeAmount.setScale(currencyDecimals(currency), RoundingMode.HALF_UP);
-        BigDecimal baseAmount = amountScaled.multiply(rate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal amountScaled = drawerOpen
+                ? BigDecimal.ZERO.setScale(currencyDecimals(currency), RoundingMode.HALF_UP)
+                : safeAmount.setScale(currencyDecimals(currency), RoundingMode.HALF_UP);
+        BigDecimal baseAmount = drawerOpen
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : amountScaled.multiply(rate).setScale(2, RoundingMode.HALF_UP);
 
         String effectiveTerminal = sanitize(shift.getTerminalId()) != null ? sanitize(shift.getTerminalId()) : sanitize(terminalId);
 
@@ -153,8 +167,13 @@ public class ShiftService {
         metadata.put("baseAmount", saved.getBaseAmount());
         metadata.put("reason", saved.getReason());
         metadata.put("terminalId", saved.getTerminalId());
+        String actionType = switch (type) {
+            case CASH_IN -> "SHIFT_CASH_IN";
+            case CASH_OUT -> "SHIFT_CASH_OUT";
+            case DRAWER_OPEN -> "SHIFT_DRAWER_OPEN";
+        };
         auditEventService.record(
-                type == ShiftCashEventType.CASH_IN ? "SHIFT_CASH_IN" : "SHIFT_CASH_OUT",
+                actionType,
                 "SHIFT",
                 shift.getId(),
                 null,
@@ -191,6 +210,7 @@ public class ShiftService {
         Map<String, Object> before = shiftSnapshot(shift);
         shift.setClosedAt(LocalDateTime.now());
         shift.setClosedBy(actor);
+        shift.setClosedByUserId(resolveActorUserId(actor));
         shift.setStatus(ShiftStatus.CLOSED);
         shift.setCloseNotes(trimTo(notes, 1000));
         if (sanitize(shift.getTerminalId()) == null) {
@@ -203,6 +223,7 @@ public class ShiftService {
         shift.setQrTotal(reconciliation.qrTotal());
         shift.setCashInTotal(reconciliation.cashInBase());
         shift.setCashOutTotal(reconciliation.cashOutBase());
+        shift.setCashRefundTotal(reconciliation.cashRefundBase());
         shift.setExpectedCash(reconciliation.expectedBase());
         shift.setClosingCash(reconciliation.countedBase());
         shift.setVarianceCash(reconciliation.varianceBase());
@@ -217,6 +238,7 @@ public class ShiftService {
         metadata.put("managerApproved", managerAllowedForVariance);
         metadata.put("terminalId", sanitize(saved.getTerminalId()) != null ? sanitize(saved.getTerminalId()) : sanitize(terminalId));
         metadata.put("cashEventCount", reconciliation.cashEventCount());
+        metadata.put("cashRefundBase", reconciliation.cashRefundBase());
         auditEventService.record("SHIFT_CLOSE", "SHIFT", saved.getId(), before, shiftSnapshot(saved), metadata);
 
         return new ShiftCloseResult(saved, reconciliation);
@@ -274,7 +296,9 @@ public class ShiftService {
         String baseCode = baseCode();
         List<Sale> sales = saleRepo.findByShift_Id(shift.getId());
         Map<String, BigDecimal> cashSalesByCurrency = new LinkedHashMap<>();
+        Map<String, BigDecimal> cashRefundsByCurrency = new LinkedHashMap<>();
         BigDecimal cashSalesBase = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal cashRefundBase = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal cardTotal = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal qrTotal = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal totalSales = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
@@ -283,6 +307,11 @@ public class ShiftService {
             if (sale.getStatus() == SaleStatus.VOID) continue;
             BigDecimal net = safeNetTotal(sale);
             totalSales = totalSales.add(net);
+            BigDecimal saleRefund = safeCashRefund(sale);
+            if (saleRefund.compareTo(BigDecimal.ZERO) > 0) {
+                cashRefundBase = cashRefundBase.add(saleRefund);
+                addAmount(cashRefundsByCurrency, baseCode, saleRefund);
+            }
 
             if (sale.getPayments() != null && !sale.getPayments().isEmpty()) {
                 for (SalePayment payment : sale.getPayments()) {
@@ -320,13 +349,12 @@ public class ShiftService {
             if (event == null) continue;
             String code = normalizeCode(event.getCurrencyCode(), baseCode);
             BigDecimal eventAmount = safeAmount(event.getAmount()).setScale(4, RoundingMode.HALF_UP);
-            BigDecimal signedCurrency = event.getEventType() == ShiftCashEventType.CASH_OUT ? eventAmount.negate() : eventAmount;
-            addAmount(adjustmentsByCurrency, code, signedCurrency);
-
             BigDecimal baseAmount = safeAmount(event.getBaseAmount());
             if (event.getEventType() == ShiftCashEventType.CASH_OUT) {
+                addAmount(adjustmentsByCurrency, code, eventAmount.negate());
                 cashOutBase = cashOutBase.add(baseAmount);
-            } else {
+            } else if (event.getEventType() == ShiftCashEventType.CASH_IN) {
+                addAmount(adjustmentsByCurrency, code, eventAmount);
                 cashInBase = cashInBase.add(baseAmount);
             }
         }
@@ -335,6 +363,7 @@ public class ShiftService {
         merge(expectedByCurrency, openingByCurrency);
         merge(expectedByCurrency, cashSalesByCurrency);
         merge(expectedByCurrency, adjustmentsByCurrency);
+        subtract(expectedByCurrency, cashRefundsByCurrency);
 
         Set<String> currencies = unionKeys(expectedByCurrency, countedByCurrency);
         Map<String, BigDecimal> varianceByCurrency = new LinkedHashMap<>();
@@ -357,6 +386,7 @@ public class ShiftService {
                 varianceBase,
                 totalSales.setScale(2, RoundingMode.HALF_UP),
                 cashSalesBase.setScale(2, RoundingMode.HALF_UP),
+                cashRefundBase.setScale(2, RoundingMode.HALF_UP),
                 cardTotal.setScale(2, RoundingMode.HALF_UP),
                 qrTotal.setScale(2, RoundingMode.HALF_UP),
                 cashInBase.setScale(2, RoundingMode.HALF_UP),
@@ -387,6 +417,15 @@ public class ShiftService {
         if (source == null) return;
         for (Map.Entry<String, BigDecimal> entry : source.entrySet()) {
             addAmount(target, entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void subtract(Map<String, BigDecimal> target, Map<String, BigDecimal> source) {
+        if (source == null) return;
+        for (Map.Entry<String, BigDecimal> entry : source.entrySet()) {
+            BigDecimal value = entry.getValue();
+            if (value == null) continue;
+            addAmount(target, entry.getKey(), value.negate());
         }
     }
 
@@ -453,6 +492,27 @@ public class ShiftService {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    private BigDecimal safeCashRefund(Sale sale) {
+        if (sale == null) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+        BigDecimal refunded = safeAmount(sale.getRefundedTotal());
+        BigDecimal total = safeAmount(sale.getTotal());
+        if (refunded.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+        if (refunded.compareTo(total) > 0) {
+            refunded = total;
+        }
+        return refunded.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Long resolveActorUserId(String username) {
+        String actor = sanitize(username);
+        if (actor == null) return null;
+        return appUserRepo.findByUsername(actor).map(u -> u.getId()).orElse(null);
+    }
+
     private BigDecimal safeNetTotal(Sale sale) {
         BigDecimal total = safeAmount(sale.getTotal());
         BigDecimal refunded = safeAmount(sale.getRefundedTotal());
@@ -491,8 +551,10 @@ public class ShiftService {
         snapshot.put("status", shift.getStatus() == null ? null : shift.getStatus().name());
         snapshot.put("cashierUsername", shift.getCashierUsername());
         snapshot.put("openedBy", shift.getOpenedBy());
+        snapshot.put("openedByUserId", shift.getOpenedByUserId());
         snapshot.put("openedAt", shift.getOpenedAt());
         snapshot.put("closedBy", shift.getClosedBy());
+        snapshot.put("closedByUserId", shift.getClosedByUserId());
         snapshot.put("closedAt", shift.getClosedAt());
         snapshot.put("openingCash", shift.getOpeningCash());
         snapshot.put("closingCash", shift.getClosingCash());
@@ -504,6 +566,7 @@ public class ShiftService {
         snapshot.put("qrTotal", shift.getQrTotal());
         snapshot.put("cashInTotal", shift.getCashInTotal());
         snapshot.put("cashOutTotal", shift.getCashOutTotal());
+        snapshot.put("cashRefundTotal", shift.getCashRefundTotal());
         snapshot.put("terminalId", shift.getTerminalId());
         snapshot.put("openingFloatJson", shift.getOpeningFloatJson());
         snapshot.put("countedAmountsJson", shift.getCountedAmountsJson());
@@ -541,6 +604,7 @@ public class ShiftService {
             BigDecimal varianceBase,
             BigDecimal totalSales,
             BigDecimal cashSalesBase,
+            BigDecimal cashRefundBase,
             BigDecimal cardTotal,
             BigDecimal qrTotal,
             BigDecimal cashInBase,
@@ -552,6 +616,7 @@ public class ShiftService {
                     Map.of(),
                     Map.of(),
                     Map.of(),
+                    BigDecimal.ZERO,
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,
                     BigDecimal.ZERO,

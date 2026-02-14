@@ -31,10 +31,6 @@
                     <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
           <div class="flex items-center justify-end gap-2">
-            <a href="/products"
-               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
-              Back to list
-            </a>
             <a sec:authorize="isAnonymous()" href="/login"
                class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
               Login
@@ -51,6 +47,13 @@
     </header>
 
     <main class="w-full px-6 lg:px-10 py-8">
+      <div class="mb-6 flex justify-end">
+        <a href="/products"
+           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+          Back to list
+        </a>
+      </div>
+
       <!-- Form card -->
       <form method="post" th:action="@{/products}" th:object="${product}" enctype="multipart/form-data"
             class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -219,6 +222,13 @@
                      type="number" step="1" min="0" th:field="*{lowStockThreshold}"
                      placeholder="e.g. 5"/>
               <p class="mt-2 text-xs text-slate-500">Show a low-stock badge when stock is at or below this number.</p>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                <input type="checkbox" class="rounded border-slate-300" th:field="*{allowNegativeStock}"/>
+                <span class="text-sm font-medium text-slate-700">Allow negative stock</span>
+              </label>
             </div>
           </div>
 

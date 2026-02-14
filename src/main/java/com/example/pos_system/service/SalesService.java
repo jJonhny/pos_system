@@ -7,7 +7,6 @@ import com.example.pos_system.entity.SaleItem;
 import com.example.pos_system.entity.SaleStatus;
 import com.example.pos_system.entity.UnitType;
 import com.example.pos_system.repository.CustomerRepo;
-import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +22,16 @@ import java.util.Map;
 @Service
 public class SalesService {
     private final SaleRepo saleRepo;
-    private final ProductRepo productRepo;
     private final CustomerRepo customerRepo;
     private final AuditEventService auditEventService;
+    private final StockMovementService stockMovementService;
 
-    public SalesService(SaleRepo saleRepo, ProductRepo productRepo, CustomerRepo customerRepo,
-                        AuditEventService auditEventService) {
+    public SalesService(SaleRepo saleRepo, CustomerRepo customerRepo,
+                        AuditEventService auditEventService, StockMovementService stockMovementService) {
         this.saleRepo = saleRepo;
-        this.productRepo = productRepo;
         this.customerRepo = customerRepo;
         this.auditEventService = auditEventService;
+        this.stockMovementService = stockMovementService;
     }
 
     @Transactional
@@ -66,15 +65,17 @@ public class SalesService {
             }
             Product product = item.getProduct();
             if (product != null && product.getId() != null) {
-                Product lockedProduct = productRepo.findByIdForUpdate(product.getId()).orElse(product);
                 int unitSize = unitSize(item);
-                Integer currentStock = lockedProduct.getStockQty();
-                if (currentStock == null) {
-                    currentStock = 0;
-                }
-                lockedProduct.setStockQty(currentStock + (requested * unitSize));
-                productRepo.save(lockedProduct);
-                product = lockedProduct;
+                product = stockMovementService.recordReturn(
+                        product.getId(),
+                        requested * unitSize,
+                        null,
+                        null,
+                        "SALE",
+                        String.valueOf(sale.getId()),
+                        sale.getTerminalId(),
+                        "Sale return"
+                );
             }
             Map<String, Object> returnedRow = new LinkedHashMap<>();
             returnedRow.put("saleItemId", item.getId());
@@ -149,10 +150,35 @@ public class SalesService {
             return new VoidOutcome(sale.getId(), false);
         }
         Map<String, Object> before = saleSnapshot(sale);
+        List<Map<String, Object>> reversed = new ArrayList<>();
+        for (SaleItem item : sale.getItems()) {
+            Product product = item.getProduct();
+            if (product == null || product.getId() == null) continue;
+            int soldQty = (item.getQty() == null ? 0 : item.getQty()) * unitSize(item);
+            int returnedQty = (item.getReturnedQty() == null ? 0 : item.getReturnedQty()) * unitSize(item);
+            int toReverse = soldQty - returnedQty;
+            if (toReverse <= 0) continue;
+            stockMovementService.recordVoid(
+                    product.getId(),
+                    toReverse,
+                    null,
+                    null,
+                    "SALE",
+                    String.valueOf(sale.getId()),
+                    sale.getTerminalId(),
+                    "Void sale compensation"
+            );
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("saleItemId", item.getId());
+            row.put("productId", product.getId());
+            row.put("qtyReversed", toReverse);
+            reversed.add(row);
+        }
         sale.setStatus(SaleStatus.VOID);
         Sale saved = saleRepo.save(sale);
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("voidedAt", LocalDateTime.now());
+        metadata.put("reversedItems", reversed);
         auditEventService.record("SALE_VOID", "SALE", saved.getId(), before, saleSnapshot(saved), metadata);
         return new VoidOutcome(saved.getId(), true);
     }

@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -114,17 +115,12 @@ class AuditEventIntegrationTests {
         ensureActor("audit_admin");
         Product product = createProduct("AUD-STOCK-01", 3);
 
-        inventoryService.bulkAdjustStock(List.of(product.getId()), "remove", "10");
+        assertThatThrownBy(() -> inventoryService.bulkAdjustStock(List.of(product.getId()), "remove", "10"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Insufficient stock");
 
         Product updated = productRepo.findById(product.getId()).orElseThrow();
-        assertThat(updated.getStockQty()).isEqualTo(0);
-
-        var event = auditEventRepo.findTopByActionTypeOrderByTimestampDesc("STOCK_BULK_UPDATE").orElse(null);
-        assertThat(event).isNotNull();
-        assertThat(event.getActorUsername()).isEqualTo("audit_admin");
-        assertThat(event.getTargetType()).isEqualTo("PRODUCT");
-        assertThat(event.getTargetId()).isEqualTo("bulk");
-        assertThat(event.getAfterJson()).contains("\"stockQty\":0");
+        assertThat(updated.getStockQty()).isEqualTo(3);
     }
 
     private Product createProduct(String sku, int stockQty) {

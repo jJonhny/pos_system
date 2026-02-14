@@ -8,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +19,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@Table(name = "shift", indexes = {
+        @Index(name = "idx_shift_terminal_status", columnList = "terminal_id,status"),
+        @Index(name = "idx_shift_opened_at", columnList = "opened_at"),
+        @Index(name = "idx_shift_closed_at", columnList = "closed_at")
+})
 public class Shift {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +32,8 @@ public class Shift {
     @Column(length = 100)
     private String openedBy;
 
+    private Long openedByUserId;
+
     @Column(length = 100)
     private String cashierUsername;
 
@@ -32,6 +41,8 @@ public class Shift {
 
     @Column(length = 100)
     private String closedBy;
+
+    private Long closedByUserId;
 
     private LocalDateTime closedAt;
 
@@ -48,6 +59,9 @@ public class Shift {
 
     @Column(precision = 18, scale = 2)
     private BigDecimal cashOutTotal;
+
+    @Column(precision = 18, scale = 2)
+    private BigDecimal cashRefundTotal;
 
     @Column(precision = 18, scale = 2)
     private BigDecimal expectedCash;

@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ManagementPagesController {
 
+    @GetMapping("/commodity")
+    public String commodity() {
+        return "commodity/index";
+    }
+
     @GetMapping("/marketing")
     public String marketing() {
         return "marketing/index";

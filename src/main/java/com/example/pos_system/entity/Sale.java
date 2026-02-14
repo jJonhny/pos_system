@@ -12,6 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_sale_shift", columnList = "shift_id")
+})
 public class Sale {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,6 +51,7 @@ public class Sale {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shift_id")
     private Shift shift;
 
     private Integer pointsEarned;

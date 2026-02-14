@@ -753,10 +753,12 @@ public class PosController {
       if (openShift != null) {
         model.addAttribute("shiftCashEvents", shiftService.listCashEvents(openShift.getId()));
         Map<String, BigDecimal> openingAmounts = shiftService.parseAmounts(openShift.getOpeningFloatJson());
+        ShiftService.ShiftReconciliationData preview = shiftService.previewReconciliation(openShift, Map.of());
         Map<String, BigDecimal> expectedAmounts = shiftService.parseAmounts(openShift.getExpectedAmountsJson());
         if (expectedAmounts.isEmpty() && openShift.getStatus() == ShiftStatus.OPEN) {
-          expectedAmounts = shiftService.previewReconciliation(openShift, Map.of()).expectedByCurrency();
+          expectedAmounts = preview.expectedByCurrency();
         }
+        model.addAttribute("shiftPreview", preview);
         model.addAttribute("shiftOpeningAmounts", openingAmounts);
         model.addAttribute("shiftExpectedAmounts", expectedAmounts);
         model.addAttribute("shiftCountedAmounts", shiftService.parseAmounts(openShift.getCountedAmountsJson()));
@@ -764,6 +766,7 @@ public class PosController {
         model.addAttribute("terminalId", sanitizeTerminalId(terminalId) != null ? sanitizeTerminalId(terminalId) : openShift.getTerminalId());
       } else {
         model.addAttribute("shiftCashEvents", List.of());
+        model.addAttribute("shiftPreview", ShiftService.ShiftReconciliationData.empty());
         model.addAttribute("shiftOpeningAmounts", Map.of());
         model.addAttribute("shiftExpectedAmounts", Map.of());
         model.addAttribute("shiftCountedAmounts", Map.of());
@@ -774,6 +777,7 @@ public class PosController {
       model.addAttribute("holds", List.of());
       model.addAttribute("openShift", null);
       model.addAttribute("shiftCashEvents", List.of());
+      model.addAttribute("shiftPreview", ShiftService.ShiftReconciliationData.empty());
       model.addAttribute("shiftOpeningAmounts", Map.of());
       model.addAttribute("shiftExpectedAmounts", Map.of());
       model.addAttribute("shiftCountedAmounts", Map.of());

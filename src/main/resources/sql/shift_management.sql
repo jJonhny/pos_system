@@ -3,9 +3,12 @@
 
 ALTER TABLE shift
     ADD COLUMN IF NOT EXISTS opened_by VARCHAR(100) NULL,
+    ADD COLUMN IF NOT EXISTS opened_by_user_id BIGINT NULL,
     ADD COLUMN IF NOT EXISTS closed_by VARCHAR(100) NULL,
+    ADD COLUMN IF NOT EXISTS closed_by_user_id BIGINT NULL,
     ADD COLUMN IF NOT EXISTS cash_in_total DECIMAL(18,2) NULL,
     ADD COLUMN IF NOT EXISTS cash_out_total DECIMAL(18,2) NULL,
+    ADD COLUMN IF NOT EXISTS cash_refund_total DECIMAL(18,2) NULL,
     ADD COLUMN IF NOT EXISTS expected_cash DECIMAL(18,2) NULL,
     ADD COLUMN IF NOT EXISTS variance_cash DECIMAL(18,2) NULL,
     ADD COLUMN IF NOT EXISTS terminal_id VARCHAR(128) NULL,
@@ -16,7 +19,11 @@ ALTER TABLE shift
     ADD COLUMN IF NOT EXISTS variance_amounts_json TEXT NULL;
 
 ALTER TABLE sale
-    ADD COLUMN IF NOT EXISTS terminal_id VARCHAR(128) NULL;
+    ADD COLUMN IF NOT EXISTS terminal_id VARCHAR(128) NULL,
+    ADD COLUMN IF NOT EXISTS shift_id BIGINT NULL;
+
+ALTER TABLE sale
+    ADD CONSTRAINT fk_sale_shift FOREIGN KEY (shift_id) REFERENCES shift (id);
 
 CREATE TABLE IF NOT EXISTS shift_cash_event (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -36,3 +43,7 @@ CREATE TABLE IF NOT EXISTS shift_cash_event (
 
 CREATE INDEX idx_shift_cash_event_shift ON shift_cash_event (shift_id);
 CREATE INDEX idx_shift_cash_event_created_at ON shift_cash_event (created_at);
+CREATE INDEX idx_shift_terminal_status ON shift (terminal_id, status);
+CREATE INDEX idx_shift_opened_at ON shift (opened_at);
+CREATE INDEX idx_shift_closed_at ON shift (closed_at);
+CREATE INDEX idx_sale_shift ON sale (shift_id);

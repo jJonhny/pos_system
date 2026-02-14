@@ -16,6 +16,7 @@ import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.service.PosService;
+import com.example.pos_system.service.SalesService;
 import com.example.pos_system.service.ShiftService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -38,6 +40,8 @@ class ShiftManagementIntegrationTests {
     private ShiftService shiftService;
     @Autowired
     private PosService posService;
+    @Autowired
+    private SalesService salesService;
     @Autowired
     private SaleRepo saleRepo;
     @Autowired
@@ -76,33 +80,59 @@ class ShiftManagementIntegrationTests {
         assertThat(sale.getShift()).isNotNull();
         assertThat(sale.getTerminalId()).isEqualTo("TERM-A1");
 
+        String returnKey = "returnQty_" + sale.getItems().get(0).getId();
+        salesService.processReturn(sale.getId(), Map.of(returnKey, "1"));
+
         shiftService.addCashEvent(
                 "shift_manager",
                 "TERM-A1",
-                ShiftCashEventType.CASH_IN,
+                ShiftCashEventType.CASH_OUT,
                 "USD",
-                new BigDecimal("5.00"),
-                "Float top-up"
+                new BigDecimal("3.00"),
+                "Petty cash payout"
         );
 
         ShiftService.ShiftCloseResult closeResult = shiftService.closeShift(
                 "shift_manager",
                 "TERM-A1",
-                Map.of("USD", new BigDecimal("115.00")),
+                Map.of("USD", new BigDecimal("97.00")),
                 "All cash counted.",
                 true
         );
 
         Shift closed = closeResult.shift();
         assertThat(closed.getStatus()).isEqualTo(ShiftStatus.CLOSED);
-        assertThat(closed.getExpectedCash()).isEqualByComparingTo("115.00");
-        assertThat(closed.getClosingCash()).isEqualByComparingTo("115.00");
+        assertThat(closed.getExpectedCash()).isEqualByComparingTo("97.00");
+        assertThat(closed.getCashRefundTotal()).isEqualByComparingTo("10.00");
+        assertThat(closed.getCashOutTotal()).isEqualByComparingTo("3.00");
+        assertThat(closed.getClosingCash()).isEqualByComparingTo("97.00");
         assertThat(closed.getVarianceCash()).isEqualByComparingTo("0.00");
 
         Sale persistedSale = saleRepo.findById(sale.getId()).orElseThrow();
         assertThat(persistedSale.getShift()).isNotNull();
         assertThat(persistedSale.getShift().getId()).isEqualTo(closed.getId());
         assertThat(persistedSale.getTerminalId()).isEqualTo("TERM-A1");
+    }
+
+    @Test
+    @WithMockUser(username = "shift_cashier", roles = "CASHIER")
+    void closeShiftWithVarianceOverThresholdRequiresManagerApproval() {
+        ensureUser("shift_cashier", UserRole.CASHIER);
+        shiftService.openShift(
+                "shift_cashier",
+                "TERM-B1",
+                Map.of("USD", new BigDecimal("50.00"))
+        );
+
+        assertThatThrownBy(() -> shiftService.closeShift(
+                "shift_cashier",
+                "TERM-B1",
+                Map.of("USD", new BigDecimal("95.00")),
+                "Variance check",
+                false
+        ))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Manager approval required");
     }
 
     private Product createProduct(String sku, int stockQty, BigDecimal price) {

@@ -17,9 +17,9 @@
   </style>
 </head>
 
-<body class="bg-slate-100 p-6">
-  <header class="no-print mb-6 bg-white/80 backdrop-blur border border-slate-200 rounded-2xl">
-    <div class="w-full px-6 py-4">
+<body class="bg-slate-100 text-slate-900">
+  <header class="no-print bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+    <div class="w-full px-6 lg:px-10 py-5">
       <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
         <div class="flex items-center gap-3">
           <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
@@ -37,10 +37,6 @@
                 <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
         <div class="flex items-center justify-end gap-2">
-          <a href="/sales"
-             class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
-            Back to sales
-          </a>
           <a sec:authorize="isAnonymous()" href="/login"
              class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">
             Login
@@ -56,7 +52,15 @@
     </div>
   </header>
 
-  <div class="max-w-md mx-auto">
+  <main class="px-6 lg:px-10 py-8">
+    <div class="no-print mb-6 flex justify-center">
+      <a href="/sales"
+         class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+        Back to sales
+      </a>
+    </div>
+
+    <div class="max-w-md mx-auto">
     <div class="print-card bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       <div class="print-pad p-6">
         <!-- Success Banner -->
@@ -308,7 +312,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </main>
   <script th:if="${autoPrint}">
     window.addEventListener('load', () => {
       window.print();

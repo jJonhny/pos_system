@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @Table(indexes = {
         @Index(name = "idx_product_name", columnList = "name"),
         @Index(name = "idx_product_active", columnList = "active"),
+        @Index(name = "idx_product_allow_negative_stock", columnList = "allow_negative_stock"),
         @Index(name = "idx_product_category", columnList = "category_id"),
         @Index(name = "idx_product_price", columnList = "price"),
         @Index(name = "idx_product_stock_qty", columnList = "stock_qty"),
@@ -37,6 +38,8 @@ public class Product {
     private Integer unitsPerBox;
     private Integer unitsPerCase;
     private Boolean active = true;
+    @Column(nullable = false)
+    private Boolean allowNegativeStock = false;
     @Column(length = 2048)
     private String imageUrl;
 

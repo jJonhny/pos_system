@@ -5,9 +5,11 @@ Spring Boot + Thymeleaf point‑of‑sale application with inventory, sales trac
 
 **Features**
 - POS checkout with cart discounts (fixed amount or percent), split payments, and optional reason
-- Shift management with per-currency opening float, cash in/out tracking, and close reconciliation
+- Shift management with per-currency opening float, cash in/out events, cash refund tracking, and close reconciliation
 - Multi‑currency tendering with live FX refresh and currency management
 - Inventory management for products and categories, low‑stock insights
+- Inventory integrity ledger (`stock_movement`) with stock guardrails (negative stock blocked unless product allows it)
+- Supplier management + Purchase Orders + Goods Receipt posting
 - Sales history with returns, receipts, and PDF export
 - Reports with Excel export
 - Analytics dashboard (sales trends, payment mix, inventory health, customers, staff, compliance)
@@ -64,6 +66,10 @@ Shift variance approval threshold (base currency):
 app.shift.variance-threshold=20.00
 ```
 
+Shift expected-cash formula:
+- `expected = opening float + cash sales + cash in - cash out - cash refunds`
+- Closing a shift above the configured variance threshold requires manager/admin approval.
+
 The rate URL should return a JSON object with a `rates` map keyed by currency code. The default free endpoint is rate‑limited and typically updates once per day.
 
 **Default Users**
@@ -91,6 +97,9 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 - `http://localhost:8080/sales`
 - `http://localhost:8080/analytics`
 - `http://localhost:8080/reports`
+- `http://localhost:8080/inventory/movements`
+- `http://localhost:8080/suppliers`
+- `http://localhost:8080/purchases/po`
 - `http://localhost:8080/users`
 - `http://localhost:8080/currencies`
 - `http://localhost:8080/admin/audit` (ADMIN only)
@@ -121,6 +130,9 @@ Passwords are stored with BCrypt. Legacy `{noop}` (or plain) passwords are suppo
 - SQL migration script (for environments not relying on JPA auto-schema): `src/main/resources/sql/audit_events.sql`.
 - SQL migration script for checkout idempotency: `src/main/resources/sql/checkout_attempts.sql`.
 - Shift schema migration script (manual): `src/main/resources/sql/shift_management.sql`.
+- Inventory ledger + supplier receiving migration script (manual): `src/main/resources/sql/inventory_movements_and_purchases.sql`.
+- Shift summary report supports date range + cashier + terminal filters and Excel export (`/reports/shifts.xlsx`).
+- Inventory ledger report (`/reports/inventory-ledger`) and receiving report (`/reports/receiving`) support filtering and Excel export.
 
 Retention recommendation:
 - Keep audit events for at least 12-24 months for operational/compliance investigations.
