@@ -303,6 +303,87 @@
         </div>
       </section>
 
+      <section class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Cumulative Revenue</div>
+            <div class="text-sm text-slate-500">Running total in the last 7 days</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="cumulativeRevenueChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Sales Health Mix</div>
+            <div class="text-sm text-slate-500">Completed vs refunded vs voided</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="salesHealthChart" height="160"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div>
+            <div class="text-base font-semibold">Leakage Value Mix</div>
+            <div class="text-sm text-slate-500">Discounts, refunds, and voids</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="leakageBreakdownChart" height="160"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-base font-semibold">Comparison Charts</div>
+              <div class="text-sm text-slate-500">Multiple visual styles for side-by-side analysis</div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Bar Chart (Vertical)</div>
+              <canvas id="verticalBarChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Horizontal Bar Chart</div>
+              <canvas id="horizontalBarChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Grouped Bar Chart</div>
+              <canvas id="groupedBarChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Stacked Bar Chart</div>
+              <canvas id="stackedBarChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">100% Stacked Bar Chart</div>
+              <canvas id="stacked100BarChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Lollipop Chart</div>
+              <canvas id="lollipopChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Dot Plot</div>
+              <canvas id="dotPlotChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Radar Chart</div>
+              <canvas id="radarComparisonChart" height="160"></canvas>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="text-sm font-semibold text-slate-700">Polar Chart</div>
+              <canvas id="polarComparisonChart" height="160"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="mt-6">
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div class="text-base font-semibold">Cashier Performance</div>
@@ -827,6 +908,14 @@
     const netRevenueTotalValue = /*[[${netRevenueTotal}]]*/ 0;
     const discountTotalValue = /*[[${discountTotal}]]*/ 0;
     const refundTotalValue = /*[[${refundTotal}]]*/ 0;
+    const voidTotalValue = /*[[${voidTotal}]]*/ 0;
+    const saleCountValue = /*[[${saleCount}]]*/ 0;
+    const refundCountValue = /*[[${refundCount}]]*/ 0;
+    const voidCountValue = /*[[${voidCount}]]*/ 0;
+    const grossMarginPercentValue = /*[[${grossMarginPercent}]]*/ 0;
+    const discountRatePercentValue = /*[[${discountRatePercent}]]*/ 0;
+    const splitPaymentRatePercentValue = /*[[${splitPaymentRatePercent}]]*/ 0;
+    const sellThroughPercentValue = /*[[${sellThroughPercent}]]*/ 0;
     const newCustomerCountValue = /*[[${newCustomerCount}]]*/ 0;
     const returningCustomerCountValue = /*[[${returningCustomerCount}]]*/ 0;
     const discountRevenueValue = /*[[${discountRevenue}]]*/ 0;
@@ -855,6 +944,31 @@
     function sumValues(values) {
       if (!Array.isArray(values)) return 0;
       return values.reduce((acc, val) => acc + (typeof val === "number" ? val : 0), 0);
+    }
+
+    function topSlice(labels, values, limit) {
+      const rows = [];
+      for (let i = 0; i < Math.min(labels.length, values.length); i++) {
+        rows.push({ label: labels[i], value: toNumber(values[i]) });
+      }
+      rows.sort((a, b) => b.value - a.value);
+      const selected = rows.slice(0, limit);
+      return {
+        labels: selected.map((r) => r.label),
+        values: selected.map((r) => r.value)
+      };
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, toNumber(value)));
+    }
+
+    function withChartSafety(name, renderFn) {
+      try {
+        renderFn();
+      } catch (error) {
+        console.error(`Failed to render ${name}`, error);
+      }
     }
 
     function maxIndex(values) {
@@ -1509,6 +1623,485 @@
         }
       });
     }
+
+    withChartSafety("cumulativeRevenueChart", () => {
+      const cumulativeRevenueCtx = document.getElementById("cumulativeRevenueChart");
+      if (cumulativeRevenueCtx) {
+        const cumulativeValues = [];
+        let running = 0;
+        for (const value of dailySales) {
+          running += toNumber(value);
+          cumulativeValues.push(running);
+        }
+        new Chart(cumulativeRevenueCtx, {
+          type: "line",
+          data: {
+            labels: dailyLabels,
+            datasets: [{
+              label: "Cumulative Revenue",
+              data: cumulativeValues,
+              borderColor: "#0f172a",
+              backgroundColor: "rgba(15, 23, 42, 0.1)",
+              fill: true,
+              tension: 0.35,
+              pointRadius: 3,
+              pointBackgroundColor: "#0f172a"
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: (ctx) => formatMoney(toNumber(ctx.parsed.y)) } }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("salesHealthChart", () => {
+      const salesHealthCtx = document.getElementById("salesHealthChart");
+      if (salesHealthCtx) {
+        const paidOrReturnSales = toNumber(saleCountValue);
+        const refunded = toNumber(refundCountValue);
+        const voided = toNumber(voidCountValue);
+        const completed = Math.max(0, paidOrReturnSales - refunded);
+        new Chart(salesHealthCtx, {
+          type: "doughnut",
+          data: {
+            labels: ["Completed", "Refunded", "Voided"],
+            datasets: [{
+              data: [completed, refunded, voided],
+              backgroundColor: ["#0f172a", "#334155", "#dc2626"]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: { label: (ctx) => `${ctx.label}: ${toNumber(ctx.parsed)}` }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("leakageBreakdownChart", () => {
+      const leakageBreakdownCtx = document.getElementById("leakageBreakdownChart");
+      if (leakageBreakdownCtx) {
+        new Chart(leakageBreakdownCtx, {
+          type: "bar",
+          data: {
+            labels: ["Discounts", "Refunds", "Voids"],
+            datasets: [{
+              label: "Amount",
+              data: [toNumber(discountTotalValue), toNumber(refundTotalValue), toNumber(voidTotalValue)],
+              backgroundColor: ["#f59e0b", "#334155", "#dc2626"]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: (ctx) => formatMoney(toNumber(ctx.parsed.y)) } }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    const comparisonPalette = ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"];
+
+    withChartSafety("verticalBarChart", () => {
+      const verticalBarCtx = document.getElementById("verticalBarChart");
+      if (verticalBarCtx) {
+        const topProducts = topSlice(topProductLabels, topProductValues, 6);
+        new Chart(verticalBarCtx, {
+          type: "bar",
+          data: {
+            labels: topProducts.labels,
+            datasets: [{
+              label: "Revenue",
+              data: topProducts.values,
+              backgroundColor: "#0f172a"
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: (ctx) => formatMoney(toNumber(ctx.parsed.y)) } }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("horizontalBarChart", () => {
+      const horizontalBarCtx = document.getElementById("horizontalBarChart");
+      if (horizontalBarCtx) {
+        const topCategories = topSlice(topCategoryLabels, topCategoryValues, 6);
+        new Chart(horizontalBarCtx, {
+          type: "bar",
+          data: {
+            labels: topCategories.labels,
+            datasets: [{
+              label: "Revenue",
+              data: topCategories.values,
+              backgroundColor: "#334155"
+            }]
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: (ctx) => formatMoney(toNumber(ctx.parsed.x)) } }
+            },
+            scales: {
+              y: { grid: { display: false } },
+              x: {
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("groupedBarChart", () => {
+      const groupedBarCtx = document.getElementById("groupedBarChart");
+      if (groupedBarCtx) {
+        new Chart(groupedBarCtx, {
+          type: "bar",
+          data: {
+            labels: paymentLabels,
+            datasets: [
+              { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+              { label: "Card", data: paymentCard, backgroundColor: "#334155" },
+              { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: false, grid: { display: false } },
+              y: {
+                stacked: false,
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("stackedBarChart", () => {
+      const stackedBarCtx = document.getElementById("stackedBarChart");
+      if (stackedBarCtx) {
+        new Chart(stackedBarCtx, {
+          type: "bar",
+          data: {
+            labels: paymentLabels,
+            datasets: [
+              { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+              { label: "Card", data: paymentCard, backgroundColor: "#334155" },
+              { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false } },
+              y: {
+                stacked: true,
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("stacked100BarChart", () => {
+      const stacked100BarCtx = document.getElementById("stacked100BarChart");
+      if (stacked100BarCtx) {
+        const cashPct = [];
+        const cardPct = [];
+        const qrPct = [];
+        for (let i = 0; i < paymentLabels.length; i++) {
+          const cash = toNumber(paymentCash[i]);
+          const card = toNumber(paymentCard[i]);
+          const qr = toNumber(paymentQr[i]);
+          const total = cash + card + qr;
+          if (total <= 0) {
+            cashPct.push(0);
+            cardPct.push(0);
+            qrPct.push(0);
+            continue;
+          }
+          cashPct.push((cash * 100) / total);
+          cardPct.push((card * 100) / total);
+          qrPct.push((qr * 100) / total);
+        }
+        new Chart(stacked100BarCtx, {
+          type: "bar",
+          data: {
+            labels: paymentLabels,
+            datasets: [
+              { label: "Cash", data: cashPct, backgroundColor: "#0f172a" },
+              { label: "Card", data: cardPct, backgroundColor: "#334155" },
+              { label: "QR", data: qrPct, backgroundColor: "#94a3b8" }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false } },
+              y: {
+                stacked: true,
+                min: 0,
+                max: 100,
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => `${toNumber(value).toFixed(0)}%` }
+              }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => `${ctx.dataset.label}: ${toNumber(ctx.parsed.y).toFixed(1)}%`
+                }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("lollipopChart", () => {
+      const lollipopCtx = document.getElementById("lollipopChart");
+      if (lollipopCtx) {
+        const topCustomers = topSlice(topCustomerLabels, topCustomerValues, 6);
+        new Chart(lollipopCtx, {
+          data: {
+            labels: topCustomers.labels,
+            datasets: [
+              {
+                type: "bar",
+                label: "Spend Stem",
+                data: topCustomers.values,
+                backgroundColor: "rgba(15, 23, 42, 0.35)",
+                borderRadius: 999,
+                barThickness: 4
+              },
+              {
+                type: "line",
+                label: "Spend",
+                data: topCustomers.values,
+                showLine: false,
+                pointRadius: 5,
+                pointHoverRadius: 6,
+                pointBackgroundColor: "#0f172a",
+                borderColor: "#0f172a"
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => formatMoney(toNumber(ctx.parsed.y))
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                beginAtZero: true,
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("dotPlotChart", () => {
+      const dotPlotCtx = document.getElementById("dotPlotChart");
+      if (dotPlotCtx) {
+        new Chart(dotPlotCtx, {
+          type: "line",
+          data: {
+            labels: hourLabels,
+            datasets: [{
+              label: "Revenue",
+              data: hourRevenue,
+              showLine: false,
+              pointRadius: 4,
+              pointHoverRadius: 5,
+              pointBackgroundColor: "#0f172a",
+              pointBorderColor: "#0f172a"
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => formatMoney(toNumber(ctx.parsed.y))
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { color: "rgba(148,163,184,0.35)" },
+                ticks: { callback: (value) => formatMoney(toNumber(value)) }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("radarComparisonChart", () => {
+      const radarComparisonCtx = document.getElementById("radarComparisonChart");
+      if (radarComparisonCtx) {
+        const refundRatePercentValue = toNumber(saleCountValue) > 0
+          ? (toNumber(refundCountValue) * 100.0) / toNumber(saleCountValue)
+          : 0;
+        const netRetentionPercent = toNumber(grossRevenueTotal) > 0
+          ? (toNumber(netRevenueTotalValue) * 100.0) / toNumber(grossRevenueTotal)
+          : 0;
+        const leakagePercent = toNumber(grossRevenueTotal) > 0
+          ? ((toNumber(discountTotalValue) + toNumber(refundTotalValue) + toNumber(voidTotalValue)) * 100.0) / toNumber(grossRevenueTotal)
+          : 0;
+
+        const radarCurrentValues = [
+          clamp(netRetentionPercent, 0, 100),
+          clamp(grossMarginPercentValue, 0, 100),
+          clamp(sellThroughPercentValue, 0, 100),
+          clamp(splitPaymentRatePercentValue, 0, 100),
+          clamp(discountRatePercentValue, 0, 100),
+          clamp(refundRatePercentValue, 0, 100),
+          clamp(leakagePercent, 0, 100)
+        ];
+
+        new Chart(radarComparisonCtx, {
+          type: "radar",
+          data: {
+            labels: ["Net Retention", "Gross Margin", "Sell-through", "Split Payments", "Discount Rate", "Refund Rate", "Leakage"],
+            datasets: [
+              {
+                label: "Current %",
+                data: radarCurrentValues,
+                backgroundColor: "rgba(15, 23, 42, 0.18)",
+                borderColor: "#0f172a",
+                pointBackgroundColor: "#0f172a"
+              },
+              {
+                label: "Reference %",
+                data: [85, 40, 55, 30, 15, 5, 10],
+                backgroundColor: "rgba(148, 163, 184, 0.22)",
+                borderColor: "#64748b",
+                pointBackgroundColor: "#64748b"
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                min: 0,
+                max: 100,
+                ticks: { callback: (value) => `${toNumber(value).toFixed(0)}%` }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    withChartSafety("polarComparisonChart", () => {
+      const polarComparisonCtx = document.getElementById("polarComparisonChart");
+      if (polarComparisonCtx) {
+        const revenueBuckets = topSlice(revenueShareLabels, revenueShareValues, 6);
+        new Chart(polarComparisonCtx, {
+          type: "polarArea",
+          data: {
+            labels: revenueBuckets.labels,
+            datasets: [{
+              data: revenueBuckets.values,
+              backgroundColor: comparisonPalette.map((color, idx) => {
+                if (idx === 0) return "rgba(15, 23, 42, 0.92)";
+                if (idx === 1) return "rgba(51, 65, 85, 0.86)";
+                if (idx === 2) return "rgba(100, 116, 139, 0.8)";
+                if (idx === 3) return "rgba(148, 163, 184, 0.75)";
+                if (idx === 4) return "rgba(203, 213, 225, 0.9)";
+                return "rgba(226, 232, 240, 0.95)";
+              })
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    const parsed = ctx.parsed;
+                    const value = typeof parsed === "object" ? parsed.r : parsed;
+                    return `${ctx.label}: ${formatMoney(toNumber(value))}`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>

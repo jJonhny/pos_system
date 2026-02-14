@@ -29,6 +29,18 @@ class AnalyticsPageIntegrationTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("customerMixChart")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("marginCompareChart")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("shiftVarianceChart")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("cashierEfficiencyChart")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("cashierEfficiencyChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("cumulativeRevenueChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("salesHealthChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("leakageBreakdownChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("verticalBarChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("horizontalBarChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("groupedBarChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("stackedBarChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("stacked100BarChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("lollipopChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("dotPlotChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("radarComparisonChart")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("polarComparisonChart")));
     }
 }
