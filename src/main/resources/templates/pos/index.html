@@ -15,6 +15,23 @@
       -webkit-box-orient:vertical;
       overflow:hidden;
     }
+
+    #productGrid[data-density="compact"]{
+      gap:0.875rem;
+    }
+    #productGrid[data-density="compact"] .product-image-wrap{
+      height:10rem;
+    }
+    #productGrid[data-density="compact"] .product-content{
+      padding:0.75rem;
+    }
+    #productGrid[data-density="compact"] .product-title{
+      font-size:0.92rem;
+      -webkit-line-clamp:1;
+    }
+    #productGrid[data-density="compact"] .product-meta{
+      margin-top:0.4rem;
+    }
   </style>
 </head>
 
@@ -333,6 +350,37 @@
               <span class="font-mono rounded-md border border-slate-200 bg-white px-2 py-0.5">F8</span>
               <span>focus barcode</span>
             </span>
+            <span class="text-slate-400">·</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="font-mono rounded-md border border-slate-200 bg-white px-2 py-0.5">F2</span>
+              <span>checkout</span>
+            </span>
+            <span class="text-slate-400">·</span>
+            <span class="inline-flex items-center gap-1">
+              <span class="font-mono rounded-md border border-slate-200 bg-white px-2 py-0.5">⌘/Ctrl+K</span>
+              <span>clear cart</span>
+            </span>
+          </div>
+
+          <div class="mt-4 rounded-2xl border border-slate-200 bg-white/80 p-3">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="quickTotals">
+              <div class="rounded-xl bg-slate-50 px-3 py-2">
+                <div class="text-[11px] uppercase tracking-wide text-slate-500">Subtotal</div>
+                <div id="qtSubtotal" class="text-sm font-semibold text-slate-900">$0.00</div>
+              </div>
+              <div class="rounded-xl bg-slate-50 px-3 py-2">
+                <div class="text-[11px] uppercase tracking-wide text-slate-500">Discount</div>
+                <div id="qtDiscount" class="text-sm font-semibold text-slate-900">$0.00</div>
+              </div>
+              <div class="rounded-xl bg-slate-50 px-3 py-2">
+                <div class="text-[11px] uppercase tracking-wide text-slate-500">Tax</div>
+                <div id="qtTax" class="text-sm font-semibold text-slate-900">$0.00</div>
+              </div>
+              <div class="rounded-xl bg-slate-900 px-3 py-2 text-white">
+                <div class="text-[11px] uppercase tracking-wide text-white/70">Total</div>
+                <div id="qtTotal" class="text-sm font-semibold">$0.00</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -359,9 +407,71 @@
                   Clear
                 </button>
               </div>
-              <div id="pinnedGrid" class="mt-3 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+              <div id="pinnedGrid" class="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            </div>
+            <div id="recentSection" class="mb-4 hidden">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-slate-800">Recent items</div>
+                <button type="button"
+                        class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition"
+                        data-action="clear-recents">
+                  Clear
+                </button>
+              </div>
+              <div id="recentGrid" class="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            </div>
+            <div class="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div class="text-xs text-slate-600">
+                  Showing <span id="productVisibleCount" class="font-semibold text-slate-800">0</span>
+                  of <span id="productTotalCount" class="font-semibold text-slate-800">0</span> products
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <select id="productSort"
+                          class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700
+                                 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                    <option value="server">Default order</option>
+                    <option value="name-asc">Name A-Z</option>
+                    <option value="price-asc">Price low-high</option>
+                    <option value="price-desc">Price high-low</option>
+                    <option value="stock-desc">Stock high-low</option>
+                  </select>
+                  <div class="inline-flex items-center rounded-lg border border-slate-200 bg-white p-1">
+                    <button type="button" data-density="comfortable"
+                            class="density-toggle rounded-md px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-100">
+                      Cozy
+                    </button>
+                    <button type="button" data-density="compact"
+                            class="density-toggle rounded-md px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-100">
+                      Compact
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <button type="button" data-stock-filter="all"
+                        class="stock-filter rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                  All
+                </button>
+                <button type="button" data-stock-filter="in-stock"
+                        class="stock-filter rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                  In stock
+                </button>
+                <button type="button" data-stock-filter="low-stock"
+                        class="stock-filter rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                  Low stock
+                </button>
+                <button type="button" data-stock-filter="out-of-stock"
+                        class="stock-filter rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
+                  Out of stock
+                </button>
+              </div>
             </div>
             <div th:replace="~{pos/fragments :: productGridWrap}"></div>
+            <div id="productFilterEmpty"
+                 class="mt-4 hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+              No products match the selected filter on this page.
+            </div>
           </div>
         </section>
 
@@ -372,6 +482,11 @@
               <div class="text-base font-semibold">Cart</div>
               <div class="text-sm text-slate-500">Review items and checkout</div>
             </div>
+            <button type="button"
+                    data-action="clear-cart"
+                    class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
+              Clear cart
+            </button>
           </div>
 
           <div class="p-5">
@@ -383,14 +498,63 @@
   </div>
 
   <script>
-    // Keyboard shortcut: "/" focuses search
+    const isTypingTarget = (target) => {
+      if (!target) return false;
+      if (target.isContentEditable) return true;
+      const tag = target.tagName ? target.tagName.toLowerCase() : "";
+      return ["input", "textarea", "select"].includes(tag);
+    };
+
+    const shouldIgnoreShortcuts = (event) => {
+      return isTypingTarget(event.target) || isTypingTarget(document.activeElement);
+    };
+
+    const openCheckout = () => {
+      const section = document.getElementById("checkoutSection");
+      if (!section) return;
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      const focusTarget = document.getElementById("checkoutCashButton") || section.querySelector("button");
+      if (focusTarget) focusTarget.focus();
+    };
+
+    // Keyboard shortcuts
     window.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
+      if (shouldIgnoreShortcuts(e)) return;
+      if (e.key === "/") {
         e.preventDefault();
         document.getElementById("searchBox").focus();
+        return;
       }
-      // Barcode scanners usually focus input automatically, but you can force it:
-      if (e.key === "F8") document.getElementById("barcodeInput").focus();
+      if (e.key === "F8") {
+        e.preventDefault();
+        document.getElementById("barcodeInput").focus();
+        return;
+      }
+      if (e.key === "F2") {
+        e.preventDefault();
+        openCheckout();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        confirmClearCart();
+        return;
+      }
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        removeSelectedCartItem();
+        return;
+      }
+      if (e.key === "+" || e.code === "NumpadAdd" || (e.key === "=" && e.shiftKey)) {
+        e.preventDefault();
+        adjustSelectedQty(1);
+        return;
+      }
+      if (e.key === "-" || e.code === "NumpadSubtract") {
+        e.preventDefault();
+        adjustSelectedQty(-1);
+        return;
+      }
     });
 
     const getBaseCurrency = () => {
@@ -415,6 +579,208 @@
     const formatMoney = (value) => formatCurrency(value, getBaseCurrency());
 
     const getCartPanel = () => document.getElementById("cartPanel");
+
+    const productSortKey = "pos.products.sort";
+    const productDensityKey = "pos.products.density";
+    const productStockFilterKey = "pos.products.stock-filter";
+
+    const readStorage = (key, fallback) => {
+      try {
+        const value = localStorage.getItem(key);
+        return value === null ? fallback : value;
+      } catch {
+        return fallback;
+      }
+    };
+
+    const writeStorage = (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+      } catch {
+        // ignore storage errors
+      }
+    };
+
+    const getProductGrid = () => document.getElementById("productGrid");
+
+    const getProductCards = () => {
+      const grid = getProductGrid();
+      if (!grid) return [];
+      return Array.from(grid.querySelectorAll("[data-product-card='true']"));
+    };
+
+    const setProductCounts = (visible, total) => {
+      const visibleEl = document.getElementById("productVisibleCount");
+      const totalEl = document.getElementById("productTotalCount");
+      if (visibleEl) visibleEl.textContent = String(visible);
+      if (totalEl) totalEl.textContent = String(total);
+      const emptyEl = document.getElementById("productFilterEmpty");
+      if (emptyEl) {
+        const shouldShow = total > 0 && visible === 0;
+        emptyEl.classList.toggle("hidden", !shouldShow);
+      }
+    };
+
+    const parseCardNumber = (value) => {
+      const num = Number.parseFloat(value || "0");
+      return Number.isFinite(num) ? num : 0;
+    };
+
+    const compareCards = (a, b, mode) => {
+      const orderA = Number.parseInt(a.dataset.order || "0", 10);
+      const orderB = Number.parseInt(b.dataset.order || "0", 10);
+      const nameA = (a.dataset.name || "").toLowerCase();
+      const nameB = (b.dataset.name || "").toLowerCase();
+      const priceA = parseCardNumber(a.dataset.price);
+      const priceB = parseCardNumber(b.dataset.price);
+      const stockA = parseCardNumber(a.dataset.stock);
+      const stockB = parseCardNumber(b.dataset.stock);
+      if (mode === "server") return orderA - orderB;
+      if (mode === "name-asc") return nameA.localeCompare(nameB);
+      if (mode === "price-asc") return priceA - priceB;
+      if (mode === "price-desc") return priceB - priceA;
+      if (mode === "stock-desc") return stockB - stockA;
+      return orderA - orderB;
+    };
+
+    const syncDensityButtons = (mode) => {
+      document.querySelectorAll(".density-toggle").forEach((btn) => {
+        const active = btn.getAttribute("data-density") === mode;
+        btn.classList.toggle("bg-slate-900", active);
+        btn.classList.toggle("text-white", active);
+        btn.classList.toggle("hover:bg-slate-800", active);
+        btn.classList.toggle("text-slate-600", !active);
+      });
+    };
+
+    const syncStockFilterButtons = (mode) => {
+      document.querySelectorAll(".stock-filter").forEach((btn) => {
+        const active = btn.getAttribute("data-stock-filter") === mode;
+        btn.classList.toggle("bg-slate-900", active);
+        btn.classList.toggle("border-slate-900", active);
+        btn.classList.toggle("text-white", active);
+        btn.classList.toggle("text-slate-600", !active);
+      });
+    };
+
+    const shouldShowCard = (card, stockFilter) => {
+      const stock = parseCardNumber(card.dataset.stock);
+      const low = card.dataset.lowStock === "true";
+      const out = card.dataset.outOfStock === "true" || stock <= 0;
+      if (stockFilter === "in-stock") return stock > 0;
+      if (stockFilter === "low-stock") return stock > 0 && low;
+      if (stockFilter === "out-of-stock") return out;
+      return true;
+    };
+
+    const applyProductListingState = () => {
+      const grid = getProductGrid();
+      if (!grid) {
+        setProductCounts(0, 0);
+        return;
+      }
+      const cards = getProductCards();
+      const sort = readStorage(productSortKey, "server");
+      const stockFilter = readStorage(productStockFilterKey, "all");
+      const density = readStorage(productDensityKey, "comfortable");
+
+      const sortSelect = document.getElementById("productSort");
+      if (sortSelect && sortSelect.value !== sort) {
+        sortSelect.value = sort;
+      }
+
+      const sorted = [...cards].sort((a, b) => compareCards(a, b, sort));
+      sorted.forEach((card) => grid.appendChild(card));
+
+      let visible = 0;
+      cards.forEach((card) => {
+        const show = shouldShowCard(card, stockFilter);
+        card.classList.toggle("hidden", !show);
+        if (show) visible += 1;
+      });
+
+      grid.setAttribute("data-density", density);
+      syncDensityButtons(density);
+      syncStockFilterButtons(stockFilter);
+      setProductCounts(visible, cards.length);
+    };
+
+    const updateQuickTotals = () => {
+      const panel = getCartPanel();
+      const subtotalEl = document.getElementById("qtSubtotal");
+      const discountEl = document.getElementById("qtDiscount");
+      const taxEl = document.getElementById("qtTax");
+      const totalEl = document.getElementById("qtTotal");
+      if (!subtotalEl || !discountEl || !taxEl || !totalEl) return;
+      if (!panel) {
+        subtotalEl.textContent = "-";
+        discountEl.textContent = "-";
+        taxEl.textContent = "-";
+        totalEl.textContent = "-";
+        return;
+      }
+      const subtotal = Number.parseFloat(panel.dataset.subtotal || "0");
+      const discount = Number.parseFloat(panel.dataset.discount || "0");
+      const tax = Number.parseFloat(panel.dataset.tax || "0");
+      const total = Number.parseFloat(panel.dataset.total || "0");
+      subtotalEl.textContent = formatMoney(subtotal);
+      discountEl.textContent = formatMoney(discount);
+      taxEl.textContent = formatMoney(tax);
+      totalEl.textContent = formatMoney(total);
+    };
+
+    let selectedCartId = null;
+
+    const setSelectedCartItem = (id) => {
+      selectedCartId = id || null;
+      document.querySelectorAll("[data-cart-item]").forEach((el) => {
+        const active = selectedCartId && el.dataset.productId === selectedCartId;
+        el.setAttribute("aria-selected", active ? "true" : "false");
+        el.classList.toggle("ring-2", active);
+        el.classList.toggle("ring-slate-900/20", active);
+        el.classList.toggle("border-slate-300", active);
+      });
+    };
+
+    const restoreCartSelection = () => {
+      if (!selectedCartId) return;
+      const exists = document.querySelector(`[data-cart-item][data-product-id="${CSS.escape(selectedCartId)}"]`);
+      if (!exists) {
+        selectedCartId = null;
+        return;
+      }
+      setSelectedCartItem(selectedCartId);
+    };
+
+    const getSelectedCartElement = () => {
+      if (!selectedCartId) return null;
+      return document.querySelector(`[data-cart-item][data-product-id="${CSS.escape(selectedCartId)}"]`);
+    };
+
+    const submitCartAction = (item, action) => {
+      if (!item) return false;
+      const form = item.querySelector(`form[data-cart-action="${action}"]`);
+      if (!form) return false;
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
+      return true;
+    };
+
+    const adjustSelectedQty = (direction) => {
+      const item = getSelectedCartElement();
+      if (!item) return;
+      if (direction > 0) submitCartAction(item, "increase");
+      if (direction < 0) submitCartAction(item, "decrease");
+    };
+
+    const removeSelectedCartItem = () => {
+      const item = getSelectedCartElement();
+      if (!item) return;
+      submitCartAction(item, "remove");
+    };
 
     const getSelectedCurrency = () => {
       const panel = getCartPanel();
@@ -502,6 +868,8 @@
 
     const pinKey = "pos.pinned.v1";
     const maxPins = 12;
+    const recentKey = "pos.recent.v1";
+    const maxRecent = 10;
 
     const loadPins = () => {
       try {
@@ -530,6 +898,30 @@
         .replace(/'/g, "&#39;");
     };
 
+    const getCsrfField = () => {
+      const input = document.querySelector("#cartPanel input[name*='csrf']") || document.querySelector("input[name*='csrf']");
+      if (!input) return null;
+      const name = input.getAttribute("name");
+      const value = input.value;
+      if (!name || !value) return null;
+      return { name, value };
+    };
+
+    const injectCsrfIntoForms = (root) => {
+      if (!root) return;
+      const csrf = getCsrfField();
+      if (!csrf) return;
+      root.querySelectorAll("form").forEach((form) => {
+        const hasToken = Array.from(form.elements || []).some((el) => el.name === csrf.name);
+        if (hasToken) return;
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = csrf.name;
+        input.value = csrf.value;
+        form.prepend(input);
+      });
+    };
+
     const renderPins = () => {
       const section = document.getElementById("pinnedSection");
       const grid = document.getElementById("pinnedGrid");
@@ -543,6 +935,7 @@
       section.classList.remove("hidden");
       grid.innerHTML = pins.map((p) => {
         const name = escapeHtml(p.name || "Item");
+        const sku = escapeHtml(p.sku || "");
         const price = formatMoney(p.price || 0);
         const image = p.image
           ? `<img src="${escapeHtml(p.image)}" alt="" class="h-full w-full object-cover block">`
@@ -569,8 +962,13 @@
               <div class="text-xs text-slate-500">${price}</div>
               <form action="/pos/cart/add/${escapeHtml(p.id)}" method="post"
                     hx-post="/pos/cart/add/${escapeHtml(p.id)}" hx-target="#cartPanel" hx-swap="outerHTML"
+                    data-recent-item="true"
+                    data-recent-id="${escapeHtml(p.id)}"
+                    data-recent-name="${name}"
+                    data-recent-sku="${sku}"
+                    data-recent-price="${escapeHtml(p.price || 0)}"
+                    data-recent-image="${escapeHtml(p.image || '')}"
                     class="mt-2">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button class="w-full rounded-xl bg-slate-900 text-white px-3 py-1.5 text-xs font-semibold hover:bg-slate-800 transition">
                   Add
                 </button>
@@ -579,6 +977,157 @@
           </div>
         `;
       }).join("");
+      injectCsrfIntoForms(grid);
+      if (window.htmx) window.htmx.process(grid);
+    };
+
+    let clearingCart = false;
+
+    const postCartForm = async (url, params, swap) => {
+      const body = new URLSearchParams();
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) body.append(key, value.toString());
+      });
+      const csrf = getCsrfField();
+      if (csrf) body.append(csrf.name, csrf.value);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "HX-Request": "true"
+        },
+        body
+      });
+      if (!swap) return;
+      const html = await response.text();
+      const panel = getCartPanel();
+      if (panel) {
+        panel.outerHTML = html;
+      }
+      if (window.htmx) window.htmx.process(document.getElementById("cartPanel"));
+      afterCartSwap();
+    };
+
+    const clearCart = async () => {
+      if (clearingCart) return;
+      const panel = getCartPanel();
+      if (!panel) return;
+      clearingCart = true;
+      try {
+        const ids = Array.from(panel.querySelectorAll("[data-cart-item]"))
+          .map((el) => el.dataset.productId)
+          .filter(Boolean);
+        for (const id of ids) {
+          await postCartForm("/pos/cart/update", { productId: id, qty: 0 }, false);
+        }
+        await postCartForm("/pos/cart/discount", { discountType: "AMOUNT", discountValue: "0", discountReason: "" }, false);
+        await postCartForm("/pos/cart/tax", { taxRate: "0" }, false);
+        await postCartForm("/pos/cart/customer/clear", {}, true);
+        selectedCartId = null;
+      } finally {
+        clearingCart = false;
+      }
+    };
+
+    const confirmClearCart = () => {
+      const ok = window.confirm("Clear the cart? This will remove all items and reset discounts, tax, and customer.");
+      if (ok) clearCart();
+    };
+
+    const afterCartSwap = () => {
+      applyProductListingState();
+      applyStoredCurrency();
+      renderPins();
+      renderRecents();
+      syncPinToggles();
+      updateCashChange();
+      updateQuickTotals();
+      restoreCartSelection();
+    };
+
+    const loadRecents = () => {
+      try {
+        const raw = localStorage.getItem(recentKey);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch {
+        return [];
+      }
+    };
+
+    const saveRecents = (items) => {
+      try {
+        localStorage.setItem(recentKey, JSON.stringify(items));
+      } catch {
+        // ignore storage failures
+      }
+    };
+
+    const recentItemKey = (item) => {
+      const sku = (item.sku || "").trim();
+      if (sku) return `sku:${sku.toLowerCase()}`;
+      return `id:${String(item.id || "")}`;
+    };
+
+    const addRecentItem = (item) => {
+      if (!item || !item.id) return;
+      const list = loadRecents();
+      const key = recentItemKey(item);
+      const filtered = list.filter((i) => recentItemKey(i) !== key);
+      filtered.unshift(item);
+      saveRecents(filtered.slice(0, maxRecent));
+      renderRecents();
+    };
+
+    const renderRecents = () => {
+      const section = document.getElementById("recentSection");
+      const grid = document.getElementById("recentGrid");
+      if (!section || !grid) return;
+      const items = loadRecents();
+      if (!items.length) {
+        section.classList.add("hidden");
+        grid.innerHTML = "";
+        return;
+      }
+      section.classList.remove("hidden");
+      grid.innerHTML = items.map((item) => {
+        const name = escapeHtml(item.name || "Item");
+        const sku = escapeHtml(item.sku || "");
+        const price = formatMoney(item.price || 0);
+        const image = item.image
+          ? `<img src="${escapeHtml(item.image)}" alt="" class="h-full w-full object-cover block">`
+          : `<div class="h-full w-full grid place-items-center text-slate-400">
+               <svg viewBox="0 0 24 24" class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5">
+                 <path d="M3 7h3l2-2h8l2 2h3v12H3V7z"/>
+                 <circle cx="12" cy="13" r="3.5"/>
+               </svg>
+             </div>`;
+        return `
+          <div class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="h-24 bg-slate-50 border-b border-slate-200">
+              ${image}
+            </div>
+            <div class="p-3">
+              <div class="text-sm font-semibold text-slate-900 line-clamp-2">${name}</div>
+              <div class="text-xs text-slate-500">${price}</div>
+              <form action="/pos/cart/add/${escapeHtml(item.id)}" method="post"
+                    hx-post="/pos/cart/add/${escapeHtml(item.id)}" hx-target="#cartPanel" hx-swap="outerHTML"
+                    data-recent-item="true"
+                    data-recent-id="${escapeHtml(item.id)}"
+                    data-recent-name="${name}"
+                    data-recent-sku="${sku}"
+                    data-recent-price="${escapeHtml(item.price || 0)}"
+                    data-recent-image="${escapeHtml(item.image || '')}"
+                    class="mt-2">
+                <button class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+                  Add
+                </button>
+              </form>
+            </div>
+          </div>
+        `;
+      }).join("");
+      injectCsrfIntoForms(grid);
       if (window.htmx) window.htmx.process(grid);
     };
 
@@ -602,6 +1151,7 @@
       const data = {
         id: String(el.dataset.productId || ""),
         name: el.dataset.productName || "Item",
+        sku: el.dataset.productSku || "",
         price: el.dataset.productPrice || "0",
         image: el.dataset.productImage || ""
       };
@@ -648,6 +1198,39 @@
         return;
       }
 
+      const clearRecents = e.target.closest("[data-action='clear-recents']");
+      if (clearRecents) {
+        e.preventDefault();
+        saveRecents([]);
+        renderRecents();
+        return;
+      }
+
+      const clearCartBtn = e.target.closest("[data-action='clear-cart']");
+      if (clearCartBtn) {
+        e.preventDefault();
+        confirmClearCart();
+        return;
+      }
+
+      const stockFilterBtn = e.target.closest("[data-stock-filter]");
+      if (stockFilterBtn) {
+        e.preventDefault();
+        const filter = stockFilterBtn.getAttribute("data-stock-filter") || "all";
+        writeStorage(productStockFilterKey, filter);
+        applyProductListingState();
+        return;
+      }
+
+      const densityBtn = e.target.closest("[data-density]");
+      if (densityBtn) {
+        e.preventDefault();
+        const density = densityBtn.getAttribute("data-density") || "comfortable";
+        writeStorage(productDensityKey, density);
+        applyProductListingState();
+        return;
+      }
+
       const discountBtn = e.target.closest(".discount-quick");
       if (discountBtn) {
         e.preventDefault();
@@ -681,15 +1264,31 @@
         input.value = valueForeign.toFixed(currency.decimals || 2);
         updateCashChange();
       }
+
+      const cartItem = e.target.closest("[data-cart-item]");
+      if (cartItem && !e.target.closest("button, input, select, textarea, a, form")) {
+        setSelectedCartItem(cartItem.dataset.productId || null);
+      }
     });
 
     document.addEventListener("submit", (e) => {
       const form = e.target;
       if (!(form instanceof HTMLFormElement)) return;
-      if (!form.matches("[data-quick-add]")) return;
-      const input = form.querySelector("input[name='q']");
-      const source = document.getElementById("searchBox");
-      if (input && source) input.value = source.value;
+      if (form.matches("[data-quick-add]")) {
+        const input = form.querySelector("input[name='q']");
+        const source = document.getElementById("searchBox");
+        if (input && source) input.value = source.value;
+      }
+      if (form.matches("[data-recent-item]")) {
+        const item = {
+          id: form.dataset.recentId,
+          name: form.dataset.recentName,
+          sku: form.dataset.recentSku,
+          price: form.dataset.recentPrice,
+          image: form.dataset.recentImage
+        };
+        addRecentItem(item);
+      }
     }, true);
 
     document.addEventListener("input", (e) => {
@@ -712,24 +1311,24 @@
           input.placeholder = code ? `Cash received (${code})` : "Cash received";
         }
         updateCashChange();
+        return;
+      }
+      if (e.target && e.target.id === "productSort") {
+        const sort = e.target.value || "server";
+        writeStorage(productSortKey, sort);
+        applyProductListingState();
       }
     });
 
     document.addEventListener("htmx:afterSwap", (e) => {
       if (!e.target) return;
       if (["productGridWrap", "cartPanel", "cartContainer"].includes(e.target.id)) {
-        applyStoredCurrency();
-        renderPins();
-        syncPinToggles();
-        updateCashChange();
+        afterCartSwap();
       }
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-      applyStoredCurrency();
-      renderPins();
-      syncPinToggles();
-      updateCashChange();
+      afterCartSwap();
     });
 
     // Fallback: if HTMX didn't load (offline/CDN blocked), do minimal AJAX swaps.
@@ -774,6 +1373,7 @@
         const response = await fetch(url, { method, body, headers });
         const html = await response.text();
         performSwap(target, html, swap);
+        afterCartSwap();
         if (pushUrl) history.pushState({}, "", url);
         if (triggerEl) afterRequest(triggerEl);
       };

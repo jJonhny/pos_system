@@ -27,29 +27,43 @@
 </div>
 
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="productGrid">
-  <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
+  <div id="productGrid"
+       class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 items-stretch">
     <div th:replace="~{pos/fragments :: productGridItems}"></div>
   </div>
 </div>
 
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="productGridItems" th:remove="tag">
-  <form th:each="p : ${products}"
+  <form th:each="p, iter : ${products}"
         method="post"
         th:action="@{'/pos/cart/add/' + ${p.id}}"
         th:attr="hx-post=@{'/pos/cart/add/' + ${p.id}}"
+        th:data-order="${iter.index}"
+        th:data-recent-id="${p.id}"
+        th:data-recent-name="${p.name}"
+        th:data-recent-sku="${p.sku != null ? p.sku : (p.barcode != null ? p.barcode : '')}"
+        th:data-recent-price="${p.price}"
+        th:data-recent-image="${p.imageUrl != null ? p.imageUrl : ''}"
+        th:data-name="${p.name != null ? p.name : ''}"
+        th:data-price="${p.price}"
+        th:data-stock="${p.stockQty != null ? p.stockQty : 0}"
+        th:data-low-stock="${p.stockQty != null and p.stockQty > 0 and p.lowStock}"
+        th:data-out-of-stock="${p.stockQty != null and p.stockQty == 0}"
+        data-recent-item="true"
+        data-product-card="true"
         hx-target="#cartPanel"
         hx-swap="outerHTML"
-        class="w-full">
+        class="product-card-wrapper h-full w-full">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
     <button type="submit"
-            class="group w-full text-left"
+            class="group block h-full w-full text-left"
             title="Add to cart"
             aria-label="Add to cart">
 
-      <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm
+      <div class="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col
                   transition hover:shadow-lg">
-        <div class="relative h-56 bg-slate-50">
+        <div class="product-image-wrap relative h-56 bg-slate-50">
           <img th:if="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
                th:src="${p.imageUrl}"
                alt=""
@@ -85,7 +99,7 @@
             <div class="pin-toggle h-10 w-10 rounded-full bg-white/90 border border-slate-200 shadow-sm grid place-items-center
                         text-slate-700 hover:bg-slate-900 hover:text-white transition"
                  role="button" tabindex="0" aria-pressed="false" title="Pin item"
-                 th:attr="data-product-id=${p.id}, data-product-name=${p.name}, data-product-price=${p.price}, data-product-image=${p.imageUrl != null ? p.imageUrl : ''}">
+                 th:attr="data-product-id=${p.id}, data-product-name=${p.name}, data-product-sku=${p.sku != null ? p.sku : (p.barcode != null ? p.barcode : '')}, data-product-price=${p.price}, data-product-image=${p.imageUrl != null ? p.imageUrl : ''}">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M6 7h12l-1 6H7L6 7z"/>
                 <path d="M9 13l-1.5 7L12 17l4.5 3L15 13"/>
@@ -106,10 +120,10 @@
           </div>
         </div>
 
-        <div class="p-4">
+        <div class="product-content p-4 flex flex-1 flex-col">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <div class="text-base font-semibold text-slate-900 leading-snug line-clamp-2"
+              <div class="product-title text-base font-semibold text-slate-900 leading-snug line-clamp-2"
                    th:text="${p.name}">
                 Product
               </div>
@@ -129,7 +143,7 @@
             </div>
           </div>
 
-          <div class="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
+          <div class="product-meta mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
             <span class="rounded-full bg-slate-100 px-2.5 py-1" th:if="${p.stockQty != null}">
               Stock <span class="font-semibold text-slate-800" th:text="${p.stockQty}">0</span>
             </span>
@@ -165,7 +179,7 @@
 </div>
 
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="cartPanel" id="cartPanel"
-     th:attr="data-subtotal=${cart.subtotal}, data-total=${cart.total}, data-base-code=${baseCurrency.code}, data-base-symbol=${baseCurrency.symbol}, data-base-decimals=${baseCurrency.fractionDigits}">
+     th:attr="data-subtotal=${cart.subtotal}, data-discount=${cart.discount}, data-tax=${cart.tax}, data-total=${cart.total}, data-base-code=${baseCurrency.code}, data-base-symbol=${baseCurrency.symbol}, data-base-decimals=${baseCurrency.fractionDigits}">
   <div th:if="${checkoutSuccess}"
        class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
     <div class="font-semibold">Checkout complete</div>
@@ -192,12 +206,17 @@
     <div>
       <div class="text-base font-semibold">Cart</div>
       <div class="text-sm text-slate-500" th:text="${cart.items.size()} + ' items'">0 items</div>
+      <div class="text-xs text-slate-400">Click a line to select. Use + / - or Del.</div>
     </div>
   </div>
 
   <div class="space-y-3">
     <div th:each="ci : ${cart.items}"
-         class="rounded-2xl border border-slate-200 bg-white p-4">
+         th:attr="data-product-id=${ci.productId}"
+         data-cart-item="true"
+         tabindex="0"
+         aria-selected="false"
+         class="cart-item rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer transition">
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <div class="font-semibold text-slate-900 truncate" th:text="${ci.name}">Name</div>
@@ -239,7 +258,7 @@
       </form>
 
       <div class="mt-3 flex flex-wrap items-center gap-2">
-        <form action="/pos/cart/update" method="post" class="m-0 inline-flex"
+        <form action="/pos/cart/update" method="post" class="m-0 inline-flex" data-cart-action="decrease"
               hx-post="/pos/cart/update" hx-target="#cartPanel" hx-swap="outerHTML">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <input type="hidden" name="productId" th:value="${ci.productId}"/>
@@ -257,7 +276,7 @@
                  th:value="${ci.qty}"/>
         </form>
 
-        <form action="/pos/cart/update" method="post" class="m-0 inline-flex"
+        <form action="/pos/cart/update" method="post" class="m-0 inline-flex" data-cart-action="increase"
               hx-post="/pos/cart/update" hx-target="#cartPanel" hx-swap="outerHTML">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <input type="hidden" name="productId" th:value="${ci.productId}"/>
@@ -265,7 +284,7 @@
           <button class="h-9 w-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition">+</button>
         </form>
 
-        <form th:action="@{'/pos/cart/remove/' + ${ci.productId}}" method="post" class="m-0 inline-flex ml-auto"
+        <form th:action="@{'/pos/cart/remove/' + ${ci.productId}}" method="post" class="m-0 inline-flex ml-auto" data-cart-action="remove"
               th:attr="hx-post=@{'/pos/cart/remove/' + ${ci.productId}}" hx-target="#cartPanel" hx-swap="outerHTML">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <button class="h-9 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-medium text-red-700 hover:bg-red-100 transition">
@@ -423,7 +442,7 @@
     </div>
   </div>
 
-  <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+  <div id="checkoutSection" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
     <div class="text-sm font-semibold text-slate-800">Adjustments</div>
     <div class="grid grid-cols-2 gap-2">
       <form action="/pos/cart/discount" method="post" class="m-0"
@@ -621,7 +640,7 @@
         <input type="hidden" name="currencyCode" id="cashCurrencyCode"/>
         <input type="hidden" name="currencyRate" id="cashCurrencyRate"/>
         <input type="hidden" name="foreignAmount" id="cashForeignAmount"/>
-        <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
+        <button id="checkoutCashButton" class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
           Cash
         </button>
       </form>
