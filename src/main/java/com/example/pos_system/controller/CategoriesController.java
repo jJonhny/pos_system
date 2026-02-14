@@ -96,6 +96,9 @@ public class CategoriesController {
         if ("uploadFailed".equals(error)) {
             model.addAttribute("error", "Image upload failed. Please try again.");
         }
+        if ("uploadTooLarge".equals(error)) {
+            model.addAttribute("error", "Image is too large. Maximum upload size is 10MB.");
+        }
         return "categories/list";
     }
 

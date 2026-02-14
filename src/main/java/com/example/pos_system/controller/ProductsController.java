@@ -110,6 +110,9 @@ public class ProductsController {
         if ("uploadFailed".equals(error)) {
             model.addAttribute("error", "Image upload failed. Please try again.");
         }
+        if ("uploadTooLarge".equals(error)) {
+            model.addAttribute("error", "Image is too large. Maximum upload size is 10MB.");
+        }
         if ("imageUrlTooLong".equals(error)) {
             model.addAttribute("error", "Image URL is too long. Please use a shorter link.");
         }
