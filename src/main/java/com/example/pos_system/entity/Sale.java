@@ -43,6 +43,9 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    @Column(length = 10)
+    private String receiptLocale;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 32)
     private SaleStatus status;

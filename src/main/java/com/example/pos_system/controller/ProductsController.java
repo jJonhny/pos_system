@@ -47,7 +47,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @Controller
 @RequestMapping("/products")
 public class ProductsController {
-    private static final int PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int MAX_PAGE_SIZE = 200;
     private final ProductRepo productRepo;
     private final CategoryRepo categoryRepo;
     private final InventoryService inventoryService;
@@ -71,19 +72,27 @@ public class ProductsController {
                        @RequestParam(defaultValue = "asc") String dir,
                        @RequestParam(required = false) String error,
                        @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "20") int size,
                        Model model) {
         int pageNum = Math.max(0, page);
+        int pageSize = normalizePageSize(size);
         boolean onlyLowStock = Boolean.TRUE.equals(lowStock);
         Sort sortSpec = buildSort(sort, dir);
-        Pageable pageable = PageRequest.of(pageNum, PAGE_SIZE, sortSpec);
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sortSpec);
         Specification<Product> specification = buildSpecification(categoryId, onlyLowStock, q, active, priceMin, priceMax, stockMin, stockMax);
 
         Page<Product> productPage = productRepo.findAll(specification, pageable);
         List<Product> pageItems = productPage.getContent();
+        int totalPages = Math.max(1, productPage.getTotalPages());
+        int startPage = Math.max(0, productPage.getNumber() - 2);
+        int endPage = Math.min(totalPages - 1, productPage.getNumber() + 2);
 
         model.addAttribute("products", pageItems);
         model.addAttribute("page", productPage.getNumber());
-        model.addAttribute("totalPages", Math.max(1, productPage.getTotalPages()));
+        model.addAttribute("size", pageSize);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
         model.addAttribute("hasNext", productPage.hasNext());
         model.addAttribute("hasPrev", productPage.hasPrevious());
         model.addAttribute("nextPage", productPage.getNumber() + 1);
@@ -129,37 +138,78 @@ public class ProductsController {
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) {
+    public String createForm(@RequestParam(required = false) Long categoryId,
+                             @RequestParam(required = false) Boolean lowStock,
+                             @RequestParam(required = false) String q,
+                             @RequestParam(required = false) Boolean active,
+                             @RequestParam(required = false) BigDecimal priceMin,
+                             @RequestParam(required = false) BigDecimal priceMax,
+                             @RequestParam(required = false) Integer stockMin,
+                             @RequestParam(required = false) Integer stockMax,
+                             @RequestParam(required = false) String sort,
+                             @RequestParam(defaultValue = "asc") String dir,
+                             @RequestParam(defaultValue = "0") Integer page,
+                             @RequestParam(defaultValue = "20") Integer size,
+                             Model model) {
         Product product = new Product();
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryRepo.findAll(Sort.by("sortOrder").ascending().and(Sort.by("name").ascending())));
         addProductAnalytics(model, product);
+        addReturnState(model, categoryId, lowStock, q, active, priceMin, priceMax, stockMin, stockMax, sort, dir, page, size);
         return "products/form";
     }
 
     @GetMapping("/{id}/edit")
-    public String editForm(@PathVariable Long id, Model model) {
+    public String editForm(@PathVariable Long id,
+                           @RequestParam(required = false) Long categoryId,
+                           @RequestParam(required = false) Boolean lowStock,
+                           @RequestParam(required = false) String q,
+                           @RequestParam(required = false) Boolean active,
+                           @RequestParam(required = false) BigDecimal priceMin,
+                           @RequestParam(required = false) BigDecimal priceMax,
+                           @RequestParam(required = false) Integer stockMin,
+                           @RequestParam(required = false) Integer stockMax,
+                           @RequestParam(required = false) String sort,
+                           @RequestParam(defaultValue = "asc") String dir,
+                           @RequestParam(defaultValue = "0") Integer page,
+                           @RequestParam(defaultValue = "20") Integer size,
+                           Model model) {
         Product product = productRepo.findById(id).orElseThrow();
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryRepo.findAll(Sort.by("sortOrder").ascending().and(Sort.by("name").ascending())));
         addProductAnalytics(model, product);
+        addReturnState(model, categoryId, lowStock, q, active, priceMin, priceMax, stockMin, stockMax, sort, dir, page, size);
         return "products/form";
     }
 
     @PostMapping
     public String save(@ModelAttribute Product product,
                        @RequestParam(required = false) Long categoryId,
-                       @RequestParam(required = false) MultipartFile imageFile) {
+                       @RequestParam(required = false) MultipartFile imageFile,
+                       @RequestParam(name = "returnCategoryId", required = false) Long returnCategoryId,
+                       @RequestParam(name = "returnLowStock", required = false) Boolean returnLowStock,
+                       @RequestParam(name = "returnQ", required = false) String returnQ,
+                       @RequestParam(name = "returnActive", required = false) Boolean returnActive,
+                       @RequestParam(name = "returnPriceMin", required = false) BigDecimal returnPriceMin,
+                       @RequestParam(name = "returnPriceMax", required = false) BigDecimal returnPriceMax,
+                       @RequestParam(name = "returnStockMin", required = false) Integer returnStockMin,
+                       @RequestParam(name = "returnStockMax", required = false) Integer returnStockMax,
+                       @RequestParam(name = "returnSort", required = false) String returnSort,
+                       @RequestParam(name = "returnDir", required = false) String returnDir,
+                       @RequestParam(name = "returnPage", required = false) Integer returnPage,
+                       @RequestParam(name = "returnSize", required = false) Integer returnSize) {
+        String listRedirect = buildListRedirect(returnCategoryId, returnLowStock, returnQ, returnActive, returnPriceMin,
+                returnPriceMax, returnStockMin, returnStockMax, returnSort, returnDir, returnPage, returnSize);
         Integer requestedStock = product.getStockQty();
         if (requestedStock != null && requestedStock < 0) {
-            return "redirect:/products?error=invalidStock";
+            return "redirect:" + appendErrorCode(listRedirect, "invalidStock");
         }
         Product existing = null;
         int currentStock = 0;
         if (product.getId() != null) {
             existing = productRepo.findById(product.getId()).orElse(null);
             if (existing == null) {
-                return "redirect:/products?error=notFound";
+                return "redirect:" + appendErrorCode(listRedirect, "notFound");
             }
             currentStock = existing.getStockQty() == null ? 0 : existing.getStockQty();
         }
@@ -183,15 +233,15 @@ public class ProductsController {
         }
         if (imageFile != null && !imageFile.isEmpty()) {
             if (imageFile.getContentType() == null || !imageFile.getContentType().startsWith("image/")) {
-                return "redirect:/products?error=invalidImage";
+                return "redirect:" + appendErrorCode(listRedirect, "invalidImage");
             }
             String imageUrl = storeImage(imageFile);
             if (imageUrl == null) {
-                return "redirect:/products?error=uploadFailed";
+                return "redirect:" + appendErrorCode(listRedirect, "uploadFailed");
             }
             product.setImageUrl(imageUrl);
         } else if (product.getImageUrl() != null && product.getImageUrl().length() > 2048) {
-            return "redirect:/products?error=imageUrlTooLong";
+            return "redirect:" + appendErrorCode(listRedirect, "imageUrlTooLong");
         }
         try {
             Product saved = productRepo.save(product);
@@ -202,11 +252,11 @@ public class ProductsController {
                     "Product form stock sync"
             );
         } catch (DataIntegrityViolationException ex) {
-            return "redirect:/products?error=duplicate";
+            return "redirect:" + appendErrorCode(listRedirect, "duplicate");
         } catch (IllegalStateException ex) {
-            return "redirect:/products?error=invalidStock";
+            return "redirect:" + appendErrorCode(listRedirect, "invalidStock");
         }
-        return "redirect:/products";
+        return "redirect:" + listRedirect;
     }
 
     @PostMapping("/import")
@@ -362,6 +412,7 @@ public class ProductsController {
                               @RequestParam(required = false) String sort,
                               @RequestParam(required = false) String dir,
                               @RequestParam(required = false) Integer page,
+                              @RequestParam(required = false) Integer size,
                               RedirectAttributes redirectAttributes) {
         try {
             Product updated = inventoryService.quickUpdate(id, price, stockQty);
@@ -370,7 +421,7 @@ public class ProductsController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                stockMin, stockMax, sort, dir, page);
+                stockMin, stockMax, sort, dir, page, size);
     }
 
     @PostMapping("/bulk-stock")
@@ -388,6 +439,7 @@ public class ProductsController {
                                   @RequestParam(required = false) String sort,
                                   @RequestParam(required = false) String dir,
                                   @RequestParam(required = false) Integer page,
+                                  @RequestParam(required = false) Integer size,
                                   RedirectAttributes redirectAttributes) {
         try {
             int updated = inventoryService.bulkAdjustStock(ids, operation, qty);
@@ -396,13 +448,26 @@ public class ProductsController {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                stockMin, stockMax, sort, dir, page);
+                stockMin, stockMax, sort, dir, page, size);
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id,
+                         @RequestParam(required = false) Long categoryId,
+                         @RequestParam(required = false) Boolean lowStock,
+                         @RequestParam(required = false) String q,
+                         @RequestParam(required = false) Boolean active,
+                         @RequestParam(required = false) BigDecimal priceMin,
+                         @RequestParam(required = false) BigDecimal priceMax,
+                         @RequestParam(required = false) Integer stockMin,
+                         @RequestParam(required = false) Integer stockMax,
+                         @RequestParam(required = false) String sort,
+                         @RequestParam(required = false) String dir,
+                         @RequestParam(required = false) Integer page,
+                         @RequestParam(required = false) Integer size) {
         productRepo.deleteById(id);
-        return "redirect:/products";
+        return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
+                stockMin, stockMax, sort, dir, page, size);
     }
 
     @PostMapping("/{id}/toggle-active")
@@ -417,13 +482,14 @@ public class ProductsController {
                                @RequestParam(required = false) Integer stockMax,
                                @RequestParam(required = false) String sort,
                                @RequestParam(required = false) String dir,
-                               @RequestParam(required = false) Integer page) {
+                               @RequestParam(required = false) Integer page,
+                               @RequestParam(required = false) Integer size) {
         Product product = productRepo.findById(id).orElseThrow();
         boolean nextActive = !Boolean.TRUE.equals(product.getActive());
         product.setActive(nextActive);
         productRepo.save(product);
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
-                stockMin, stockMax, sort, dir, page);
+                stockMin, stockMax, sort, dir, page, size);
     }
 
     private String storeImage(MultipartFile imageFile) {
@@ -1332,10 +1398,58 @@ public class ProductsController {
             String stockStatus
     ) {}
 
+    // Keep current list state in the form so save/cancel can return users to the same page.
+    private void addReturnState(Model model,
+                                Long categoryId,
+                                Boolean lowStock,
+                                String q,
+                                Boolean active,
+                                BigDecimal priceMin,
+                                BigDecimal priceMax,
+                                Integer stockMin,
+                                Integer stockMax,
+                                String sort,
+                                String dir,
+                                Integer page,
+                                Integer size) {
+        int safePage = page == null ? 0 : Math.max(0, page);
+        int safeSize = normalizePageSize(size);
+        model.addAttribute("returnCategoryId", categoryId);
+        model.addAttribute("returnLowStock", Boolean.TRUE.equals(lowStock));
+        model.addAttribute("returnQ", q);
+        model.addAttribute("returnActive", active);
+        model.addAttribute("returnPriceMin", priceMin);
+        model.addAttribute("returnPriceMax", priceMax);
+        model.addAttribute("returnStockMin", stockMin);
+        model.addAttribute("returnStockMax", stockMax);
+        model.addAttribute("returnSort", sort);
+        model.addAttribute("returnDir", dir);
+        model.addAttribute("returnPage", safePage);
+        model.addAttribute("returnSize", safeSize);
+        model.addAttribute("returnToListUrl", buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
+                stockMin, stockMax, sort, dir, safePage, safeSize));
+    }
+
+    private String appendErrorCode(String baseRedirect, String errorCode) {
+        if (!hasText(errorCode)) {
+            return baseRedirect;
+        }
+        String separator = baseRedirect.contains("?") ? "&" : "?";
+        return baseRedirect + separator + "error=" + java.net.URLEncoder.encode(errorCode, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    private int normalizePageSize(Integer requestedSize) {
+        if (requestedSize == null || requestedSize <= 0) {
+            return DEFAULT_PAGE_SIZE;
+        }
+        return Math.min(requestedSize, MAX_PAGE_SIZE);
+    }
+
+    // Rebuild the list URL with paging/sorting/filter state after item-level actions.
     private String buildListRedirect(Long categoryId, Boolean lowStock, String q, Boolean active,
                                      BigDecimal priceMin, BigDecimal priceMax,
                                      Integer stockMin, Integer stockMax,
-                                     String sort, String dir, Integer page) {
+                                     String sort, String dir, Integer page, Integer size) {
         StringBuilder redirect = new StringBuilder("/products");
         String sep = "?";
         if (categoryId != null) {
@@ -1378,8 +1492,12 @@ public class ProductsController {
             redirect.append(sep).append("dir=").append(dir);
             sep = "&";
         }
-        if (page != null) {
+        if (page != null && page >= 0) {
             redirect.append(sep).append("page=").append(page);
+            sep = "&";
+        }
+        if (size != null) {
+            redirect.append(sep).append("size=").append(normalizePageSize(size));
         }
         return redirect.toString();
     }

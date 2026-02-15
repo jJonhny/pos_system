@@ -7,12 +7,20 @@ import com.example.pos_system.repository.*;
 import com.example.pos_system.service.CheckoutAttemptService;
 import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.PosCartService;
+import com.example.pos_system.service.PosHardwareService;
+import com.example.pos_system.service.ProductFeedService;
 import com.example.pos_system.service.PosService;
+import com.example.pos_system.service.EndpointRateLimiterService;
+import com.example.pos_system.service.PaginationObservabilityService;
 import com.example.pos_system.service.ShiftService;
+import com.example.pos_system.service.TerminalSettingsService;
+import com.example.pos_system.service.I18nService;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,6 +57,15 @@ public class PosController {
   private final CurrencyService currencyService;
   private final PosCartService posCartService;
   private final CheckoutAttemptService checkoutAttemptService;
+  private final TerminalSettingsService terminalSettingsService;
+  private final PosHardwareService posHardwareService;
+  private final ProductFeedService productFeedService;
+  private final EndpointRateLimiterService endpointRateLimiterService;
+  private final PaginationObservabilityService paginationObservabilityService;
+  private final I18nService i18nService;
+
+  @Value("${app.pagination.feed.rate-limit-per-minute:240}")
+  private int productFeedRateLimitPerMinute;
 
   public PosController(ProductRepo productRepo,
                        CategoryRepo categoryRepo,
@@ -57,7 +75,13 @@ public class PosController {
                        ShiftService shiftService,
                        CurrencyService currencyService,
                        PosCartService posCartService,
-                       CheckoutAttemptService checkoutAttemptService) {
+                       CheckoutAttemptService checkoutAttemptService,
+                       TerminalSettingsService terminalSettingsService,
+                       PosHardwareService posHardwareService,
+                       ProductFeedService productFeedService,
+                       EndpointRateLimiterService endpointRateLimiterService,
+                       PaginationObservabilityService paginationObservabilityService,
+                       I18nService i18nService) {
     this.productRepo = productRepo;
     this.categoryRepo = categoryRepo;
     this.posService = posService;
@@ -67,6 +91,12 @@ public class PosController {
     this.currencyService = currencyService;
     this.posCartService = posCartService;
     this.checkoutAttemptService = checkoutAttemptService;
+    this.terminalSettingsService = terminalSettingsService;
+    this.posHardwareService = posHardwareService;
+    this.productFeedService = productFeedService;
+    this.endpointRateLimiterService = endpointRateLimiterService;
+    this.paginationObservabilityService = paginationObservabilityService;
+    this.i18nService = i18nService;
   }
 
   @ModelAttribute("cart")
@@ -82,14 +112,11 @@ public class PosController {
                     @ModelAttribute("cart") Cart cart,
                     Model model) {
     model.addAttribute("categories", categoryRepo.findAll(Sort.by("sortOrder").ascending().and(Sort.by("name").ascending())));
-    int pageNum = page == null ? 0 : Math.max(0, page);
-    Page<Product> products = loadProductsPage(q, categoryId, pageNum);
-    model.addAttribute("products", products.getContent());
-    model.addAttribute("hasNext", products.hasNext());
-    model.addAttribute("page", pageNum);
-    model.addAttribute("nextPage", pageNum + 1);
-    model.addAttribute("prevPage", Math.max(0, pageNum - 1));
-    model.addAttribute("q", q);
+    ProductFeedService.ProductFeedSlice initialFeed = productFeedService.fetchFeed(q, categoryId, null, 24);
+    model.addAttribute("products", initialFeed.items());
+    model.addAttribute("hasMore", initialFeed.hasMore());
+    model.addAttribute("nextCursor", initialFeed.nextCursor());
+    model.addAttribute("q", initialFeed.normalizedQuery() == null ? "" : initialFeed.normalizedQuery());
     model.addAttribute("categoryId", categoryId);
     if (scanError != null && !scanError.isBlank()) {
       model.addAttribute("scanError", scanError);
@@ -107,14 +134,108 @@ public class PosController {
                                  @RequestParam(defaultValue = "0") int page,
                                  @RequestParam(required = false) Boolean append,
                                  Model model) {
-    Page<Product> products = loadProductsPage(q, categoryId, page);
-    model.addAttribute("products", products.getContent());
-    model.addAttribute("hasNext", products.hasNext());
-    model.addAttribute("nextPage", products.getNumber() + 1);
+    ProductFeedService.ProductFeedSlice firstFeed = productFeedService.fetchFeed(q, categoryId, null, 24);
+    model.addAttribute("products", firstFeed.items());
+    model.addAttribute("hasMore", firstFeed.hasMore());
+    model.addAttribute("nextCursor", firstFeed.nextCursor());
+    model.addAttribute("q", firstFeed.normalizedQuery() == null ? "" : firstFeed.normalizedQuery());
+    model.addAttribute("categoryId", categoryId);
     if (Boolean.TRUE.equals(append)) {
       return "pos/fragments :: productGridItems";
     }
-    return "pos/fragments :: productGrid";
+    return "pos/fragments :: productGridWrap";
+  }
+
+  @GetMapping(value = "/products/feed", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ProductFeedResponse productsFeed(@RequestParam(required = false) String q,
+                                          @RequestParam(required = false) Long categoryId,
+                                          @RequestParam(required = false) String cursor,
+                                          @RequestParam(required = false, defaultValue = "24") Integer size,
+                                          HttpServletRequest request) {
+    long startedAt = System.nanoTime();
+    String actor = currentUsername();
+    String sessionId = request == null || request.getSession(false) == null ? "anon-session" : request.getSession(false).getId();
+    String remoteIp = request == null ? "unknown" : request.getRemoteAddr();
+    String rateLimitKey = (actor == null ? "anon" : actor) + "|" + sessionId + "|" + remoteIp;
+
+    if (!endpointRateLimiterService.allow(rateLimitKey, productFeedRateLimitPerMinute, Duration.ofMinutes(1))) {
+      long responseMs = nanosToMillis(System.nanoTime() - startedAt);
+      PaginationObservabilityService.Snapshot snapshot = paginationObservabilityService.recordError(responseMs);
+      log.warn("event=pos_product_feed_rate_limited user={} session={} ip={} q={} categoryId={} cursorPresent={} size={} latencyMs={} p95Ms={} errorRate={}",
+              actor,
+              sessionId,
+              remoteIp,
+              q,
+              categoryId,
+              cursor != null && !cursor.isBlank(),
+              size,
+              responseMs,
+              snapshot.p95ResponseMs(),
+              snapshot.errorRate());
+      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, msg("pos.error.rateLimitedPagination"));
+    }
+
+    long dbStartedAt = System.nanoTime();
+    try {
+      ProductFeedService.ProductFeedSlice slice = productFeedService.fetchFeed(q, categoryId, cursor, size);
+      long dbMs = nanosToMillis(System.nanoTime() - dbStartedAt);
+      long responseMs = nanosToMillis(System.nanoTime() - startedAt);
+      PaginationObservabilityService.Snapshot snapshot = paginationObservabilityService.recordSuccess(responseMs, dbMs);
+      List<ProductFeedService.ProductFeedItem> items = slice.items().stream()
+              .map(productFeedService::toFeedItem)
+              .toList();
+
+      log.info("event=pos_product_feed user={} session={} ip={} q={} categoryId={} cursorPresent={} requestedSize={} returned={} hasMore={} latencyMs={} dbMs={} p95Ms={} dbP95Ms={} errorRate={}",
+              actor,
+              sessionId,
+              remoteIp,
+              slice.normalizedQuery(),
+              slice.categoryId(),
+              cursor != null && !cursor.isBlank(),
+              size,
+              items.size(),
+              slice.hasMore(),
+              responseMs,
+              dbMs,
+              snapshot.p95ResponseMs(),
+              snapshot.p95DbMs(),
+              snapshot.errorRate());
+
+      return new ProductFeedResponse(items, slice.nextCursor(), slice.hasMore(), null);
+    } catch (IllegalArgumentException ex) {
+      long responseMs = nanosToMillis(System.nanoTime() - startedAt);
+      PaginationObservabilityService.Snapshot snapshot = paginationObservabilityService.recordError(responseMs);
+      log.warn("event=pos_product_feed_bad_cursor user={} session={} ip={} q={} categoryId={} cursorPresent={} size={} latencyMs={} p95Ms={} errorRate={} message={}",
+              actor,
+              sessionId,
+              remoteIp,
+              q,
+              categoryId,
+              cursor != null && !cursor.isBlank(),
+              size,
+              responseMs,
+              snapshot.p95ResponseMs(),
+              snapshot.errorRate(),
+              ex.getMessage());
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+    } catch (RuntimeException ex) {
+      long responseMs = nanosToMillis(System.nanoTime() - startedAt);
+      PaginationObservabilityService.Snapshot snapshot = paginationObservabilityService.recordError(responseMs);
+      log.error("event=pos_product_feed_error user={} session={} ip={} q={} categoryId={} cursorPresent={} size={} latencyMs={} p95Ms={} errorRate={}",
+              actor,
+              sessionId,
+              remoteIp,
+              q,
+              categoryId,
+              cursor != null && !cursor.isBlank(),
+              size,
+              responseMs,
+              snapshot.p95ResponseMs(),
+              snapshot.errorRate(),
+              ex);
+      throw ex;
+    }
   }
 
   @PostMapping("/cart/add/{productId}")
@@ -143,9 +264,9 @@ public class PosController {
                          @ModelAttribute("cart") Cart cart,
                          Model model) {
     if (q == null || q.isBlank()) {
-      model.addAttribute("cartError", "Enter a SKU or barcode to add.");
+      model.addAttribute("cartError", msg("pos.error.enterSkuOrBarcode"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Enter+a+SKU+or+barcode+to+add.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.enterSkuOrBarcode"));
     }
     String value = q.trim();
     Product p = productRepo.findByBarcode(value).orElse(null);
@@ -156,7 +277,7 @@ public class PosController {
     if (error != null) {
       model.addAttribute("cartError", error);
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=" + org.springframework.web.util.UriUtils.encode(error, java.nio.charset.StandardCharsets.UTF_8);
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(error);
     }
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
@@ -199,7 +320,7 @@ public class PosController {
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
     }
     if (p == null) {
-      String error = "Product not found.";
+      String error = msg("pos.error.productNotFound");
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", error);
         enrichCartModel(model, cart);
@@ -210,7 +331,7 @@ public class PosController {
     if (unitType == null) unitType = UnitType.PIECE;
     Integer unitSize = resolveUnitSizeForSelection(p, unitType);
     if (unitSize == null) {
-      String error = unitType == UnitType.BOX ? "Box size not set." : "Case size not set.";
+      String error = unitType == UnitType.BOX ? msg("pos.error.boxSizeNotSet") : msg("pos.error.caseSizeNotSet");
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", error);
         enrichCartModel(model, cart);
@@ -255,17 +376,17 @@ public class PosController {
                                @ModelAttribute("cart") Cart cart,
                                Model model) {
     if (query == null || query.isBlank()) {
-      model.addAttribute("cartError", "Enter a phone number or email.");
+      model.addAttribute("cartError", msg("pos.error.enterPhoneOrEmail"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Enter+a+phone+number+or+email.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.enterPhoneOrEmail"));
     }
     String value = query.trim();
     Customer customer = customerRepo.findByPhone(value)
             .orElseGet(() -> customerRepo.findByEmail(value).orElse(null));
     if (customer == null) {
-      model.addAttribute("cartError", "Customer not found.");
+      model.addAttribute("cartError", msg("pos.error.customerNotFound"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Customer+not+found.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.customerNotFound"));
     }
     cart.setCustomerId(customer.getId());
     applyAutoPricing(cart, customer);
@@ -282,9 +403,9 @@ public class PosController {
                                @ModelAttribute("cart") Cart cart,
                                Model model) {
     if (name == null || name.isBlank()) {
-      model.addAttribute("cartError", "Customer name is required.");
+      model.addAttribute("cartError", msg("pos.error.customerNameRequired"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Customer+name+is+required.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.customerNameRequired"));
     }
     Customer customer = new Customer();
     customer.setName(name.trim());
@@ -294,9 +415,9 @@ public class PosController {
     try {
       customer = customerRepo.save(customer);
     } catch (DataIntegrityViolationException ex) {
-      model.addAttribute("cartError", "Phone or email already exists.");
+      model.addAttribute("cartError", msg("pos.error.phoneEmailExists"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Phone+or+email+already+exists.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.phoneEmailExists"));
     }
     cart.setCustomerId(customer.getId());
     applyAutoPricing(cart, customer);
@@ -320,14 +441,14 @@ public class PosController {
                          @ModelAttribute("cart") Cart cart,
                          Model model) {
     if (cart.getItems().isEmpty()) {
-      model.addAttribute("cartError", "Cart is empty.");
+      model.addAttribute("cartError", msg("pos.error.cartEmpty"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Cart+is+empty.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.cartEmpty"));
     }
     HeldSale hold = new HeldSale();
     hold.setCashierUsername(currentUsername());
     hold.setCreatedAt(LocalDateTime.now());
-    hold.setLabel(label == null || label.isBlank() ? "Held sale" : label.trim());
+    hold.setLabel(label == null || label.isBlank() ? msg("pos.heldSaleDefaultLabel") : label.trim());
     hold.setDiscount(cart.getDiscount());
     hold.setDiscountType(cart.getDiscountType());
     hold.setDiscountValue(cart.getDiscountValue());
@@ -363,9 +484,9 @@ public class PosController {
                            Model model) {
     HeldSale hold = heldSaleRepo.findById(id).orElse(null);
     if (hold == null || (currentUsername() != null && !currentUsername().equals(hold.getCashierUsername()))) {
-      model.addAttribute("cartError", "Hold not found.");
+      model.addAttribute("cartError", msg("pos.error.holdNotFound"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos?cartError=Hold+not+found.";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.holdNotFound"));
     }
     cart.clear();
     for (HeldSaleItem item : hold.getItems()) {
@@ -422,7 +543,7 @@ public class PosController {
                           Model model) {
     String username = currentUsername();
     if (username == null) {
-      model.addAttribute("cartError", "Sign in to open a shift.");
+      model.addAttribute("cartError", msg("pos.error.signInOpenShift"));
       enrichCartModel(model, cart, resolveTerminalId(null, request));
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/login";
     }
@@ -431,7 +552,7 @@ public class PosController {
       String resolvedTerminalId = resolveTerminalId(terminalId, request);
       shiftService.openShift(username, resolvedTerminalId, openingByCurrency);
       enrichCartModel(model, cart, resolvedTerminalId);
-      model.addAttribute("shiftMessage", "Shift opened.");
+      model.addAttribute("shiftMessage", msg("shift.message.opened"));
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
     } catch (IllegalStateException ex) {
       model.addAttribute("cartError", ex.getMessage());
@@ -455,7 +576,7 @@ public class PosController {
     try {
       shiftService.addCashEvent(username, resolvedTerminalId, eventType, currencyCode, amount, reason);
       enrichCartModel(model, cart, resolvedTerminalId);
-      model.addAttribute("shiftMessage", "Cash movement recorded.");
+      model.addAttribute("shiftMessage", msg("shift.message.cashMovementRecorded"));
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
     } catch (IllegalStateException ex) {
       model.addAttribute("cartError", ex.getMessage());
@@ -485,12 +606,10 @@ public class PosController {
       );
       BigDecimal totalSales = result.shift().getTotalSales() == null ? BigDecimal.ZERO : result.shift().getTotalSales();
       BigDecimal variance = result.shift().getVarianceCash() == null ? BigDecimal.ZERO : result.shift().getVarianceCash();
-      model.addAttribute("shiftMessage", "Shift closed. Total sales: "
-              + currencyService.getBaseCurrency().getSymbol()
-              + totalSales.setScale(2, RoundingMode.HALF_UP)
-              + " | Variance: "
-              + currencyService.getBaseCurrency().getSymbol()
-              + variance.setScale(2, RoundingMode.HALF_UP));
+      String totalText = msg("shift.message.closedSummary",
+              currencyService.getBaseCurrency().getSymbol() + totalSales.setScale(2, RoundingMode.HALF_UP),
+              currencyService.getBaseCurrency().getSymbol() + variance.setScale(2, RoundingMode.HALF_UP));
+      model.addAttribute("shiftMessage", totalText);
       enrichCartModel(model, cart, resolvedTerminalId);
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
     } catch (IllegalStateException ex) {
@@ -507,7 +626,7 @@ public class PosController {
                              Model model) {
     log.info("POS updateQty GET productId={} qty={}", productId, qty);
     if (productId == null || qty == null) {
-      return "redirect:/pos?scanError=Invalid+cart+update";
+      return "redirect:/pos?scanError=" + encode(msg("pos.error.invalidCartUpdate"));
     }
     return updateQty(productId, qty, null, cart, model);
   }
@@ -549,9 +668,9 @@ public class PosController {
                      Model model) {
     log.info("POS scan POST barcode='{}' hxRequest={}", barcode, hxRequest);
     if (barcode == null || barcode.isBlank()) {
-      model.addAttribute("scanError", "Please enter a barcode.");
+      model.addAttribute("scanError", msg("pos.error.pleaseEnterBarcode"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos?scanError=Please+enter+a+barcode";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos?scanError=" + encode(msg("pos.error.pleaseEnterBarcode"));
     }
     String value = barcode.trim();
     Product p = productRepo.findByBarcode(value).orElse(null);
@@ -559,9 +678,9 @@ public class PosController {
       p = productRepo.findBySkuIgnoreCase(value).orElse(null);
     }
     if (p == null) {
-      model.addAttribute("scanError", "Barcode not found.");
+      model.addAttribute("scanError", msg("pos.error.barcodeNotFound"));
       enrichCartModel(model, cart);
-      return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos?scanError=Barcode+not+found";
+      return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos?scanError=" + encode(msg("pos.error.barcodeNotFound"));
     }
     String error = addProductToCart(p, cart);
     if (error != null) {
@@ -601,7 +720,7 @@ public class PosController {
     }
     String message = ex.getReason();
     if (message == null || message.isBlank()) {
-      message = "Request failed";
+      message = msg("pos.error.requestFailed");
     }
     model.addAttribute("cart", cart);
     model.addAttribute("cartError", message);
@@ -622,7 +741,7 @@ public class PosController {
   private String addProductToCart(Product p, Cart cart) {
     if (p == null) {
       log.warn("POS product not found");
-      return "Product not found.";
+      return msg("pos.error.productNotFound");
     }
     CartItem existing = cart.getItem(p.getId());
     UnitType unitType = existing == null ? UnitType.PIECE : existing.getUnitType();
@@ -693,17 +812,17 @@ public class PosController {
   private String validateSaleable(Product p, PriceTier priceTier, UnitType unitType) {
     if (p == null) {
       log.warn("POS product not found");
-      return "Product not found.";
+      return msg("pos.error.productNotFound");
     }
     if (Boolean.FALSE.equals(p.getActive())) {
       log.warn("POS product {} is inactive", p.getId());
-      return "Product is inactive.";
+      return msg("pos.error.productInactive");
     }
     if (unitType == UnitType.BOX && (p.getUnitsPerBox() == null || p.getUnitsPerBox() <= 0)) {
-      return "Box size not set.";
+      return msg("pos.error.boxSizeNotSet");
     }
     if (unitType == UnitType.CASE && (p.getUnitsPerCase() == null || p.getUnitsPerCase() <= 0)) {
-      return "Case size not set.";
+      return msg("pos.error.caseSizeNotSet");
     }
     int unitSize = unitType == UnitType.BOX
             ? safeUnitSize(p.getUnitsPerBox())
@@ -713,7 +832,7 @@ public class PosController {
     BigDecimal price = resolveUnitPrice(p, priceTier, unitSize);
     if (price == null) {
       log.warn("POS product {} has no {} price set", p.getId(), priceTier);
-      return priceTier == PriceTier.WHOLESALE ? "Wholesale price not set." : "Product has no price set.";
+      return priceTier == PriceTier.WHOLESALE ? msg("pos.error.wholesalePriceNotSet") : msg("pos.error.noPrice");
     }
     return null;
   }
@@ -729,6 +848,10 @@ public class PosController {
     return "redirect:/pos?cartError=" + encode(message);
   }
 
+  private String msg(String key, Object... args) {
+    return i18nService.msg(key, args);
+  }
+
   private String encode(String message) {
     return org.springframework.web.util.UriUtils.encode(
             message == null ? "" : message,
@@ -741,6 +864,13 @@ public class PosController {
   }
 
   private void enrichCartModel(Model model, Cart cart, String terminalId) {
+    String preferredTerminalId = sanitizeTerminalId(terminalId);
+    if (preferredTerminalId == null) {
+      preferredTerminalId = terminalSettingsService.preferredTerminalId();
+    }
+    TerminalSettings terminalSettings = terminalSettingsService.resolveForTerminal(preferredTerminalId);
+    model.addAttribute("terminalSettings", terminalSettings);
+    model.addAttribute("preferredTerminalId", terminalSettings.getTerminalId());
     model.addAttribute("cart", cart);
     model.addAttribute("baseCurrency", currencyService.getBaseCurrency());
     model.addAttribute("currencies", currencyService.getActiveCurrencies());
@@ -771,7 +901,7 @@ public class PosController {
         model.addAttribute("shiftExpectedAmounts", Map.of());
         model.addAttribute("shiftCountedAmounts", Map.of());
         model.addAttribute("shiftVarianceAmounts", Map.of());
-        model.addAttribute("terminalId", sanitizeTerminalId(terminalId));
+        model.addAttribute("terminalId", preferredTerminalId);
       }
     } else {
       model.addAttribute("holds", List.of());
@@ -782,7 +912,7 @@ public class PosController {
       model.addAttribute("shiftExpectedAmounts", Map.of());
       model.addAttribute("shiftCountedAmounts", Map.of());
       model.addAttribute("shiftVarianceAmounts", Map.of());
-      model.addAttribute("terminalId", sanitizeTerminalId(terminalId));
+      model.addAttribute("terminalId", preferredTerminalId);
     }
     if (cart.getCustomerId() != null) {
       customerRepo.findById(cart.getCustomerId()).ifPresent(c -> model.addAttribute("currentCustomer", c));
@@ -832,7 +962,9 @@ public class PosController {
     if (request == null) return null;
     String fromHeader = sanitizeTerminalId(request.getHeader("X-Terminal-Id"));
     if (fromHeader != null) return fromHeader;
-    return sanitizeTerminalId(request.getHeader("X-POS-Terminal"));
+    String fallbackHeader = sanitizeTerminalId(request.getHeader("X-POS-Terminal"));
+    if (fallbackHeader != null) return fallbackHeader;
+    return terminalSettingsService.preferredTerminalId();
   }
 
   private String sanitizeTerminalId(String terminalId) {
@@ -892,23 +1024,12 @@ public class PosController {
     payment.setMethod(method);
     Currency baseCurrency = currencyService.getBaseCurrency();
 
-    BigDecimal baseAmount = baseTotal == null ? BigDecimal.ZERO : baseTotal;
-    if (method == PaymentMethod.CASH && currencyCode != null && foreignAmount != null) {
-      Currency currency = currencyService.findByCode(currencyCode);
-      if (currency != null && Boolean.TRUE.equals(currency.getActive())) {
-        BigDecimal effectiveRate = currency.getRateToBase();
-        if (effectiveRate != null && effectiveRate.compareTo(BigDecimal.ZERO) > 0) {
-          baseAmount = foreignAmount.multiply(effectiveRate).setScale(2, RoundingMode.HALF_UP);
-          payment.setCurrencyCode(currency.getCode());
-          payment.setCurrencyRate(effectiveRate);
-          payment.setForeignAmount(foreignAmount);
-        }
-      } else if (currencyRate != null && currencyRate.compareTo(BigDecimal.ZERO) > 0) {
-        baseAmount = foreignAmount.multiply(currencyRate).setScale(2, RoundingMode.HALF_UP);
-        payment.setCurrencyCode(currencyCode);
-        payment.setCurrencyRate(currencyRate);
-        payment.setForeignAmount(foreignAmount);
-      }
+    BigDecimal baseAmount = baseTotal == null ? BigDecimal.ZERO : baseTotal.setScale(2, RoundingMode.HALF_UP);
+    if (method == PaymentMethod.CASH) {
+      CashTenderData cashTender = resolveCashTender(currencyCode, currencyRate, foreignAmount);
+      payment.setCurrencyCode(cashTender.currencyCode());
+      payment.setCurrencyRate(cashTender.rateToBase());
+      payment.setForeignAmount(cashTender.receivedForeignAmount());
     } else if (baseCurrency != null) {
       payment.setCurrencyCode(baseCurrency.getCode());
       payment.setCurrencyRate(BigDecimal.ONE);
@@ -934,28 +1055,38 @@ public class PosController {
     String resolvedTerminalId = resolveTerminalId(terminalId, request);
     if (cart.getItems().isEmpty()) {
       if (isHtmx(hxRequest)) {
-        model.addAttribute("scanError", "Cart is empty.");
+        model.addAttribute("scanError", msg("pos.error.cartEmpty"));
         enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
-      return "redirect:/pos?scanError=Cart+is+empty";
+      return "redirect:/pos?scanError=" + encode(msg("pos.error.cartEmpty"));
     }
     try {
+      BigDecimal expectedTotal = cart.getTotal() == null ? BigDecimal.ZERO : cart.getTotal().setScale(2, RoundingMode.HALF_UP);
+      if (method == PaymentMethod.CASH && foreignAmount == null) {
+        throw new IllegalStateException(msg("pos.error.enterCashReceived"));
+      }
+      if (method == PaymentMethod.CASH) {
+        CashTenderData cashTender = resolveCashTender(currencyCode, currencyRate, foreignAmount);
+        if (cashTender.receivedBaseAmount().compareTo(expectedTotal) < 0) {
+          throw new IllegalStateException(msg("pos.error.cashLessThanTotal"));
+        }
+      }
+      SalePayment payment = buildPayment(method, cart.getTotal(), currencyCode, currencyRate, foreignAmount);
       String username = currentUsername();
       Shift openShift = findOpenShift(username, resolvedTerminalId);
       if (openShift == null) {
         if (isHtmx(hxRequest)) {
-          model.addAttribute("cartError", "Open a shift before checkout.");
+          model.addAttribute("cartError", msg("pos.error.openShiftBeforeCheckout"));
           enrichCartModel(model, cart, resolvedTerminalId);
           return "pos/fragments :: cartContainer";
         }
-        return "redirect:/pos?cartError=Open+a+shift+before+checkout.";
+        return "redirect:/pos?cartError=" + encode(msg("pos.error.openShiftBeforeCheckout"));
       }
       if (openShift.getTerminalId() != null && !openShift.getTerminalId().isBlank()) {
         resolvedTerminalId = openShift.getTerminalId();
       }
       Customer customer = loadCustomer(cart.getCustomerId());
-      SalePayment payment = buildPayment(method, cart.getTotal(), currencyCode, currencyRate, foreignAmount);
       String checkoutTerminalId = resolvedTerminalId;
       CheckoutAttemptService.CheckoutResult result = checkoutAttemptService.process(
               clientCheckoutId,
@@ -963,20 +1094,23 @@ public class PosController {
               () -> posService.checkout(cart, payment, username, customer, openShift, checkoutTerminalId)
       );
       Sale sale = result.sale();
+      TerminalSettings terminalSettings = terminalSettingsService.resolveForTerminal(resolvedTerminalId);
       sessionStatus.setComplete(); // clears session cart
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
         enrichCartModel(model, fresh, resolvedTerminalId);
         model.addAttribute("checkoutSuccess",
-                result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
+                result.replayed() ? msg("pos.checkoutReplayed") : msg("pos.receiptReady"));
         model.addAttribute("receiptUrl", "/sales/" + sale.getId() + "/receipt");
+        model.addAttribute("checkoutSaleId", sale.getId());
+        model.addAttribute("checkoutAutoPrint", terminalSettings.getAutoPrintEnabled() != null && terminalSettings.getAutoPrintEnabled());
         return "pos/fragments :: cartContainer";
       }
       redirectAttributes.addFlashAttribute("successMessage",
-              result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
+              result.replayed() ? msg("pos.checkoutReplayed") : msg("pos.receiptReady"));
       return "redirect:/sales/" + sale.getId() + "/receipt";
     } catch (IllegalStateException ex) {
-      String message = ex.getMessage() == null ? "Checkout failed." : ex.getMessage();
+      String message = ex.getMessage() == null ? msg("pos.checkoutFailed") : ex.getMessage();
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", message);
         enrichCartModel(model, cart, resolvedTerminalId);
@@ -984,6 +1118,50 @@ public class PosController {
       }
       return "redirect:/pos?cartError=" + encode(message);
     }
+  }
+
+  private CashTenderData resolveCashTender(String currencyCode, BigDecimal currencyRate, BigDecimal foreignAmount) {
+    Currency baseCurrency = currencyService.getBaseCurrency();
+    BigDecimal effectiveRate = null;
+    String effectiveCode = null;
+
+    if (currencyCode != null && !currencyCode.isBlank()) {
+      Currency currency = currencyService.findByCode(currencyCode);
+      if (currency != null && Boolean.TRUE.equals(currency.getActive())) {
+        BigDecimal rateToBase = currency.getRateToBase();
+        if (rateToBase != null && rateToBase.compareTo(BigDecimal.ZERO) > 0) {
+          effectiveRate = rateToBase;
+          effectiveCode = currency.getCode();
+        }
+      }
+    }
+
+    if (effectiveRate == null && currencyRate != null && currencyRate.compareTo(BigDecimal.ZERO) > 0) {
+      effectiveRate = currencyRate;
+      if (currencyCode != null && !currencyCode.isBlank()) {
+        effectiveCode = currencyCode.trim().toUpperCase();
+      }
+    }
+
+    if (effectiveRate == null) {
+      effectiveRate = BigDecimal.ONE;
+      if (baseCurrency != null) {
+        effectiveCode = baseCurrency.getCode();
+      }
+    } else if (effectiveCode == null && baseCurrency != null) {
+      effectiveCode = baseCurrency.getCode();
+    }
+
+    BigDecimal safeForeign = foreignAmount == null ? BigDecimal.ZERO : foreignAmount.max(BigDecimal.ZERO);
+    BigDecimal normalizedForeign = safeForeign.setScale(2, RoundingMode.HALF_UP);
+    BigDecimal receivedBase = normalizedForeign.multiply(effectiveRate).setScale(2, RoundingMode.HALF_UP);
+    return new CashTenderData(effectiveCode, effectiveRate, normalizedForeign, receivedBase);
+  }
+
+  private record CashTenderData(String currencyCode,
+                                BigDecimal rateToBase,
+                                BigDecimal receivedForeignAmount,
+                                BigDecimal receivedBaseAmount) {
   }
 
   @PostMapping("/checkout/split")
@@ -1007,11 +1185,11 @@ public class PosController {
     String resolvedTerminalId = resolveTerminalId(terminalId, request);
     if (cart.getItems().isEmpty()) {
       if (isHtmx(hxRequest)) {
-        model.addAttribute("scanError", "Cart is empty.");
+        model.addAttribute("scanError", msg("pos.error.cartEmpty"));
         enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
-      return "redirect:/pos?scanError=Cart+is+empty";
+      return "redirect:/pos?scanError=" + encode(msg("pos.error.cartEmpty"));
     }
     List<SalePayment> payments = new ArrayList<>();
     Currency baseCurrency = currencyService.getBaseCurrency();
@@ -1020,11 +1198,11 @@ public class PosController {
     addSplitPayment(payments, method3, amount3, currencyCode3, baseCurrency);
     if (payments.isEmpty()) {
       if (isHtmx(hxRequest)) {
-        model.addAttribute("cartError", "Enter at least one payment amount.");
+        model.addAttribute("cartError", msg("pos.error.noPayments"));
         enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
-      return "redirect:/pos?cartError=Enter+at+least+one+payment+amount.";
+      return "redirect:/pos?cartError=" + encode(msg("pos.error.noPayments"));
     }
     BigDecimal total = payments.stream()
             .map(SalePayment::getAmount)
@@ -1032,22 +1210,22 @@ public class PosController {
     BigDecimal expectedTotal = cart.getTotal() == null ? BigDecimal.ZERO : cart.getTotal();
     if (total.subtract(expectedTotal).abs().compareTo(new BigDecimal("0.01")) > 0) {
       if (isHtmx(hxRequest)) {
-        model.addAttribute("cartError", "Split total must equal cart total.");
+        model.addAttribute("cartError", msg("pos.error.splitTotalMismatch"));
         enrichCartModel(model, cart, resolvedTerminalId);
         return "pos/fragments :: cartContainer";
       }
-      return "redirect:/pos?cartError=Split+total+must+equal+cart+total.";
+      return "redirect:/pos?cartError=" + encode(msg("pos.error.splitTotalMismatch"));
     }
     try {
       String username = currentUsername();
       Shift openShift = findOpenShift(username, resolvedTerminalId);
       if (openShift == null) {
         if (isHtmx(hxRequest)) {
-          model.addAttribute("cartError", "Open a shift before checkout.");
+          model.addAttribute("cartError", msg("pos.error.openShiftBeforeCheckout"));
           enrichCartModel(model, cart, resolvedTerminalId);
           return "pos/fragments :: cartContainer";
         }
-        return "redirect:/pos?cartError=Open+a+shift+before+checkout.";
+        return "redirect:/pos?cartError=" + encode(msg("pos.error.openShiftBeforeCheckout"));
       }
       if (openShift.getTerminalId() != null && !openShift.getTerminalId().isBlank()) {
         resolvedTerminalId = openShift.getTerminalId();
@@ -1060,20 +1238,23 @@ public class PosController {
               () -> posService.checkoutSplit(cart, payments, username, customer, openShift, checkoutTerminalId)
       );
       Sale sale = result.sale();
+      TerminalSettings terminalSettings = terminalSettingsService.resolveForTerminal(resolvedTerminalId);
       sessionStatus.setComplete();
       if (isHtmx(hxRequest)) {
         Cart fresh = new Cart();
         enrichCartModel(model, fresh, resolvedTerminalId);
         model.addAttribute("checkoutSuccess",
-                result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
+                result.replayed() ? msg("pos.checkoutReplayed") : msg("pos.receiptReady"));
         model.addAttribute("receiptUrl", "/sales/" + sale.getId() + "/receipt");
+        model.addAttribute("checkoutSaleId", sale.getId());
+        model.addAttribute("checkoutAutoPrint", terminalSettings.getAutoPrintEnabled() != null && terminalSettings.getAutoPrintEnabled());
         return "pos/fragments :: cartContainer";
       }
       redirectAttributes.addFlashAttribute("successMessage",
-              result.replayed() ? "Checkout already processed. Showing existing receipt." : "Payment received. Receipt ready.");
+              result.replayed() ? msg("pos.checkoutReplayed") : msg("pos.receiptReady"));
       return "redirect:/sales/" + sale.getId() + "/receipt";
     } catch (IllegalStateException ex) {
-      String message = ex.getMessage() == null ? "Checkout failed." : ex.getMessage();
+      String message = ex.getMessage() == null ? msg("pos.checkoutFailed") : ex.getMessage();
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", message);
         enrichCartModel(model, cart, resolvedTerminalId);
@@ -1083,12 +1264,31 @@ public class PosController {
     }
   }
 
-  private Page<Product> loadProductsPage(String q, Long categoryId, int page) {
-    int safePage = Math.max(0, page);
-    Pageable pageable = PageRequest.of(safePage, 24, Sort.by("name").ascending());
-    if (categoryId != null) return productRepo.findByActiveTrueAndCategory_Id(categoryId, pageable);
-    if (q != null && !q.isBlank()) return productRepo.findByActiveTrueAndNameContainingIgnoreCase(q, pageable);
-    return productRepo.findByActiveTrue(pageable);
+  @PostMapping(value = "/checkout/{saleId}/print", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public PosHardwareService.PrintResponse printReceipt(@PathVariable Long saleId,
+                                                       @RequestParam(required = false) String terminalId,
+                                                       @RequestParam(required = false, defaultValue = "false") boolean reprint,
+                                                       HttpServletRequest request) {
+    String resolvedTerminalId = resolveTerminalId(terminalId, request);
+    return posHardwareService.buildReceiptPrintResponse(saleId, resolvedTerminalId, reprint);
+  }
+
+  @PostMapping(value = "/drawer/open", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public PosHardwareService.DrawerResponse openDrawer(@RequestParam(required = false) String terminalId,
+                                                      @RequestParam(required = false) Long saleId,
+                                                      HttpServletRequest request) {
+    String actor = currentUsername();
+    if (actor == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, msg("pos.error.signInOpenDrawer"));
+    }
+    String resolvedTerminalId = resolveTerminalId(terminalId, request);
+    return posHardwareService.openDrawer(actor, resolvedTerminalId, saleId);
+  }
+
+  private long nanosToMillis(long nanos) {
+    return Math.max(0L, nanos / 1_000_000L);
   }
 
   private String currentUsername() {
@@ -1105,5 +1305,13 @@ public class PosController {
             item.getPriceTier(), item.getUnitType(), item.getUnitSize());
     copy.setNote(item.getNote());
     return copy;
+  }
+
+  public record ProductFeedResponse(
+          List<ProductFeedService.ProductFeedItem> items,
+          String nextCursor,
+          boolean hasMore,
+          Long total
+  ) {
   }
 }

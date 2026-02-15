@@ -1,26 +1,34 @@
 package com.example.pos_system.util;
 
 import org.springframework.stereotype.Component;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import com.example.pos_system.entity.Currency;
 import com.example.pos_system.service.CurrencyService;
+import com.example.pos_system.entity.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.FormatStyle;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import com.example.pos_system.entity.UnitType;
 
 @Component("uiFormat")
 public class UiFormat {
-    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
     private final CurrencyService currencyService;
+    private final MessageSource messageSource;
 
-    public UiFormat(CurrencyService currencyService) {
+    public UiFormat(CurrencyService currencyService,
+                    MessageSource messageSource) {
         this.currencyService = currencyService;
+        this.messageSource = messageSource;
     }
 
     public String money(BigDecimal value) {
@@ -30,7 +38,7 @@ public class UiFormat {
         BigDecimal scaled = value.setScale(decimals, RoundingMode.HALF_UP);
         String symbol = base != null ? base.getSymbol() : "$";
         String code = base != null ? base.getCode() : "USD";
-        return formatCurrency(scaled, symbol, code, decimals);
+        return formatCurrency(scaled, symbol, code, decimals, LocaleContextHolder.getLocale());
     }
 
     public String moneyForCurrency(BigDecimal value, String currencyCode) {
@@ -40,11 +48,19 @@ public class UiFormat {
         if (currency == null) return value.toPlainString() + " " + currencyCode.toUpperCase();
         int decimals = currency.getFractionDigits() == null ? 2 : currency.getFractionDigits();
         BigDecimal scaled = value.setScale(decimals, RoundingMode.HALF_UP);
-        return formatCurrency(scaled, currency.getSymbol(), currency.getCode(), decimals);
+        return formatCurrency(scaled, currency.getSymbol(), currency.getCode(), decimals, LocaleContextHolder.getLocale());
     }
 
-    private String formatCurrency(BigDecimal value, String symbol, String code, int decimals) {
-        String text = value.setScale(decimals, RoundingMode.HALF_UP).toPlainString();
+    private String formatCurrency(BigDecimal value, String symbol, String code, int decimals, Locale locale) {
+        NumberFormat nf = NumberFormat.getNumberInstance(locale == null ? Locale.ENGLISH : locale);
+        if (nf instanceof DecimalFormat decimalFormat) {
+            DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(locale == null ? Locale.ENGLISH : locale);
+            decimalFormat.setDecimalFormatSymbols(symbols);
+            decimalFormat.setGroupingUsed(true);
+            decimalFormat.setMinimumFractionDigits(decimals);
+            decimalFormat.setMaximumFractionDigits(decimals);
+        }
+        String text = nf.format(value.setScale(decimals, RoundingMode.HALF_UP));
         if (symbol != null && !symbol.isBlank()) {
             return symbol + text;
         }
@@ -56,20 +72,34 @@ public class UiFormat {
 
     public String dateTime(LocalDateTime value) {
         if (value == null) return "-";
-        return value.format(DATE_TIME_FMT);
+        Locale locale = LocaleContextHolder.getLocale();
+        return value.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale));
     }
 
     public String date(LocalDate value) {
         if (value == null) return "-";
-        return value.format(DATE_FMT);
+        Locale locale = LocaleContextHolder.getLocale();
+        return value.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale));
     }
 
     public String unitLabel(UnitType unitType) {
-        if (unitType == null) return "pc";
+        Locale locale = LocaleContextHolder.getLocale();
+        if (unitType == null) return messageSource.getMessage("common.unit.piece", null, "pc", locale);
         return switch (unitType) {
-            case BOX -> "box";
-            case CASE -> "case";
-            default -> "pc";
+            case BOX -> messageSource.getMessage("common.unit.box", null, "box", locale);
+            case CASE -> messageSource.getMessage("common.unit.case", null, "case", locale);
+            default -> messageSource.getMessage("common.unit.piece", null, "pc", locale);
+        };
+    }
+
+    public String paymentMethodLabel(PaymentMethod method) {
+        Locale locale = LocaleContextHolder.getLocale();
+        if (method == null) return messageSource.getMessage("payment.method.cash", null, "Cash", locale);
+        return switch (method) {
+            case CASH -> messageSource.getMessage("payment.method.cash", null, "Cash", locale);
+            case CARD -> messageSource.getMessage("payment.method.card", null, "Card", locale);
+            case QR -> messageSource.getMessage("payment.method.qr", null, "QR", locale);
+            case MIXED -> messageSource.getMessage("payment.method.mixed", null, "Mixed", locale);
         };
     }
 }

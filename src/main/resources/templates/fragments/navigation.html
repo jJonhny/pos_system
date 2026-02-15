@@ -10,7 +10,7 @@
       <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
       <path d="M9 14h6"/>
     </svg>
-    <span>POS</span>
+    <span th:text="#{nav.pos}">POS</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_SALES')"
@@ -20,7 +20,7 @@
       <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
       <path d="M9 7h6M9 11h6M9 15h4"/>
     </svg>
-    <span>Sales</span>
+    <span th:text="#{nav.sales}">Sales</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')"
@@ -30,7 +30,7 @@
       <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
       <path d="M3 8v8l9 5 9-5V8"/>
     </svg>
-    <span>Commodity</span>
+    <span th:text="#{nav.commodity}">Commodity</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER')"
@@ -42,7 +42,7 @@
       <path d="M9 11h6"/>
       <path d="M9 15h6"/>
     </svg>
-    <span>Marketing</span>
+    <span th:text="#{nav.marketing}">Marketing</span>
   </a>
 
   <a sec:authorize="hasRole('ADMIN')"
@@ -54,17 +54,17 @@
       <path d="M8 14h8"/>
       <path d="M12 7v10"/>
     </svg>
-    <span>Financial</span>
+    <span th:text="#{nav.financial}">Financial</span>
   </a>
 
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER')"
+  <a sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_POS_TERMINAL_SETTINGS')"
      href="/pos-setting"
      class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8z"/>
       <path d="M3 12h2m14 0h2M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M18.4 5.6L17 7m-10 10l-1.4 1.4"/>
     </svg>
-    <span>POS Setting</span>
+    <span th:text="#{nav.posSetting}">POS Setting</span>
   </a>
 
   <a sec:authorize="isAuthenticated()"
@@ -74,7 +74,7 @@
       <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
       <path d="M3 21a9 9 0 0 1 18 0"/>
     </svg>
-    <span>Account</span>
+    <span th:text="#{nav.account}">Account</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"
@@ -84,7 +84,7 @@
       <path d="M3 3v18h18"/>
       <path d="M7 14l3-3 4 4 5-6"/>
     </svg>
-    <span>Analytics</span>
+    <span th:text="#{nav.analytics}">Analytics</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"
@@ -94,7 +94,7 @@
       <path d="M4 4h16v16H4z"/>
       <path d="M8 8h8M8 12h8M8 16h6"/>
     </svg>
-    <span>Reports</span>
+    <span th:text="#{nav.reports}">Reports</span>
   </a>
 
   <a sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_MANAGE_USERS')"
@@ -104,8 +104,17 @@
       <path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0z"/>
       <path d="M3 20a7 7 0 0 1 18 0"/>
     </svg>
-    <span>User</span>
+    <span th:text="#{nav.user}">User</span>
   </a>
+
+  <label class="sr-only" for="navLanguageSwitcher" th:text="#{common.language}">Language</label>
+  <select id="navLanguageSwitcher"
+          class="ml-2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 hover:bg-slate-50 transition"
+          th:aria-label="#{common.language}"
+          onchange="(function(el){const u=new URL(window.location.href);u.searchParams.set('lang',el.value);window.location.assign(u.toString());})(this)">
+    <option value="en" th:selected="${currentLang == 'en'}" th:text="#{common.language.en}">English</option>
+    <option value="zh-CN" th:selected="${currentLang == 'zh-CN'}" th:text="#{common.language.zh-CN}">中文</option>
+  </select>
 </nav>
 </body>
 </html>

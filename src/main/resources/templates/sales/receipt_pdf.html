@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8"/>
-  <title>Receipt PDF</title>
+  <title th:text="#{receipt.pdfTitle}">Receipt PDF</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -146,14 +146,14 @@
     <table class="header-table">
       <tr>
         <td>
-          <div class="brand-name">My Store</div>
-          <div class="brand-sub">Enterprise Receipt</div>
-          <div class="muted">Generated: <span th:text="${#temporals.format(generatedAt, 'yyyy-MM-dd HH:mm')}">-</span></div>
+          <div class="brand-name" th:text="#{receipt.storeName}">My Store</div>
+          <div class="brand-sub" th:text="#{receipt.enterpriseReceipt}">Enterprise Receipt</div>
+          <div class="muted"><span th:text="#{receipt.generated}">Generated</span>: <span th:text="${#temporals.format(generatedAt, 'yyyy-MM-dd HH:mm')}">-</span></div>
         </td>
         <td class="right">
-          <div class="status" th:text="${sale.status}">PAID</div>
-          <div class="total" th:text="${@uiFormat.money(sale.total)}">$0.00</div>
-          <div class="muted">Sale #<span th:text="${sale.id}">0</span></div>
+          <div class="status" th:text="${sale.status != null ? #messages.msg('sale.status.' + #strings.toLowerCase(sale.status.name())) : '-'}">PAID</div>
+          <div class="total" th:text="${uiFormat.money(sale.total)}">$0.00</div>
+          <div class="muted" th:text="#{receipt.saleLabel(${sale.id})}">Sale #0</div>
         </td>
       </tr>
     </table>
@@ -163,25 +163,25 @@
     <table class="info-table">
       <tr>
         <td>
-          <div class="info-title">Bill To</div>
+          <div class="info-title" th:text="#{receipt.billTo}">Bill To</div>
           <div th:if="${sale.customer != null}">
             <div class="info-line" th:text="${sale.customer.name}">Customer</div>
             <div class="muted" th:if="${sale.customer.phone != null}" th:text="${sale.customer.phone}">phone</div>
             <div class="muted" th:if="${sale.customer.email != null}" th:text="${sale.customer.email}">email</div>
           </div>
-          <div th:if="${sale.customer == null}" class="muted">Walk-in customer</div>
+          <div th:if="${sale.customer == null}" class="muted" th:text="#{receipt.walkInCustomer}">Walk-in customer</div>
         </td>
         <td>
-          <div class="info-title">Receipt Info</div>
-          <div class="info-line">Date:
+          <div class="info-title" th:text="#{receipt.receiptInfo}">Receipt Info</div>
+          <div class="info-line"><span th:text="#{receipt.date}">Date</span>:
             <span th:text="${sale.createdAt != null ? #temporals.format(sale.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</span>
           </div>
-          <div class="info-line">Cashier: <span th:text="${sale.cashierUsername ?: '—'}">-</span></div>
+          <div class="info-line"><span th:text="#{receipt.cashier}">Cashier</span>: <span th:text="${sale.cashierUsername ?: '—'}">-</span></div>
           <div class="info-line">
-            Payment:
+            <span th:text="#{receipt.payment}">Payment</span>:
             <span th:if="${sale.payments == null or #lists.isEmpty(sale.payments)}"
-                  th:text="${sale.paymentMethod}">CASH</span>
-            <span th:if="${sale.payments != null and !#lists.isEmpty(sale.payments)}">MIXED</span>
+                  th:text="${uiFormat.paymentMethodLabel(sale.paymentMethod)}">CASH</span>
+            <span th:if="${sale.payments != null and !#lists.isEmpty(sale.payments)}" th:text="#{payment.method.mixed}">MIXED</span>
           </div>
         </td>
       </tr>
@@ -191,23 +191,23 @@
       <table class="items">
         <thead>
           <tr>
-            <th>Item</th>
-            <th class="qty">Qty</th>
-            <th class="price">Unit</th>
-            <th class="line">Line Total</th>
+            <th th:text="#{receipt.item}">Item</th>
+            <th class="qty" th:text="#{receipt.qty}">Qty</th>
+            <th class="price" th:text="#{receipt.unit}">Unit</th>
+            <th class="line" th:text="#{receipt.lineTotal}">Line Total</th>
           </tr>
         </thead>
         <tbody>
           <tr th:each="it : ${sale.items}">
             <td>
-              <div th:text="${it.product != null ? it.product.name : 'Item'}">Item</div>
+              <div th:text="${it.product != null ? it.product.name : #messages.msg('receipt.itemDefault')}">Item</div>
               <div class="muted" th:if="${it.unitType != null and it.unitType.name() != 'PIECE'}"
-                   th:text="${'Unit size: ' + it.unitSize + ' pcs/' + @uiFormat.unitLabel(it.unitType)}">Unit size</div>
-              <div class="muted" th:if="${it.priceTier != null and it.priceTier.name() == 'WHOLESALE'}">Wholesale price</div>
+                   th:text="${#messages.msg('pos.unitSize', it.unitSize, uiFormat.unitLabel(it.unitType))}">Unit size</div>
+              <div class="muted" th:if="${it.priceTier != null and it.priceTier.name() == 'WHOLESALE'}" th:text="#{pos.wholesale}">Wholesale price</div>
             </td>
-            <td class="qty" th:text="${it.qty + ' ' + @uiFormat.unitLabel(it.unitType)}">1</td>
-            <td class="price" th:text="${@uiFormat.money(it.unitPrice)}">$0.00</td>
-            <td class="line" th:text="${@uiFormat.money(it.lineTotal)}">$0.00</td>
+            <td class="qty" th:text="${it.qty + ' ' + uiFormat.unitLabel(it.unitType)}">1</td>
+            <td class="price" th:text="${uiFormat.money(it.unitPrice)}">$0.00</td>
+            <td class="line" th:text="${uiFormat.money(it.lineTotal)}">$0.00</td>
           </tr>
         </tbody>
       </table>
@@ -217,52 +217,68 @@
       <table class="totals">
         <tbody>
           <tr>
-            <td class="label">Subtotal</td>
-            <td class="right" th:text="${@uiFormat.money(sale.subtotal)}">$0.00</td>
+            <td class="label" th:text="#{pos.subtotal}">Subtotal</td>
+            <td class="right" th:text="${uiFormat.money(sale.subtotal)}">$0.00</td>
           </tr>
           <tr>
             <td class="label"
-                th:text="${sale.discountType != null and sale.discountType.name() == 'PERCENT' and sale.discountValue != null ? 'Discount (' + sale.discountValue + '%)' : 'Discount'}">Discount</td>
-            <td class="right" th:text="${@uiFormat.money(sale.discount)}">$0.00</td>
+                th:text="${sale.discountType != null and sale.discountType.name() == 'PERCENT' and sale.discountValue != null ? #messages.msg('pos.discountPercent', sale.discountValue) : #messages.msg('pos.discount')}">Discount</td>
+            <td class="right" th:text="${uiFormat.money(sale.discount)}">$0.00</td>
           </tr>
           <tr th:if="${sale.discountReason != null and !#strings.isEmpty(sale.discountReason)}">
-            <td class="label">Discount reason</td>
+            <td class="label" th:text="#{receipt.discountReason}">Discount reason</td>
             <td class="right" th:text="${sale.discountReason}">Reason</td>
           </tr>
           <tr>
-            <td class="label">Tax</td>
-            <td class="right" th:text="${@uiFormat.money(sale.tax)}">$0.00</td>
+            <td class="label" th:text="#{receipt.tax}">Tax</td>
+            <td class="right" th:text="${uiFormat.money(sale.tax)}">$0.00</td>
           </tr>
           <tr>
-            <td class="grand">Total</td>
-            <td class="right grand" th:text="${@uiFormat.money(sale.total)}">$0.00</td>
+            <td class="grand" th:text="#{receipt.total}">Total</td>
+            <td class="right grand" th:text="${uiFormat.money(sale.total)}">$0.00</td>
           </tr>
           <tr th:if="${sale.refundedTotal != null and sale.refundedTotal > 0}">
-            <td class="label">Refunded</td>
-            <td class="right" th:text="${@uiFormat.money(sale.refundedTotal)}">$0.00</td>
+            <td class="label" th:text="#{receipt.refunded}">Refunded</td>
+            <td class="right" th:text="${uiFormat.money(sale.refundedTotal)}">$0.00</td>
           </tr>
           <tr th:if="${sale.refundedTotal != null and sale.refundedTotal > 0 and sale.total != null}">
-            <td class="label">Net total</td>
-            <td class="right" th:text="${@uiFormat.money(sale.total.subtract(sale.refundedTotal))}">$0.00</td>
+            <td class="label" th:text="#{receipt.netTotal}">Net total</td>
+            <td class="right" th:text="${uiFormat.money(sale.total.subtract(sale.refundedTotal))}">$0.00</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="section">
-      <div class="payment-title">Payment Breakdown</div>
+      <div class="payment-title" th:text="#{receipt.paymentBreakdown}">Payment Breakdown</div>
       <table class="payment">
         <tbody>
-          <tr th:if="${sale.payments == null or #lists.isEmpty(sale.payments)}">
-            <td th:text="${sale.paymentMethod}">CASH</td>
-            <td class="right" th:text="${@uiFormat.money(sale.total)}">$0.00</td>
+          <tr th:if="${receiptPaymentLines == null or #lists.isEmpty(receiptPaymentLines)}">
+            <td th:text="${uiFormat.paymentMethodLabel(sale.paymentMethod)}">CASH</td>
+            <td class="right" th:text="${uiFormat.money(sale.total)}">$0.00</td>
           </tr>
-          <tr th:each="p : ${sale.payments}">
-            <td th:text="${p.method}">CASH</td>
+          <tr th:each="p : ${receiptPaymentLines}">
+            <td th:text="${uiFormat.paymentMethodLabel(p.method)}">CASH</td>
             <td class="right">
-              <span th:text="${@uiFormat.money(p.amount)}">$0.00</span>
+              <span th:text="${uiFormat.money(p.amountBase)}">$0.00</span>
               <span th:if="${p.currencyCode != null and p.foreignAmount != null}"
-                    th:text="${' (' + @uiFormat.moneyForCurrency(p.foreignAmount, p.currencyCode) + ')'}">(KHR 0)</span>
+                    th:text="${' (' + uiFormat.moneyForCurrency(p.foreignAmount, p.currencyCode) + ')'}">(KHR 0)</span>
+            </td>
+          </tr>
+          <tr th:each="p : ${receiptPaymentLines}" th:if="${p.cashReceivedBase != null}">
+            <td class="muted" th:text="#{receipt.cashReceived}">Cash Received</td>
+            <td class="right">
+              <span th:text="${uiFormat.money(p.cashReceivedBase)}">$0.00</span>
+              <span th:if="${p.currencyCode != null and p.cashReceivedForeign != null}"
+                    th:text="${' (' + uiFormat.moneyForCurrency(p.cashReceivedForeign, p.currencyCode) + ')'}">(KHR 0)</span>
+            </td>
+          </tr>
+          <tr th:each="p : ${receiptPaymentLines}" th:if="${p.displayCashChange and p.cashChangeBase != null}">
+            <td class="muted" th:text="#{receipt.change}">Change</td>
+            <td class="right">
+              <span th:text="${uiFormat.money(p.cashChangeBase)}">$0.00</span>
+              <span th:if="${p.currencyCode != null and p.cashChangeForeign != null}"
+                    th:text="${' (' + uiFormat.moneyForCurrency(p.cashChangeForeign, p.currencyCode) + ')'}">(KHR 0)</span>
             </td>
           </tr>
         </tbody>
@@ -270,7 +286,7 @@
     </div>
 
     <div class="footer">
-      Thank you for your purchase. Returns accepted within 7 days with receipt.
+      <span th:text="#{receipt.returnPolicy}">Thank you for your purchase. Returns accepted within 7 days with receipt.</span>
     </div>
   </div>
 </body>

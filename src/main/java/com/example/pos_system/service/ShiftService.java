@@ -40,6 +40,7 @@ public class ShiftService {
     private final CurrencyService currencyService;
     private final AppUserRepo appUserRepo;
     private final AuditEventService auditEventService;
+    private final I18nService i18nService;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     private final BigDecimal varianceThreshold;
 
@@ -49,6 +50,7 @@ public class ShiftService {
                         CurrencyService currencyService,
                         AppUserRepo appUserRepo,
                         AuditEventService auditEventService,
+                        I18nService i18nService,
                         @Value("${app.shift.variance-threshold:20.00}") BigDecimal varianceThreshold) {
         this.shiftRepo = shiftRepo;
         this.saleRepo = saleRepo;
@@ -56,20 +58,21 @@ public class ShiftService {
         this.currencyService = currencyService;
         this.appUserRepo = appUserRepo;
         this.auditEventService = auditEventService;
+        this.i18nService = i18nService;
         this.varianceThreshold = varianceThreshold == null ? new BigDecimal("20.00") : varianceThreshold.abs();
     }
 
     public Shift openShift(String openedBy, String terminalId, Map<String, BigDecimal> openingFloatByCurrency) {
         String actor = sanitize(openedBy);
         if (actor == null) {
-            throw new IllegalStateException("Sign in to open a shift.");
+            throw new IllegalStateException(msg("shift.error.signInOpen"));
         }
         String safeTerminalId = sanitize(terminalId);
         if (safeTerminalId == null) {
-            throw new IllegalStateException("Terminal ID is required to open a shift.");
+            throw new IllegalStateException(msg("shift.error.terminalRequiredOpen"));
         }
         if (findOpenShift(actor, safeTerminalId).isPresent()) {
-            throw new IllegalStateException("Shift already open.");
+            throw new IllegalStateException(msg("shift.error.alreadyOpen"));
         }
         Map<String, BigDecimal> opening = normalizeAmounts(openingFloatByCurrency);
         String baseCode = baseCode();
@@ -116,24 +119,24 @@ public class ShiftService {
                                        String reason) {
         String actor = sanitize(actorUsername);
         if (actor == null) {
-            throw new IllegalStateException("Sign in to record cash movement.");
+            throw new IllegalStateException(msg("shift.error.signInCashMovement"));
         }
         Shift shift = findOpenShift(actor, terminalId)
-                .orElseThrow(() -> new IllegalStateException("No open shift."));
+                .orElseThrow(() -> new IllegalStateException(msg("shift.error.noOpenShift")));
         if (type == null) {
-            throw new IllegalStateException("Select a shift cash event.");
+            throw new IllegalStateException(msg("shift.error.selectCashEvent"));
         }
         boolean drawerOpen = type == ShiftCashEventType.DRAWER_OPEN;
         BigDecimal safeAmount = amount == null ? null : amount.max(BigDecimal.ZERO);
         if (!drawerOpen && (safeAmount == null || safeAmount.compareTo(BigDecimal.ZERO) <= 0)) {
-            throw new IllegalStateException("Amount must be greater than zero.");
+            throw new IllegalStateException(msg("shift.error.amountPositive"));
         }
         String safeReason = trimTo(reason, 255);
         if (!drawerOpen && safeReason == null) {
-            throw new IllegalStateException("Reason is required.");
+            throw new IllegalStateException(msg("shift.error.reasonRequired"));
         }
         if (drawerOpen && safeReason == null) {
-            safeReason = "Drawer opened";
+            safeReason = msg("shift.drawerOpened");
         }
 
         Currency currency = drawerOpen ? resolveCurrency(baseCode()) : resolveCurrency(currencyCode);
@@ -190,10 +193,10 @@ public class ShiftService {
                                        boolean managerAllowedForVariance) {
         String actor = sanitize(actorUsername);
         if (actor == null) {
-            throw new IllegalStateException("Sign in to close a shift.");
+            throw new IllegalStateException(msg("shift.error.signInClose"));
         }
         Shift shift = findOpenShift(actor, terminalId)
-                .orElseThrow(() -> new IllegalStateException("No open shift to close."));
+                .orElseThrow(() -> new IllegalStateException(msg("shift.error.noOpenShiftToClose")));
 
         String baseCode = baseCode();
         Map<String, BigDecimal> opening = parseAmounts(shift.getOpeningFloatJson());
@@ -204,7 +207,7 @@ public class ShiftService {
         ShiftReconciliationData reconciliation = buildReconciliation(shift, opening, counted);
         BigDecimal absVariance = reconciliation.varianceBase().abs();
         if (absVariance.compareTo(varianceThreshold) > 0 && !managerAllowedForVariance) {
-            throw new IllegalStateException("Variance exceeds " + formatMoney(varianceThreshold) + ". Manager approval required.");
+            throw new IllegalStateException(msg("shift.error.varianceApproval", formatMoney(varianceThreshold)));
         }
 
         Map<String, Object> before = shiftSnapshot(shift);
@@ -527,8 +530,12 @@ public class ShiftService {
         try {
             return objectMapper.writeValueAsString(value);
         } catch (Exception ex) {
-            throw new IllegalStateException("Failed to serialize shift data.", ex);
+            throw new IllegalStateException(msg("shift.error.serialize"), ex);
         }
+    }
+
+    private String msg(String key, Object... args) {
+        return i18nService.msg(key, args);
     }
 
     private String sanitize(String value) {

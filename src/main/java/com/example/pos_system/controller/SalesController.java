@@ -12,7 +12,9 @@ import com.example.pos_system.repository.CustomerRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.service.ReceiptPdfService;
+import com.example.pos_system.service.ReceiptPaymentService;
 import com.example.pos_system.service.SalesService;
+import com.example.pos_system.service.I18nService;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -54,15 +56,22 @@ public class SalesController {
   private final ProductRepo productRepo;
   private final CustomerRepo customerRepo;
   private final ReceiptPdfService receiptPdfService;
+  private final ReceiptPaymentService receiptPaymentService;
   private final SalesService salesService;
+  private final I18nService i18nService;
 
   public SalesController(SaleRepo saleRepo, ProductRepo productRepo, CustomerRepo customerRepo,
-                         ReceiptPdfService receiptPdfService, SalesService salesService) {
+                         ReceiptPdfService receiptPdfService,
+                         ReceiptPaymentService receiptPaymentService,
+                         SalesService salesService,
+                         I18nService i18nService) {
     this.saleRepo = saleRepo;
     this.productRepo = productRepo;
     this.customerRepo = customerRepo;
     this.receiptPdfService = receiptPdfService;
+    this.receiptPaymentService = receiptPaymentService;
     this.salesService = salesService;
+    this.i18nService = i18nService;
   }
 
   @GetMapping
@@ -123,7 +132,11 @@ public class SalesController {
                         @RequestParam(required = false) String print,
                         Model model) {
     Sale sale = saleRepo.findByIdForReceipt(id).orElseThrow();
+    List<ReceiptPaymentService.ReceiptPaymentLine> receiptPaymentLines = receiptPaymentService.buildLines(sale);
     model.addAttribute("sale", sale);
+    model.addAttribute("receiptPaymentLines", receiptPaymentLines);
+    model.addAttribute("cashReceivedBase", receiptPaymentService.totalCashReceivedBase(receiptPaymentLines));
+    model.addAttribute("cashChangeBase", receiptPaymentService.totalCashChangeBase(receiptPaymentLines));
     model.addAttribute("profit", calculateProfit(sale));
     model.addAttribute("customerSummary", buildCustomerSummary(sale.getCustomer()));
     model.addAttribute("autoPrint", print != null);
@@ -144,7 +157,7 @@ public class SalesController {
 
     String html = receiptPdfService.renderReceiptPdf(sale);
     if (html == null || html.isBlank()) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate PDF: empty template");
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, msg("sales.error.pdfEmpty"));
     }
     response.setContentType("application/pdf");
     response.setHeader("Content-Disposition", "attachment; filename=\"receipt-" + id + ".pdf\"");
@@ -156,7 +169,7 @@ public class SalesController {
       builder.run();
     } catch (Exception ex) {
       log.error("PDF generation failed for sale {}", id, ex);
-      String message = ex.getMessage() == null ? "Failed to generate PDF" : "Failed to generate PDF: " + ex.getMessage();
+      String message = ex.getMessage() == null ? msg("sales.error.pdfFailed") : msg("sales.error.pdfFailedWithReason", ex.getMessage());
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
   }
@@ -168,7 +181,7 @@ public class SalesController {
     try {
       SalesService.ReturnOutcome outcome = salesService.processReturn(id, params);
       redirectAttributes.addFlashAttribute("successMessage",
-              "Return processed. Refund: $" + outcome.refundTotal().setScale(2, java.math.RoundingMode.HALF_UP));
+              msg("sales.returnProcessed", "$" + outcome.refundTotal().setScale(2, java.math.RoundingMode.HALF_UP)));
       return "redirect:/sales/" + outcome.saleId() + "/receipt";
     } catch (IllegalArgumentException ex) {
       redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -185,9 +198,9 @@ public class SalesController {
                          RedirectAttributes redirectAttributes) {
     SalesService.VoidOutcome outcome = salesService.voidSale(id);
     if (!outcome.changed()) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Sale #" + outcome.saleId() + " is already voided.");
+      redirectAttributes.addFlashAttribute("errorMessage", msg("sales.voidAlready", outcome.saleId()));
     } else {
-      redirectAttributes.addFlashAttribute("successMessage", "Sale #" + outcome.saleId() + " has been voided.");
+      redirectAttributes.addFlashAttribute("successMessage", msg("sales.voidSuccess", outcome.saleId()));
     }
     return "redirect:" + (redirect == null || redirect.isBlank() ? "/sales" : redirect);
   }
@@ -574,7 +587,7 @@ public class SalesController {
                            @RequestParam(required = false) String redirect,
                            RedirectAttributes redirectAttributes) {
     if (ids == null || ids.isEmpty()) {
-      redirectAttributes.addFlashAttribute("errorMessage", "No sales selected.");
+      redirectAttributes.addFlashAttribute("errorMessage", msg("sales.error.noSalesSelected"));
       return "redirect:" + (redirect == null || redirect.isBlank() ? "/sales" : redirect);
     }
     if ("void".equalsIgnoreCase(action)) {
@@ -593,15 +606,19 @@ public class SalesController {
         voided++;
       }
       if (voided > 0) {
-        redirectAttributes.addFlashAttribute("successMessage", "Voided " + voided + " sale(s).");
+        redirectAttributes.addFlashAttribute("successMessage", msg("sales.bulkVoided", voided));
       }
       if (skipped > 0) {
-        redirectAttributes.addFlashAttribute("errorMessage", skipped + " sale(s) were skipped (voided or returned).");
+        redirectAttributes.addFlashAttribute("errorMessage", msg("sales.bulkSkipped", skipped));
       }
     } else {
-      redirectAttributes.addFlashAttribute("errorMessage", "Unknown bulk action.");
+      redirectAttributes.addFlashAttribute("errorMessage", msg("sales.error.unknownBulkAction"));
     }
     return "redirect:" + (redirect == null || redirect.isBlank() ? "/sales" : redirect);
+  }
+
+  private String msg(String key, Object... args) {
+    return i18nService.msg(key, args);
   }
 
   private static class ProfitInfo {

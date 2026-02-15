@@ -1,0 +1,17 @@
+{
+  "name": "pos-bridge-node",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Localhost POS bridge for ESC/POS print and cash drawer pulse",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "escpos": "^3.0.0-alpha.6",
+    "escpos-network": "^3.0.0-alpha.5",
+    "escpos-usb": "^3.0.0-alpha.4",
+    "express": "^4.21.2"
+  }
+}

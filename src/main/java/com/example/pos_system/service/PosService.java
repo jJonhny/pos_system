@@ -8,6 +8,7 @@ import com.example.pos_system.repository.DiscountAuditRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -28,16 +29,22 @@ public class PosService {
     private final DiscountAuditRepo discountAuditRepo;
     private final AuditEventService auditEventService;
     private final StockMovementService stockMovementService;
+    private final UserLocalePreferenceService userLocalePreferenceService;
+    private final I18nService i18nService;
 
     public PosService(ProductRepo productRepo, SaleRepo saleRepo, CustomerRepo customerRepo,
                       DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService,
-                      StockMovementService stockMovementService) {
+                      StockMovementService stockMovementService,
+                      UserLocalePreferenceService userLocalePreferenceService,
+                      I18nService i18nService) {
         this.productRepo = productRepo;
         this.saleRepo = saleRepo;
         this.customerRepo = customerRepo;
         this.discountAuditRepo = discountAuditRepo;
         this.auditEventService = auditEventService;
         this.stockMovementService = stockMovementService;
+        this.userLocalePreferenceService = userLocalePreferenceService;
+        this.i18nService = i18nService;
     }
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
@@ -45,7 +52,7 @@ public class PosService {
     }
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift, String terminalId) {
-        if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
+        if (cart.getItems().isEmpty()) throw new IllegalStateException(msg("pos.error.cartEmpty"));
         String checkoutTerminalId = requireCheckoutShift(shift, terminalId);
 
         PaymentMethod method = payment == null ? PaymentMethod.CASH : payment.getMethod();
@@ -53,6 +60,7 @@ public class PosService {
         sale.setCreatedAt(LocalDateTime.now());
         sale.setPaymentMethod(method);
         sale.setStatus(SaleStatus.PAID);
+        sale.setReceiptLocale(userLocalePreferenceService.toLanguageTag(LocaleContextHolder.getLocale()));
         sale.setCashierUsername(cashierUsername);
         sale.setTerminalId(checkoutTerminalId);
         sale.setCustomer(customer);
@@ -119,14 +127,15 @@ public class PosService {
     }
 
     public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift, String terminalId) {
-        if (cart.getItems().isEmpty()) throw new IllegalStateException("Cart is empty");
-        if (payments == null || payments.isEmpty()) throw new IllegalStateException("No payments provided");
+        if (cart.getItems().isEmpty()) throw new IllegalStateException(msg("pos.error.cartEmpty"));
+        if (payments == null || payments.isEmpty()) throw new IllegalStateException(msg("pos.error.noPayments"));
         String checkoutTerminalId = requireCheckoutShift(shift, terminalId);
 
         Sale sale = new Sale();
         sale.setCreatedAt(LocalDateTime.now());
         sale.setPaymentMethod(PaymentMethod.MIXED);
         sale.setStatus(SaleStatus.PAID);
+        sale.setReceiptLocale(userLocalePreferenceService.toLanguageTag(LocaleContextHolder.getLocale()));
         sale.setCashierUsername(cashierUsername);
         sale.setTerminalId(checkoutTerminalId);
         sale.setCustomer(customer);
@@ -305,22 +314,26 @@ public class PosService {
 
     private String requireCheckoutShift(Shift shift, String terminalId) {
         if (shift == null || shift.getId() == null || shift.getStatus() != ShiftStatus.OPEN) {
-            throw new IllegalStateException("Open a shift before checkout.");
+            throw new IllegalStateException(msg("pos.error.openShiftBeforeCheckout"));
         }
         String fromShift = sanitizeTerminalId(shift.getTerminalId());
         String fromRequest = sanitizeTerminalId(terminalId);
         String resolved = fromShift != null ? fromShift : fromRequest;
         if (resolved == null) {
-            throw new IllegalStateException("Terminal ID is required for checkout.");
+            throw new IllegalStateException(msg("pos.error.terminalRequiredCheckout"));
         }
         return resolved;
     }
 
     private Product lockProduct(Long productId) {
         if (productId == null) {
-            throw new IllegalArgumentException("Product not found");
+            throw new IllegalArgumentException(msg("pos.error.productNotFound"));
         }
         return productRepo.findByIdForUpdate(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("pos.error.productNotFound")));
+    }
+
+    private String msg(String key, Object... args) {
+        return i18nService.msg(key, args);
     }
 }

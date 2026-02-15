@@ -1,0 +1,53 @@
+package com.example.pos_system;
+
+import com.example.pos_system.entity.PaymentMethod;
+import com.example.pos_system.entity.Sale;
+import com.example.pos_system.entity.SalePayment;
+import com.example.pos_system.entity.SaleStatus;
+import com.example.pos_system.service.ReceiptPdfService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest
+@ActiveProfiles("test")
+class ReceiptPdfServiceIntegrationTest {
+
+    @Autowired
+    private ReceiptPdfService receiptPdfService;
+
+    @Test
+    void renderReceiptPdfIncludesFormattedTotals() {
+        Sale sale = new Sale();
+        sale.setId(1001L);
+        sale.setCreatedAt(LocalDateTime.now());
+        sale.setStatus(SaleStatus.PAID);
+        sale.setPaymentMethod(PaymentMethod.CASH);
+        sale.setSubtotal(new BigDecimal("10.00"));
+        sale.setDiscount(BigDecimal.ZERO);
+        sale.setTax(BigDecimal.ZERO);
+        sale.setTotal(new BigDecimal("10.00"));
+        sale.setRefundedTotal(BigDecimal.ZERO);
+        SalePayment cash = new SalePayment();
+        cash.setMethod(PaymentMethod.CASH);
+        cash.setAmount(new BigDecimal("10.00"));
+        cash.setCurrencyCode("USD");
+        cash.setCurrencyRate(new BigDecimal("1.0000"));
+        cash.setForeignAmount(new BigDecimal("12.00"));
+        sale.getPayments().add(cash);
+
+        String html = receiptPdfService.renderReceiptPdf(sale);
+
+        assertThat(html).contains("Receipt PDF");
+        assertThat(html).contains("Sale #");
+        assertThat(html).contains("10.00");
+        assertThat(html).contains("Cash Received");
+        assertThat(html).contains("Change");
+    }
+}

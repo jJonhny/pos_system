@@ -43,6 +43,9 @@ public class AppUser {
     @Column(nullable = false)
     private Boolean mfaRequired = false;
 
+    @Column(length = 10)
+    private String languagePreference = "en";
+
     private LocalDateTime lastLoginAt;
 
     @Enumerated(EnumType.STRING)

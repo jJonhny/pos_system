@@ -16,8 +16,4 @@ public class ManagementPagesController {
         return "marketing/index";
     }
 
-    @GetMapping("/pos-setting")
-    public String posSetting() {
-        return "pos-setting/index";
-    }
 }

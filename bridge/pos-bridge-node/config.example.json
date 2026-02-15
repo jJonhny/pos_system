@@ -1,0 +1,16 @@
+{
+  "host": "127.0.0.1",
+  "port": 18765,
+  "defaultTerminalId": "TERM-01",
+  "allowedOrigins": [
+    "http://127.0.0.1:8080",
+    "http://localhost:8080"
+  ],
+  "terminals": {
+    "TERM-01": {
+      "type": "network",
+      "host": "192.168.1.60",
+      "port": 9100
+    }
+  }
+}

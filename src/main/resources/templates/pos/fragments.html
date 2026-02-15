@@ -1,29 +1,34 @@
-<div xmlns:th="http://www.thymeleaf.org" th:fragment="productGridWrap" id="productGridWrap">
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="productGridWrap" id="productGridWrap"
+     th:attr="data-feed-endpoint=@{/pos/products/feed},
+              data-feed-q=${q},
+              data-feed-category-id=${categoryId},
+              data-feed-next-cursor=${nextCursor},
+              data-feed-has-more=${hasMore}">
   <div th:replace="~{pos/fragments :: productGrid}"></div>
 
-  <div class="mt-5 flex items-center justify-between">
-    <a th:if="${page > 0}"
-       th:href="@{/pos(page=${prevPage}, q=${q}, categoryId=${categoryId})}"
-       th:attr="hx-get=@{/pos(page=${prevPage}, q=${q}, categoryId=${categoryId})}"
-       hx-target="#productGridWrap"
-       hx-swap="outerHTML"
-       hx-push-url="true"
-       class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
-      Prev
-    </a>
-    <div class="text-xs text-slate-500">
-      Page <span th:text="${page + 1}">1</span>
+  <div id="productFeedStatus" class="mt-4 space-y-3">
+    <div id="productFeedSkeleton" class="hidden grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5" aria-hidden="true">
+      <div th:each="i : ${#numbers.sequence(1,4)}" class="rounded-2xl border border-slate-200 bg-white/90 p-3 animate-pulse">
+        <div class="h-44 rounded-xl bg-slate-100"></div>
+        <div class="mt-3 h-4 w-3/4 rounded bg-slate-100"></div>
+        <div class="mt-2 h-3 w-1/2 rounded bg-slate-100"></div>
+        <div class="mt-3 h-8 rounded-xl bg-slate-100"></div>
+      </div>
     </div>
-    <a th:if="${hasNext}"
-       th:href="@{/pos(page=${nextPage}, q=${q}, categoryId=${categoryId})}"
-       th:attr="hx-get=@{/pos(page=${nextPage}, q=${q}, categoryId=${categoryId})}"
-       hx-target="#productGridWrap"
-       hx-swap="outerHTML"
-       hx-push-url="true"
-       class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
-      Next
-    </a>
+    <div id="productFeedError" class="hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+      <div class="font-semibold" th:text="#{pos.feed.unable}">Unable to load products</div>
+      <div id="productFeedErrorText" class="mt-1 text-xs text-rose-700/90" th:text="#{pos.feed.retryPrompt}">Please retry.</div>
+      <button type="button"
+              data-action="feed-retry"
+              class="mt-2 rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition">
+        <span th:text="#{pos.feed.retry}">Retry</span>
+      </button>
+    </div>
+    <div id="productFeedEnd" class="hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600">
+      <span th:text="#{pos.noMoreResults}">No more results.</span>
+    </div>
   </div>
+  <div id="productFeedSentinel" class="h-2 w-full" aria-hidden="true"></div>
 </div>
 
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="productGrid">
@@ -45,10 +50,18 @@
         th:data-recent-price="${p.price}"
         th:data-recent-image="${p.imageUrl != null ? p.imageUrl : ''}"
         th:data-name="${p.name != null ? p.name : ''}"
+        th:data-sku="${p.sku != null ? p.sku : (p.barcode != null ? p.barcode : '')}"
+        th:data-barcode="${p.barcode != null ? p.barcode : ''}"
         th:data-price="${p.price}"
+        th:data-wholesale-price="${p.wholesalePrice}"
+        th:data-wholesale-min-qty="${p.wholesaleMinQty}"
         th:data-stock="${p.stockQty != null ? p.stockQty : 0}"
+        th:data-low-stock-threshold="${p.lowStockThreshold}"
         th:data-low-stock="${p.stockQty != null and p.stockQty > 0 and p.lowStock}"
         th:data-out-of-stock="${p.stockQty != null and p.stockQty == 0}"
+        th:data-units-per-box="${p.unitsPerBox}"
+        th:data-units-per-case="${p.unitsPerCase}"
+        th:data-image-url="${p.imageUrl != null ? p.imageUrl : ''}"
         data-recent-item="true"
         data-product-card="true"
         hx-target="#cartPanel"
@@ -58,14 +71,16 @@
 
     <div class="group block h-full w-full text-left cursor-pointer"
          data-action="add-product-card"
-         title="Add to cart"
-         aria-label="Add to cart">
+         th:title="#{pos.addToCart}"
+         th:aria-label="#{pos.addToCart}">
 
       <div class="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col transition hover:shadow-lg">
         <div class="product-image-wrap relative h-56 overflow-hidden bg-slate-50 flex items-center justify-center p-3">
           <img th:if="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
                th:src="${p.imageUrl}"
                alt=""
+               loading="lazy"
+               decoding="async"
                class="h-full w-full object-contain object-center block"/>
 
           <div th:if="${p.imageUrl == null or #strings.isEmpty(p.imageUrl)}"
@@ -75,29 +90,29 @@
                 <path d="M3 7h3l2-2h8l2 2h3v12H3V7z"/>
                 <circle cx="12" cy="13" r="3.5"/>
               </svg>
-              <span class="text-xs">No image</span>
+              <span class="text-xs" th:text="#{pos.noImage}">No image</span>
             </div>
           </div>
 
           <div class="absolute left-3 top-3 flex flex-col gap-2 text-xs font-semibold">
             <div th:if="${p.stockQty != null and p.stockQty == 0}"
                  class="rounded-full bg-red-100 px-2.5 py-1 text-red-700">
-              Out of stock
+              <span th:text="#{pos.outOfStock}">Out of stock</span>
             </div>
             <div th:if="${p.stockQty != null and p.stockQty > 0 and p.lowStock}"
                  class="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">
-              Low stock
+              <span th:text="#{pos.lowStock}">Low stock</span>
             </div>
             <div th:if="${p.stockQty != null and p.stockQty > 0 and !p.lowStock}"
                  class="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-700">
-              In stock
+              <span th:text="#{pos.inStock}">In stock</span>
             </div>
           </div>
 
           <div class="absolute right-3 top-3 flex flex-col gap-2">
             <div class="pin-toggle h-10 w-10 rounded-full bg-white/90 border border-slate-200 shadow-sm grid place-items-center
                         text-slate-700 hover:bg-slate-900 hover:text-white transition"
-                 role="button" tabindex="0" aria-pressed="false" title="Pin item"
+                 role="button" tabindex="0" aria-pressed="false" th:title="#{pos.pinItem}"
                  th:attr="data-product-id=${p.id}, data-product-name=${p.name}, data-product-sku=${p.sku != null ? p.sku : (p.barcode != null ? p.barcode : '')}, data-product-price=${p.price}, data-product-image=${p.imageUrl != null ? p.imageUrl : ''}">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M6 7h12l-1 6H7L6 7z"/>
@@ -105,16 +120,16 @@
               </svg>
             </div>
             <div th:if="${p.unitsPerBox != null}" class="rounded-full bg-white/90 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
-              Box <span th:text="${p.unitsPerBox}">0</span>
+              <span th:text="#{common.unit.box}">Box</span> <span th:text="${p.unitsPerBox}">0</span>
             </div>
             <div th:if="${p.unitsPerCase != null}" class="rounded-full bg-white/90 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
-              Case <span th:text="${p.unitsPerCase}">0</span>
+              <span th:text="#{common.unit.case}">Case</span> <span th:text="${p.unitsPerCase}">0</span>
             </div>
           </div>
 
           <div class="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 transition">
             <div class="rounded-full bg-white/90 border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">
-              Tap to add
+              <span th:text="#{pos.tapToAdd}">Tap to add</span>
             </div>
           </div>
         </div>
@@ -127,7 +142,7 @@
                 Product
               </div>
               <div class="mt-1 text-xs text-slate-500 truncate"
-                   th:text="${p.sku != null ? 'SKU: ' + p.sku : (p.barcode != null ? 'Barcode: ' + p.barcode : 'No SKU/Barcode')}">
+                   th:text="${p.sku != null ? #messages.msg('pos.skuPrefix', p.sku) : (p.barcode != null ? #messages.msg('pos.barcodePrefix', p.barcode) : #messages.msg('pos.noSkuBarcode'))}">
                 SKU
               </div>
             </div>
@@ -137,31 +152,31 @@
                 $0.00
               </div>
               <div class="text-xs text-slate-500" th:if="${p.wholesalePrice != null}">
-                Wholesale <span th:text="${@uiFormat.money(p.wholesalePrice)}">$0.00</span>
+                <span th:text="#{pos.wholesale}">Wholesale</span> <span th:text="${@uiFormat.money(p.wholesalePrice)}">$0.00</span>
               </div>
             </div>
           </div>
 
           <div class="product-meta mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
             <span class="rounded-full bg-slate-100 px-2.5 py-1" th:if="${p.stockQty != null}">
-              Stock <span class="font-semibold text-slate-800" th:text="${p.stockQty}">0</span>
+              <span th:text="#{pos.stock}">Stock</span> <span class="font-semibold text-slate-800" th:text="${p.stockQty}">0</span>
             </span>
             <span class="rounded-full bg-slate-100 px-2.5 py-1" th:if="${p.lowStockThreshold != null}">
-              Low @ <span class="font-semibold text-slate-800" th:text="${p.lowStockThreshold}">0</span>
+              <span th:text="#{pos.lowAt}">Low @</span> <span class="font-semibold text-slate-800" th:text="${p.lowStockThreshold}">0</span>
             </span>
             <span class="rounded-full bg-slate-100 px-2.5 py-1" th:if="${p.wholesaleMinQty != null}">
-              Wholesale min <span class="font-semibold text-slate-800" th:text="${p.wholesaleMinQty}">0</span>
+              <span th:text="#{pos.wholesaleMin}">Wholesale min</span> <span class="font-semibold text-slate-800" th:text="${p.wholesaleMinQty}">0</span>
             </span>
           </div>
         </div>
       </div>
     </div>
-    <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Add</button>
+    <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true" th:text="#{common.add}">Add</button>
   </form>
 
   <div th:if="${#lists.isEmpty(products)}"
        class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-    No products found.
+    <span th:text="#{pos.noProductsFound}">No products found.</span>
   </div>
 </div>
 
@@ -173,7 +188,7 @@
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="scanError">
   <div th:if="${scanError}"
        class="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-    <div class="font-semibold">Scan error</div>
+    <div class="font-semibold" th:text="#{pos.scanError}">Scan error</div>
     <div class="mt-0.5" th:text="${scanError}">Barcode not found</div>
   </div>
 </div>
@@ -182,33 +197,66 @@
      th:attr="data-subtotal=${cart.subtotal}, data-discount=${cart.discount}, data-tax=${cart.tax}, data-total=${cart.total}, data-base-code=${baseCurrency.code}, data-base-symbol=${baseCurrency.symbol}, data-base-decimals=${baseCurrency.fractionDigits}">
   <div th:if="${checkoutSuccess}"
        data-checkout-success="true"
+       th:attr="data-checkout-sale-id=${checkoutSaleId}, data-auto-print=${checkoutAutoPrint}, data-printer-mode=${terminalSettings != null and terminalSettings.printerMode != null ? terminalSettings.printerMode.name() : 'PDF'}, data-bridge-url=${terminalSettings != null ? terminalSettings.bridgeUrl : ''}"
        class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-    <div class="font-semibold">Checkout complete</div>
+    <div class="font-semibold" th:text="#{pos.checkoutComplete}">Checkout complete</div>
     <div class="mt-0.5" th:text="${checkoutSuccess}">Payment received.</div>
-    <a th:if="${receiptUrl}" th:href="${receiptUrl}"
-       class="mt-2 inline-flex items-center text-emerald-700 text-xs font-semibold hover:underline">
-      Open receipt
-    </a>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button type="button"
+              th:if="${checkoutSaleId != null}"
+              data-action="print-receipt"
+              th:attr="data-sale-id=${checkoutSaleId}"
+              class="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition">
+        <span th:text="#{pos.printReceipt}">Print receipt</span>
+      </button>
+      <button type="button"
+              th:if="${checkoutSaleId != null}"
+              data-action="open-drawer"
+              th:attr="data-sale-id=${checkoutSaleId}"
+              class="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition">
+        <span th:text="#{pos.openDrawer}">Open drawer</span>
+      </button>
+      <button type="button"
+              data-action="drawer-manual"
+              class="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition">
+        <span th:text="#{pos.openDrawerManual}">Open drawer manually</span>
+      </button>
+      <button type="button"
+              th:if="${checkoutSaleId != null}"
+              data-action="reprint-receipt"
+              th:attr="data-sale-id=${checkoutSaleId}"
+              class="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition">
+        <span th:text="#{pos.reprint}">Reprint</span>
+      </button>
+      <a th:if="${receiptUrl}" th:href="${receiptUrl}"
+         class="inline-flex items-center text-emerald-700 text-xs font-semibold hover:underline">
+        <span th:text="#{pos.openReceipt}">Open receipt</span>
+      </a>
+      <a th:if="${checkoutSaleId != null}"
+         th:href="@{'/sales/' + ${checkoutSaleId} + '/receipt/pdf'}"
+         class="inline-flex items-center text-emerald-700 text-xs font-semibold hover:underline">
+        <span th:text="#{pos.downloadPdfReceipt}">Download PDF receipt</span>
+      </a>
+    </div>
+    <div data-bridge-status="true" class="mt-2 text-xs text-emerald-700"></div>
+    <div class="mt-1 text-[11px] text-emerald-700/80" th:text="#{pos.bridgeFallback}">Fallback: if bridge is offline, use PDF and open drawer manually.</div>
   </div>
 
   <div th:if="${cartError}"
        class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-    <div class="font-semibold">Cart issue</div>
+    <div class="font-semibold" th:text="#{pos.cartIssue}">Cart issue</div>
     <div class="mt-0.5" th:text="${cartError}">Product is inactive</div>
   </div>
 
   <div th:if="${shiftMessage}"
        class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-    <div class="font-semibold">Shift update</div>
+    <div class="font-semibold" th:text="#{pos.shiftUpdate}">Shift update</div>
     <div class="mt-0.5" th:text="${shiftMessage}">Shift closed.</div>
   </div>
 
-  <div class="flex items-start justify-between gap-3 mb-4">
-    <div>
-      <div class="text-base font-semibold">Cart</div>
-      <div class="text-sm text-slate-500" th:text="${cart.items.size()} + ' items'">0 items</div>
-      <div class="text-xs text-slate-400">Click a line to select. Use + / - or Del.</div>
-    </div>
+  <div class="mb-4">
+    <div class="text-sm text-slate-500" th:text="#{common.items(${cart.items.size()})}">0 items</div>
+    <div class="text-xs text-slate-400" th:text="#{pos.cartHint}">Click a line to select. Use + / - or Del.</div>
   </div>
 
   <div class="space-y-3">
@@ -225,10 +273,10 @@
                th:text="${ci.qty + ' ' + @uiFormat.unitLabel(ci.unitType) + ' × ' + @uiFormat.money(ci.unitPrice)}">0</div>
           <div class="mt-0.5 text-xs text-slate-400"
                th:if="${ci.unitType != null and ci.unitType.name() != 'PIECE'}"
-               th:text="${'Unit size: ' + ci.unitSize + ' pcs/' + @uiFormat.unitLabel(ci.unitType)}">Unit size</div>
+               th:text="${#messages.msg('pos.unitSize', ci.unitSize, @uiFormat.unitLabel(ci.unitType))}">Unit size</div>
           <div class="mt-0.5 text-xs text-amber-600"
                th:if="${ci.priceTier != null and ci.priceTier.name() == 'WHOLESALE'}">
-            Wholesale pricing
+            <span th:text="#{pos.wholesalePricing}">Wholesale pricing</span>
           </div>
         </div>
         <div class="shrink-0 font-semibold text-slate-900" th:text="${@uiFormat.money(ci.lineTotal)}">$0.00</div>
@@ -238,7 +286,7 @@
             hx-post="/pos/cart/note" hx-target="#cartPanel" hx-swap="outerHTML" hx-trigger="change">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="productId" th:value="${ci.productId}"/>
-        <input name="note" type="text" maxlength="140" placeholder="Add note (optional)"
+        <input name="note" type="text" maxlength="140" th:placeholder="#{pos.notePlaceholder}" placeholder="Add note (optional)"
                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                       focus:outline-none focus:ring-2 focus:ring-slate-300"
                th:value="${ci.note}"/>
@@ -248,13 +296,13 @@
             hx-post="/pos/cart/unit" hx-trigger="change" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="productId" th:value="${ci.productId}"/>
-        <label class="text-xs font-semibold text-slate-600">Unit</label>
+        <label class="text-xs font-semibold text-slate-600" th:text="#{pos.unit}">Unit</label>
         <select name="unitType"
                 class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs
                        focus:outline-none focus:ring-2 focus:ring-slate-300">
-          <option value="PIECE" th:selected="${ci.unitType.name() == 'PIECE'}">Piece</option>
-          <option value="BOX" th:selected="${ci.unitType.name() == 'BOX'}">Box</option>
-          <option value="CASE" th:selected="${ci.unitType.name() == 'CASE'}">Case</option>
+          <option value="PIECE" th:selected="${ci.unitType.name() == 'PIECE'}" th:text="#{common.unit.piece}">Piece</option>
+          <option value="BOX" th:selected="${ci.unitType.name() == 'BOX'}" th:text="#{common.unit.box}">Box</option>
+          <option value="CASE" th:selected="${ci.unitType.name() == 'CASE'}" th:text="#{common.unit.case}">Case</option>
         </select>
       </form>
 
@@ -289,20 +337,20 @@
               th:attr="hx-post=@{'/pos/cart/remove/' + ${ci.productId}}" hx-target="#cartPanel" hx-swap="outerHTML">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <button class="h-9 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-medium text-red-700 hover:bg-red-100 transition">
-            Remove
+            <span th:text="#{common.remove}">Remove</span>
           </button>
         </form>
       </div>
     </div>
 
-    <div th:if="${#lists.isEmpty(cart.items)}"
-         class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-      Cart is empty. Add products from the left.
-    </div>
+  <div th:if="${#lists.isEmpty(cart.items)}"
+       class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
+    <span th:text="#{pos.cartEmpty}">Cart is empty. Add products from the left.</span>
   </div>
+</div>
 
-  <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
-    <div class="text-sm font-semibold text-slate-800">Customer</div>
+<div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+    <div class="text-sm font-semibold text-slate-800" th:text="#{pos.customer}">Customer</div>
     <div th:if="${currentCustomer != null}" class="flex items-start justify-between gap-3">
       <div>
         <div class="text-sm font-semibold text-slate-900" th:text="${currentCustomer.name}">Customer</div>
@@ -312,17 +360,17 @@
           <span th:text="${currentCustomer.email}">email</span>
         </div>
         <div class="mt-1 text-xs text-slate-600">
-          Points: <span class="font-semibold" th:text="${currentCustomer.points}">0</span>
+          <span th:text="#{pos.customer.points}">Points</span>: <span class="font-semibold" th:text="${currentCustomer.points}">0</span>
         </div>
         <div class="mt-1 text-xs text-amber-600" th:if="${currentCustomer.wholesale == true}">
-          Wholesale customer
+          <span th:text="#{pos.customer.wholesale}">Wholesale customer</span>
         </div>
       </div>
       <form action="/pos/cart/customer/clear" method="post" class="m-0"
             hx-post="/pos/cart/customer/clear" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <button class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition">
-          Remove
+          <span th:text="#{common.remove}">Remove</span>
         </button>
       </form>
     </div>
@@ -331,49 +379,49 @@
       <form action="/pos/cart/customer/lookup" method="post" class="m-0 flex gap-2"
             hx-post="/pos/cart/customer/lookup" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <input name="query" type="text" placeholder="Phone or email"
+        <input name="query" type="text" th:placeholder="#{pos.customer.lookupPlaceholder}" placeholder="Phone or email"
                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                       focus:outline-none focus:ring-2 focus:ring-slate-300"/>
         <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
-          Find
+          <span th:text="#{pos.customer.find}">Find</span>
         </button>
       </form>
       <form action="/pos/cart/customer/create" method="post" class="m-0 grid grid-cols-1 gap-2"
             hx-post="/pos/cart/customer/create" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <input name="name" type="text" placeholder="Customer name"
+        <input name="name" type="text" th:placeholder="#{pos.customer.namePlaceholder}" placeholder="Customer name"
                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                       focus:outline-none focus:ring-2 focus:ring-slate-300"/>
         <div class="grid grid-cols-2 gap-2">
-          <input name="phone" type="text" placeholder="Phone"
+          <input name="phone" type="text" th:placeholder="#{pos.customer.phone}" placeholder="Phone"
                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
-          <input name="email" type="email" placeholder="Email"
+          <input name="email" type="email" th:placeholder="#{pos.customer.email}" placeholder="Email"
                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
         </div>
         <label class="inline-flex items-center gap-2 text-xs text-slate-600">
           <input type="checkbox" name="wholesale" value="true"
                  class="rounded border-slate-300"/>
-          Wholesale customer
+          <span th:text="#{pos.customer.wholesale}">Wholesale customer</span>
         </label>
         <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition">
-          Create & attach
+          <span th:text="#{pos.customer.createAttach}">Create & attach</span>
         </button>
       </form>
     </div>
   </div>
 
   <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
-    <div class="text-sm font-semibold text-slate-800">Held sales</div>
+    <div class="text-sm font-semibold text-slate-800" th:text="#{pos.heldSales}">Held sales</div>
     <form action="/pos/hold" method="post" class="m-0 flex gap-2"
           hx-post="/pos/hold" hx-target="#cartPanel" hx-swap="outerHTML">
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-      <input name="label" type="text" placeholder="Label (optional)"
+      <input name="label" type="text" th:placeholder="#{pos.holdLabelPlaceholder}" placeholder="Label (optional)"
              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                     focus:outline-none focus:ring-2 focus:ring-slate-300"/>
       <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
-        Hold
+        <span th:text="#{pos.hold}">Hold</span>
       </button>
     </form>
     <div th:if="${holds != null and !#lists.isEmpty(holds)}" class="space-y-2">
@@ -389,7 +437,7 @@
                 hx-target="#cartPanel" hx-swap="outerHTML">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button class="rounded-lg bg-slate-900 text-white px-2 py-1 text-[11px] font-semibold hover:bg-slate-800 transition">
-              Resume
+              <span th:text="#{pos.holdResume}">Resume</span>
             </button>
           </form>
           <form th:action="@{'/pos/holds/' + ${h.id} + '/delete'}" method="post" class="m-0"
@@ -397,56 +445,56 @@
                 hx-target="#cartPanel" hx-swap="outerHTML">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold hover:bg-slate-50 transition">
-              Delete
+              <span th:text="#{common.delete}">Delete</span>
             </button>
           </form>
         </div>
       </div>
     </div>
     <div th:if="${holds == null or #lists.isEmpty(holds)}" class="text-xs text-slate-500">
-      No held sales yet.
+      <span th:text="#{pos.holdNone}">No held sales yet.</span>
     </div>
   </div>
 
   <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
-    <div class="text-sm font-semibold text-slate-800">Shift</div>
+    <div class="text-sm font-semibold text-slate-800" th:text="#{shift.title}">Shift</div>
     <div th:if="${openShift != null}" class="space-y-3">
       <div class="text-xs text-slate-600">
-        Opened: <span class="font-semibold" th:text="${@uiFormat.dateTime(openShift.openedAt)}">time</span>
+        <span th:text="#{shift.opened}">Opened</span>: <span class="font-semibold" th:text="${@uiFormat.dateTime(openShift.openedAt)}">time</span>
       </div>
       <div class="text-xs text-slate-600">
-        Terminal: <span class="font-semibold" th:text="${openShift.terminalId != null ? openShift.terminalId : '-'}">TERMINAL</span>
+        <span th:text="#{shift.terminal}">Terminal</span>: <span class="font-semibold" th:text="${openShift.terminalId != null ? openShift.terminalId : '-'}">TERMINAL</span>
       </div>
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 text-xs text-slate-600">
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <div class="text-[10px] uppercase tracking-wide text-slate-500">Expected (base)</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-500" th:text="#{shift.expectedBase}">Expected (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.expectedBase)}">$0.00</div>
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <div class="text-[10px] uppercase tracking-wide text-slate-500">Opening (base)</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-500" th:text="#{shift.openingBase}">Opening (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(openShift.openingCash)}">$0.00</div>
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash sales (base)</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-500" th:text="#{shift.cashSalesBase}">Cash sales (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashSalesBase)}">$0.00</div>
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash refunds (base)</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-500" th:text="#{shift.cashRefundsBase}">Cash refunds (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashRefundBase)}">$0.00</div>
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash in (base)</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-500" th:text="#{shift.cashInBase}">Cash in (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashInBase)}">$0.00</div>
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-          <div class="text-[10px] uppercase tracking-wide text-slate-500">Cash out (base)</div>
+          <div class="text-[10px] uppercase tracking-wide text-slate-500" th:text="#{shift.cashOutBase}">Cash out (base)</div>
           <div class="mt-1 font-semibold text-slate-900" th:text="${@uiFormat.money(shiftPreview.cashOutBase)}">$0.00</div>
         </div>
       </div>
 
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-        <div class="text-xs font-semibold text-slate-700">Opening float by currency</div>
-        <div th:if="${shiftOpeningAmounts == null or #maps.isEmpty(shiftOpeningAmounts)}" class="text-xs text-slate-500">No opening amounts recorded.</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{shift.openingByCurrency}">Opening float by currency</div>
+        <div th:if="${shiftOpeningAmounts == null or #maps.isEmpty(shiftOpeningAmounts)}" class="text-xs text-slate-500" th:text="#{shift.noOpeningAmounts}">No opening amounts recorded.</div>
         <div th:if="${shiftOpeningAmounts != null and !#maps.isEmpty(shiftOpeningAmounts)}" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div th:each="entry : ${shiftOpeningAmounts}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
             <span class="font-semibold text-slate-800" th:text="${entry.key}">USD</span>
@@ -456,8 +504,8 @@
       </div>
 
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-        <div class="text-xs font-semibold text-slate-700">Expected cash by currency</div>
-        <div th:if="${shiftExpectedAmounts == null or #maps.isEmpty(shiftExpectedAmounts)}" class="text-xs text-slate-500">No expected amounts yet.</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{shift.expectedByCurrency}">Expected cash by currency</div>
+        <div th:if="${shiftExpectedAmounts == null or #maps.isEmpty(shiftExpectedAmounts)}" class="text-xs text-slate-500" th:text="#{shift.noExpectedAmounts}">No expected amounts yet.</div>
         <div th:if="${shiftExpectedAmounts != null and !#maps.isEmpty(shiftExpectedAmounts)}" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div th:each="entry : ${shiftExpectedAmounts}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
             <span class="font-semibold text-slate-800" th:text="${entry.key}">USD</span>
@@ -470,40 +518,40 @@
             hx-post="/pos/shift/cash-event" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
-        <div class="text-xs font-semibold text-slate-700">Cash in/out</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{shift.cashInOut}">Cash in/out</div>
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
           <select name="eventType"
                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
-            <option value="CASH_IN">Cash in</option>
-            <option value="CASH_OUT">Cash out</option>
+            <option value="CASH_IN" th:text="#{shift.cashIn}">Cash in</option>
+            <option value="CASH_OUT" th:text="#{shift.cashOut}">Cash out</option>
           </select>
           <select name="currencyCode"
                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
             <option th:each="c : ${currencies}" th:value="${c.code}" th:text="${c.code}">USD</option>
           </select>
-          <input name="amount" type="number" step="0.01" min="0.01" placeholder="Amount"
+          <input name="amount" type="number" step="0.01" min="0.01" th:placeholder="#{pos.amount}" placeholder="Amount"
                  required
                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
           <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition">
-            Record
+            <span th:text="#{shift.record}">Record</span>
           </button>
         </div>
-        <input name="reason" type="text" maxlength="255" placeholder="Reason"
+        <input name="reason" type="text" maxlength="255" th:placeholder="#{shift.reason}" placeholder="Reason"
                required
                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                       focus:outline-none focus:ring-2 focus:ring-slate-300"/>
       </form>
 
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2">
-        <div class="text-xs font-semibold text-slate-700">Cash events</div>
-        <div th:if="${shiftCashEvents == null or #lists.isEmpty(shiftCashEvents)}" class="text-xs text-slate-500">No cash movements yet.</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{shift.cashEvents}">Cash events</div>
+        <div th:if="${shiftCashEvents == null or #lists.isEmpty(shiftCashEvents)}" class="text-xs text-slate-500" th:text="#{shift.noCashMovements}">No cash movements yet.</div>
         <div th:if="${shiftCashEvents != null and !#lists.isEmpty(shiftCashEvents)}" class="space-y-1">
           <div th:each="evt : ${shiftCashEvents}" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
             <span class="font-semibold text-slate-800"
-                  th:text="${evt.eventType.name() == 'CASH_IN' ? 'IN' : (evt.eventType.name() == 'CASH_OUT' ? 'OUT' : 'OPEN')}">IN</span>
+                  th:text="${evt.eventType.name() == 'CASH_IN' ? #messages.msg('shift.event.in') : (evt.eventType.name() == 'CASH_OUT' ? #messages.msg('shift.event.out') : #messages.msg('shift.event.open'))}">IN</span>
             <span class="ml-1" th:text="${evt.currencyCode}">USD</span>
             <span class="ml-1 font-semibold" th:text="${@uiFormat.moneyForCurrency(evt.amount, evt.currencyCode)}">$0.00</span>
             <span class="ml-2 text-slate-500" th:text="${evt.reason}">Reason</span>
@@ -516,27 +564,25 @@
             hx-post="/pos/shift/close" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
-        <div class="text-xs font-semibold text-slate-700">Close shift counts</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{shift.closeCounts}">Close shift counts</div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div th:each="c : ${currencies}">
             <label class="block text-[11px] font-semibold text-slate-500"
-                   th:text="${c.code + ' counted'}">USD counted</label>
+                   th:text="#{shift.countedSuffix(${c.code})}">USD counted</label>
             <input th:name="${'counted_' + c.code}" type="number" step="0.01" min="0"
                    th:value="${shiftExpectedAmounts != null ? shiftExpectedAmounts[c.code] : null}"
                    class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                           focus:outline-none focus:ring-2 focus:ring-slate-300"/>
           </div>
         </div>
-        <textarea name="notes" rows="2" maxlength="1000" placeholder="Closing notes (optional)"
+        <textarea name="notes" rows="2" maxlength="1000" th:placeholder="#{shift.closingNotesOptional}" placeholder="Closing notes (optional)"
                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300"></textarea>
         <div class="text-[11px] text-slate-500">
-          If variance exceeds
-          <span class="font-semibold" th:text="${@uiFormat.money(shiftVarianceThreshold)}">$0.00</span>,
-          manager/admin authorization is required.
+          <span th:text="#{shift.varianceRequiresApproval(${@uiFormat.money(shiftVarianceThreshold)})}">If variance exceeds threshold.</span>
         </div>
         <button class="w-full rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
-          Close shift
+          <span th:text="#{shift.close}">Close shift</span>
         </button>
       </form>
     </div>
@@ -545,11 +591,11 @@
             hx-post="/pos/shift/open" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
-        <div class="text-xs font-semibold text-slate-700">Opening float by currency</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{shift.openingByCurrency}">Opening float by currency</div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div th:each="c : ${currencies}">
             <label class="block text-[11px] font-semibold text-slate-500"
-                   th:text="${c.code + ' opening'}">USD opening</label>
+                   th:text="#{shift.openingSuffix(${c.code})}">USD opening</label>
             <input th:name="${'opening_' + c.code}" type="number" step="0.01" min="0"
                    th:value="${c.base ? 0 : null}"
                    class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
@@ -557,23 +603,46 @@
           </div>
         </div>
         <button class="w-full rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
-          Open shift
+          <span th:text="#{shift.open}">Open shift</span>
         </button>
       </form>
-      <div class="text-xs text-slate-500">Open a shift to start checkout.</div>
+      <div class="text-xs text-slate-500" th:text="#{pos.openShiftPrompt}">Open a shift to start checkout.</div>
     </div>
   </div>
 
-  <div id="checkoutSection" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-    <div class="text-sm font-semibold text-slate-800">Adjustments</div>
-    <div class="grid grid-cols-2 gap-2">
+  <div id="checkoutSection" class="checkout-shell mt-5 space-y-3" data-ui-module="checkout">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="text-sm font-semibold text-slate-900" th:text="#{pos.checkout}">Checkout</div>
+      <div class="text-[11px] font-semibold text-slate-600" th:text="#{pos.fastFlow}">Fast transaction flow</div>
+    </div>
+
+    <div class="payment-priority" aria-live="polite">
+      <div class="payment-priority-grid">
+        <div>
+          <div class="payment-priority-label" th:text="#{pos.totalDue}">Total Due</div>
+          <div id="paymentFocusTotal" class="payment-priority-value" th:text="${@uiFormat.money(cart.total)}">$0.00</div>
+        </div>
+        <div>
+          <div class="payment-priority-label" th:text="#{pos.received}">Received</div>
+          <div id="paymentFocusReceived" class="payment-priority-value">-</div>
+        </div>
+        <div>
+          <div id="paymentFocusStatus" class="payment-priority-label" th:text="#{pos.change}">Change</div>
+          <div id="paymentFocusChange" class="payment-priority-value">-</div>
+        </div>
+      </div>
+      <div class="payment-priority-sub"><span th:text="#{pos.baseImpact}">Base impact</span>: <span id="paymentFocusChangeBase">-</span></div>
+    </div>
+
+    <div class="text-sm font-semibold text-slate-800" th:text="#{pos.adjustments}">Adjustments</div>
+    <div class="grid grid-cols-1 2xl:grid-cols-2 gap-2">
       <form action="/pos/cart/discount" method="post" class="m-0"
             hx-post="/pos/cart/discount" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <label class="block text-xs text-slate-500">Discount</label>
-        <div class="mt-1 flex items-center gap-2">
+        <label class="ui-label" th:text="#{pos.discount}">Discount</label>
+        <div class="mt-1 flex flex-wrap items-center gap-2">
           <select name="discountType"
-                  class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-sm
+                  class="ui-select shrink-0 rounded-xl px-2.5 py-2 text-sm
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
             <option value="AMOUNT"
                     th:selected="${cart.discountType != null and cart.discountType.name() == 'AMOUNT'}">$</option>
@@ -581,71 +650,73 @@
                     th:selected="${cart.discountType != null and cart.discountType.name() == 'PERCENT'}">%</option>
           </select>
           <input type="number" step="0.01" min="0" name="discountValue"
-                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                 class="ui-input min-w-0 flex-1 rounded-xl px-3 py-2 text-sm
                         focus:outline-none focus:ring-2 focus:ring-slate-300"
                  th:value="${cart.discountValue}"/>
-          <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
-            Apply
+          <button class="ui-btn ui-btn-primary shrink-0 rounded-xl px-3 py-2 text-xs">
+            <span th:text="#{common.apply}">Apply</span>
           </button>
         </div>
-        <input type="text" name="discountReason" placeholder="Reason (optional)"
-               class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+        <input type="text" name="discountReason" th:placeholder="#{common.reasonOptional}" placeholder="Reason (optional)"
+               class="ui-input mt-2 w-full rounded-xl px-3 py-2 text-xs
                       focus:outline-none focus:ring-2 focus:ring-slate-300"
                th:value="${cart.discountReason}"/>
         <div class="mt-2 flex flex-wrap gap-2">
-          <button type="button" class="discount-quick rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold hover:bg-slate-50 transition" data-discount-pct="5">5%</button>
-          <button type="button" class="discount-quick rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold hover:bg-slate-50 transition" data-discount-pct="10">10%</button>
-          <button type="button" class="discount-quick rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold hover:bg-slate-50 transition" data-discount-pct="15">15%</button>
+          <button type="button" class="discount-quick ui-btn ui-btn-secondary rounded-xl px-3 py-1.5 text-[11px]" data-discount-pct="5">5%</button>
+          <button type="button" class="discount-quick ui-btn ui-btn-secondary rounded-xl px-3 py-1.5 text-[11px]" data-discount-pct="10">10%</button>
+          <button type="button" class="discount-quick ui-btn ui-btn-secondary rounded-xl px-3 py-1.5 text-[11px]" data-discount-pct="15">15%</button>
         </div>
       </form>
 
       <form action="/pos/cart/tax" method="post" class="m-0"
             hx-post="/pos/cart/tax" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <label class="block text-xs text-slate-500">Tax %</label>
-        <div class="mt-1 flex items-center gap-2">
+        <label class="ui-label" th:text="#{pos.taxPercent}">Tax %</label>
+        <div class="mt-1 flex flex-wrap items-center gap-2">
           <input type="number" step="0.01" min="0" name="taxRate"
-                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                 class="ui-input min-w-0 flex-1 rounded-xl px-3 py-2 text-sm
                         focus:outline-none focus:ring-2 focus:ring-slate-300"
                  th:value="${cart.taxRatePercent}"/>
-          <button class="rounded-xl bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800 transition">
-            Apply
+          <button class="ui-btn ui-btn-primary shrink-0 rounded-xl px-3 py-2 text-xs">
+            <span th:text="#{common.apply}">Apply</span>
           </button>
         </div>
       </form>
     </div>
 
-    <div class="flex justify-between text-sm text-slate-700">
-      <span>Subtotal</span><span class="font-medium" th:text="${@uiFormat.money(cart.subtotal)}">0</span>
-    </div>
-    <div class="flex justify-between text-sm text-slate-700">
-      <span th:text="${cart.discountType != null and cart.discountType.name() == 'PERCENT' ? 'Discount (' + cart.discountValue + '%)' : 'Discount'}">Discount</span>
-      <span class="font-medium" th:text="${@uiFormat.money(cart.discount)}">0</span>
-    </div>
-    <div class="text-xs text-slate-500"
-         th:if="${cart.discountReason != null and !#strings.isEmpty(cart.discountReason)}"
-         th:text="${'Reason: ' + cart.discountReason}">Reason</div>
-    <div class="flex justify-between text-sm text-slate-700">
-      <span>Tax</span><span class="font-medium" th:text="${@uiFormat.money(cart.tax)}">0</span>
-    </div>
-    <div class="flex justify-between text-base font-semibold text-slate-900 pt-2 border-t border-slate-200">
-      <span>Total</span><span th:text="${@uiFormat.money(cart.total)}">0</span>
+    <div class="ui-card-soft space-y-2" data-ui-module="payment-summary">
+      <div class="flex justify-between text-sm text-slate-700">
+        <span th:text="#{pos.subtotal}">Subtotal</span><span class="font-semibold text-slate-900" th:text="${@uiFormat.money(cart.subtotal)}">0</span>
+      </div>
+      <div class="flex justify-between text-sm text-slate-700">
+        <span th:text="${cart.discountType != null and cart.discountType.name() == 'PERCENT' ? #messages.msg('pos.discountPercent', cart.discountValue) : #messages.msg('pos.discount')}">Discount</span>
+        <span class="font-semibold text-slate-900" th:text="${@uiFormat.money(cart.discount)}">0</span>
+      </div>
+      <div class="text-xs text-slate-600"
+           th:if="${cart.discountReason != null and !#strings.isEmpty(cart.discountReason)}"
+           th:text="${#messages.msg('pos.reasonPrefix', cart.discountReason)}">Reason</div>
+      <div class="flex justify-between text-sm text-slate-700">
+        <span th:text="#{pos.tax}">Tax</span><span class="font-semibold text-slate-900" th:text="${@uiFormat.money(cart.tax)}">0</span>
+      </div>
+      <div class="flex justify-between text-base font-semibold text-slate-900 pt-2 border-t border-slate-200">
+        <span th:text="#{pos.total}">Total</span><span th:text="${@uiFormat.money(cart.total)}">0</span>
+      </div>
     </div>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-3">
+    <div class="ui-card rounded-2xl p-3" data-ui-module="cash-tender">
       <div class="flex items-center justify-between gap-2">
-        <div class="text-xs font-semibold text-slate-700">Cash tender</div>
-        <div id="cashRateText" class="text-[11px] text-slate-500">Rate: -</div>
+        <div class="text-xs font-semibold text-slate-700" th:text="#{pos.cashTender}">Cash tender</div>
+        <div id="cashRateText" class="text-[11px] text-slate-500" th:text="#{pos.rate} + ': -'">Rate: -</div>
       </div>
       <div class="mt-1 text-[10px] text-slate-400">
-        Rates by <a href="https://www.exchangerate-api.com" class="underline hover:text-slate-600">ExchangeRate-API</a>
+        <span th:text="#{pos.ratesBy}">Rates by</span> <a href="https://www.exchangerate-api.com" class="underline hover:text-slate-600">ExchangeRate-API</a>
       </div>
       <div class="mt-2 grid grid-cols-1 gap-2">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-2">
           <div class="sm:col-span-2">
-            <label class="block text-[11px] font-semibold text-slate-500">Currency</label>
+            <label class="ui-label text-[11px]" th:text="#{pos.currency}">Currency</label>
             <select id="cashCurrency"
-                    class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                    class="ui-select mt-1 w-full rounded-xl px-3 py-2 text-sm
                            focus:outline-none focus:ring-2 focus:ring-slate-300">
               <option th:each="c : ${currencies}"
                       th:value="${c.code}"
@@ -657,108 +728,112 @@
             </select>
           </div>
           <div>
-            <label class="block text-[11px] font-semibold text-slate-500">Total in currency</label>
+            <label class="ui-label text-[11px]" th:text="#{pos.totalInCurrency}">Total in currency</label>
             <div id="cashTotalForeign"
                  class="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">-</div>
           </div>
         </div>
-        <input id="cashReceived" type="number" step="0.01" min="0"
-               class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
-                      focus:outline-none focus:ring-2 focus:ring-slate-300"
-               placeholder="Cash received"/>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-mode="exact">Exact</button>
-          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-add="5">+5</button>
-          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-add="10">+10</button>
-          <button type="button" class="cash-quick rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition" data-cash-add="20">+20</button>
+        <div>
+          <label for="cashReceived" class="ui-label text-[11px]" th:text="#{pos.amountReceived}">Amount received</label>
+          <input id="cashReceived" type="number" step="0.01" min="0" inputmode="decimal"
+                 class="ui-input mt-1 w-full rounded-xl px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-slate-300"
+                 th:placeholder="#{pos.cashReceivedPlaceholder}"
+                 placeholder="Cash received"/>
         </div>
-        <div class="text-xs text-slate-600">
-          <span id="cashStatus">Change</span>: <span id="cashChange">-</span>
-          <span class="text-slate-400">(<span id="cashChangeBase">-</span> base)</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="cash-quick ui-btn ui-btn-secondary rounded-xl px-3 py-2 text-xs" data-cash-mode="exact" th:text="#{pos.exact}">Exact</button>
+          <button type="button" class="cash-quick ui-btn ui-btn-secondary rounded-xl px-3 py-2 text-xs" data-cash-add="5">+5</button>
+          <button type="button" class="cash-quick ui-btn ui-btn-secondary rounded-xl px-3 py-2 text-xs" data-cash-add="10">+10</button>
+          <button type="button" class="cash-quick ui-btn ui-btn-secondary rounded-xl px-3 py-2 text-xs" data-cash-add="20">+20</button>
+        </div>
+        <div class="text-sm font-semibold text-slate-800" aria-live="polite">
+          <span id="cashStatus" th:text="#{pos.change}">Change</span>: <span id="cashChange">-</span>
+          <span class="text-xs text-slate-600">(<span id="cashChangeBase">-</span> <span th:text="#{pos.baseImpact}">base</span>)</span>
         </div>
       </div>
     </div>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-3">
-      <div class="text-xs font-semibold text-slate-700">Split payment</div>
-      <div class="mt-1 text-[11px] text-slate-500">Amounts are entered in the selected currency and converted using stored rates.</div>
+    <div class="ui-card rounded-2xl p-3" data-ui-module="split-payment">
+      <div class="text-xs font-semibold text-slate-700" th:text="#{pos.splitPayment}">Split payment</div>
+      <div class="mt-1 text-[11px] text-slate-500" th:text="#{pos.splitPaymentHelp}">Amounts are entered in the selected currency and converted using stored rates.</div>
       <form action="/pos/checkout/split" method="post" class="mt-2 space-y-2"
             hx-post="/pos/checkout/split" hx-target="#cartContainer" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
         <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
                th:value="${T(java.util.UUID).randomUUID().toString()}"/>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 2xl:grid-cols-3 gap-2">
           <select name="method1"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                  class="ui-select w-full rounded-xl px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
-            <option value="">Method</option>
-            <option value="CASH">Cash</option>
-            <option value="CARD">Card</option>
-            <option value="QR">QR</option>
+            <option value="" th:text="#{pos.method}">Method</option>
+            <option value="CASH" th:text="#{payment.method.cash}">Cash</option>
+            <option value="CARD" th:text="#{payment.method.card}">Card</option>
+            <option value="QR" th:text="#{payment.method.qr}">QR</option>
           </select>
           <select name="currencyCode1"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                  class="ui-select w-full rounded-xl px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
             <option th:each="c : ${currencies}"
                     th:value="${c.code}"
                     th:selected="${c.base}"
                     th:text="${c.code}">USD</option>
           </select>
-          <input name="amount1" type="number" step="0.01" min="0" placeholder="Amount"
-                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+          <input name="amount1" type="number" step="0.01" min="0" th:placeholder="#{pos.amount}" placeholder="Amount"
+                 class="ui-input w-full rounded-xl px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 2xl:grid-cols-3 gap-2">
           <select name="method2"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                  class="ui-select w-full rounded-xl px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
-            <option value="">Method</option>
-            <option value="CASH">Cash</option>
-            <option value="CARD">Card</option>
-            <option value="QR">QR</option>
+            <option value="" th:text="#{pos.method}">Method</option>
+            <option value="CASH" th:text="#{payment.method.cash}">Cash</option>
+            <option value="CARD" th:text="#{payment.method.card}">Card</option>
+            <option value="QR" th:text="#{payment.method.qr}">QR</option>
           </select>
           <select name="currencyCode2"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                  class="ui-select w-full rounded-xl px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
             <option th:each="c : ${currencies}"
                     th:value="${c.code}"
                     th:selected="${c.base}"
                     th:text="${c.code}">USD</option>
           </select>
-          <input name="amount2" type="number" step="0.01" min="0" placeholder="Amount"
-                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+          <input name="amount2" type="number" step="0.01" min="0" th:placeholder="#{pos.amount}" placeholder="Amount"
+                 class="ui-input w-full rounded-xl px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 2xl:grid-cols-3 gap-2">
           <select name="method3"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                  class="ui-select w-full rounded-xl px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
-            <option value="">Method</option>
-            <option value="CASH">Cash</option>
-            <option value="CARD">Card</option>
-            <option value="QR">QR</option>
+            <option value="" th:text="#{pos.method}">Method</option>
+            <option value="CASH" th:text="#{payment.method.cash}">Cash</option>
+            <option value="CARD" th:text="#{payment.method.card}">Card</option>
+            <option value="QR" th:text="#{payment.method.qr}">QR</option>
           </select>
           <select name="currencyCode3"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                  class="ui-select w-full rounded-xl px-3 py-2 text-xs
                          focus:outline-none focus:ring-2 focus:ring-slate-300">
             <option th:each="c : ${currencies}"
                     th:value="${c.code}"
                     th:selected="${c.base}"
                     th:text="${c.code}">USD</option>
           </select>
-          <input name="amount3" type="number" step="0.01" min="0" placeholder="Amount"
-                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+          <input name="amount3" type="number" step="0.01" min="0" th:placeholder="#{pos.amount}" placeholder="Amount"
+                 class="ui-input w-full rounded-xl px-3 py-2 text-xs
                         focus:outline-none focus:ring-2 focus:ring-slate-300"/>
         </div>
-        <button class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50 transition">
-          Pay split
+        <button class="ui-btn ui-btn-secondary w-full rounded-xl px-3 py-2 text-xs">
+          <span th:text="#{pos.paySplit}">Pay split</span>
         </button>
       </form>
     </div>
 
-    <div class="grid grid-cols-3 gap-2 pt-3">
-      <form action="/pos/checkout" method="post"
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3">
+      <form action="/pos/checkout" method="post" data-cash-checkout-form="true"
             hx-post="/pos/checkout" hx-target="#cartContainer" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="terminalId" class="terminal-id-field" th:value="${terminalId}"/>
@@ -768,8 +843,8 @@
         <input type="hidden" name="currencyCode" id="cashCurrencyCode"/>
         <input type="hidden" name="currencyRate" id="cashCurrencyRate"/>
         <input type="hidden" name="foreignAmount" id="cashForeignAmount"/>
-        <button id="checkoutCashButton" class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
-          Cash
+        <button id="checkoutCashButton" class="ui-btn ui-btn-primary w-full rounded-xl py-2.5 text-sm active:scale-[0.99]">
+          <span th:text="#{payment.method.cash}">Cash</span>
         </button>
       </form>
       <form action="/pos/checkout" method="post"
@@ -779,8 +854,8 @@
         <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
                th:value="${T(java.util.UUID).randomUUID().toString()}"/>
         <input type="hidden" name="method" value="CARD"/>
-        <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
-          Card
+        <button class="ui-btn ui-btn-secondary w-full rounded-xl py-2.5 text-sm active:scale-[0.99]">
+          <span th:text="#{payment.method.card}">Card</span>
         </button>
       </form>
       <form action="/pos/checkout" method="post"
@@ -790,8 +865,8 @@
         <input type="hidden" name="clientCheckoutId" class="client-checkout-id-field"
                th:value="${T(java.util.UUID).randomUUID().toString()}"/>
         <input type="hidden" name="method" value="QR"/>
-        <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
-          QR
+        <button class="ui-btn ui-btn-secondary w-full rounded-xl py-2.5 text-sm active:scale-[0.99]">
+          <span th:text="#{payment.method.qr}">QR</span>
         </button>
       </form>
     </div>

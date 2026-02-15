@@ -41,12 +41,14 @@ public class UserSeeder implements CommandLineRunner {
         admin.setUsername(adminUsername);
         admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRole(UserRole.ADMIN);
+        admin.setLanguagePreference("en");
         appUserRepo.save(admin);
 
         AppUser cashier = new AppUser();
         cashier.setUsername(cashierUsername);
         cashier.setPassword(passwordEncoder.encode(cashierPassword));
         cashier.setRole(UserRole.CASHIER);
+        cashier.setLanguagePreference("en");
         appUserRepo.save(cashier);
 
         log.warn("Seeded default users: admin='{}', cashier='{}'. Change passwords immediately.",

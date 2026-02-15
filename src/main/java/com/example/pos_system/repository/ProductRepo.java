@@ -55,6 +55,25 @@ public interface ProductRepo extends JpaRepository<Product, Long>, JpaSpecificat
     @Query("select p from Product p where p.stockQty is not null and p.lowStockThreshold is not null and p.stockQty <= p.lowStockThreshold and p.category.id = :categoryId")
     Page<Product> findLowStockByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
+    @EntityGraph(attributePaths = "category")
+    @Query("""
+            select p
+            from Product p
+            left join p.category c
+            where p.active = true
+              and (:categoryId is null or c.id = :categoryId)
+              and (:q is null
+                    or lower(p.name) like lower(concat(:q, '%'))
+                    or lower(coalesce(p.sku, '')) like lower(concat(:q, '%'))
+                    or lower(coalesce(p.barcode, '')) like lower(concat(:q, '%')))
+              and (:cursorId is null or p.id < :cursorId)
+            order by p.id desc
+            """)
+    java.util.List<Product> findActiveFeedBatch(@Param("q") String q,
+                                                @Param("categoryId") Long categoryId,
+                                                @Param("cursorId") Long cursorId,
+                                                Pageable pageable);
+
     interface CategoryCount {
         Long getCategoryId();
         Long getCount();

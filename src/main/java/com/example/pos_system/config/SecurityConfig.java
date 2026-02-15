@@ -32,8 +32,14 @@ public class SecurityConfig {
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"))
                         .requestMatchers("/analytics").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"))
-                        .requestMatchers("/marketing/**", "/pos-setting/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                        .requestMatchers("/marketing/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER')"))
+                        .requestMatchers("/pos-setting/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasRole('ADMIN') or hasAuthority('PERM_POS_TERMINAL_SETTINGS')"))
+                        .requestMatchers("/pos/checkout/*/print").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_POS_PRINT') or hasAuthority('PERM_USE_POS')"))
+                        .requestMatchers("/pos/drawer/open").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_POS_DRAWER_OPEN') or hasAuthority('PERM_USE_POS')"))
                         .requestMatchers("/", "/pos/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_USE_POS')"))
                         .requestMatchers("/sales/*/receipt").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
