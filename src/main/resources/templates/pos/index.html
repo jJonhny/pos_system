@@ -42,8 +42,8 @@
       --ep-focus-ring:0 0 0 3px rgba(33, 101, 177, .22);
       --pos-header-h:0px;
       --pos-toolbar-h:0px;
-      --pos-main-y-pad:32px;
-      --pos-toolbar-gap:24px;
+      --pos-main-y-pad:24px;
+      --pos-toolbar-gap:16px;
     }
 
     html, body{
@@ -276,7 +276,7 @@
     header{
       border-color:var(--ep-stroke) !important;
       background:rgba(255,255,255,.86) !important;
-      box-shadow:0 16px 24px -26px rgba(15,33,58,.8);
+      box-shadow:0 12px 20px -24px rgba(15,33,58,.72);
       backdrop-filter:none;
     }
 
@@ -297,14 +297,14 @@
       border:1px solid var(--ep-stroke);
       border-radius:14px;
       background:linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-      padding:12px;
+      padding:10px;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
     }
 
     .toolbar-query-form .ui-label,
     .toolbar-quick-form .ui-label,
     .toolbar-barcode-form .ui-label{
-      margin-bottom:6px;
+      margin-bottom:4px;
     }
 
     .toolbar-quick-form .ui-btn,
@@ -312,9 +312,61 @@
       min-height:42px;
     }
 
+    .toolbar-shortcut-chip{
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform:translateY(-50%);
+      border:1px solid var(--ep-stroke-strong);
+      border-radius:9999px;
+      background:#ffffff;
+      color:#5f7694;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.02em;
+      line-height:1;
+      padding:4px 8px;
+      pointer-events:none;
+    }
+
+    .toolbar-search-input{
+      padding-right:68px;
+      min-height:46px;
+      font-size:15px;
+      font-weight:600;
+    }
+
+    .toolbar-barcode-input{
+      padding-right:56px;
+      min-height:44px;
+    }
+
+    .toolbar-scan-btn{
+      min-width:84px;
+      min-height:44px;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
+      box-shadow:0 12px 22px -16px rgba(12,31,59,.92);
+    }
+
+    .toolbar-controls-grid{
+      align-items:stretch;
+    }
+
     .surface-products,
     .surface-cart{
       background:linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+    }
+
+    .surface-products{
+      box-shadow:0 16px 28px -30px rgba(15,33,58,.45) !important;
+    }
+
+    .surface-cart{
+      background:linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%) !important;
+      border-color:#c5d3e5 !important;
+      box-shadow:0 24px 36px -28px rgba(12,31,59,.62), 0 8px 14px -12px rgba(12,31,59,.28) !important;
     }
 
     .surface-products > .border-b,
@@ -323,20 +375,37 @@
       background:linear-gradient(180deg, #ffffff 0%, #f4f8fd 100%);
     }
 
-    #quickTotals > div{
+    #quickTotals .quick-total-cell{
       border:1px solid var(--ep-stroke);
       background:var(--ep-surface-soft);
       border-radius:1rem;
+      padding:12px 14px;
+      text-align:right;
     }
 
-    #quickTotals > div:last-child{
+    #quickTotals .quick-total-cell.is-total{
       border-color:#0a1c35;
       background:linear-gradient(135deg, #0c1f3b 0%, #14365f 100%) !important;
       box-shadow:0 12px 20px -16px rgba(10,28,53,.85);
     }
 
-    #quickTotals > div:last-child .text-white\/70{
+    #quickTotals .quick-total-cell.is-total .text-white\/70{
       color:rgba(255,255,255,.76) !important;
+    }
+
+    #quickTotals .quick-total-value{
+      margin-top:2px;
+      font-size:18px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:-.01em;
+    }
+
+    #quickTotals .quick-total-cell.is-total .quick-total-value{
+      font-size:28px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-.02em;
     }
 
     main input:not([type="checkbox"]):not([type="radio"]),
@@ -378,18 +447,60 @@
 
     #productGridWrap [data-product-card='true'] .group > .relative{
       border-color:var(--ep-stroke) !important;
-      box-shadow:0 14px 30px -28px rgba(15,31,54,.75), 0 5px 12px -10px rgba(15,31,54,.34);
+      box-shadow:0 20px 38px -30px rgba(15,31,54,.75), 0 8px 14px -12px rgba(15,31,54,.34);
       background:linear-gradient(180deg, #ffffff 0%, #fafdff 100%) !important;
     }
 
     #productGridWrap [data-product-card='true'] .group:hover > .relative{
-      transform:translateY(-2px);
-      border-color:#c6d3e2 !important;
+      transform:translateY(-3px);
+      border-color:#bccddd !important;
+      box-shadow:0 26px 46px -34px rgba(15,31,54,.82), 0 12px 22px -16px rgba(15,31,54,.42);
+    }
+
+    #productGridWrap [data-product-card='true'] .group:focus-within > .relative{
+      border-color:#7d9cbe !important;
+      box-shadow:0 0 0 3px rgba(46,93,144,.16), 0 18px 28px -20px rgba(15,31,54,.34);
     }
 
     #productGridWrap .product-image-wrap{
-      background:linear-gradient(180deg, #f4f8fd 0%, #edf3fa 100%);
+      background:#f8f9fb;
       border-bottom:1px solid var(--ep-stroke);
+    }
+
+    #productGridWrap .product-image-wrap .product-image{
+      filter:drop-shadow(0 10px 16px rgba(15,33,58,.18));
+    }
+
+    #productGridWrap .product-admin-actions{
+      opacity:0;
+      transform:translateY(-2px);
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+
+    #productGridWrap [data-product-card='true'] .group:hover .product-admin-actions,
+    #productGridWrap [data-product-card='true'] .group:focus-within .product-admin-actions{
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
+
+    #productGridWrap .product-action-btn{
+      border:1px solid transparent;
+    }
+
+    #productGridWrap .product-action-btn:hover{
+      border-color:var(--ep-stroke);
+    }
+
+    #productGridWrap .card-qty-stepper{
+      backdrop-filter:blur(2px);
+    }
+
+    #productGridWrap .product-add-fab{
+      min-width:88px;
+      justify-content:center;
+      backdrop-filter:blur(2px);
     }
 
     #cartPanel .cart-item{
@@ -402,10 +513,155 @@
       box-shadow:0 10px 18px -18px rgba(15,33,58,.8);
     }
 
+    #cartPanel .cart-item.cart-item-active{
+      border-color:#8fa7c2 !important;
+      background:linear-gradient(180deg, #ffffff 0%, #edf4fc 100%) !important;
+      box-shadow:0 0 0 3px rgba(46,93,144,.14), 0 12px 18px -18px rgba(12,31,59,.52);
+    }
+
+    #cartPanel .cart-item-added{
+      animation:cart-item-pop .34s ease-out;
+    }
+
     #checkoutSection{
       border-color:var(--ep-stroke) !important;
       background:linear-gradient(180deg, #f6f9fd 0%, #f0f5fb 100%) !important;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
+    }
+
+    #checkoutSection .checkout-action-rail{
+      position:sticky;
+      bottom:0;
+      z-index:20;
+      margin-top:12px;
+      border-top:1px solid var(--ep-stroke);
+      padding-top:12px;
+      background:linear-gradient(180deg, rgba(240,245,251,0) 0%, #f0f5fb 36%, #edf3fb 100%);
+    }
+
+    #checkoutSection .pay-now-btn{
+      min-height:52px;
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.01em;
+      box-shadow:0 16px 24px -18px rgba(12,31,59,.8);
+    }
+
+    .collapsible-section{
+      border:1px solid var(--ep-stroke);
+      border-radius:var(--radius-lg);
+      background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding:12px;
+    }
+
+    .collapsible-section > summary{
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:14px;
+      font-weight:700;
+      color:var(--ep-text);
+    }
+
+    .collapsible-section > summary::-webkit-details-marker{
+      display:none;
+    }
+
+    .collapsible-section .collapse-chevron{
+      height:26px;
+      width:26px;
+      border-radius:9999px;
+      border:1px solid var(--ep-stroke);
+      background:#fff;
+      display:grid;
+      place-items:center;
+      color:#4f6a88;
+      transition:transform .18s ease, background-color .18s ease;
+      flex:0 0 auto;
+    }
+
+    .collapsible-section[open] .collapse-chevron{
+      transform:rotate(180deg);
+      background:#f2f7fd;
+    }
+
+    .ui-switch{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+    }
+
+    .ui-switch input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .ui-switch-track{
+      width:40px;
+      height:22px;
+      border-radius:9999px;
+      background:#d6e1ee;
+      border:1px solid #bfd0e4;
+      position:relative;
+      transition:background-color .18s ease, border-color .18s ease;
+      flex:0 0 auto;
+    }
+
+    .ui-switch-track::after{
+      content:"";
+      position:absolute;
+      top:2px;
+      left:2px;
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 1px 2px rgba(15,33,58,.2);
+      transition:transform .18s ease;
+    }
+
+    .ui-switch input:checked + .ui-switch-track{
+      background:#12365f;
+      border-color:#12365f;
+    }
+
+    .ui-switch input:checked + .ui-switch-track::after{
+      transform:translateX(18px);
+    }
+
+    .ui-switch input:focus-visible + .ui-switch-track{
+      box-shadow:var(--ep-focus-ring);
+    }
+
+    .cart-updated{
+      animation:cart-panel-flash .42s ease-out;
+    }
+
+    .quick-total-flash{
+      animation:quick-total-flash .45s ease-out;
+    }
+
+    @keyframes cart-item-pop{
+      0%{transform:translateY(5px); opacity:.65;}
+      100%{transform:translateY(0); opacity:1;}
+    }
+
+    @keyframes cart-panel-flash{
+      0%{box-shadow:0 0 0 0 rgba(50,114,186,.36);}
+      100%{box-shadow:0 0 0 10px rgba(50,114,186,0);}
+    }
+
+    @keyframes quick-total-flash{
+      0%{transform:translateY(0) scale(1);}
+      40%{transform:translateY(-1px) scale(1.03);}
+      100%{transform:translateY(0) scale(1);}
     }
 
     @keyframes rise-in{
@@ -432,6 +688,8 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      aspect-ratio:4 / 3;
+      height:auto;
       padding:0.75rem;
     }
     #productGrid .product-image-wrap img{
@@ -442,7 +700,8 @@
       display:block;
     }
     #productGrid[data-density="compact"] .product-image-wrap{
-      height:10rem;
+      aspect-ratio:1 / 1;
+      height:auto;
       padding:0.5rem;
     }
     #productGrid[data-density="compact"] .product-content{
@@ -544,10 +803,16 @@
       .toolbar-query-form,
       .toolbar-quick-form,
       .toolbar-barcode-form{
-        padding:10px;
+        padding:8px;
       }
       #productGridWrap [data-product-card='true'] .group > .relative{
         box-shadow:0 8px 16px -18px rgba(15,31,54,.45);
+      }
+      #checkoutSection .checkout-action-rail{
+        position:static;
+        background:transparent;
+        border-top:0;
+        padding-top:4px;
       }
     }
   </style>
@@ -571,8 +836,8 @@
   <div id="posAppShell" class="min-h-screen lg:h-[100dvh] lg:overflow-hidden lg:flex lg:flex-col">
     <!-- Sticky top toolbar (UI only) -->
     <header id="posHeader" class="sticky top-0 z-40 bg-white/80 border-b border-slate-200 lg:flex-none">
-      <div class="w-full px-6 lg:px-10 py-5">
-        <div class="flex flex-col gap-4">
+      <div class="w-full px-6 lg:px-10 py-3">
+        <div class="flex flex-col gap-3">
           <!-- Title row -->
           <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
             <div class="flex items-center gap-3">
@@ -614,9 +879,9 @@
       </div>
     </header>
 
-    <main id="posMain" class="w-full px-6 lg:px-10 py-6 lg:pt-4 lg:pb-4 lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:flex lg:flex-col">
-      <section id="posToolbar" class="toolbar-shell rounded-2xl border border-slate-200 bg-white/80 p-4 lg:p-5 shadow-sm lg:flex-none">
-        <div class="flex flex-col gap-4">
+    <main id="posMain" class="w-full px-6 lg:px-10 py-4 lg:pt-3 lg:pb-3 lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:flex lg:flex-col">
+      <section id="posToolbar" class="toolbar-shell rounded-2xl border border-slate-200 bg-white/80 p-3 lg:p-4 shadow-sm lg:flex-none">
+        <div class="flex flex-col gap-3">
           <!-- Controls row -->
           <div class="toolbar-controls-grid grid grid-cols-1 xl:grid-cols-12 gap-3 items-end">
             <form method="get" action="/pos"
@@ -635,10 +900,11 @@
                   </span>
                   <input id="searchBox" name="q"
                          th:value="${q}"
-                         class="ui-input w-full pl-10 pr-3 py-2.5 bg-white
+                         class="ui-input toolbar-search-input w-full pl-10 py-2.5 bg-white
                                 focus:outline-none focus:ring-2 focus:ring-slate-300"
                          th:placeholder="#{pos.search.placeholder}"
                          placeholder="Search product (press / to focus)"/>
+                  <span class="toolbar-shortcut-chip font-mono">/</span>
                 </div>
               </div>
 
@@ -701,15 +967,16 @@
                     </svg>
                   </span>
                   <input name="barcode" id="barcodeInput"
-                         class="ui-input w-full pl-10 pr-3 py-2.5 bg-white
+                         class="ui-input toolbar-barcode-input w-full pl-10 py-2.5 bg-white
                                 focus:outline-none focus:ring-2 focus:ring-slate-300"
                          th:placeholder="#{pos.barcode.placeholder}"
                          placeholder="Scan barcode & Enter"
                          autocomplete="off"/>
+                  <span class="toolbar-shortcut-chip font-mono">F8</span>
                 </div>
               </div>
 
-              <button class="ui-btn ui-btn-primary h-[42px] px-5 text-sm
+              <button class="toolbar-scan-btn ui-btn ui-btn-primary h-[42px] px-5 text-sm
                              hover:bg-slate-800 transition active:scale-[0.99]">
                 <span th:text="#{pos.scan}">Scan</span>
               </button>
@@ -767,32 +1034,32 @@
             </span>
           </div>
 
-          <div class="rounded-2xl border border-slate-200 bg-white p-3">
+          <div class="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="quickTotals">
-              <div class="rounded-xl bg-slate-50 px-3 py-2">
+              <div class="quick-total-cell rounded-xl bg-slate-50">
                 <div class="text-[11px] uppercase tracking-wide text-slate-500" th:text="#{pos.subtotal}">Subtotal</div>
-                <div id="qtSubtotal" class="text-sm font-semibold text-slate-900">$0.00</div>
+                <div id="qtSubtotal" class="quick-total-value text-sm font-semibold text-slate-900">$0.00</div>
               </div>
-              <div class="rounded-xl bg-slate-50 px-3 py-2">
+              <div class="quick-total-cell rounded-xl bg-slate-50">
                 <div class="text-[11px] uppercase tracking-wide text-slate-500" th:text="#{pos.discount}">Discount</div>
-                <div id="qtDiscount" class="text-sm font-semibold text-slate-900">$0.00</div>
+                <div id="qtDiscount" class="quick-total-value text-sm font-semibold text-slate-900">$0.00</div>
               </div>
-              <div class="rounded-xl bg-slate-50 px-3 py-2">
+              <div class="quick-total-cell rounded-xl bg-slate-50">
                 <div class="text-[11px] uppercase tracking-wide text-slate-500" th:text="#{pos.tax}">Tax</div>
-                <div id="qtTax" class="text-sm font-semibold text-slate-900">$0.00</div>
+                <div id="qtTax" class="quick-total-value text-sm font-semibold text-slate-900">$0.00</div>
               </div>
-              <div class="rounded-xl bg-slate-900 px-3 py-2 text-white">
+              <div class="quick-total-cell is-total rounded-xl bg-slate-900 text-white">
                 <div class="text-[11px] uppercase tracking-wide text-white/70" th:text="#{pos.total}">Total</div>
-                <div id="qtTotal" class="text-sm font-semibold">$0.00</div>
+                <div id="qtTotal" class="quick-total-value text-sm font-semibold">$0.00</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <div id="posSplitLayout" class="grid grid-cols-12 gap-6 lg:flex-1 lg:min-h-0">
+      <div id="posSplitLayout" class="grid grid-cols-12 gap-4 lg:flex-1 lg:min-h-0">
         <!-- Products -->
-        <section id="productPanel" class="enterprise-panel surface-products col-span-12 lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:min-h-0 lg:min-w-0 lg:flex lg:flex-col">
+        <section id="productPanel" class="enterprise-panel surface-products col-span-12 lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:min-h-0 lg:min-w-0 lg:flex lg:flex-col">
           <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
             <div>
               <div class="text-base font-semibold" th:text="#{pos.products}">Products</div>
@@ -801,7 +1068,7 @@
           </div>
 
           <div id="productPanelBody"
-               class="p-5 lg:min-h-0 lg:min-w-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain split-scroll"
+               class="p-4 lg:min-h-0 lg:min-w-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain split-scroll"
                tabindex="0"
                th:aria-label="#{pos.products}">
             <div id="pinnedSection" class="mb-4 hidden">
@@ -880,14 +1147,23 @@
             </div>
             <div th:replace="~{pos/fragments :: productGridWrap}"></div>
             <div id="productFilterEmpty"
-                 class="mt-4 hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-              <span th:text="#{pos.noProductsThisPage}">No products match the selected filter on this page.</span>
+                 class="mt-4 hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-7 text-sm text-slate-600">
+              <div class="mx-auto flex max-w-sm flex-col items-center gap-3 text-center">
+                <div class="h-12 w-12 rounded-2xl border border-slate-200 bg-white grid place-items-center text-slate-400">
+                  <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M3 5h18"/>
+                    <path d="M7 12h10"/>
+                    <path d="M10 19h4"/>
+                  </svg>
+                </div>
+                <span th:text="#{pos.noProductsThisPage}">No products match the selected filter on this page.</span>
+              </div>
             </div>
           </div>
         </section>
 
         <!-- Cart -->
-        <aside id="cartPanelShell" class="enterprise-panel surface-cart col-span-12 lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:min-h-0 lg:min-w-0 lg:flex lg:flex-col">
+        <aside id="cartPanelShell" class="enterprise-panel surface-cart col-span-12 lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:min-h-0 lg:min-w-0 lg:flex lg:flex-col">
           <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
             <div>
               <div class="text-base font-semibold" th:text="#{pos.cart}">Cart</div>
@@ -901,7 +1177,7 @@
           </div>
 
           <div id="cartPanelBody"
-               class="p-5 lg:min-h-0 lg:min-w-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain split-scroll"
+               class="p-4 lg:min-h-0 lg:min-w-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain split-scroll"
                tabindex="0"
                th:aria-label="#{pos.cart}">
             <div th:replace="~{pos/fragments :: cartContainer}"></div>
@@ -930,6 +1206,8 @@
       lowAt: /*[[#{pos.lowAt}]]*/ "Low @",
       wholesaleMin: /*[[#{pos.wholesaleMin}]]*/ "Wholesale min",
       commonAdd: /*[[#{common.add}]]*/ "Add",
+      commonRemove: /*[[#{common.remove}]]*/ "Remove",
+      commonEdit: /*[[#{common.edit}]]*/ "Edit",
       noProductsFound: /*[[#{pos.noProductsFound}]]*/ "No products found.",
       requestFailed: /*[[#{pos.error.requestFailed}]]*/ "Request failed.",
       feedUnable: /*[[#{pos.feed.unable}]]*/ "Unable to load products.",
@@ -1253,6 +1531,16 @@
       setProductCounts(visible, cards.length);
     };
 
+    const flashElement = (el, className) => {
+      if (!el) return;
+      el.classList.remove(className);
+      void el.offsetWidth;
+      el.classList.add(className);
+      window.setTimeout(() => el.classList.remove(className), 520);
+    };
+
+    let lastQuickTotalValue = null;
+
     const updateQuickTotals = () => {
       const panel = getCartPanel();
       const subtotalEl = document.getElementById("qtSubtotal");
@@ -1265,6 +1553,7 @@
         discountEl.textContent = "-";
         taxEl.textContent = "-";
         totalEl.textContent = "-";
+        lastQuickTotalValue = null;
         return;
       }
       const subtotal = Number.parseFloat(panel.dataset.subtotal || "0");
@@ -1275,6 +1564,10 @@
       discountEl.textContent = formatMoney(discount);
       taxEl.textContent = formatMoney(tax);
       totalEl.textContent = formatMoney(total);
+      if (lastQuickTotalValue != null && Math.abs(total - lastQuickTotalValue) > 0.0001) {
+        flashElement(totalEl.closest(".quick-total-cell"), "quick-total-flash");
+      }
+      lastQuickTotalValue = total;
     };
 
     let selectedCartId = null;
@@ -1287,6 +1580,7 @@
         el.classList.toggle("ring-2", active);
         el.classList.toggle("ring-slate-900/20", active);
         el.classList.toggle("border-slate-300", active);
+        el.classList.toggle("cart-item-active", active);
       });
     };
 
@@ -1706,7 +2000,7 @@
 
     const productImageHtml = (item) => {
       if (item.imageUrl) {
-        return `<img src="${escapeHtml(item.imageUrl)}" alt="" loading="lazy" decoding="async" class="h-full w-full object-contain object-center block"/>`;
+        return `<img src="${escapeHtml(item.imageUrl)}" alt="" loading="lazy" decoding="async" class="product-image h-full w-full object-contain object-center block"/>`;
       }
       return `<div class="h-full w-full grid place-items-center text-slate-400">
                 <div class="flex flex-col items-center gap-2 text-slate-400">
@@ -1719,21 +2013,38 @@
               </div>`;
     };
 
+    const categoryBadgeHtml = (item) => {
+      const categoryName = (item.categoryName || "").trim();
+      if (!categoryName) return "";
+      return `<div class="rounded-full border border-slate-200 bg-white/95 px-2.5 py-1 text-slate-600">${escapeHtml(categoryName)}</div>`;
+    };
+
     const stockBadgeHtml = (item) => {
       const stockQty = Number.isFinite(item.stockQty) ? item.stockQty : 0;
+      const lowThreshold = parseIntOrNull(item.lowStockThreshold);
+      const lowThresholdReached = stockQty > 0 && lowThreshold != null && stockQty <= lowThreshold;
       if (stockQty <= 0) {
         return `<div class="rounded-full bg-red-100 px-2.5 py-1 text-red-700">${escapeHtml(I18N.outOfStock)}</div>`;
       }
-      if (item.lowStock) {
+      if (lowThresholdReached || item.lowStock) {
+        return `<div class="rounded-full border border-red-300 bg-white/95 px-2.5 py-1 text-red-700">${escapeHtml(I18N.lowStock)}</div>`;
+      }
+      if (stockQty < 20) {
         return `<div class="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">${escapeHtml(I18N.lowStock)}</div>`;
       }
-      return `<div class="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-700">${escapeHtml(I18N.inStock)}</div>`;
+      if (stockQty > 50) {
+        return `<div class="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-700">${escapeHtml(I18N.inStock)}</div>`;
+      }
+      return `<div class="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">${escapeHtml(I18N.inStock)}</div>`;
     };
 
     const buildProductCardHtml = (item, order) => {
-      const id = escapeHtml(item.id);
-      const name = escapeHtml(item.name || I18N.productLabelFallback);
-      const sku = escapeHtml(item.sku || item.barcode || "");
+      const idRaw = item.id;
+      const id = escapeHtml(idRaw);
+      const nameRaw = item.name || I18N.productLabelFallback;
+      const name = escapeHtml(nameRaw);
+      const skuRaw = item.sku || item.barcode || "";
+      const sku = escapeHtml(skuRaw);
       const barcode = escapeHtml(item.barcode || "");
       const price = Number.parseFloat(item.price || 0);
       const wholesalePrice = parseNumberOrNull(item.wholesalePrice);
@@ -1743,7 +2054,12 @@
       const unitsPerBox = parseIntOrNull(item.unitsPerBox);
       const unitsPerCase = parseIntOrNull(item.unitsPerCase);
       const imageUrl = escapeHtml(item.imageUrl || "");
-      const cardSkuLabel = sku ? templateReplace(I18N.skuPrefix, sku) : I18N.noSkuBarcode;
+      const categoryNameRaw = (item.categoryName || "").trim();
+      const categoryName = escapeHtml(categoryNameRaw);
+      const cardSkuLabel = skuRaw ? templateReplace(I18N.skuPrefix, skuRaw) : I18N.noSkuBarcode;
+      const editUrl = `/products/${encodeURIComponent(String(idRaw))}/edit`;
+      const manageQuery = (skuRaw || nameRaw || "").trim();
+      const stockManageUrl = `/products?q=${encodeURIComponent(manageQuery)}&sort=stock&dir=asc`;
       return `
         <form method="post"
               action="/pos/cart/add/${id}"
@@ -1771,15 +2087,18 @@
               data-out-of-stock="${stockQty <= 0 ? "true" : "false"}"
               data-units-per-box="${unitsPerBox == null ? "" : escapeHtml(unitsPerBox)}"
               data-units-per-case="${unitsPerCase == null ? "" : escapeHtml(unitsPerCase)}"
-              data-image-url="${imageUrl}">
+              data-image-url="${imageUrl}"
+              data-category-name="${categoryName}">
+          <input type="hidden" name="qty" value="1" data-card-qty-input="true"/>
           <div class="group block h-full w-full text-left cursor-pointer" data-action="add-product-card" title="${escapeHtml(I18N.addToCart)}" aria-label="${escapeHtml(I18N.addToCart)}">
             <div class="relative h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col transition hover:shadow-lg">
-              <div class="product-image-wrap relative h-56 overflow-hidden bg-slate-50 flex items-center justify-center p-3">
+              <div class="product-image-wrap relative aspect-[4/3] overflow-hidden bg-transparent flex items-center justify-center p-3">
                 ${productImageHtml(item)}
-                <div class="absolute left-3 top-3 flex flex-col gap-2 text-xs font-semibold">
+                <div class="absolute left-3 top-3 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
+                  ${categoryBadgeHtml(item)}
                   ${stockBadgeHtml(item)}
                 </div>
-                <div class="absolute right-3 top-3 flex flex-col gap-2">
+                <div class="absolute right-3 top-3 flex items-start gap-2">
                   <div class="pin-toggle h-10 w-10 rounded-full bg-white/90 border border-slate-200 shadow-sm grid place-items-center text-slate-700 hover:bg-slate-900 hover:text-white transition"
                        role="button" tabindex="0" aria-pressed="false" title="${escapeHtml(I18N.pinItem)}"
                        data-product-id="${id}" data-product-name="${name}" data-product-sku="${sku}" data-product-price="${escapeHtml(price)}" data-product-image="${imageUrl}">
@@ -1788,35 +2107,103 @@
                       <path d="M9 13l-1.5 7L12 17l4.5 3L15 13"></path>
                     </svg>
                   </div>
-                  ${unitsPerBox ? `<div class="rounded-full bg-white/90 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600">${escapeHtml(I18N.unitBox)} <span>${escapeHtml(unitsPerBox)}</span></div>` : ""}
-                  ${unitsPerCase ? `<div class="rounded-full bg-white/90 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600">${escapeHtml(I18N.unitCase)} <span>${escapeHtml(unitsPerCase)}</span></div>` : ""}
+                  <div class="product-admin-actions flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 p-1 shadow-sm" data-ignore-card-submit="true">
+                    <a href="${escapeHtml(editUrl)}"
+                       class="product-action-btn h-8 w-8 rounded-full grid place-items-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+                       title="${escapeHtml(I18N.commonEdit)}"
+                       aria-label="${escapeHtml(I18N.commonEdit)}">
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"></path>
+                        <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </a>
+                    <a href="${escapeHtml(stockManageUrl)}"
+                       class="product-action-btn h-8 w-8 rounded-full grid place-items-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+                       title="${escapeHtml(I18N.stock)}"
+                       aria-label="${escapeHtml(I18N.stock)}">
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7h18"></path>
+                        <path d="M6 7v12"></path>
+                        <path d="M12 7v12"></path>
+                        <path d="M18 7v12"></path>
+                        <path d="M4 19h16"></path>
+                      </svg>
+                    </a>
+                  </div>
                 </div>
-                <div class="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 transition">
-                  <div class="rounded-full bg-white/90 border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">${escapeHtml(I18N.tapToAdd)}</div>
+                <div class="absolute inset-x-3 bottom-3 flex items-center justify-end gap-2">
+                  <div class="card-qty-stepper inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white/95 px-1.5 py-1 text-xs font-semibold text-slate-700 shadow-sm"
+                       data-ignore-card-submit="true">
+                    <button type="button"
+                            data-action="card-qty-dec"
+                            class="h-7 w-7 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 hover:bg-slate-100 transition"
+                            title="${escapeHtml(I18N.commonRemove)}"
+                            aria-label="${escapeHtml(I18N.commonRemove)}">-</button>
+                    <span data-card-qty-value="true" class="min-w-[20px] text-center font-semibold text-slate-900">1</span>
+                    <button type="button"
+                            data-action="card-qty-inc"
+                            class="h-7 w-7 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 hover:bg-slate-100 transition"
+                            title="${escapeHtml(I18N.commonAdd)}"
+                            aria-label="${escapeHtml(I18N.commonAdd)}">+</button>
+                  </div>
+                  <button type="submit"
+                          class="product-add-fab inline-flex items-center gap-1.5 rounded-xl border border-slate-900 bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 transition">
+                    <span class="text-sm leading-none">+</span>
+                    <span>${escapeHtml(I18N.commonAdd)}</span>
+                  </button>
                 </div>
               </div>
               <div class="product-content p-4 flex flex-1 flex-col">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <div class="product-title text-base font-semibold text-slate-900 leading-snug line-clamp-2">${name}</div>
-                    <div class="mt-1 text-xs text-slate-500 truncate">${escapeHtml(cardSkuLabel)}</div>
+                    <div class="product-title text-[17px] font-semibold text-slate-900 leading-snug line-clamp-2">${name}</div>
+                    <div class="mt-1 text-[11px] text-slate-400 truncate">${escapeHtml(cardSkuLabel)}</div>
                   </div>
                   <div class="shrink-0 text-right">
-                    <div class="text-lg font-bold text-slate-900">${escapeHtml(formatMoney(price))}</div>
-                    ${wholesalePrice == null ? "" : `<div class="text-xs text-slate-500">${escapeHtml(I18N.wholesale)} <span>${escapeHtml(formatMoney(wholesalePrice))}</span></div>`}
+                    <div class="text-2xl font-extrabold text-slate-900 tracking-tight">${escapeHtml(formatMoney(price))}</div>
+                    ${wholesalePrice == null ? "" : `<div class="mt-1 text-[11px] leading-4 text-slate-500"><div>${escapeHtml(I18N.wholesale)} <span class="font-semibold text-slate-800">${escapeHtml(formatMoney(wholesalePrice))}</span></div>${wholesaleMinQty == null ? "" : `<div>(${escapeHtml(I18N.wholesaleMin)} <span class="font-semibold text-slate-700">${escapeHtml(wholesaleMinQty)}</span>)</div>`}</div>`}
                   </div>
                 </div>
-                <div class="product-meta mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
-                  <span class="rounded-full bg-slate-100 px-2.5 py-1">${escapeHtml(I18N.stock)} <span class="font-semibold text-slate-800">${escapeHtml(stockQty)}</span></span>
-                  ${lowStockThreshold == null ? "" : `<span class="rounded-full bg-slate-100 px-2.5 py-1">${escapeHtml(I18N.lowAt)} <span class="font-semibold text-slate-800">${escapeHtml(lowStockThreshold)}</span></span>`}
-                  ${wholesaleMinQty == null ? "" : `<span class="rounded-full bg-slate-100 px-2.5 py-1">${escapeHtml(I18N.wholesaleMin)} <span class="font-semibold text-slate-800">${escapeHtml(wholesaleMinQty)}</span></span>`}
+                <div class="product-meta mt-3 space-y-1.5 text-[11px] leading-5 text-slate-600">
+                  <div><span class="font-semibold text-slate-700">${escapeHtml(I18N.stock)}</span>: <span class="font-semibold text-slate-900">${escapeHtml(stockQty)}</span>${lowStockThreshold == null ? "" : `<span class="ml-1.5 text-slate-500">(${escapeHtml(I18N.lowAt)} <span class="font-semibold text-slate-700">${escapeHtml(lowStockThreshold)}</span>)</span>`}</div>
+                  ${(unitsPerBox || unitsPerCase) ? `<div class="text-slate-500">${unitsPerBox ? `<span class="font-semibold text-slate-700">${escapeHtml(I18N.unitBox)}</span>: <span class="font-semibold text-slate-800">${escapeHtml(unitsPerBox)}</span>` : ""}${unitsPerBox && unitsPerCase ? `<span class="mx-1 text-slate-300">|</span>` : ""}${unitsPerCase ? `<span class="font-semibold text-slate-700">${escapeHtml(I18N.unitCase)}</span>: <span class="font-semibold text-slate-800">${escapeHtml(unitsPerCase)}</span>` : ""}</div>` : ""}
                 </div>
               </div>
             </div>
           </div>
-          <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">${escapeHtml(I18N.commonAdd)}</button>
         </form>
       `;
+    };
+
+    const clampCardQty = (value) => {
+      const parsed = Number.parseInt(String(value ?? "1"), 10);
+      if (!Number.isFinite(parsed)) return 1;
+      return Math.max(1, Math.min(99, parsed));
+    };
+
+    const setProductCardQty = (form, qty) => {
+      if (!form) return;
+      const safeQty = clampCardQty(qty);
+      const qtyInput = form.querySelector("input[data-card-qty-input='true']");
+      if (qtyInput) qtyInput.value = String(safeQty);
+      form.dataset.qty = String(safeQty);
+      const qtyLabel = form.querySelector("[data-card-qty-value='true']");
+      if (qtyLabel) qtyLabel.textContent = String(safeQty);
+    };
+
+    const adjustProductCardQty = (triggerEl, delta) => {
+      const form = triggerEl?.closest("form[data-product-card='true']");
+      if (!form) return;
+      const qtyInput = form.querySelector("input[data-card-qty-input='true']");
+      const currentQty = clampCardQty(qtyInput ? qtyInput.value : form.dataset.qty);
+      setProductCardQty(form, currentQty + delta);
+    };
+
+    const syncProductCardQtyControls = (root = document) => {
+      root.querySelectorAll("form[data-product-card='true']").forEach((form) => {
+        const qtyInput = form.querySelector("input[data-card-qty-input='true']");
+        setProductCardQty(form, qtyInput ? qtyInput.value : form.dataset.qty);
+      });
     };
 
     const readProductItemFromForm = (form) => {
@@ -1837,7 +2224,8 @@
         lowStock: parseBool(form.dataset.lowStock),
         unitsPerBox: parseIntOrNull(form.dataset.unitsPerBox),
         unitsPerCase: parseIntOrNull(form.dataset.unitsPerCase),
-        imageUrl: form.dataset.imageUrl || form.dataset.recentImage || ""
+        imageUrl: form.dataset.imageUrl || form.dataset.recentImage || "",
+        categoryName: form.dataset.categoryName || ""
       };
     };
 
@@ -1868,7 +2256,18 @@
       const orderStart = grid.querySelectorAll("form[data-product-card='true']").length;
       const html = items.map((item, idx) => buildProductCardHtml(item, orderStart + idx)).join("");
       if (!html && replace) {
-        grid.innerHTML = `<div data-feed-empty="true" class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">${escapeHtml(I18N.noProductsFound)}</div>`;
+        grid.innerHTML = `
+          <div data-feed-empty="true" class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-sm text-slate-600">
+            <div class="mx-auto flex max-w-sm flex-col items-center gap-3 text-center">
+              <div class="h-12 w-12 rounded-2xl border border-slate-200 bg-white grid place-items-center text-slate-400">
+                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                  <path d="m8 12 2.5 2.5L16 9"></path>
+                </svg>
+              </div>
+              <span>${escapeHtml(I18N.noProductsFound)}</span>
+            </div>
+          </div>`;
       } else if (html) {
         const empty = grid.querySelector("[data-feed-empty='true']");
         if (empty) empty.remove();
@@ -1876,6 +2275,7 @@
         injectCsrfIntoForms(grid);
         if (window.htmx) window.htmx.process(grid);
       }
+      syncProductCardQtyControls(grid);
       applyProductListingState();
       syncPinToggles();
     };
@@ -2078,7 +2478,8 @@
         lowStock: !!item.lowStock,
         unitsPerBox: parseIntOrNull(item.unitsPerBox),
         unitsPerCase: parseIntOrNull(item.unitsPerCase),
-        imageUrl: item.imageUrl || ""
+        imageUrl: item.imageUrl || "",
+        categoryName: item.categoryName || ""
       }));
 
       setLoadedFeedItems(items, false);
@@ -2481,6 +2882,9 @@
     let barcodeTypingIntervals = [];
     let barcodeLastKeyAt = 0;
     let barcodeAutoSubmitTimer = null;
+    let lastCartPanelTotal = null;
+    let pendingRecentRender = false;
+    let posStaticUiReady = false;
 
     const scheduleBarcodeRefocus = (delayMs = 180) => {
       if (barcodeRefocusTimer) window.clearTimeout(barcodeRefocusTimer);
@@ -2544,22 +2948,49 @@
       scheduleBarcodeRefocus(40);
     };
 
-    const afterCartSwap = () => {
+    const initPosStaticUi = () => {
+      if (posStaticUiReady) return;
+      posStaticUiReady = true;
       updateSplitLayoutMetrics();
-      syncTerminalIdFields(document);
-      syncClientCheckoutIdFields(document);
       initInfiniteProductFeed();
+      syncProductCardQtyControls(document);
       applyProductListingState();
-      applyStoredCurrency();
       renderPins();
       renderRecents();
       syncPinToggles();
+      bindBarcodeScannerBehavior();
+    };
+
+    const refreshCartUi = () => {
+      syncTerminalIdFields(document);
+      syncClientCheckoutIdFields(document);
+      applyStoredCurrency();
       updateCashChange();
       updateQuickTotals();
+      if (pendingRecentRender) {
+        renderRecents();
+        pendingRecentRender = false;
+      }
+      const panel = getCartPanel();
+      if (panel) {
+        const nextTotal = Number.parseFloat(panel.dataset.total || "0");
+        if (lastCartPanelTotal != null && Math.abs(nextTotal - lastCartPanelTotal) > 0.0001) {
+          flashElement(panel, "cart-updated");
+          const firstItem = panel.querySelector("[data-cart-item]");
+          if (firstItem) flashElement(firstItem, "cart-item-added");
+        }
+        lastCartPanelTotal = nextTotal;
+      } else {
+        lastCartPanelTotal = null;
+      }
       restoreCartSelection();
-      bindBarcodeScannerBehavior();
       scheduleBarcodeRefocus();
       runCheckoutAutoPrint();
+    };
+
+    const afterCartSwap = () => {
+      initPosStaticUi();
+      refreshCartUi();
     };
 
     const cameraEnabled = (document.body.dataset.cameraScanEnabled || "").toLowerCase() === "true";
@@ -2786,6 +3217,35 @@
       syncPinToggles();
     };
 
+    const isAddToCartForm = (form) => {
+      if (!(form instanceof HTMLFormElement)) return false;
+      const action = form.getAttribute("hx-post") || form.getAttribute("action") || "";
+      return action.includes("/pos/cart/add/");
+    };
+
+    const setAddFormPending = (form, pending) => {
+      if (!(form instanceof HTMLFormElement)) return;
+      const timerRaw = form.dataset.addPendingTimer;
+      if (timerRaw) {
+        window.clearTimeout(Number.parseInt(timerRaw, 10));
+        delete form.dataset.addPendingTimer;
+      }
+      form.dataset.addPending = pending ? "true" : "false";
+      form.classList.toggle("pointer-events-none", pending);
+      form.classList.toggle("opacity-90", pending);
+      const submitButtons = form.querySelectorAll("button[type='submit']");
+      submitButtons.forEach((btn) => {
+        btn.disabled = pending;
+        btn.classList.toggle("opacity-80", pending);
+      });
+      if (pending) {
+        const timer = window.setTimeout(() => {
+          setAddFormPending(form, false);
+        }, 1800);
+        form.dataset.addPendingTimer = String(timer);
+      }
+    };
+
     document.addEventListener("click", (e) => {
       const feedRetryBtn = e.target.closest("[data-action='feed-retry']");
       if (feedRetryBtn) {
@@ -2862,8 +3322,24 @@
         return;
       }
 
+      const qtyDecBtn = e.target.closest("[data-action='card-qty-dec']");
+      if (qtyDecBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        adjustProductCardQty(qtyDecBtn, -1);
+        return;
+      }
+
+      const qtyIncBtn = e.target.closest("[data-action='card-qty-inc']");
+      if (qtyIncBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        adjustProductCardQty(qtyIncBtn, 1);
+        return;
+      }
+
       const productCard = e.target.closest("form[data-product-card='true']");
-      if (productCard && !e.target.closest("button, input, select, textarea, a")) {
+      if (productCard && !e.target.closest("button, input, select, textarea, a, [data-ignore-card-submit='true']")) {
         e.preventDefault();
         if (typeof productCard.requestSubmit === "function") {
           productCard.requestSubmit();
@@ -2970,6 +3446,13 @@
     document.addEventListener("submit", (e) => {
       const form = e.target;
       if (!(form instanceof HTMLFormElement)) return;
+      if (isAddToCartForm(form)) {
+        if (form.dataset.addPending === "true") {
+          e.preventDefault();
+          return;
+        }
+        setAddFormPending(form, true);
+      }
       if (form.matches("[data-product-feed-form='true']")) {
         e.preventDefault();
         const filters = getFeedFiltersFromControls();
@@ -2999,6 +3482,7 @@
         // Avoid re-rendering recent cards during the same submit event:
         // replacing the active form can cancel the outgoing add-to-cart request.
         addRecentItem(item, { render: false });
+        pendingRecentRender = true;
       }
     }, true);
 
@@ -3062,9 +3546,39 @@
       scheduleBarcodeRefocus(300);
     });
 
+    document.addEventListener("htmx:afterRequest", (e) => {
+      const elt = e.detail && e.detail.elt;
+      const form = elt instanceof HTMLFormElement ? elt : (elt && typeof elt.closest === "function" ? elt.closest("form") : null);
+      if (isAddToCartForm(form)) {
+        setAddFormPending(form, false);
+      }
+    });
+
+    document.addEventListener("htmx:responseError", (e) => {
+      const elt = e.detail && e.detail.elt;
+      const form = elt instanceof HTMLFormElement ? elt : (elt && typeof elt.closest === "function" ? elt.closest("form") : null);
+      if (isAddToCartForm(form)) {
+        setAddFormPending(form, false);
+      }
+    });
+
+    document.addEventListener("htmx:sendError", (e) => {
+      const elt = e.detail && e.detail.elt;
+      const form = elt instanceof HTMLFormElement ? elt : (elt && typeof elt.closest === "function" ? elt.closest("form") : null);
+      if (isAddToCartForm(form)) {
+        setAddFormPending(form, false);
+      }
+    });
+
     document.addEventListener("htmx:afterSwap", (e) => {
       if (!e.target) return;
-      if (["productGridWrap", "cartPanel", "cartContainer"].includes(e.target.id)) {
+      if (e.target.id === "productGridWrap") {
+        syncProductCardQtyControls(document);
+        applyProductListingState();
+        syncPinToggles();
+        return;
+      }
+      if (["cartPanel", "cartContainer"].includes(e.target.id)) {
         afterCartSwap();
       }
     });
@@ -3133,14 +3647,23 @@
         const pushUrl = form.getAttribute("hx-push-url") === "true";
         const target = resolveTarget(form);
         const formData = new FormData(form);
+        const releasePending = () => {
+          if (isAddToCartForm(form)) {
+            setAddFormPending(form, false);
+          }
+        };
 
-        if (method === "GET") {
-          const qs = toQueryString(formData);
-          const url = qs ? `${urlAttr}?${qs}` : urlAttr;
-          return ajaxRequest({ url, method, triggerEl: form, target, swap, pushUrl });
+        try {
+          if (method === "GET") {
+            const qs = toQueryString(formData);
+            const url = qs ? `${urlAttr}?${qs}` : urlAttr;
+            return await ajaxRequest({ url, method, triggerEl: form, target, swap, pushUrl });
+          }
+
+          return await ajaxRequest({ url: urlAttr, method, body: formData, triggerEl: form, target, swap, pushUrl });
+        } finally {
+          releasePending();
         }
-
-        return ajaxRequest({ url: urlAttr, method, body: formData, triggerEl: form, target, swap, pushUrl });
       };
 
       document.addEventListener("submit", (e) => {
