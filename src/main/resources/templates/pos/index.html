@@ -19,31 +19,67 @@
       --space-4:32px;
       --space-5:40px;
       --space-6:48px;
-      --radius-sm:8px;
-      --radius-md:12px;
-      --radius-lg:16px;
-      --radius-xl:24px;
-      --ep-bg-a:#f7fbff;
-      --ep-bg-b:#edf3fa;
+      --radius-sm:10px;
+      --radius-md:14px;
+      --radius-lg:18px;
+      --radius-xl:26px;
+      --ep-bg-a:#f8f9fa;
+      --ep-bg-b:#f0f1f3;
       --ep-surface:#ffffff;
-      --ep-surface-soft:#f5f8fc;
-      --ep-surface-strong:#eef3f9;
-      --ep-stroke:#d7e0ec;
-      --ep-stroke-strong:#c0cedf;
-      --ep-text:#0f213a;
-      --ep-muted:#5f7694;
-      --ep-brand:#0c1f3b;
-      --ep-brand-hover:#09172b;
-      --ep-shadow:0 22px 40px -34px rgba(12,31,59,.55), 0 8px 16px -14px rgba(12,31,59,.24);
-      --ep-danger:#b42318;
-      --ep-danger-bg:#fff5f4;
-      --ep-disabled-bg:#e7eef6;
-      --ep-disabled-text:#6d7f96;
-      --ep-focus-ring:0 0 0 3px rgba(33, 101, 177, .22);
+      --ep-surface-soft:#f8f9fa;
+      --ep-surface-strong:#f1f3f5;
+      --ep-stroke:#dee2e6;
+      --ep-stroke-strong:#ced4da;
+      --ep-text:#111111;
+      --ep-muted:#6c757d;
+      --ep-brand:#1a1a1a;
+      --ep-brand-hover:#000000;
+      --ep-brand-soft:rgba(0,0,0,.05);
+      --ep-shadow:0 24px 48px -16px rgba(0,0,0,.12), 0 8px 16px -8px rgba(0,0,0,.06);
+      --ep-danger:#dc2626;
+      --ep-danger-bg:#fef2f2;
+      --ep-disabled-bg:#f1f3f5;
+      --ep-disabled-text:#adb5bd;
+      --ep-focus-ring:0 0 0 3px rgba(0, 0, 0, .15);
+      --ep-accent:#343a40;
+      --ep-accent-soft:rgba(0,0,0,.04);
+      --ep-success:#059669;
+      --ep-success-soft:rgba(5,150,105,.08);
       --pos-header-h:0px;
       --pos-toolbar-h:0px;
       --pos-main-y-pad:24px;
       --pos-toolbar-gap:16px;
+      --glass-bg:rgba(255,255,255,.78);
+      --glass-blur:16px;
+      --transition-fast:.15s cubic-bezier(.4,0,.2,1);
+      --transition-smooth:.25s cubic-bezier(.4,0,.2,1);
+    }
+
+    [data-theme="dark"]{
+      --ep-bg-a:#0a0a0a;
+      --ep-bg-b:#141414;
+      --ep-surface:#1a1a1a;
+      --ep-surface-soft:#212121;
+      --ep-surface-strong:#2a2a2a;
+      --ep-stroke:#333333;
+      --ep-stroke-strong:#444444;
+      --ep-text:#e8e8e8;
+      --ep-muted:#999999;
+      --ep-brand:#e0e0e0;
+      --ep-brand-hover:#ffffff;
+      --ep-brand-soft:rgba(255,255,255,.08);
+      --ep-shadow:0 24px 48px -16px rgba(0,0,0,.5), 0 8px 16px -8px rgba(0,0,0,.35);
+      --ep-danger:#f87171;
+      --ep-danger-bg:rgba(248,113,113,.1);
+      --ep-disabled-bg:#2a2a2a;
+      --ep-disabled-text:#555555;
+      --ep-focus-ring:0 0 0 3px rgba(255, 255, 255, .2);
+      --ep-accent:#b0b0b0;
+      --ep-accent-soft:rgba(255,255,255,.06);
+      --ep-success:#34d399;
+      --ep-success-soft:rgba(52,211,153,.12);
+      --glass-bg:rgba(10,10,10,.82);
+      --glass-blur:20px;
     }
 
     html, body{
@@ -53,12 +89,14 @@
     body{
       font-family:"Manrope","Avenir Next","Segoe UI",sans-serif;
       color:var(--ep-text);
-      background:
-        radial-gradient(1150px 520px at -8% -15%, rgba(131,153,179,.20), transparent 55%),
-        radial-gradient(980px 480px at 108% -10%, rgba(163,183,206,.22), transparent 52%),
-        linear-gradient(180deg, var(--ep-bg-a), var(--ep-bg-b));
+      background:linear-gradient(180deg, var(--ep-bg-a), var(--ep-bg-b));
       position:relative;
       isolation:isolate;
+      transition:background-color var(--transition-smooth), color var(--transition-smooth);
+    }
+
+    [data-theme="dark"] body{
+      background:linear-gradient(180deg, var(--ep-bg-a), var(--ep-bg-b));
     }
 
     body::before{
@@ -68,10 +106,17 @@
       z-index:-1;
       pointer-events:none;
       background-image:
-        linear-gradient(rgba(125,145,168,.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(125,145,168,.06) 1px, transparent 1px);
-      background-size:48px 48px;
-      opacity:.55;
+        linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px);
+      background-size:52px 52px;
+      opacity:.4;
+    }
+
+    [data-theme="dark"] body::before{
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      opacity:.2;
     }
 
     .font-mono{
@@ -85,7 +130,7 @@
     .ui-card{
       border:1px solid var(--ep-stroke);
       border-radius:var(--radius-lg);
-      background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%);
       padding:var(--space-2);
     }
 
@@ -101,7 +146,7 @@
       margin-bottom:4px;
       font-size:12px;
       font-weight:700;
-      color:#334c68;
+      color:var(--ep-muted);
       letter-spacing:.01em;
     }
 
@@ -128,14 +173,14 @@
 
     .ui-input::placeholder,
     .ui-textarea::placeholder{
-      color:#68819d;
+      color:var(--ep-muted);
     }
 
     .ui-input:focus-visible,
     .ui-select:focus-visible,
     .ui-textarea:focus-visible{
       outline:none;
-      border-color:#2b679f;
+      border-color:var(--ep-brand);
       box-shadow:var(--ep-focus-ring);
     }
 
@@ -172,33 +217,61 @@
 
     .ui-btn-primary{
       color:#fff;
-      border-color:#0a1f3a;
-      background:linear-gradient(135deg, var(--ep-brand) 0%, #14355d 100%);
+      border-color:var(--ep-brand);
+      background:linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+      box-shadow:0 4px 14px -4px rgba(0,0,0,.3);
     }
 
     .ui-btn-primary:hover{
-      background:linear-gradient(135deg, var(--ep-brand-hover) 0%, #102d50 100%);
+      background:linear-gradient(135deg, #000000 0%, #222222 100%);
+      box-shadow:0 6px 20px -4px rgba(0,0,0,.4);
+      transform:translateY(-1px);
     }
 
     .ui-btn-secondary{
-      color:#173455;
+      color:var(--ep-text);
       border-color:var(--ep-stroke-strong);
-      background:#fff;
+      background:var(--ep-surface);
     }
 
     .ui-btn-secondary:hover{
-      background:#f3f7fc;
-      border-color:#9ab0c9;
+      background:var(--ep-surface-strong);
+      border-color:var(--ep-brand);
     }
 
     .ui-btn-danger{
       color:#fff;
-      border-color:#8f1b12;
-      background:linear-gradient(135deg, #c4372a 0%, #a62519 100%);
+      border-color:var(--ep-danger);
+      background:linear-gradient(135deg, #ef4444 0%, var(--ep-danger) 100%);
+      box-shadow:0 4px 14px -4px rgba(220,38,38,.35);
     }
 
     .ui-btn-danger:hover{
-      background:linear-gradient(135deg, #ad2b20 0%, #8f1e15 100%);
+      background:linear-gradient(135deg, var(--ep-danger) 0%, #b91c1c 100%);
+      box-shadow:0 6px 20px -4px rgba(220,38,38,.45);
+      transform:translateY(-1px);
+    }
+
+    [data-theme="dark"] .ui-btn-primary{
+      border-color:#555;
+      background:linear-gradient(135deg, #e0e0e0 0%, #cccccc 100%);
+      color:#111;
+      box-shadow:0 4px 14px -4px rgba(255,255,255,.15);
+    }
+
+    [data-theme="dark"] .ui-btn-primary:hover{
+      background:linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+    }
+
+    [data-theme="dark"] .ui-btn-secondary{
+      background:var(--ep-surface-strong);
+      border-color:var(--ep-stroke);
+      color:var(--ep-text);
+    }
+
+    [data-theme="dark"] .ui-btn-secondary:hover{
+      border-color:var(--ep-stroke-strong);
+      background:var(--ep-brand-soft);
     }
 
     .ui-btn:disabled,
@@ -220,12 +293,17 @@
     }
 
     .payment-priority{
-      border:1px solid #163a60;
+      border:1px solid #333;
       border-radius:var(--radius-lg);
-      background:linear-gradient(135deg, #0c1f3b 0%, #143a67 100%);
-      color:#eef6ff;
+      background:linear-gradient(135deg, #111111 0%, #1a1a1a 50%, #222222 100%);
+      color:#e0e0e0;
       padding:var(--space-2);
-      box-shadow:0 14px 28px -22px rgba(12,31,59,.85);
+      box-shadow:0 16px 32px -12px rgba(0,0,0,.4);
+    }
+
+    [data-theme="dark"] .payment-priority{
+      background:linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #1a1a1a 100%);
+      border-color:#444;
     }
 
     .payment-priority-grid{
@@ -266,25 +344,33 @@
     }
 
     main .text-slate-500{
-      color:#425c79 !important;
+      color:var(--ep-muted) !important;
     }
 
     main .text-slate-400{
-      color:#5d7795 !important;
+      color:var(--ep-muted) !important;
     }
 
     header{
       border-color:var(--ep-stroke) !important;
-      background:rgba(255,255,255,.86) !important;
-      box-shadow:0 12px 20px -24px rgba(15,33,58,.72);
-      backdrop-filter:none;
+      background:var(--glass-bg) !important;
+      box-shadow:0 1px 3px rgba(0,0,0,.06), 0 8px 20px -16px rgba(0,0,0,.08);
+      backdrop-filter:blur(var(--glass-blur));
+      -webkit-backdrop-filter:blur(var(--glass-blur));
+    }
+
+    [data-theme="dark"] header{
+      background:var(--glass-bg) !important;
+      border-color:var(--ep-stroke) !important;
+      box-shadow:0 1px 3px rgba(0,0,0,.4), 0 8px 20px -16px rgba(0,0,0,.6);
     }
 
     .toolbar-shell,
     .enterprise-panel{
       border-color:var(--ep-stroke) !important;
-      background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%) !important;
       box-shadow:var(--ep-shadow);
+      transition:background var(--transition-smooth), border-color var(--transition-smooth), box-shadow var(--transition-smooth);
     }
 
     .toolbar-controls-grid > form{
@@ -296,9 +382,9 @@
     .toolbar-barcode-form{
       border:1px solid var(--ep-stroke);
       border-radius:14px;
-      background:linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%);
       padding:10px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
     }
 
     .toolbar-query-form .ui-label,
@@ -319,8 +405,8 @@
       transform:translateY(-50%);
       border:1px solid var(--ep-stroke-strong);
       border-radius:9999px;
-      background:#ffffff;
-      color:#5f7694;
+      background:var(--ep-surface);
+      color:var(--ep-muted);
       font-size:10px;
       font-weight:700;
       letter-spacing:.02em;
@@ -347,7 +433,7 @@
       font-size:15px;
       font-weight:800;
       letter-spacing:.01em;
-      box-shadow:0 12px 22px -16px rgba(12,31,59,.92);
+      box-shadow:0 6px 16px -6px rgba(0,0,0,.3);
     }
 
     .toolbar-controls-grid{
@@ -356,23 +442,23 @@
 
     .surface-products,
     .surface-cart{
-      background:linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%) !important;
     }
 
     .surface-products{
-      box-shadow:0 16px 28px -30px rgba(15,33,58,.45) !important;
+      box-shadow:0 8px 24px -12px rgba(0,0,0,.08), 0 4px 8px -4px rgba(0,0,0,.03) !important;
     }
 
     .surface-cart{
-      background:linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%) !important;
-      border-color:#c5d3e5 !important;
-      box-shadow:0 24px 36px -28px rgba(12,31,59,.62), 0 8px 14px -12px rgba(12,31,59,.28) !important;
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%) !important;
+      border-color:var(--ep-stroke-strong) !important;
+      box-shadow:0 12px 32px -12px rgba(0,0,0,.10), 0 4px 12px -4px rgba(0,0,0,.04) !important;
     }
 
     .surface-products > .border-b,
     .surface-cart > .border-b{
       border-color:var(--ep-stroke) !important;
-      background:linear-gradient(180deg, #ffffff 0%, #f4f8fd 100%);
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%);
     }
 
     #quickTotals .quick-total-cell{
@@ -384,9 +470,28 @@
     }
 
     #quickTotals .quick-total-cell.is-total{
-      border-color:#0a1c35;
-      background:linear-gradient(135deg, #0c1f3b 0%, #14365f 100%) !important;
-      box-shadow:0 12px 20px -16px rgba(10,28,53,.85);
+      border-color:#222;
+      background:linear-gradient(135deg, #111111 0%, #1a1a1a 100%) !important;
+      box-shadow:0 8px 24px -8px rgba(0,0,0,.35);
+    }
+
+    [data-theme="dark"] #quickTotals .quick-total-cell{
+      border-color:var(--ep-stroke);
+      background:var(--ep-surface-strong);
+    }
+
+    [data-theme="dark"] #quickTotals .quick-total-cell.is-total{
+      background:linear-gradient(135deg, #e0e0e0 0%, #cccccc 100%) !important;
+      border-color:transparent;
+      color:#111;
+    }
+
+    [data-theme="dark"] #quickTotals .quick-total-cell.is-total .quick-total-value{
+      color:#111;
+    }
+
+    [data-theme="dark"] #quickTotals .quick-total-cell.is-total .text-white\/70{
+      color:rgba(0,0,0,.6) !important;
     }
 
     #quickTotals .quick-total-cell.is-total .text-white\/70{
@@ -412,63 +517,65 @@
     main select,
     main textarea{
       border-color:var(--ep-stroke) !important;
-      background:#ffffff !important;
+      background:var(--ep-surface) !important;
       color:var(--ep-text) !important;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.72);
-      transition:border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+      transition:border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
     }
 
     main input:not([type="checkbox"]):not([type="radio"]):focus,
     main select:focus,
     main textarea:focus{
-      border-color:#90a8c4 !important;
-      box-shadow:0 0 0 3px rgba(46,93,144,.13) !important;
+      border-color:var(--ep-brand) !important;
+      box-shadow:var(--ep-focus-ring) !important;
       outline:none;
     }
 
     main .bg-slate-900.text-white{
-      background:linear-gradient(135deg, var(--ep-brand) 0%, #143159 100%) !important;
-      box-shadow:0 10px 18px -14px rgba(12,31,59,.9);
+      background:linear-gradient(135deg, #1a1a1a 0%, #333333 100%) !important;
+      box-shadow:0 6px 16px -8px rgba(0,0,0,.35);
     }
 
     main .bg-slate-900.text-white:hover{
-      background:linear-gradient(135deg, var(--ep-brand-hover) 0%, #0f2748 100%) !important;
+      background:linear-gradient(135deg, #000000 0%, #222222 100%) !important;
+      transform:translateY(-1px);
     }
 
     main .border.border-slate-200.bg-white{
       border-color:var(--ep-stroke) !important;
-      background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%) !important;
     }
 
     main .border.border-slate-200.bg-white:hover{
       border-color:var(--ep-stroke-strong) !important;
-      background:linear-gradient(180deg, #f9fbff 0%, #f3f7fc 100%) !important;
+      background:var(--ep-surface-soft) !important;
     }
 
     #productGridWrap [data-product-card='true'] .group > .relative{
       border-color:var(--ep-stroke) !important;
-      box-shadow:0 20px 38px -30px rgba(15,31,54,.75), 0 8px 14px -12px rgba(15,31,54,.34);
-      background:linear-gradient(180deg, #ffffff 0%, #fafdff 100%) !important;
+      box-shadow:0 4px 16px -6px rgba(0,0,0,.06), 0 2px 6px -2px rgba(0,0,0,.03);
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%) !important;
+      transition:transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
     }
 
     #productGridWrap [data-product-card='true'] .group:hover > .relative{
-      transform:translateY(-3px);
-      border-color:#bccddd !important;
-      box-shadow:0 26px 46px -34px rgba(15,31,54,.82), 0 12px 22px -16px rgba(15,31,54,.42);
+      transform:translateY(-4px) scale(1.01);
+      border-color:var(--ep-stroke-strong) !important;
+      box-shadow:0 20px 40px -16px rgba(0,0,0,.14), 0 8px 16px -8px rgba(0,0,0,.06);
     }
 
     #productGridWrap [data-product-card='true'] .group:focus-within > .relative{
-      border-color:#7d9cbe !important;
-      box-shadow:0 0 0 3px rgba(46,93,144,.16), 0 18px 28px -20px rgba(15,31,54,.34);
+      border-color:var(--ep-brand) !important;
+      box-shadow:var(--ep-focus-ring), 0 12px 24px -12px rgba(0,0,0,.10);
     }
 
     #productGridWrap .product-image-wrap{
-      background:#f8f9fb;
+      background:var(--ep-surface-soft);
       border-bottom:1px solid var(--ep-stroke);
     }
 
     #productGridWrap .product-image-wrap .product-image{
-      filter:drop-shadow(0 10px 16px rgba(15,33,58,.18));
+      filter:drop-shadow(0 8px 14px rgba(0,0,0,.08));
     }
 
     #productGridWrap .product-admin-actions{
@@ -501,22 +608,33 @@
       min-width:88px;
       justify-content:center;
       backdrop-filter:blur(2px);
+      background:linear-gradient(135deg, #1a1a1a, #333333) !important;
+      border-color:transparent !important;
+      box-shadow:0 4px 12px -4px rgba(0,0,0,.3);
+    }
+
+    #productGridWrap .product-add-fab:hover{
+      background:linear-gradient(135deg, #000000, #1a1a1a) !important;
+      box-shadow:0 6px 16px -4px rgba(0,0,0,.4);
+      transform:translateY(-1px);
     }
 
     #cartPanel .cart-item{
       border-color:var(--ep-stroke) !important;
-      background:linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%) !important;
+      transition:transform var(--transition-fast), box-shadow var(--transition-smooth), border-color var(--transition-fast), background var(--transition-fast);
     }
 
     #cartPanel .cart-item:hover{
       border-color:var(--ep-stroke-strong) !important;
-      box-shadow:0 10px 18px -18px rgba(15,33,58,.8);
+      box-shadow:0 6px 16px -8px rgba(0,0,0,.10);
+      transform:translateX(2px);
     }
 
     #cartPanel .cart-item.cart-item-active{
-      border-color:#8fa7c2 !important;
-      background:linear-gradient(180deg, #ffffff 0%, #edf4fc 100%) !important;
-      box-shadow:0 0 0 3px rgba(46,93,144,.14), 0 12px 18px -18px rgba(12,31,59,.52);
+      border-color:var(--ep-brand) !important;
+      background:linear-gradient(180deg, var(--ep-surface) 0%, rgba(0,0,0,.03) 100%) !important;
+      box-shadow:var(--ep-focus-ring), 0 8px 16px -8px rgba(0,0,0,.10);
     }
 
     #cartPanel .cart-item-added{
@@ -525,8 +643,8 @@
 
     #checkoutSection{
       border-color:var(--ep-stroke) !important;
-      background:linear-gradient(180deg, #f6f9fd 0%, #f0f5fb 100%) !important;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
+      background:linear-gradient(180deg, var(--ep-surface-soft) 0%, var(--ep-surface-strong) 100%) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
     }
 
     #checkoutSection .checkout-action-rail{
@@ -536,21 +654,39 @@
       margin-top:12px;
       border-top:1px solid var(--ep-stroke);
       padding-top:12px;
-      background:linear-gradient(180deg, rgba(240,245,251,0) 0%, #f0f5fb 36%, #edf3fb 100%);
+      background:linear-gradient(180deg, rgba(240,245,251,0) 0%, var(--ep-surface-strong) 36%, var(--ep-surface-strong) 100%);
     }
 
     #checkoutSection .pay-now-btn{
-      min-height:52px;
-      font-size:16px;
+      min-height:56px;
+      font-size:17px;
       font-weight:800;
       letter-spacing:.01em;
-      box-shadow:0 16px 24px -18px rgba(12,31,59,.8);
+      box-shadow:0 8px 24px -6px rgba(0,0,0,.35);
+      background:linear-gradient(135deg, #111111 0%, #1a1a1a 50%, #222222 100%) !important;
+      border:none;
+      transition:transform var(--transition-fast), box-shadow var(--transition-smooth);
+    }
+
+    [data-theme="dark"] #checkoutSection .pay-now-btn{
+      background:linear-gradient(135deg, #e0e0e0 0%, #cccccc 50%, #bbbbbb 100%) !important;
+      color:#111;
+      box-shadow:0 8px 24px -6px rgba(255,255,255,.12);
+    }
+
+    #checkoutSection .pay-now-btn:hover{
+      box-shadow:0 12px 32px -6px rgba(0,0,0,.45);
+      transform:translateY(-2px);
+    }
+
+    #checkoutSection .pay-now-btn:active{
+      transform:translateY(0) scale(0.99);
     }
 
     .collapsible-section{
       border:1px solid var(--ep-stroke);
       border-radius:var(--radius-lg);
-      background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      background:linear-gradient(180deg, var(--ep-surface) 0%, var(--ep-surface-soft) 100%);
       padding:12px;
     }
 
@@ -607,10 +743,10 @@
       width:40px;
       height:22px;
       border-radius:9999px;
-      background:#d6e1ee;
-      border:1px solid #bfd0e4;
+      background:var(--ep-stroke-strong);
+      border:1px solid var(--ep-stroke);
       position:relative;
-      transition:background-color .18s ease, border-color .18s ease;
+      transition:background-color var(--transition-fast), border-color var(--transition-fast);
       flex:0 0 auto;
     }
 
@@ -628,8 +764,8 @@
     }
 
     .ui-switch input:checked + .ui-switch-track{
-      background:#12365f;
-      border-color:#12365f;
+      background:var(--ep-brand);
+      border-color:var(--ep-brand);
     }
 
     .ui-switch input:checked + .ui-switch-track::after{
@@ -654,8 +790,8 @@
     }
 
     @keyframes cart-panel-flash{
-      0%{box-shadow:0 0 0 0 rgba(50,114,186,.36);}
-      100%{box-shadow:0 0 0 10px rgba(50,114,186,0);}
+      0%{box-shadow:0 0 0 0 rgba(0,0,0,.2);}
+      100%{box-shadow:0 0 0 12px rgba(0,0,0,0);}
     }
 
     @keyframes quick-total-flash{
@@ -669,9 +805,31 @@
       to{opacity:1; transform:translateY(0);}
     }
 
-    .toolbar-shell{ animation:rise-in .34s ease-out both; }
-    .surface-products{ animation:rise-in .42s ease-out .05s both; }
-    .surface-cart{ animation:rise-in .42s ease-out .12s both; }
+    .toolbar-shell{ animation:rise-in .4s cubic-bezier(.4,0,.2,1) both; }
+    .surface-products{ animation:rise-in .5s cubic-bezier(.4,0,.2,1) .08s both; }
+    .surface-cart{ animation:rise-in .5s cubic-bezier(.4,0,.2,1) .16s both; }
+
+    @keyframes fade-scale-in{
+      from{opacity:0; transform:scale(.96);}
+      to{opacity:1; transform:scale(1);}
+    }
+
+    .cart-item{ animation:fade-scale-in .3s cubic-bezier(.4,0,.2,1) both; }
+
+    /* Dark mode transitions for all elements */
+    *,
+    *::before,
+    *::after{
+      transition-property:background-color, border-color, color, fill, stroke, box-shadow;
+      transition-duration:0s;
+    }
+
+    [data-theme-transitioning] *,
+    [data-theme-transitioning] *::before,
+    [data-theme-transitioning] *::after{
+      transition-duration:.35s !important;
+      transition-timing-function:cubic-bezier(.4,0,.2,1) !important;
+    }
 
     .line-clamp-2{
       display:-webkit-box;
@@ -729,33 +887,33 @@
 
     .split-scroll{
       scrollbar-width:thin;
-      scrollbar-color:#9ab0c9 #e8eff7;
+      scrollbar-color:rgba(0,0,0,.2) var(--ep-surface-strong);
     }
 
     .split-scroll:focus-visible{
-      outline:2px solid #8ea9c5;
+      outline:2px solid var(--ep-brand);
       outline-offset:-2px;
-      box-shadow:inset 0 0 0 2px rgba(33, 101, 177, .16);
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);
     }
 
     .split-scroll::-webkit-scrollbar{
-      width:10px;
-      height:10px;
+      width:8px;
+      height:8px;
     }
 
     .split-scroll::-webkit-scrollbar-track{
-      background:#e8eff7;
+      background:var(--ep-surface-strong);
       border-radius:9999px;
     }
 
     .split-scroll::-webkit-scrollbar-thumb{
-      background:linear-gradient(180deg, #b7c7d9 0%, #91a7bf 100%);
+      background:linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.28) 100%);
       border-radius:9999px;
-      border:2px solid #e8eff7;
+      border:2px solid var(--ep-bg-b);
     }
 
     .split-scroll::-webkit-scrollbar-thumb:hover{
-      background:linear-gradient(180deg, #9fb4cb 0%, #7f98b4 100%);
+      background:linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,.4) 100%);
     }
 
     @media (min-width: 1024px){
@@ -829,8 +987,9 @@
                data-camera-scan-enabled=${terminalSettings != null and terminalSettings.cameraScannerEnabled}">
   <!-- soft background accents (UI only) -->
   <div class="absolute inset-0 -z-10">
-    <div class="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-slate-300/30 blur-2xl"></div>
-    <div class="absolute -bottom-28 -right-28 h-96 w-96 rounded-full bg-slate-200/60 blur-2xl"></div>
+    <div class="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-gray-400/15 blur-3xl"></div>
+    <div class="absolute -bottom-28 -right-28 h-96 w-96 rounded-full bg-gray-300/10 blur-3xl"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gray-200/10 blur-3xl"></div>
   </div>
 
   <div id="posAppShell" class="min-h-screen lg:h-[100dvh] lg:overflow-hidden lg:flex lg:flex-col">
@@ -841,7 +1000,7 @@
           <!-- Title row -->
           <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
             <div class="flex items-center gap-3">
-              <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-gray-800 to-gray-950 text-white grid place-items-center shadow-md shadow-gray-500/25">
                 <!-- register icon -->
                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M6 6h12v4H6V6z"/>
@@ -858,6 +1017,21 @@
                         <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
             <div class="flex flex-wrap items-center justify-end gap-2">
+              <!-- Dark mode toggle -->
+              <button id="themeToggleBtn" type="button"
+                      class="relative h-9 w-9 rounded-xl border border-slate-200 bg-white grid place-items-center text-slate-600
+                             hover:bg-slate-50 hover:text-gray-900 transition-all duration-200
+                             dark:border-slate-600 dark:bg-slate-700 dark:text-amber-400"
+                      title="Toggle dark mode"
+                      aria-label="Toggle dark mode">
+                <svg id="themeIconSun" viewBox="0 0 24 24" class="h-5 w-5 hidden" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                </svg>
+                <svg id="themeIconMoon" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              </button>
               <a sec:authorize="isAnonymous()" href="/login"
                  class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700
                         hover:bg-slate-50 transition"
@@ -1188,6 +1362,42 @@
   </div>
 
   <script th:inline="javascript">
+    /* ── Dark mode toggle ─────────────────────────────────────────── */
+    const THEME_KEY = "pos.theme";
+    const applyTheme = (theme) => {
+      const html = document.documentElement;
+      html.setAttribute("data-theme-transitioning", "");
+      html.setAttribute("data-theme", theme);
+      const sunIcon = document.getElementById("themeIconSun");
+      const moonIcon = document.getElementById("themeIconMoon");
+      if (sunIcon && moonIcon) {
+        sunIcon.classList.toggle("hidden", theme !== "dark");
+        moonIcon.classList.toggle("hidden", theme === "dark");
+      }
+      try { localStorage.setItem(THEME_KEY, theme); } catch {}
+      requestAnimationFrame(() => {
+        setTimeout(() => html.removeAttribute("data-theme-transitioning"), 400);
+      });
+    };
+    const getPreferredTheme = () => {
+      try {
+        const stored = localStorage.getItem(THEME_KEY);
+        if (stored === "dark" || stored === "light") return stored;
+      } catch {}
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    };
+    applyTheme(getPreferredTheme());
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          const current = document.documentElement.getAttribute("data-theme") || "light";
+          applyTheme(current === "dark" ? "light" : "dark");
+        });
+      }
+    });
+    /* ── End dark mode toggle ─────────────────────────────────────── */
+
     const I18N = Object.freeze({
       noImage: /*[[#{pos.noImage}]]*/ "No image",
       outOfStock: /*[[#{pos.outOfStock}]]*/ "Out of stock",
@@ -2147,6 +2357,7 @@
                             aria-label="${escapeHtml(I18N.commonAdd)}">+</button>
                   </div>
                   <button type="submit"
+                          data-action="card-add"
                           class="product-add-fab inline-flex items-center gap-1.5 rounded-xl border border-slate-900 bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 transition">
                     <span class="text-sm leading-none">+</span>
                     <span>${escapeHtml(I18N.commonAdd)}</span>
@@ -2883,6 +3094,7 @@
     let barcodeLastKeyAt = 0;
     let barcodeAutoSubmitTimer = null;
     let lastCartPanelTotal = null;
+    const addSubmitTimestamps = new WeakMap();
     let pendingRecentRender = false;
     let posStaticUiReady = false;
 
@@ -3223,29 +3435,6 @@
       return action.includes("/pos/cart/add/");
     };
 
-    const setAddFormPending = (form, pending) => {
-      if (!(form instanceof HTMLFormElement)) return;
-      const timerRaw = form.dataset.addPendingTimer;
-      if (timerRaw) {
-        window.clearTimeout(Number.parseInt(timerRaw, 10));
-        delete form.dataset.addPendingTimer;
-      }
-      form.dataset.addPending = pending ? "true" : "false";
-      form.classList.toggle("pointer-events-none", pending);
-      form.classList.toggle("opacity-90", pending);
-      const submitButtons = form.querySelectorAll("button[type='submit']");
-      submitButtons.forEach((btn) => {
-        btn.disabled = pending;
-        btn.classList.toggle("opacity-80", pending);
-      });
-      if (pending) {
-        const timer = window.setTimeout(() => {
-          setAddFormPending(form, false);
-        }, 1800);
-        form.dataset.addPendingTimer = String(timer);
-      }
-    };
-
     document.addEventListener("click", (e) => {
       const feedRetryBtn = e.target.closest("[data-action='feed-retry']");
       if (feedRetryBtn) {
@@ -3336,6 +3525,27 @@
         e.stopPropagation();
         adjustProductCardQty(qtyIncBtn, 1);
         return;
+      }
+
+      const addButton = e.target.closest("button");
+      if (addButton) {
+        const submitType = (addButton.getAttribute("type") || "submit").toLowerCase();
+        if (submitType === "submit") {
+          const addForm = addButton.closest("form");
+          if (addForm && isAddToCartForm(addForm)) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof addForm.requestSubmit === "function") {
+              addForm.requestSubmit(addButton);
+            } else {
+              const submitEvent = new Event("submit", { bubbles: true, cancelable: true });
+              if (addForm.dispatchEvent(submitEvent)) {
+                addForm.submit();
+              }
+            }
+            return;
+          }
+        }
       }
 
       const productCard = e.target.closest("form[data-product-card='true']");
@@ -3447,11 +3657,13 @@
       const form = e.target;
       if (!(form instanceof HTMLFormElement)) return;
       if (isAddToCartForm(form)) {
-        if (form.dataset.addPending === "true") {
+        const now = Date.now();
+        const last = addSubmitTimestamps.get(form) || 0;
+        if (now - last < 180) {
           e.preventDefault();
           return;
         }
-        setAddFormPending(form, true);
+        addSubmitTimestamps.set(form, now);
       }
       if (form.matches("[data-product-feed-form='true']")) {
         e.preventDefault();
@@ -3546,30 +3758,6 @@
       scheduleBarcodeRefocus(300);
     });
 
-    document.addEventListener("htmx:afterRequest", (e) => {
-      const elt = e.detail && e.detail.elt;
-      const form = elt instanceof HTMLFormElement ? elt : (elt && typeof elt.closest === "function" ? elt.closest("form") : null);
-      if (isAddToCartForm(form)) {
-        setAddFormPending(form, false);
-      }
-    });
-
-    document.addEventListener("htmx:responseError", (e) => {
-      const elt = e.detail && e.detail.elt;
-      const form = elt instanceof HTMLFormElement ? elt : (elt && typeof elt.closest === "function" ? elt.closest("form") : null);
-      if (isAddToCartForm(form)) {
-        setAddFormPending(form, false);
-      }
-    });
-
-    document.addEventListener("htmx:sendError", (e) => {
-      const elt = e.detail && e.detail.elt;
-      const form = elt instanceof HTMLFormElement ? elt : (elt && typeof elt.closest === "function" ? elt.closest("form") : null);
-      if (isAddToCartForm(form)) {
-        setAddFormPending(form, false);
-      }
-    });
-
     document.addEventListener("htmx:afterSwap", (e) => {
       if (!e.target) return;
       if (e.target.id === "productGridWrap") {
@@ -3647,23 +3835,14 @@
         const pushUrl = form.getAttribute("hx-push-url") === "true";
         const target = resolveTarget(form);
         const formData = new FormData(form);
-        const releasePending = () => {
-          if (isAddToCartForm(form)) {
-            setAddFormPending(form, false);
-          }
-        };
 
-        try {
-          if (method === "GET") {
-            const qs = toQueryString(formData);
-            const url = qs ? `${urlAttr}?${qs}` : urlAttr;
-            return await ajaxRequest({ url, method, triggerEl: form, target, swap, pushUrl });
-          }
-
-          return await ajaxRequest({ url: urlAttr, method, body: formData, triggerEl: form, target, swap, pushUrl });
-        } finally {
-          releasePending();
+        if (method === "GET") {
+          const qs = toQueryString(formData);
+          const url = qs ? `${urlAttr}?${qs}` : urlAttr;
+          return await ajaxRequest({ url, method, triggerEl: form, target, swap, pushUrl });
         }
+
+        return await ajaxRequest({ url: urlAttr, method, body: formData, triggerEl: form, target, swap, pushUrl });
       };
 
       document.addEventListener("submit", (e) => {

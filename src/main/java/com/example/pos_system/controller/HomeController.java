@@ -52,10 +52,6 @@ public class HomeController {
         model.addAttribute("grossRevenueTotal", stats.grossRevenueTotal());
         model.addAttribute("grossProfitTotal", stats.grossProfitTotal());
         model.addAttribute("grossMarginPercent", stats.grossMarginPercent());
-        model.addAttribute("lowStockTrendLabels", stats.lowStockTrendLabels());
-        model.addAttribute("lowStockTrendCounts", stats.lowStockTrendCounts());
-        model.addAttribute("lowStockCategoryLabels", stats.lowStockCategoryLabels());
-        model.addAttribute("lowStockCategoryCounts", stats.lowStockCategoryCounts());
         model.addAttribute("heatmapDays", stats.heatmapDays());
         model.addAttribute("heatmapHours", stats.heatmapHours());
         model.addAttribute("heatmapValues", stats.heatmapValues());

@@ -107,14 +107,25 @@
     <span th:text="#{nav.user}">User</span>
   </a>
 
-  <label class="sr-only" for="navLanguageSwitcher" th:text="#{common.language}">Language</label>
-  <select id="navLanguageSwitcher"
-          class="ml-2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 hover:bg-slate-50 transition"
-          th:aria-label="#{common.language}"
-          onchange="(function(el){const u=new URL(window.location.href);u.searchParams.set('lang',el.value);window.location.assign(u.toString());})(this)">
-    <option value="en" th:selected="${currentLang == 'en'}" th:text="#{common.language.en}">English</option>
-    <option value="zh-CN" th:selected="${currentLang == 'zh-CN'}" th:text="#{common.language.zh-CN}">中文</option>
-  </select>
+  <form method="get"
+        class="ml-2 inline-flex items-center gap-1"
+        data-lang-switcher-form="true">
+    <label class="sr-only" for="navLanguageSwitcher" th:text="#{common.language}">Language</label>
+    <select id="navLanguageSwitcher"
+            name="lang"
+            class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 hover:bg-slate-50 transition"
+            th:aria-label="#{common.language}"
+            data-lang-switcher-select="true">
+      <option value="en" th:selected="${#locale.language == 'en'}" th:text="#{common.language.en}">English</option>
+      <option value="zh-CN" th:selected="${#locale.language == 'zh'}" th:text="#{common.language.zh-CN}">中文</option>
+    </select>
+    <button type="submit"
+            class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 transition"
+            th:text="#{common.apply}">
+      Apply
+    </button>
+  </form>
+  <script th:src="@{/js/lang-switcher.js(v='20260216-3')}" src="/js/lang-switcher.js" defer></script>
 </nav>
 </body>
 </html>

@@ -175,6 +175,7 @@
                       th:aria-label="#{common.add}">+</button>
             </div>
             <button type="submit"
+                    data-action="card-add"
                     class="product-add-fab inline-flex items-center gap-1.5 rounded-xl border border-slate-900 bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 transition">
               <span class="text-sm leading-none">+</span>
               <span th:text="#{common.add}">Add</span>
@@ -265,6 +266,8 @@
 
 <div xmlns:th="http://www.thymeleaf.org" th:fragment="cartPanel" id="cartPanel"
      th:attr="data-subtotal=${cart.subtotal}, data-discount=${cart.discount}, data-tax=${cart.tax}, data-total=${cart.total}, data-base-code=${baseCurrency.code}, data-base-symbol=${baseCurrency.symbol}, data-base-decimals=${baseCurrency.fractionDigits}">
+  <h2 class="sr-only" th:text="#{pos.cart}">Cart</h2>
+
   <div th:if="${checkoutSuccess}"
        data-checkout-success="true"
        th:attr="data-checkout-sale-id=${checkoutSaleId}, data-auto-print=${checkoutAutoPrint}, data-printer-mode=${terminalSettings != null and terminalSettings.printerMode != null ? terminalSettings.printerMode.name() : 'PDF'}, data-bridge-url=${terminalSettings != null ? terminalSettings.bridgeUrl : ''}"

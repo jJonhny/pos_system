@@ -6,7 +6,6 @@
   <title>Analytics</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1"></script>
 </head>
 
@@ -50,6 +49,271 @@
       <section class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
         <div class="text-base font-semibold">Analytics Dashboard</div>
         <div class="text-sm text-slate-500">Track trends, payments, and revenue share.</div>
+      </section>
+
+      <section class="mt-6 rounded-3xl border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-5 shadow-sm text-slate-100">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-sm uppercase tracking-[0.18em] text-slate-300">Analytics Control Center</div>
+              <div class="mt-1 text-lg font-semibold leading-tight">Advanced filters, compare mode, and performance explorer</div>
+            </div>
+            <div class="rounded-xl border border-slate-500/70 bg-slate-900/40 px-3 py-2 text-xs text-slate-300">
+              Click charts below to open drill-down insights
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-8 gap-3">
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">Range</div>
+              <select id="filterDatePreset" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="7d">Last 7 days</option>
+                <option value="30d" selected="selected">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+                <option value="all">All</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">From</div>
+              <input id="filterDateFrom" type="date" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+            </label>
+
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">To</div>
+              <input id="filterDateTo" type="date" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+            </label>
+
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">Compare</div>
+              <select id="filterCompareMode" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="none">No compare</option>
+                <option value="previous" selected="selected">Previous period</option>
+              </select>
+            </label>
+
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">Cashier</div>
+              <select id="filterCashierFocus" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="ALL">All cashiers</option>
+              </select>
+            </label>
+
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">Category</div>
+              <select id="filterCategoryFocus" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="ALL">All categories</option>
+              </select>
+            </label>
+
+            <label class="xl:col-span-1">
+              <div class="text-[11px] font-semibold text-slate-300">Payment</div>
+              <select id="filterPaymentFocus" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <option value="ALL">All methods</option>
+                <option value="CASH">Cash</option>
+                <option value="CARD">Card</option>
+                <option value="QR">QR</option>
+              </select>
+            </label>
+
+            <div class="xl:col-span-1 grid grid-cols-1 gap-2">
+              <button id="filterApplyBtn" type="button" class="w-full rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">Apply</button>
+              <button id="filterResetBtn" type="button" class="w-full rounded-xl border border-slate-500 bg-slate-900/55 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-800 transition">Reset</button>
+              <button id="exportFocusCsvBtn" type="button" class="w-full rounded-xl border border-cyan-300/80 bg-cyan-500/20 px-3 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/30 transition">Export Focus CSV</button>
+            </div>
+          </div>
+
+          <div id="executiveFilterSummary" class="rounded-xl border border-slate-500/60 bg-slate-900/40 px-3 py-2 text-xs text-slate-300">
+            Range: Last 30 days · Compare: Previous period · Focus: All
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="xl:col-span-2 rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-semibold">Performance Explorer</div>
+              <div class="text-sm text-slate-500">Interactive trend with date and compare filters</div>
+            </div>
+            <div id="executiveRangeStatus" class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">Last 30 days</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="executiveRangeChart" height="170"></canvas>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-500">Focused values are estimated from selected dimensions when detailed per-transaction slices are unavailable.</div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="text-base font-semibold">Drill-Down</div>
+          <div class="text-sm text-slate-500">Click chart points to inspect details</div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div id="analyticsDrilldownTitle" class="text-sm font-semibold text-slate-900">Awaiting chart interaction</div>
+            <div id="analyticsDrilldownMeta" class="mt-1 text-xs text-slate-500">Select any bar, line point, or slice in the dashboard.</div>
+            <ul id="analyticsDrilldownItems" class="mt-3 space-y-1.5 text-xs text-slate-600">
+              <li class="rounded-md bg-white px-2.5 py-1.5">No data selected yet.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Focused Revenue</div>
+          <div id="kpiFocusRevenue" class="mt-2 text-2xl font-semibold">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">Estimated by active filters</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Period Delta</div>
+          <div id="kpiFocusDelta" class="mt-2 text-2xl font-semibold">0.0%</div>
+          <div id="kpiFocusDeltaMeta" class="mt-1 text-xs text-slate-500">vs previous period</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Avg Daily Revenue</div>
+          <div id="kpiFocusAvgDaily" class="mt-2 text-2xl font-semibold">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">Within selected period</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Estimated Orders</div>
+          <div id="kpiFocusOrders" class="mt-2 text-2xl font-semibold">0</div>
+          <div class="mt-1 text-xs text-slate-500">Scaled from sales share</div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Estimated AOV</div>
+          <div id="kpiFocusAov" class="mt-2 text-2xl font-semibold">$0.00</div>
+          <div class="mt-1 text-xs text-slate-500">Focused revenue / orders</div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="xl:col-span-2 rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-semibold">Forecast & Momentum</div>
+              <div class="text-sm text-slate-500">Focused revenue, moving average, and short-term projection</div>
+            </div>
+            <div class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">Forecast horizon: 7 points</div>
+          </div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="movingAverageForecastChart" height="170"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="text-base font-semibold">Goal Tracker</div>
+          <div class="text-sm text-slate-500">Revenue, margin, and refund health</div>
+          <div class="mt-4 space-y-3">
+            <div>
+              <div class="flex justify-between text-xs text-slate-600">
+                <span>Revenue Goal</span>
+                <span id="goalRevenueMeta">0%</span>
+              </div>
+              <div class="mt-1 h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                <div id="goalRevenueBar" class="h-full bg-slate-900 transition-all" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs text-slate-600">
+                <span>Margin Goal</span>
+                <span id="goalMarginMeta">0%</span>
+              </div>
+              <div class="mt-1 h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                <div id="goalMarginBar" class="h-full bg-emerald-600 transition-all" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs text-slate-600">
+                <span>Refund Guardrail</span>
+                <span id="goalRefundMeta">0%</span>
+              </div>
+              <div class="mt-1 h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                <div id="goalRefundBar" class="h-full bg-amber-500 transition-all" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+          <div id="goalTrackerTimestamp" class="mt-3 text-[11px] text-slate-500">Updated: --</div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="xl:col-span-2 rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="text-base font-semibold">Pareto Contribution</div>
+          <div class="text-sm text-slate-500">Category contribution and cumulative revenue share</div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="paretoContributionChart" height="170"></canvas>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="text-base font-semibold">Sales Volatility</div>
+          <div class="text-sm text-slate-500">Period-to-period movement in focused revenue</div>
+          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <canvas id="salesVolatilityChart" height="170"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="text-base font-semibold">Scenario Simulator</div>
+          <div class="text-sm text-slate-500">Simulate order volume, AOV, discount, and refund impact on net revenue</div>
+          <div class="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="space-y-3">
+              <label class="block">
+                <div class="text-xs font-semibold text-slate-600">Projected Orders</div>
+                <input id="simOrderCount" type="number" min="0" step="1"
+                       class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                              focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+              </label>
+              <label class="block">
+                <div class="text-xs font-semibold text-slate-600">Projected AOV</div>
+                <input id="simAov" type="number" min="0" step="0.01"
+                       class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                              focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+              </label>
+            </div>
+
+            <div class="space-y-3">
+              <label class="block">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
+                  <span>Discount %</span>
+                  <span id="simDiscountPctText">0%</span>
+                </div>
+                <input id="simDiscountPct" type="range" min="0" max="60" step="0.5" value="0"
+                       class="mt-1 w-full accent-slate-800"/>
+              </label>
+              <label class="block">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
+                  <span>Refund %</span>
+                  <span id="simRefundPctText">0%</span>
+                </div>
+                <input id="simRefundPct" type="range" min="0" max="30" step="0.5" value="0"
+                       class="mt-1 w-full accent-slate-800"/>
+              </label>
+            </div>
+
+            <div class="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div class="flex justify-between text-sm text-slate-700"><span>Gross</span><span id="simGrossOutput" class="font-semibold text-slate-900">$0.00</span></div>
+              <div class="flex justify-between text-sm text-slate-700"><span>Discount</span><span id="simDiscountOutput" class="font-semibold text-slate-900">$0.00</span></div>
+              <div class="flex justify-between text-sm text-slate-700"><span>Refund</span><span id="simRefundOutput" class="font-semibold text-slate-900">$0.00</span></div>
+              <div class="pt-2 border-t border-slate-200 flex justify-between text-base font-semibold text-slate-900"><span>Net</span><span id="simNetOutput">$0.00</span></div>
+              <div class="text-xs text-slate-500">Delta vs current: <span id="simDeltaOutput">$0.00</span></div>
+              <div class="h-2.5 rounded-full bg-slate-200 overflow-hidden">
+                <div id="simDeltaBar" class="h-full bg-slate-900 transition-all" style="width: 50%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6">
+        <div class="rounded-2xl bg-white border border-slate-200 p-5 shadow-sm">
+          <div class="text-base font-semibold">Automated Insights</div>
+          <div id="analyticsAlertSummary" class="text-sm text-slate-500">Performance checks based on current selection</div>
+          <ul id="analyticsAlertList" class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm">
+            <li class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-600">Insights will appear after filters are applied.</li>
+          </ul>
+        </div>
       </section>
 
       <section class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -435,16 +699,6 @@
         </div>
       </section>
 
-      <section class="mt-8">
-        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-          <div>
-            <div class="text-base font-semibold">Advanced Chart Gallery</div>
-            <div class="text-sm text-slate-500">Expanded analytics visuals grouped by chart family with lazy rendering</div>
-          </div>
-          <div id="advancedChartGallery" class="mt-4 space-y-3"></div>
-        </div>
-      </section>
-
       <section class="mt-6">
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div class="text-base font-semibold">Cashier Performance</div>
@@ -477,28 +731,8 @@
         </div>
       </section>
 
-      <!-- Low stock + profit + quantity -->
+      <!-- Profit + quantity -->
       <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-          <div>
-            <div class="text-base font-semibold">Low Stock Trend</div>
-            <div class="text-sm text-slate-500">Estimated daily count (assumes no restocks)</div>
-          </div>
-          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <canvas id="lowStockTrendChart" height="160"></canvas>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
-          <div>
-            <div class="text-base font-semibold">Low Stock by Category</div>
-            <div class="text-sm text-slate-500">Current low-stock items</div>
-          </div>
-          <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <canvas id="lowStockCategoryChart" height="160"></canvas>
-          </div>
-        </div>
-
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div class="flex items-start justify-between gap-4">
             <div>
@@ -951,10 +1185,6 @@
     const grossRevenueValues = /*[[${grossRevenueValues}]]*/ [];
     const grossCostValues = /*[[${grossCostValues}]]*/ [];
     const grossProfitValues = /*[[${grossProfitValues}]]*/ [];
-    const lowStockTrendLabels = /*[[${lowStockTrendLabels}]]*/ [];
-    const lowStockTrendCounts = /*[[${lowStockTrendCounts}]]*/ [];
-    const lowStockCategoryLabels = /*[[${lowStockCategoryLabels}]]*/ [];
-    const lowStockCategoryCounts = /*[[${lowStockCategoryCounts}]]*/ [];
     const cashierLabels = /*[[${cashierPerformance.![cashier]}]]*/ [];
     const cashierSales = /*[[${cashierPerformance.![revenue]}]]*/ [];
     const dayOfWeekLabels = /*[[${dayOfWeekLabels}]]*/ [];
@@ -1128,6 +1358,849 @@
       setInsight("insightTopCashierValue", formatMoney(cashierSales[topCashierIdx] || 0));
     }
 
+    let executiveRangeChart = null;
+    let movingAverageForecastChart = null;
+    let paretoContributionChart = null;
+    let salesVolatilityChart = null;
+    let executiveState = {
+      labels: [],
+      focusedValues: [],
+      compareValues: [],
+      compareEnabled: false,
+      focusText: "All",
+      preset: "30d"
+    };
+
+    function setDrilldown(title, meta, rows) {
+      const titleEl = document.getElementById("analyticsDrilldownTitle");
+      const metaEl = document.getElementById("analyticsDrilldownMeta");
+      const listEl = document.getElementById("analyticsDrilldownItems");
+      if (titleEl) titleEl.textContent = title || "Awaiting chart interaction";
+      if (metaEl) metaEl.textContent = meta || "Select any bar, line point, or slice in the dashboard.";
+      if (!listEl) return;
+      listEl.innerHTML = "";
+      const items = Array.isArray(rows) ? rows.filter((row) => !!row) : [];
+      if (items.length === 0) {
+        const li = document.createElement("li");
+        li.className = "rounded-md bg-white px-2.5 py-1.5";
+        li.textContent = "No data selected yet.";
+        listEl.appendChild(li);
+        return;
+      }
+      items.forEach((text) => {
+        const li = document.createElement("li");
+        li.className = "rounded-md bg-white px-2.5 py-1.5";
+        li.textContent = text;
+        listEl.appendChild(li);
+      });
+    }
+
+    function parseLabelDate(label) {
+      const text = String(label || "").trim();
+      if (!text) return null;
+      const direct = new Date(text);
+      if (!Number.isNaN(direct.getTime())) return direct;
+      const monthDayMatch = text.match(/^(\d{1,2})[-/](\d{1,2})$/);
+      if (monthDayMatch) {
+        const now = new Date();
+        const month = Number.parseInt(monthDayMatch[1], 10);
+        const day = Number.parseInt(monthDayMatch[2], 10);
+        const inferred = new Date(now.getFullYear(), month - 1, day);
+        if (!Number.isNaN(inferred.getTime())) return inferred;
+      }
+      return null;
+    }
+
+    function sliceSeriesByPreset(labels, values, preset, fromValue, toValue) {
+      const rows = [];
+      for (let i = 0; i < Math.min(labels.length, values.length); i++) {
+        rows.push({
+          label: labels[i],
+          value: toNumber(values[i]),
+          index: i,
+          parsedDate: parseLabelDate(labels[i])
+        });
+      }
+
+      if (preset === "custom" && (fromValue || toValue)) {
+        const fromDate = fromValue ? new Date(`${fromValue}T00:00:00`) : null;
+        const toDate = toValue ? new Date(`${toValue}T23:59:59`) : null;
+        const customRows = rows.filter((row) => {
+          if (!row.parsedDate) return false;
+          if (fromDate && row.parsedDate < fromDate) return false;
+          if (toDate && row.parsedDate > toDate) return false;
+          return true;
+        });
+        if (customRows.length > 0) {
+          return {
+            labels: customRows.map((row) => row.label),
+            values: customRows.map((row) => row.value),
+            startIndex: customRows[0].index
+          };
+        }
+      }
+
+      const length = rows.length;
+      let count = length;
+      if (preset === "today") count = 1;
+      else if (preset === "7d") count = 7;
+      else if (preset === "30d") count = 30;
+      else if (preset === "90d") count = 90;
+      const start = Math.max(0, length - count);
+      const sliced = rows.slice(start);
+      return {
+        labels: sliced.map((row) => row.label),
+        values: sliced.map((row) => row.value),
+        startIndex: start
+      };
+    }
+
+    function buildPreviousWindow(allValues, startIndex, count) {
+      const windowStart = Math.max(0, startIndex - count);
+      const raw = allValues.slice(windowStart, startIndex).map((value) => toNumber(value));
+      if (raw.length >= count) return raw;
+      return Array(count - raw.length).fill(null).concat(raw);
+    }
+
+    function formatSignedPercent(value) {
+      const numeric = toNumber(value);
+      const sign = numeric > 0 ? "+" : "";
+      return `${sign}${numeric.toFixed(1)}%`;
+    }
+
+    function setDeltaTone(element, value) {
+      if (!element) return;
+      element.classList.remove("text-emerald-600", "text-rose-600", "text-slate-900");
+      if (value > 0) {
+        element.classList.add("text-emerald-600");
+      } else if (value < 0) {
+        element.classList.add("text-rose-600");
+      } else {
+        element.classList.add("text-slate-900");
+      }
+    }
+
+    function populateFocusSelect(selectId, labels, allLabel) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      select.innerHTML = "";
+      const allOption = document.createElement("option");
+      allOption.value = "ALL";
+      allOption.textContent = allLabel;
+      select.appendChild(allOption);
+      const unique = Array.from(new Set((Array.isArray(labels) ? labels : []).map((value) => String(value || "").trim()).filter((value) => value.length > 0)));
+      unique.forEach((label) => {
+        const option = document.createElement("option");
+        option.value = label;
+        option.textContent = label;
+        select.appendChild(option);
+      });
+    }
+
+    function focusShareFromSelections() {
+      const cashierSelect = document.getElementById("filterCashierFocus");
+      const categorySelect = document.getElementById("filterCategoryFocus");
+      const paymentSelect = document.getElementById("filterPaymentFocus");
+
+      const shares = [];
+      const focusLabels = [];
+
+      const payment = paymentSelect ? paymentSelect.value : "ALL";
+      if (payment && payment !== "ALL") {
+        const cashTotal = sumValues(paymentCash);
+        const cardTotal = sumValues(paymentCard);
+        const qrTotal = sumValues(paymentQr);
+        const allPayment = cashTotal + cardTotal + qrTotal;
+        let methodValue = 0;
+        if (payment === "CASH") methodValue = cashTotal;
+        if (payment === "CARD") methodValue = cardTotal;
+        if (payment === "QR") methodValue = qrTotal;
+        shares.push(allPayment > 0 ? methodValue / allPayment : 0);
+        focusLabels.push(`Payment: ${payment}`);
+      }
+
+      const category = categorySelect ? categorySelect.value : "ALL";
+      if (category && category !== "ALL") {
+        const idx = topCategoryLabels.findIndex((label) => String(label) === category);
+        const total = sumValues(topCategoryValues);
+        const value = idx >= 0 ? toNumber(topCategoryValues[idx]) : 0;
+        shares.push(total > 0 ? value / total : 0);
+        focusLabels.push(`Category: ${category}`);
+      }
+
+      const cashier = cashierSelect ? cashierSelect.value : "ALL";
+      if (cashier && cashier !== "ALL") {
+        const idx = cashierLabels.findIndex((label) => String(label) === cashier);
+        const total = sumValues(cashierSales);
+        const value = idx >= 0 ? toNumber(cashierSales[idx]) : 0;
+        shares.push(total > 0 ? value / total : 0);
+        focusLabels.push(`Cashier: ${cashier}`);
+      }
+
+      const share = shares.length === 0 ? 1 : clamp(shares.reduce((acc, value) => acc * value, 1), 0, 1);
+      return {
+        share,
+        focusText: focusLabels.length ? focusLabels.join(" · ") : "All"
+      };
+    }
+
+    function updateExecutiveTrendChart(labels, focusedValues, compareValues, compareEnabled) {
+      const ctx = document.getElementById("executiveRangeChart");
+      if (!ctx) return;
+      const datasets = [{
+        label: "Focused Revenue",
+        data: focusedValues,
+        borderColor: "#0f172a",
+        backgroundColor: "rgba(15, 23, 42, 0.15)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 2,
+        pointBackgroundColor: "#0f172a"
+      }];
+      if (compareEnabled && Array.isArray(compareValues) && compareValues.some((value) => value != null)) {
+        datasets.push({
+          label: "Previous Period",
+          data: compareValues,
+          borderColor: "#64748b",
+          backgroundColor: "rgba(100, 116, 139, 0.08)",
+          borderDash: [6, 4],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0
+        });
+      }
+
+      if (executiveRangeChart) {
+        executiveRangeChart.data.labels = labels;
+        executiveRangeChart.data.datasets = datasets;
+        executiveRangeChart.update();
+        return;
+      }
+
+      executiveRangeChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            tooltip: {
+              callbacks: { label: (tooltip) => `${tooltip.dataset.label}: ${formatMoney(toNumber(tooltip.parsed.y))}` }
+            }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              grid: { color: "rgba(148,163,184,0.35)" },
+              ticks: { callback: (value) => formatMoney(toNumber(value)) }
+            }
+          },
+          onClick: (_event, activeElements, chart) => {
+            if (!activeElements || activeElements.length === 0) return;
+            const active = activeElements[0];
+            const label = chart.data.labels?.[active.index] || "N/A";
+            const datasetLabel = chart.data.datasets?.[active.datasetIndex]?.label || "Series";
+            const rawValue = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+            setDrilldown("Performance Explorer", `${datasetLabel} · ${label}`, [
+              `Revenue: ${formatMoney(toNumber(rawValue))}`,
+              `Point index: ${active.index + 1}`
+            ]);
+          }
+        }
+      });
+    }
+
+    function movingAverage(values, windowSize) {
+      const size = Math.max(1, Math.round(toNumber(windowSize)));
+      const result = [];
+      for (let i = 0; i < values.length; i++) {
+        const start = Math.max(0, i - size + 1);
+        const slice = values.slice(start, i + 1).map((value) => toNumber(value));
+        result.push(slice.length === 0 ? null : round2(sumValues(slice) / slice.length));
+      }
+      return result;
+    }
+
+    function linearForecast(values, steps) {
+      const y = (Array.isArray(values) ? values : []).map((value) => toNumber(value));
+      const n = y.length;
+      const horizon = Math.max(0, Math.round(toNumber(steps)));
+      if (horizon === 0) return [];
+      if (n === 0) return Array(horizon).fill(0);
+      if (n === 1) return Array(horizon).fill(round2(Math.max(0, y[0])));
+
+      let sumX = 0;
+      let sumY = 0;
+      let sumXY = 0;
+      let sumXX = 0;
+      for (let i = 0; i < n; i++) {
+        sumX += i;
+        sumY += y[i];
+        sumXY += i * y[i];
+        sumXX += i * i;
+      }
+      const denominator = (n * sumXX) - (sumX * sumX);
+      const slope = denominator !== 0 ? ((n * sumXY) - (sumX * sumY)) / denominator : 0;
+      const intercept = (sumY - (slope * sumX)) / n;
+      const out = [];
+      for (let i = 0; i < horizon; i++) {
+        const projected = intercept + (slope * (n + i));
+        out.push(round2(Math.max(0, projected)));
+      }
+      return out;
+    }
+
+    function standardDeviation(values) {
+      const series = (Array.isArray(values) ? values : []).map((value) => toNumber(value));
+      if (series.length === 0) return 0;
+      const mean = sumValues(series) / series.length;
+      const variance = series.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) / series.length;
+      return Math.sqrt(variance);
+    }
+
+    function updateGoalTracker(metrics) {
+      const revenueTarget = Math.max(1, toNumber(netRevenueTotalValue) * 1.05);
+      const marginTarget = 35;
+      const refundGuardrail = 3;
+
+      const revenueProgress = clamp((toNumber(metrics.focusedRevenue) / revenueTarget) * 100, 0, 140);
+      const marginProgress = clamp((toNumber(grossMarginPercentValue) / marginTarget) * 100, 0, 140);
+      const refundHealth = clamp(100 - ((toNumber(metrics.refundRatePercent) / Math.max(0.1, refundGuardrail)) * 100), 0, 100);
+
+      const goalRevenueBar = document.getElementById("goalRevenueBar");
+      const goalMarginBar = document.getElementById("goalMarginBar");
+      const goalRefundBar = document.getElementById("goalRefundBar");
+      const goalRevenueMeta = document.getElementById("goalRevenueMeta");
+      const goalMarginMeta = document.getElementById("goalMarginMeta");
+      const goalRefundMeta = document.getElementById("goalRefundMeta");
+
+      if (goalRevenueBar) goalRevenueBar.style.width = `${Math.min(100, revenueProgress)}%`;
+      if (goalMarginBar) goalMarginBar.style.width = `${Math.min(100, marginProgress)}%`;
+      if (goalRefundBar) goalRefundBar.style.width = `${Math.min(100, refundHealth)}%`;
+      if (goalRevenueMeta) goalRevenueMeta.textContent = `${revenueProgress.toFixed(1)}% of target`;
+      if (goalMarginMeta) goalMarginMeta.textContent = `${toNumber(grossMarginPercentValue).toFixed(1)}% margin`;
+      if (goalRefundMeta) goalRefundMeta.textContent = `${toNumber(metrics.refundRatePercent).toFixed(1)}% refund rate`;
+
+      const stampEl = document.getElementById("goalTrackerTimestamp");
+      if (stampEl) {
+        const now = new Date();
+        stampEl.textContent = `Updated: ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      }
+    }
+
+    function updateAdvancedAnalyticsCharts(labels, focusedValues, compareValues, compareEnabled) {
+      const horizon = Math.min(7, Math.max(3, Math.round(labels.length * 0.25)));
+      const forecast = linearForecast(focusedValues, horizon);
+      const forecastLabels = Array.from({ length: horizon }, (_, idx) => `F+${idx + 1}`);
+      const extendedLabels = labels.concat(forecastLabels);
+      const focusedExtended = focusedValues.concat(Array(horizon).fill(null));
+      const movingAverageExtended = movingAverage(focusedValues, 3).concat(Array(horizon).fill(null));
+      const compareExtended = (Array.isArray(compareValues) ? compareValues : []).concat(Array(horizon).fill(null));
+      const forecastExtended = Array(focusedValues.length).fill(null).concat(forecast);
+
+      const forecastCtx = document.getElementById("movingAverageForecastChart");
+      if (forecastCtx) {
+        const datasets = [
+          {
+            label: "Focused Revenue",
+            data: focusedExtended,
+            borderColor: "#0f172a",
+            backgroundColor: "rgba(15, 23, 42, 0.14)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 2
+          },
+          {
+            label: "Moving Avg (3)",
+            data: movingAverageExtended,
+            borderColor: "#475569",
+            backgroundColor: "rgba(71, 85, 105, 0.08)",
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0
+          },
+          {
+            label: "Forecast",
+            data: forecastExtended,
+            borderColor: "#16a34a",
+            borderDash: [6, 4],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0
+          }
+        ];
+        if (compareEnabled && compareExtended.some((value) => value != null)) {
+          datasets.push({
+            label: "Previous Period",
+            data: compareExtended,
+            borderColor: "#94a3b8",
+            borderDash: [3, 4],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0
+          });
+        }
+
+        if (movingAverageForecastChart) {
+          movingAverageForecastChart.data.labels = extendedLabels;
+          movingAverageForecastChart.data.datasets = datasets;
+          movingAverageForecastChart.update();
+        } else {
+          movingAverageForecastChart = new Chart(forecastCtx, {
+            type: "line",
+            data: { labels: extendedLabels, datasets: datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: "index", intersect: false },
+              plugins: {
+                tooltip: {
+                  callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatMoney(toNumber(ctx.parsed.y))}` }
+                }
+              },
+              scales: {
+                x: { grid: { display: false } },
+                y: {
+                  grid: { color: "rgba(148,163,184,0.35)" },
+                  ticks: { callback: (value) => formatMoney(toNumber(value)) }
+                }
+              },
+              onClick: (_event, activeElements, chart) => {
+                if (!activeElements || activeElements.length === 0) return;
+                const active = activeElements[0];
+                const label = chart.data.labels?.[active.index] || "N/A";
+                const dataset = chart.data.datasets?.[active.datasetIndex]?.label || "Series";
+                const value = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+                setDrilldown("Forecast & Momentum", `${dataset} · ${label}`, [
+                  `Value: ${formatMoney(toNumber(value))}`,
+                  "Includes moving average and short-term projection"
+                ]);
+              }
+            }
+          });
+        }
+      }
+
+      const paretoRows = [];
+      for (let i = 0; i < Math.min(topCategoryLabels.length, topCategoryValues.length); i++) {
+        paretoRows.push({ label: String(topCategoryLabels[i]), value: Math.max(0, toNumber(topCategoryValues[i])) });
+      }
+      paretoRows.sort((a, b) => b.value - a.value);
+      const trimmedRows = paretoRows.slice(0, 8);
+      const paretoLabels = trimmedRows.map((row) => row.label);
+      const paretoValues = trimmedRows.map((row) => row.value);
+      const paretoTotal = Math.max(1, sumValues(paretoValues));
+      let cumulative = 0;
+      const cumulativePct = paretoValues.map((value) => {
+        cumulative += value;
+        return round2((cumulative / paretoTotal) * 100);
+      });
+
+      const paretoCtx = document.getElementById("paretoContributionChart");
+      if (paretoCtx) {
+        if (paretoContributionChart) {
+          paretoContributionChart.data.labels = paretoLabels;
+          paretoContributionChart.data.datasets[0].data = paretoValues;
+          paretoContributionChart.data.datasets[1].data = cumulativePct;
+          paretoContributionChart.update();
+        } else {
+          paretoContributionChart = new Chart(paretoCtx, {
+            data: {
+              labels: paretoLabels,
+              datasets: [
+                {
+                  type: "bar",
+                  label: "Revenue",
+                  data: paretoValues,
+                  backgroundColor: "#0f172a",
+                  yAxisID: "y"
+                },
+                {
+                  type: "line",
+                  label: "Cumulative %",
+                  data: cumulativePct,
+                  borderColor: "#16a34a",
+                  backgroundColor: "rgba(22, 163, 74, 0.1)",
+                  yAxisID: "y1",
+                  tension: 0.3,
+                  pointRadius: 3
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: "index", intersect: false },
+              scales: {
+                x: { grid: { display: false } },
+                y: {
+                  position: "left",
+                  grid: { color: "rgba(148,163,184,0.35)" },
+                  ticks: { callback: (value) => formatMoney(toNumber(value)) }
+                },
+                y1: {
+                  position: "right",
+                  min: 0,
+                  max: 100,
+                  grid: { drawOnChartArea: false },
+                  ticks: { callback: (value) => `${toNumber(value).toFixed(0)}%` }
+                }
+              },
+              onClick: (_event, activeElements, chart) => {
+                if (!activeElements || activeElements.length === 0) return;
+                const active = activeElements[0];
+                const label = chart.data.labels?.[active.index] || "Category";
+                const revenueValue = chart.data.datasets?.[0]?.data?.[active.index];
+                const cumulativeValue = chart.data.datasets?.[1]?.data?.[active.index];
+                setDrilldown("Pareto Contribution", `${label}`, [
+                  `Revenue: ${formatMoney(toNumber(revenueValue))}`,
+                  `Cumulative share: ${toNumber(cumulativeValue).toFixed(1)}%`
+                ]);
+              }
+            }
+          });
+        }
+      }
+
+      const volatilityLabels = [];
+      const volatilityValues = [];
+      for (let i = 1; i < focusedValues.length; i++) {
+        const previous = toNumber(focusedValues[i - 1]);
+        const current = toNumber(focusedValues[i]);
+        const changePct = previous > 0 ? ((current - previous) * 100.0) / previous : 0;
+        volatilityLabels.push(`${labels[i - 1]}→${labels[i]}`);
+        volatilityValues.push(round2(changePct));
+      }
+
+      const volatilityCtx = document.getElementById("salesVolatilityChart");
+      if (volatilityCtx) {
+        const colors = volatilityValues.map((value) => value >= 0 ? "#16a34a" : "#dc2626");
+        if (salesVolatilityChart) {
+          salesVolatilityChart.data.labels = volatilityLabels;
+          salesVolatilityChart.data.datasets[0].data = volatilityValues;
+          salesVolatilityChart.data.datasets[0].backgroundColor = colors;
+          salesVolatilityChart.update();
+        } else {
+          salesVolatilityChart = new Chart(volatilityCtx, {
+            type: "bar",
+            data: {
+              labels: volatilityLabels,
+              datasets: [{
+                label: "Change %",
+                data: volatilityValues,
+                backgroundColor: colors
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: { label: (ctx) => `${toNumber(ctx.parsed.y).toFixed(1)}%` }
+                }
+              },
+              scales: {
+                x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+                y: { grid: { color: "rgba(148,163,184,0.35)" }, ticks: { callback: (value) => `${toNumber(value).toFixed(0)}%` } }
+              },
+              onClick: (_event, activeElements, chart) => {
+                if (!activeElements || activeElements.length === 0) return;
+                const active = activeElements[0];
+                const label = chart.data.labels?.[active.index] || "Period";
+                const value = chart.data.datasets?.[0]?.data?.[active.index];
+                setDrilldown("Sales Volatility", `${label}`, [
+                  `Change: ${toNumber(value).toFixed(1)}%`,
+                  "High volatility can indicate unstable demand or promotions"
+                ]);
+              }
+            }
+          });
+        }
+      }
+    }
+
+    function updateScenarioOutputs() {
+      const orderInput = document.getElementById("simOrderCount");
+      const aovInput = document.getElementById("simAov");
+      const discountInput = document.getElementById("simDiscountPct");
+      const refundInput = document.getElementById("simRefundPct");
+      if (!orderInput || !aovInput || !discountInput || !refundInput) return;
+
+      const orders = Math.max(0, toNumber(orderInput.value));
+      const aov = Math.max(0, toNumber(aovInput.value));
+      const discountPct = clamp(discountInput.value, 0, 60);
+      const refundPct = clamp(refundInput.value, 0, 30);
+
+      const gross = orders * aov;
+      const discount = gross * (discountPct / 100.0);
+      const refund = gross * (refundPct / 100.0);
+      const net = gross - discount - refund;
+      const delta = net - toNumber(netRevenueTotalValue);
+      const deltaProgress = clamp(50 + ((delta / Math.max(1, toNumber(netRevenueTotalValue))) * 50), 0, 100);
+
+      const discountPctText = document.getElementById("simDiscountPctText");
+      const refundPctText = document.getElementById("simRefundPctText");
+      if (discountPctText) discountPctText.textContent = `${discountPct.toFixed(1)}%`;
+      if (refundPctText) refundPctText.textContent = `${refundPct.toFixed(1)}%`;
+
+      const simGrossOutput = document.getElementById("simGrossOutput");
+      const simDiscountOutput = document.getElementById("simDiscountOutput");
+      const simRefundOutput = document.getElementById("simRefundOutput");
+      const simNetOutput = document.getElementById("simNetOutput");
+      const simDeltaOutput = document.getElementById("simDeltaOutput");
+      const simDeltaBar = document.getElementById("simDeltaBar");
+      if (simGrossOutput) simGrossOutput.textContent = formatMoney(gross);
+      if (simDiscountOutput) simDiscountOutput.textContent = formatMoney(discount);
+      if (simRefundOutput) simRefundOutput.textContent = formatMoney(refund);
+      if (simNetOutput) simNetOutput.textContent = formatMoney(net);
+      if (simDeltaOutput) simDeltaOutput.textContent = `${delta >= 0 ? "+" : ""}${formatMoney(delta)}`;
+      if (simDeltaBar) {
+        simDeltaBar.style.width = `${deltaProgress}%`;
+        simDeltaBar.classList.remove("bg-slate-900", "bg-emerald-600", "bg-rose-600");
+        if (delta > 0) simDeltaBar.classList.add("bg-emerald-600");
+        else if (delta < 0) simDeltaBar.classList.add("bg-rose-600");
+        else simDeltaBar.classList.add("bg-slate-900");
+      }
+    }
+
+    function initScenarioSimulator() {
+      const orderInput = document.getElementById("simOrderCount");
+      const aovInput = document.getElementById("simAov");
+      const discountInput = document.getElementById("simDiscountPct");
+      const refundInput = document.getElementById("simRefundPct");
+      if (!orderInput || !aovInput || !discountInput || !refundInput) return;
+
+      const baseOrders = Math.max(0, Math.round(toNumber(saleCountValue)));
+      const baseAov = toNumber(saleCountValue) > 0 ? toNumber(netRevenueTotalValue) / toNumber(saleCountValue) : 0;
+      const baseRefundRate = toNumber(saleCountValue) > 0 ? (toNumber(refundCountValue) * 100.0) / toNumber(saleCountValue) : 0;
+
+      orderInput.value = `${baseOrders}`;
+      aovInput.value = round2(baseAov).toFixed(2);
+      discountInput.value = `${clamp(discountRatePercentValue, 0, 60)}`;
+      refundInput.value = `${clamp(baseRefundRate, 0, 30)}`;
+
+      [orderInput, aovInput, discountInput, refundInput].forEach((input) => {
+        input.addEventListener("input", updateScenarioOutputs);
+        input.addEventListener("change", updateScenarioOutputs);
+      });
+      updateScenarioOutputs();
+    }
+
+    function updateAutomatedInsights(metrics) {
+      const alertListEl = document.getElementById("analyticsAlertList");
+      const summaryEl = document.getElementById("analyticsAlertSummary");
+      if (!alertListEl) return;
+
+      const insights = [];
+      if (toNumber(metrics.deltaPct) >= 10) {
+        insights.push({ tone: "positive", text: `Focused revenue is up ${toNumber(metrics.deltaPct).toFixed(1)}% versus previous period.` });
+      }
+      if (toNumber(metrics.deltaPct) <= -10) {
+        insights.push({ tone: "negative", text: `Focused revenue dropped ${Math.abs(toNumber(metrics.deltaPct)).toFixed(1)}% versus previous period.` });
+      }
+      if (toNumber(metrics.refundRatePercent) > 5) {
+        insights.push({ tone: "negative", text: `Refund rate is elevated at ${toNumber(metrics.refundRatePercent).toFixed(1)}%. Review return reasons and cashier actions.` });
+      }
+      if (toNumber(discountRatePercentValue) > 15) {
+        insights.push({ tone: "warning", text: `Discount rate is high (${toNumber(discountRatePercentValue).toFixed(1)}%). Verify promo profitability and abuse controls.` });
+      }
+      if (toNumber(metrics.volatilityStdDev) > 20) {
+        insights.push({ tone: "warning", text: `Volatility is high (${toNumber(metrics.volatilityStdDev).toFixed(1)} pts std dev). Forecast confidence is lower.` });
+      }
+      const cashSharePercent = (() => {
+        const totalPayment = sumValues(paymentCash) + sumValues(paymentCard) + sumValues(paymentQr);
+        if (totalPayment <= 0) return 0;
+        return (sumValues(paymentCash) * 100.0) / totalPayment;
+      })();
+      if (cashSharePercent > 70) {
+        insights.push({ tone: "warning", text: `Cash dependency is ${cashSharePercent.toFixed(1)}%. Promote non-cash methods to reduce reconciliation risk.` });
+      }
+      if (insights.length === 0) {
+        insights.push({ tone: "positive", text: "Core metrics are stable. No critical anomalies detected for the active selection." });
+      }
+
+      alertListEl.innerHTML = "";
+      insights.forEach((insight) => {
+        const li = document.createElement("li");
+        li.className = "rounded-xl border px-3 py-2";
+        if (insight.tone === "positive") li.classList.add("border-emerald-200", "bg-emerald-50", "text-emerald-800");
+        else if (insight.tone === "negative") li.classList.add("border-rose-200", "bg-rose-50", "text-rose-800");
+        else li.classList.add("border-amber-200", "bg-amber-50", "text-amber-800");
+        li.textContent = insight.text;
+        alertListEl.appendChild(li);
+      });
+
+      if (summaryEl) {
+        summaryEl.textContent = `${insights.length} insight(s) generated for focus: ${metrics.focusText}`;
+      }
+    }
+
+    function toCsvValue(value) {
+      const text = String(value ?? "");
+      if (/[",\n]/.test(text)) {
+        return `"${text.replace(/"/g, "\"\"")}"`;
+      }
+      return text;
+    }
+
+    function exportFocusCsv() {
+      if (!executiveState.labels || executiveState.labels.length === 0) return;
+      const rows = [ ["Label", "Focused Revenue", "Previous Revenue"] ];
+      for (let i = 0; i < executiveState.labels.length; i++) {
+        rows.push([
+          executiveState.labels[i],
+          round2(toNumber(executiveState.focusedValues[i])).toFixed(2),
+          executiveState.compareEnabled ? (executiveState.compareValues[i] == null ? "" : round2(toNumber(executiveState.compareValues[i])).toFixed(2)) : ""
+        ]);
+      }
+      const csv = rows.map((row) => row.map(toCsvValue).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `analytics-focus-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function applyExecutiveFilters() {
+      const presetSelect = document.getElementById("filterDatePreset");
+      const compareSelect = document.getElementById("filterCompareMode");
+      const fromInput = document.getElementById("filterDateFrom");
+      const toInput = document.getElementById("filterDateTo");
+      const summaryEl = document.getElementById("executiveFilterSummary");
+      const statusEl = document.getElementById("executiveRangeStatus");
+
+      const preset = presetSelect ? presetSelect.value : "30d";
+      const compareMode = compareSelect ? compareSelect.value : "previous";
+      const fromValue = fromInput ? fromInput.value : "";
+      const toValue = toInput ? toInput.value : "";
+
+      const series = sliceSeriesByPreset(dailyLabels, dailySales, preset, fromValue, toValue);
+      const compareWindow = buildPreviousWindow(dailySales, series.startIndex, series.values.length);
+      const compareEnabled = compareMode === "previous";
+
+      const focus = focusShareFromSelections();
+      const focusedValues = series.values.map((value) => round2(toNumber(value) * focus.share));
+      const focusedRevenue = sumValues(focusedValues);
+      const avgDaily = focusedValues.length > 0 ? focusedRevenue / focusedValues.length : 0;
+      const totalRevenue = Math.max(1, sumValues(dailySales));
+      const estimatedOrders = Math.round(toNumber(saleCountValue) * (focusedRevenue / totalRevenue));
+      const estimatedAov = estimatedOrders > 0 ? focusedRevenue / estimatedOrders : 0;
+
+      const previousFocused = compareWindow.map((value) => value == null ? null : round2(toNumber(value) * focus.share));
+      const previousRevenue = previousFocused.filter((value) => value != null).reduce((acc, value) => acc + toNumber(value), 0);
+      const deltaPct = compareEnabled && previousRevenue > 0
+        ? ((focusedRevenue - previousRevenue) * 100.0) / previousRevenue
+        : 0;
+
+      const kpiFocusRevenueEl = document.getElementById("kpiFocusRevenue");
+      const kpiFocusDeltaEl = document.getElementById("kpiFocusDelta");
+      const kpiFocusDeltaMetaEl = document.getElementById("kpiFocusDeltaMeta");
+      const kpiFocusAvgDailyEl = document.getElementById("kpiFocusAvgDaily");
+      const kpiFocusOrdersEl = document.getElementById("kpiFocusOrders");
+      const kpiFocusAovEl = document.getElementById("kpiFocusAov");
+
+      if (kpiFocusRevenueEl) kpiFocusRevenueEl.textContent = formatMoney(focusedRevenue);
+      if (kpiFocusDeltaEl) {
+        kpiFocusDeltaEl.textContent = formatSignedPercent(deltaPct);
+        setDeltaTone(kpiFocusDeltaEl, deltaPct);
+      }
+      if (kpiFocusDeltaMetaEl) {
+        if (!compareEnabled) kpiFocusDeltaMetaEl.textContent = "Compare disabled";
+        else if (previousRevenue <= 0) kpiFocusDeltaMetaEl.textContent = "No previous baseline";
+        else kpiFocusDeltaMetaEl.textContent = `vs previous ${series.values.length} point(s)`;
+      }
+      if (kpiFocusAvgDailyEl) kpiFocusAvgDailyEl.textContent = formatMoney(avgDaily);
+      if (kpiFocusOrdersEl) kpiFocusOrdersEl.textContent = `${estimatedOrders}`;
+      if (kpiFocusAovEl) kpiFocusAovEl.textContent = formatMoney(estimatedAov);
+
+      const statusText = `${preset === "custom" ? "Custom range" : preset.toUpperCase()} · ${series.values.length} points`;
+      if (statusEl) statusEl.textContent = statusText;
+      if (summaryEl) {
+        const compareText = compareEnabled ? "Previous period" : "No compare";
+        summaryEl.textContent = `Range: ${statusText} · Compare: ${compareText} · Focus: ${focus.focusText}`;
+      }
+
+      updateExecutiveTrendChart(series.labels, focusedValues, previousFocused, compareEnabled);
+      updateAdvancedAnalyticsCharts(series.labels, focusedValues, previousFocused, compareEnabled);
+
+      const volatilitySeries = [];
+      for (let i = 1; i < focusedValues.length; i++) {
+        const previous = toNumber(focusedValues[i - 1]);
+        const current = toNumber(focusedValues[i]);
+        volatilitySeries.push(previous > 0 ? ((current - previous) * 100.0) / previous : 0);
+      }
+      const refundRatePercent = toNumber(saleCountValue) > 0
+        ? (toNumber(refundCountValue) * 100.0) / toNumber(saleCountValue)
+        : 0;
+
+      updateGoalTracker({
+        focusedRevenue: focusedRevenue,
+        refundRatePercent: refundRatePercent
+      });
+      updateAutomatedInsights({
+        focusText: focus.focusText,
+        deltaPct: deltaPct,
+        refundRatePercent: refundRatePercent,
+        volatilityStdDev: standardDeviation(volatilitySeries)
+      });
+
+      executiveState = {
+        labels: series.labels.slice(),
+        focusedValues: focusedValues.slice(),
+        compareValues: previousFocused.slice(),
+        compareEnabled: compareEnabled,
+        focusText: focus.focusText,
+        preset: preset
+      };
+    }
+
+    function initExecutiveFilters() {
+      populateFocusSelect("filterCashierFocus", cashierLabels, "All cashiers");
+      populateFocusSelect("filterCategoryFocus", topCategoryLabels, "All categories");
+
+      const presetEl = document.getElementById("filterDatePreset");
+      const fromEl = document.getElementById("filterDateFrom");
+      const toEl = document.getElementById("filterDateTo");
+      const compareEl = document.getElementById("filterCompareMode");
+      const cashierEl = document.getElementById("filterCashierFocus");
+      const categoryEl = document.getElementById("filterCategoryFocus");
+      const paymentEl = document.getElementById("filterPaymentFocus");
+
+      const parsedDates = dailyLabels.map((label) => parseLabelDate(label)).filter((value) => value != null);
+      if (fromEl && toEl && parsedDates.length > 0) {
+        const minDate = parsedDates[0];
+        const maxDate = parsedDates[parsedDates.length - 1];
+        const toIso = (date) => date.toISOString().slice(0, 10);
+        fromEl.value = toIso(minDate);
+        toEl.value = toIso(maxDate);
+      }
+
+      document.getElementById("filterApplyBtn")?.addEventListener("click", applyExecutiveFilters);
+      document.getElementById("exportFocusCsvBtn")?.addEventListener("click", exportFocusCsv);
+      document.getElementById("filterResetBtn")?.addEventListener("click", () => {
+        if (presetEl) presetEl.value = "30d";
+        if (compareEl) compareEl.value = "previous";
+        if (cashierEl) cashierEl.value = "ALL";
+        if (categoryEl) categoryEl.value = "ALL";
+        if (paymentEl) paymentEl.value = "ALL";
+        applyExecutiveFilters();
+      });
+
+      [presetEl, fromEl, toEl, compareEl, cashierEl, categoryEl, paymentEl]
+        .forEach((element) => element?.addEventListener("change", applyExecutiveFilters));
+
+      applyExecutiveFilters();
+    }
+
     const lineCtx = document.getElementById("salesLineChart");
     const lineChart = lineCtx ? new Chart(lineCtx, {
       type: "line",
@@ -1158,6 +2231,16 @@
         scales: {
           x: { grid: { display: false } },
           y: { grid: { color: "rgba(148,163,184,0.35)" } }
+        },
+        onClick: (_event, activeElements, chart) => {
+          if (!activeElements || activeElements.length === 0) return;
+          const active = activeElements[0];
+          const label = chart.data.labels?.[active.index] || "N/A";
+          const value = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+          setDrilldown("Sales Trend", `Selected ${label}`, [
+            `Revenue: ${formatMoney(toNumber(value))}`,
+            `Series: ${chart.data.datasets?.[active.datasetIndex]?.label || "Sales"}`
+          ]);
         }
       }
     }) : null;
@@ -1186,8 +2269,7 @@
     document.getElementById("salesModeMonthly")?.addEventListener("click", () => setSalesMode("monthly"));
 
     const paymentCtx = document.getElementById("paymentStackChart");
-    if (paymentCtx) {
-      new Chart(paymentCtx, {
+    const paymentStackChart = paymentCtx ? new Chart(paymentCtx, {
         type: "bar",
         data: {
           labels: paymentLabels,
@@ -1206,10 +2288,20 @@
           scales: {
             x: { stacked: true, grid: { display: false } },
             y: { stacked: true, grid: { color: "rgba(148,163,184,0.35)" } }
+          },
+          onClick: (_event, activeElements, chart) => {
+            if (!activeElements || activeElements.length === 0) return;
+            const active = activeElements[0];
+            const label = chart.data.labels?.[active.index] || "N/A";
+            const dataset = chart.data.datasets?.[active.datasetIndex];
+            const value = dataset?.data?.[active.index];
+            setDrilldown("Payment Methods", `${dataset?.label || "Method"} · ${label}`, [
+              `Amount: ${formatMoney(toNumber(value))}`,
+              "Stacked payment performance by day"
+            ]);
           }
         }
-      });
-    }
+      }) : null;
 
     const topCtx = document.getElementById("topBarChart");
     const topChart = topCtx ? new Chart(topCtx, {
@@ -1232,6 +2324,16 @@
         scales: {
           x: { grid: { display: false } },
           y: { grid: { color: "rgba(148,163,184,0.35)" } }
+        },
+        onClick: (_event, activeElements, chart) => {
+          if (!activeElements || activeElements.length === 0) return;
+          const active = activeElements[0];
+          const label = chart.data.labels?.[active.index] || "Item";
+          const value = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+          setDrilldown("Top Performers", `${label}`, [
+            `Revenue: ${formatMoney(toNumber(value))}`,
+            "Toggle Products/Categories to compare rank shifts"
+          ]);
         }
       }
     }) : null;
@@ -1352,59 +2454,6 @@
       });
     }
 
-    const lowStockTrendCtx = document.getElementById("lowStockTrendChart");
-    if (lowStockTrendCtx) {
-      new Chart(lowStockTrendCtx, {
-        type: "line",
-        data: {
-          labels: lowStockTrendLabels,
-          datasets: [{
-            label: "Low stock count",
-            data: lowStockTrendCounts,
-            borderColor: "#d97706",
-            backgroundColor: "rgba(217, 119, 6, 0.15)",
-            fill: true,
-            tension: 0.35,
-            pointRadius: 3,
-            pointBackgroundColor: "#d97706"
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false } },
-            y: { grid: { color: "rgba(148,163,184,0.35)" }, ticks: { precision: 0 } }
-          }
-        }
-      });
-    }
-
-    const lowStockCategoryCtx = document.getElementById("lowStockCategoryChart");
-    if (lowStockCategoryCtx) {
-      new Chart(lowStockCategoryCtx, {
-        type: "bar",
-        data: {
-          labels: lowStockCategoryLabels,
-          datasets: [{
-            label: "Low stock",
-            data: lowStockCategoryCounts,
-            backgroundColor: "#f59e0b"
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false } },
-            y: { grid: { color: "rgba(148,163,184,0.35)" }, ticks: { precision: 0 } }
-          }
-        }
-      });
-    }
-
     const grossProfitCtx = document.getElementById("grossProfitChart");
     if (grossProfitCtx) {
       new Chart(grossProfitCtx, {
@@ -1458,8 +2507,7 @@
     }
 
     const cashierCtx = document.getElementById("cashierBarChart");
-    if (cashierCtx) {
-      new Chart(cashierCtx, {
+    const cashierBarChart = cashierCtx ? new Chart(cashierCtx, {
         type: "bar",
         data: {
           labels: cashierLabels,
@@ -1476,14 +2524,22 @@
           scales: {
             x: { grid: { display: false } },
             y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          },
+          onClick: (_event, activeElements, chart) => {
+            if (!activeElements || activeElements.length === 0) return;
+            const active = activeElements[0];
+            const label = chart.data.labels?.[active.index] || "Cashier";
+            const value = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+            setDrilldown("Sales by Cashier", `${label}`, [
+              `Revenue: ${formatMoney(toNumber(value))}`,
+              "Compare cashier productivity with Avg Order and Items/Minute sections"
+            ]);
           }
         }
-      });
-    }
+      }) : null;
 
     const dayCtx = document.getElementById("dayOfWeekChart");
-    if (dayCtx) {
-      new Chart(dayCtx, {
+    const dayOfWeekBarChart = dayCtx ? new Chart(dayCtx, {
         type: "bar",
         data: {
           labels: dayOfWeekLabels,
@@ -1500,14 +2556,22 @@
           scales: {
             x: { grid: { display: false } },
             y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          },
+          onClick: (_event, activeElements, chart) => {
+            if (!activeElements || activeElements.length === 0) return;
+            const active = activeElements[0];
+            const label = chart.data.labels?.[active.index] || "Day";
+            const value = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+            setDrilldown("Sales by Day", `${label}`, [
+              `Revenue: ${formatMoney(toNumber(value))}`,
+              "Use with Hourly Sales to identify staffing peaks"
+            ]);
           }
         }
-      });
-    }
+      }) : null;
 
     const hourCtx = document.getElementById("hourlySalesChart");
-    if (hourCtx) {
-      new Chart(hourCtx, {
+    const hourlySalesChart = hourCtx ? new Chart(hourCtx, {
         type: "line",
         data: {
           labels: hourLabels,
@@ -1529,10 +2593,19 @@
           scales: {
             x: { grid: { display: false } },
             y: { grid: { color: "rgba(148,163,184,0.35)" } }
+          },
+          onClick: (_event, activeElements, chart) => {
+            if (!activeElements || activeElements.length === 0) return;
+            const active = activeElements[0];
+            const label = chart.data.labels?.[active.index] || "--";
+            const value = chart.data.datasets?.[active.datasetIndex]?.data?.[active.index];
+            setDrilldown("Sales by Hour", `${label}:00`, [
+              `Revenue: ${formatMoney(toNumber(value))}`,
+              "Consider targeted promotions for low-volume slots"
+            ]);
           }
         }
-      });
-    }
+      }) : null;
 
     const revenueBridgeCtx = document.getElementById("revenueBridgeChart");
     if (revenueBridgeCtx) {
@@ -2645,959 +3718,8 @@
       }
     });
 
-    function initAdvancedChartGallery() {
-      const galleryRoot = document.getElementById("advancedChartGallery");
-      if (!galleryRoot) return;
-      if (typeof Plotly === "undefined") {
-        galleryRoot.innerHTML = '<div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Plotly failed to load, so advanced charts are unavailable.</div>';
-        return;
-      }
-
-      const plotlyConfig = { displayModeBar: false, responsive: true };
-      const plotPalette = ["#0f172a", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"];
-
-      function plotLayout(extra) {
-        return Object.assign({
-          height: 176,
-          autosize: true,
-          margin: { l: 34, r: 12, t: 10, b: 28 },
-          paper_bgcolor: "rgba(0,0,0,0)",
-          plot_bgcolor: "rgba(0,0,0,0)",
-          font: { color: "#334155", size: 10 },
-          showlegend: false
-        }, extra || {});
-      }
-
-      function safeLabels(labels, fallback) {
-        if (Array.isArray(labels) && labels.length > 0) return labels;
-        return fallback;
-      }
-
-      function safeSeries(values, length, fallback) {
-        const source = Array.isArray(values) ? values.map((v) => toNumber(v)) : [];
-        const out = [];
-        for (let i = 0; i < length; i++) {
-          if (i < source.length && Number.isFinite(source[i])) out.push(source[i]);
-          else out.push(toNumber(fallback[i % fallback.length]));
-        }
-        return out;
-      }
-
-      function correlation(a, b) {
-        if (!Array.isArray(a) || !Array.isArray(b) || a.length === 0 || b.length === 0) return 0;
-        const len = Math.min(a.length, b.length);
-        const x = a.slice(0, len).map((v) => toNumber(v));
-        const y = b.slice(0, len).map((v) => toNumber(v));
-        const meanX = x.reduce((acc, v) => acc + v, 0) / len;
-        const meanY = y.reduce((acc, v) => acc + v, 0) / len;
-        let num = 0;
-        let denX = 0;
-        let denY = 0;
-        for (let i = 0; i < len; i++) {
-          const dx = x[i] - meanX;
-          const dy = y[i] - meanY;
-          num += dx * dy;
-          denX += dx * dx;
-          denY += dy * dy;
-        }
-        if (denX === 0 || denY === 0) return 0;
-        return num / Math.sqrt(denX * denY);
-      }
-
-      function slugify(value) {
-        return String(value || "")
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
-      }
-
-      function placeholderPlot(target, note) {
-        Plotly.newPlot(target, [{
-          type: "scatter",
-          mode: "text",
-          x: [0.5],
-          y: [0.5],
-          text: [note || "Preview"],
-          textfont: { size: 11, color: "#64748b" }
-        }], plotLayout({
-          xaxis: { visible: false, range: [0, 1] },
-          yaxis: { visible: false, range: [0, 1] }
-        }), plotlyConfig);
-      }
-
-      const fallbackTrendLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      const fallbackTrendValues = [120, 155, 132, 184, 168, 201, 176];
-      const trendLabels = safeLabels(dailyLabels, fallbackTrendLabels);
-      const trendValues = safeSeries(dailySales, trendLabels.length, fallbackTrendValues);
-
-      const paymentTrendLabels = safeLabels(paymentLabels, trendLabels);
-      const paymentCashSeries = safeSeries(paymentCash, paymentTrendLabels.length, trendValues.map((v) => v * 0.45));
-      const paymentCardSeries = safeSeries(paymentCard, paymentTrendLabels.length, trendValues.map((v) => v * 0.35));
-      const paymentQrSeries = safeSeries(paymentQr, paymentTrendLabels.length, trendValues.map((v) => v * 0.2));
-
-      const revenueSeedLabels = (Array.isArray(revenueShareLabels) && revenueShareLabels.length > 0)
-        ? revenueShareLabels
-        : safeLabels(topCategoryLabels, ["Food", "Beverage", "Electronics", "Office", "Other"]);
-      const revenueSeedValues = (Array.isArray(revenueShareValues) && revenueShareValues.length > 0)
-        ? revenueShareValues
-        : safeSeries(topCategoryValues, revenueSeedLabels.length, [420, 310, 280, 190, 110]);
-      const revenueTop = topSlice(revenueSeedLabels, revenueSeedValues, 6);
-      if (revenueTop.labels.length === 0) {
-        revenueTop.labels = ["Food", "Beverage", "Electronics", "Office", "Other"];
-        revenueTop.values = [420, 310, 280, 190, 110];
-      }
-      const revenueTotal = Math.max(1, sumValues(revenueTop.values));
-
-      const hierarchyLabels = ["All"].concat(revenueTop.labels);
-      const hierarchyParents = [""].concat(revenueTop.labels.map(() => "All"));
-      const hierarchyValues = [round2(revenueTotal)].concat(revenueTop.values.map((v) => round2(v)));
-
-      const distributionSamples = [];
-      for (let i = 0; i < trendValues.length; i++) {
-        const base = trendValues[i];
-        distributionSamples.push(base - 6, base - 2, base, base + 3, base + 7);
-      }
-
-      const geoCountries = ["USA", "CAN", "MEX", "BRA", "GBR", "DEU", "FRA", "IND", "JPN", "AUS"];
-      const geoLat = [37.09, 56.13, 23.63, -14.24, 55.38, 51.17, 46.23, 20.59, 36.2, -25.27];
-      const geoLon = [-95.71, -106.35, -102.55, -51.93, -3.43, 10.45, 2.21, 78.96, 138.25, 133.77];
-      const geoValues = geoCountries.map((_, idx) => round2(trendValues[idx % trendValues.length] * (0.65 + (idx % 4) * 0.12)));
-
-      const financialRows = buildFinancialRows(trendLabels, trendValues);
-      const openSeries = financialRows.map((row) => row.o);
-      const highSeries = financialRows.map((row) => row.h);
-      const lowSeries = financialRows.map((row) => row.l);
-      const closeSeries = financialRows.map((row) => row.c);
-
-      const topCustomerSeedLabels = safeLabels(topCustomerLabels, ["C-100", "C-101", "C-102", "C-103", "C-104"]);
-      const topCustomerSeedValues = safeSeries(topCustomerValues, topCustomerSeedLabels.length, [140, 128, 115, 103, 86]);
-
-      const corrLabels = ["Sales", "Cash", "Card", "QR"];
-      const corrSeries = [trendValues, paymentCashSeries, paymentCardSeries, paymentQrSeries];
-      const corrMatrix = corrSeries.map((row) => corrSeries.map((col) => round2(correlation(row, col))));
-
-      const renderer = {
-        pie(target) {
-          Plotly.newPlot(target, [{
-            type: "pie",
-            labels: revenueTop.labels,
-            values: revenueTop.values,
-            marker: { colors: plotPalette }
-          }], plotLayout(), plotlyConfig);
-        },
-        donut(target) {
-          Plotly.newPlot(target, [{
-            type: "pie",
-            labels: revenueTop.labels,
-            values: revenueTop.values,
-            hole: 0.55,
-            marker: { colors: plotPalette }
-          }], plotLayout(), plotlyConfig);
-        },
-        semiDonut(target) {
-          Plotly.newPlot(target, [{
-            type: "pie",
-            labels: revenueTop.labels,
-            values: revenueTop.values,
-            hole: 0.55,
-            marker: { colors: plotPalette },
-            rotation: 180,
-            direction: "clockwise"
-          }], plotLayout({ height: 170 }), plotlyConfig);
-        },
-        stackedBar(target) {
-          Plotly.newPlot(target, [
-            { type: "bar", x: paymentTrendLabels, y: paymentCashSeries, name: "Cash", marker: { color: plotPalette[0] } },
-            { type: "bar", x: paymentTrendLabels, y: paymentCardSeries, name: "Card", marker: { color: plotPalette[1] } },
-            { type: "bar", x: paymentTrendLabels, y: paymentQrSeries, name: "QR", marker: { color: plotPalette[3] } }
-          ], plotLayout({ barmode: "stack", showlegend: true }), plotlyConfig);
-        },
-        stackedArea(target) {
-          Plotly.newPlot(target, [
-            { type: "scatter", mode: "lines", x: paymentTrendLabels, y: paymentCashSeries, stackgroup: "one", name: "Cash", line: { color: plotPalette[0] } },
-            { type: "scatter", mode: "lines", x: paymentTrendLabels, y: paymentCardSeries, stackgroup: "one", name: "Card", line: { color: plotPalette[1] } },
-            { type: "scatter", mode: "lines", x: paymentTrendLabels, y: paymentQrSeries, stackgroup: "one", name: "QR", line: { color: plotPalette[3] } }
-          ], plotLayout({ showlegend: true }), plotlyConfig);
-        },
-        treemap(target) {
-          Plotly.newPlot(target, [{
-            type: "treemap",
-            labels: hierarchyLabels,
-            parents: hierarchyParents,
-            values: hierarchyValues,
-            marker: { colors: hierarchyValues, colorscale: "Blues" }
-          }], plotLayout(), plotlyConfig);
-        },
-        sunburst(target) {
-          Plotly.newPlot(target, [{
-            type: "sunburst",
-            labels: hierarchyLabels,
-            parents: hierarchyParents,
-            values: hierarchyValues,
-            branchvalues: "total"
-          }], plotLayout(), plotlyConfig);
-        },
-        waterfall(target) {
-          const net = round2(toNumber(netRevenueTotalValue));
-          Plotly.newPlot(target, [{
-            type: "waterfall",
-            x: ["Gross", "Discount", "Refund", "Void", "Net"],
-            y: [
-              round2(toNumber(grossRevenueTotal)),
-              -round2(toNumber(discountTotalValue)),
-              -round2(toNumber(refundTotalValue)),
-              -round2(toNumber(voidTotalValue)),
-              net
-            ],
-            measure: ["absolute", "relative", "relative", "relative", "total"],
-            connector: { line: { color: "#94a3b8" } }
-          }], plotLayout(), plotlyConfig);
-        },
-        waffle(target) {
-          const counts = revenueTop.values.map((v) => Math.max(1, Math.round((v / revenueTotal) * 100)));
-          const cells = [];
-          for (let i = 0; i < counts.length; i++) {
-            for (let c = 0; c < counts[i]; c++) cells.push(i + 1);
-          }
-          while (cells.length < 100) cells.push(0);
-          const grid = [];
-          for (let r = 0; r < 10; r++) {
-            grid.push(cells.slice(r * 10, (r + 1) * 10));
-          }
-          Plotly.newPlot(target, [{
-            type: "heatmap",
-            z: grid,
-            showscale: false,
-            colorscale: [
-              [0, "#f8fafc"],
-              [0.2, plotPalette[0]],
-              [0.4, plotPalette[1]],
-              [0.6, plotPalette[2]],
-              [0.8, plotPalette[3]],
-              [1, plotPalette[4]]
-            ]
-          }], plotLayout({
-            xaxis: { visible: false },
-            yaxis: { visible: false }
-          }), plotlyConfig);
-        },
-        funnel(target) {
-          const sorted = topSlice(revenueTop.labels, revenueTop.values, revenueTop.labels.length);
-          Plotly.newPlot(target, [{
-            type: "funnel",
-            y: sorted.labels,
-            x: sorted.values,
-            marker: { color: plotPalette }
-          }], plotLayout(), plotlyConfig);
-        },
-        histogram(target) {
-          Plotly.newPlot(target, [{
-            type: "histogram",
-            x: distributionSamples,
-            marker: { color: plotPalette[1] },
-            nbinsx: 12
-          }], plotLayout(), plotlyConfig);
-        },
-        frequencyPolygon(target) {
-          Plotly.newPlot(target, [{
-            type: "histogram",
-            x: distributionSamples,
-            histnorm: "count",
-            marker: { color: "rgba(148,163,184,0.2)" },
-            nbinsx: 10
-          }, {
-            type: "scatter",
-            x: trendLabels,
-            y: trendValues,
-            mode: "lines+markers",
-            line: { color: plotPalette[0] }
-          }], plotLayout(), plotlyConfig);
-        },
-        density(target) {
-          Plotly.newPlot(target, [{
-            type: "histogram",
-            x: distributionSamples,
-            histnorm: "probability density",
-            marker: { color: "rgba(15,23,42,0.25)" },
-            nbinsx: 12
-          }, {
-            type: "violin",
-            y: distributionSamples,
-            box: { visible: false },
-            meanline: { visible: true },
-            points: false,
-            line: { color: plotPalette[0] },
-            fillcolor: "rgba(15,23,42,0.15)"
-          }], plotLayout(), plotlyConfig);
-        },
-        box(target) {
-          Plotly.newPlot(target, [{
-            type: "box",
-            y: distributionSamples,
-            boxpoints: "outliers",
-            marker: { color: plotPalette[0] },
-            line: { color: plotPalette[0] }
-          }], plotLayout(), plotlyConfig);
-        },
-        violin(target) {
-          Plotly.newPlot(target, [{
-            type: "violin",
-            y: distributionSamples,
-            points: "all",
-            jitter: 0.3,
-            line: { color: plotPalette[0] },
-            fillcolor: "rgba(15,23,42,0.2)"
-          }], plotLayout(), plotlyConfig);
-        },
-        ridgeline(target) {
-          Plotly.newPlot(target, [
-            { type: "violin", x: distributionSamples.slice(0, 10), name: "A", side: "positive", line: { color: plotPalette[0] } },
-            { type: "violin", x: distributionSamples.slice(5, 15), name: "B", side: "positive", line: { color: plotPalette[1] } },
-            { type: "violin", x: distributionSamples.slice(10, 20), name: "C", side: "positive", line: { color: plotPalette[2] } }
-          ], plotLayout({ violinmode: "overlay", showlegend: true }), plotlyConfig);
-        },
-        strip(target) {
-          Plotly.newPlot(target, [{
-            type: "box",
-            y: distributionSamples,
-            boxpoints: "all",
-            jitter: 0.45,
-            pointpos: 0,
-            marker: { color: plotPalette[0], size: 5 },
-            line: { color: "rgba(0,0,0,0)" },
-            fillcolor: "rgba(15,23,42,0.05)"
-          }], plotLayout(), plotlyConfig);
-        },
-        stemLeaf(target) {
-          const stems = distributionSamples.slice(0, 12).map((value) => {
-            const v = Math.round(value);
-            return `${Math.floor(v / 10)} | ${Math.abs(v % 10)}`;
-          });
-          Plotly.newPlot(target, [{
-            type: "scatter",
-            mode: "text",
-            x: stems.map((_, idx) => idx),
-            y: stems.map(() => 0),
-            text: stems,
-            textposition: "middle center",
-            textfont: { size: 11, color: "#334155" }
-          }], plotLayout({
-            xaxis: { visible: false },
-            yaxis: { visible: false, range: [-1, 1] }
-          }), plotlyConfig);
-        },
-        scatter(target) {
-          Plotly.newPlot(target, [{
-            type: "scatter",
-            mode: "markers",
-            x: trendValues,
-            y: paymentCashSeries.slice(0, trendValues.length),
-            marker: { color: plotPalette[0], size: 8 }
-          }], plotLayout(), plotlyConfig);
-        },
-        bubble(target) {
-          Plotly.newPlot(target, [{
-            type: "scatter",
-            mode: "markers",
-            x: topCustomerSeedLabels,
-            y: topCustomerSeedValues,
-            marker: {
-              color: plotPalette[1],
-              sizemode: "area",
-              sizeref: Math.max(...topCustomerSeedValues) / 40,
-              size: topCustomerSeedValues
-            }
-          }], plotLayout(), plotlyConfig);
-        },
-        hexbin(target) {
-          Plotly.newPlot(target, [{
-            type: "histogram2d",
-            x: distributionSamples,
-            y: distributionSamples.map((v, idx) => v * 0.5 + idx),
-            colorscale: "Blues"
-          }], plotLayout(), plotlyConfig);
-        },
-        heatmap(target) {
-          Plotly.newPlot(target, [{
-            type: "heatmap",
-            z: heatmapValues && heatmapValues.length ? heatmapValues : [ [1, 3, 2], [2, 5, 4], [1, 2, 3] ],
-            x: heatmapHours && heatmapHours.length ? heatmapHours : [0, 1, 2],
-            y: heatmapDays && heatmapDays.length ? heatmapDays : ["Mon", "Tue", "Wed"],
-            colorscale: "Blues"
-          }], plotLayout(), plotlyConfig);
-        },
-        scatterMatrix(target) {
-          Plotly.newPlot(target, [{
-            type: "splom",
-            dimensions: [
-              { label: "Sales", values: trendValues },
-              { label: "Cash", values: paymentCashSeries.slice(0, trendValues.length) },
-              { label: "Card", values: paymentCardSeries.slice(0, trendValues.length) },
-              { label: "QR", values: paymentQrSeries.slice(0, trendValues.length) }
-            ],
-            marker: { color: plotPalette[0], size: 4, opacity: 0.7 }
-          }], plotLayout(), plotlyConfig);
-        },
-        correlogram(target) {
-          Plotly.newPlot(target, [{
-            type: "heatmap",
-            z: corrMatrix,
-            x: corrLabels,
-            y: corrLabels,
-            zmin: -1,
-            zmax: 1,
-            colorscale: "RdBu"
-          }], plotLayout(), plotlyConfig);
-        },
-        choropleth(target) {
-          Plotly.newPlot(target, [{
-            type: "choropleth",
-            locations: geoCountries,
-            z: geoValues,
-            locationmode: "ISO-3",
-            colorscale: "Blues"
-          }], plotLayout({ geo: { showframe: false, showcoastlines: false } }), plotlyConfig);
-        },
-        symbolMap(target) {
-          Plotly.newPlot(target, [{
-            type: "scattergeo",
-            mode: "markers",
-            lat: geoLat,
-            lon: geoLon,
-            text: geoCountries,
-            marker: {
-              size: geoValues.map((v) => Math.max(6, Math.min(18, v / 20))),
-              color: plotPalette[0],
-              opacity: 0.7
-            }
-          }], plotLayout({ geo: { showframe: false, showcoastlines: false } }), plotlyConfig);
-        },
-        dotDensity(target) {
-          const dotsLat = [];
-          const dotsLon = [];
-          for (let i = 0; i < geoLat.length; i++) {
-            const count = Math.max(3, Math.round(geoValues[i] / 30));
-            for (let d = 0; d < count; d++) {
-              dotsLat.push(geoLat[i] + ((d % 5) - 2) * 0.6);
-              dotsLon.push(geoLon[i] + ((d % 5) - 2) * 0.6);
-            }
-          }
-          Plotly.newPlot(target, [{
-            type: "scattergeo",
-            mode: "markers",
-            lat: dotsLat,
-            lon: dotsLon,
-            marker: { size: 3, color: plotPalette[0], opacity: 0.6 }
-          }], plotLayout({ geo: { showframe: false, showcoastlines: false } }), plotlyConfig);
-        },
-        flowMap(target) {
-          const srcLat = geoLat[0];
-          const srcLon = geoLon[0];
-          const lineTraces = geoLat.slice(1).map((lat, idx) => ({
-            type: "scattergeo",
-            mode: "lines",
-            lat: [srcLat, lat],
-            lon: [srcLon, geoLon[idx + 1]],
-            line: { width: 1 + (idx % 3), color: plotPalette[1] },
-            opacity: 0.6,
-            hoverinfo: "skip"
-          }));
-          const markerTrace = {
-            type: "scattergeo",
-            mode: "markers",
-            lat: geoLat,
-            lon: geoLon,
-            marker: { size: 5, color: plotPalette[0] },
-            hovertext: geoCountries
-          };
-          Plotly.newPlot(target, lineTraces.concat([markerTrace]), plotLayout({
-            geo: { showframe: false, showcoastlines: false }
-          }), plotlyConfig);
-        },
-        geoHeatmap(target) {
-          Plotly.newPlot(target, [{
-            type: "scattergeo",
-            mode: "markers",
-            lat: geoLat,
-            lon: geoLon,
-            marker: {
-              size: geoValues.map((v) => Math.max(8, Math.min(26, v / 12))),
-              color: geoValues,
-              colorscale: "Blues",
-              opacity: 0.55,
-              showscale: false
-            }
-          }], plotLayout({ geo: { showframe: false, showcoastlines: false } }), plotlyConfig);
-        },
-        icicle(target) {
-          try {
-            Plotly.newPlot(target, [{
-              type: "icicle",
-              labels: hierarchyLabels,
-              parents: hierarchyParents,
-              values: hierarchyValues
-            }], plotLayout(), plotlyConfig);
-          } catch (error) {
-            renderer.treemap(target);
-          }
-        },
-        parallel(target) {
-          Plotly.newPlot(target, [{
-            type: "parcoords",
-            line: { color: trendValues, colorscale: "Blues" },
-            dimensions: [
-              { label: "Sales", values: trendValues },
-              { label: "Cash", values: paymentCashSeries.slice(0, trendValues.length) },
-              { label: "Card", values: paymentCardSeries.slice(0, trendValues.length) },
-              { label: "QR", values: paymentQrSeries.slice(0, trendValues.length) }
-            ]
-          }], plotLayout(), plotlyConfig);
-        },
-        radar(target) {
-          const refundRate = toNumber(saleCountValue) > 0 ? (toNumber(refundCountValue) * 100) / toNumber(saleCountValue) : 0;
-          Plotly.newPlot(target, [{
-            type: "scatterpolar",
-            r: [
-              clamp((toNumber(netRevenueTotalValue) / Math.max(1, toNumber(grossRevenueTotal))) * 100, 0, 100),
-              clamp(grossMarginPercentValue, 0, 100),
-              clamp(discountRatePercentValue, 0, 100),
-              clamp(refundRate, 0, 100),
-              clamp(splitPaymentRatePercentValue, 0, 100)
-            ],
-            theta: ["Retention", "Margin", "Discount", "Refund", "Split"],
-            fill: "toself",
-            line: { color: plotPalette[0] }
-          }], plotLayout({ polar: { radialaxis: { visible: true, range: [0, 100] } } }), plotlyConfig);
-        },
-        mosaic(target) {
-          renderer.treemap(target);
-        },
-        sankey(target) {
-          Plotly.newPlot(target, [{
-            type: "sankey",
-            node: {
-              label: ["Gross", "Discount", "Refund", "Net", "Cash", "Card", "QR"],
-              color: ["#0f172a", "#334155", "#64748b", "#16a34a", "#0f172a", "#334155", "#94a3b8"]
-            },
-            link: {
-              source: [0, 0, 0, 3, 3, 3],
-              target: [1, 2, 3, 4, 5, 6],
-              value: [
-                Math.max(1, toNumber(discountTotalValue)),
-                Math.max(1, toNumber(refundTotalValue)),
-                Math.max(1, toNumber(netRevenueTotalValue)),
-                Math.max(1, sumValues(paymentCashSeries)),
-                Math.max(1, sumValues(paymentCardSeries)),
-                Math.max(1, sumValues(paymentQrSeries))
-              ]
-            }
-          }], plotLayout(), plotlyConfig);
-        },
-        bullet(target) {
-          Plotly.newPlot(target, [{
-            type: "indicator",
-            mode: "number+gauge+delta",
-            value: round2(toNumber(grossMarginPercentValue)),
-            delta: { reference: 35 },
-            gauge: {
-              shape: "bullet",
-              axis: { range: [0, 100] },
-              steps: [{ range: [0, 35], color: "#e2e8f0" }, { range: [35, 60], color: "#cbd5e1" }],
-              bar: { color: "#0f172a" }
-            }
-          }], plotLayout({ margin: { l: 40, r: 20, t: 14, b: 22 } }), plotlyConfig);
-        },
-        gauge(target) {
-          Plotly.newPlot(target, [{
-            type: "indicator",
-            mode: "gauge+number",
-            value: round2(toNumber(sellThroughPercentValue)),
-            gauge: {
-              axis: { range: [0, 100] },
-              bar: { color: "#0f172a" },
-              steps: [{ range: [0, 50], color: "#e2e8f0" }, { range: [50, 75], color: "#cbd5e1" }, { range: [75, 100], color: "#94a3b8" }]
-            }
-          }], plotLayout(), plotlyConfig);
-        },
-        progress(target) {
-          const progress = clamp((toNumber(netRevenueTotalValue) / Math.max(1, toNumber(grossRevenueTotal))) * 100, 0, 100);
-          Plotly.newPlot(target, [{
-            type: "bar",
-            x: [progress],
-            y: ["Progress"],
-            orientation: "h",
-            marker: { color: "#0f172a" }
-          }], plotLayout({
-            xaxis: { range: [0, 100], ticksuffix: "%" },
-            yaxis: { showgrid: false }
-          }), plotlyConfig);
-        },
-        kpi(target) {
-          Plotly.newPlot(target, [{
-            type: "indicator",
-            mode: "number+delta",
-            value: round2(toNumber(netRevenueTotalValue)),
-            number: { prefix: "$" },
-            delta: { reference: round2(toNumber(grossRevenueTotal) * 0.9), relative: true }
-          }], plotLayout(), plotlyConfig);
-        },
-        sparkline(target) {
-          Plotly.newPlot(target, [{
-            type: "scatter",
-            mode: "lines",
-            x: trendLabels,
-            y: trendValues,
-            line: { color: plotPalette[0], width: 2 }
-          }], plotLayout({
-            margin: { l: 8, r: 8, t: 8, b: 8 },
-            xaxis: { visible: false },
-            yaxis: { visible: false }
-          }), plotlyConfig);
-        },
-        candlestick(target) {
-          Plotly.newPlot(target, [{
-            type: "candlestick",
-            x: trendLabels,
-            open: openSeries,
-            high: highSeries,
-            low: lowSeries,
-            close: closeSeries
-          }], plotLayout(), plotlyConfig);
-        },
-        ohlc(target) {
-          Plotly.newPlot(target, [{
-            type: "ohlc",
-            x: trendLabels,
-            open: openSeries,
-            high: highSeries,
-            low: lowSeries,
-            close: closeSeries
-          }], plotLayout(), plotlyConfig);
-        },
-        control(target) {
-          const mean = trendValues.reduce((acc, v) => acc + v, 0) / Math.max(1, trendValues.length);
-          const variance = trendValues.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / Math.max(1, trendValues.length);
-          const sigma = Math.sqrt(variance);
-          const ucl = mean + (3 * sigma);
-          const lcl = Math.max(0, mean - (3 * sigma));
-          Plotly.newPlot(target, [
-            { type: "scatter", mode: "lines+markers", x: trendLabels, y: trendValues, name: "Actual", line: { color: plotPalette[0] } },
-            { type: "scatter", mode: "lines", x: trendLabels, y: trendLabels.map(() => ucl), name: "UCL", line: { color: "#dc2626", dash: "dash" } },
-            { type: "scatter", mode: "lines", x: trendLabels, y: trendLabels.map(() => mean), name: "Mean", line: { color: "#64748b", dash: "dot" } },
-            { type: "scatter", mode: "lines", x: trendLabels, y: trendLabels.map(() => lcl), name: "LCL", line: { color: "#dc2626", dash: "dash" } }
-          ], plotLayout({ showlegend: true }), plotlyConfig);
-        },
-        pareto(target) {
-          const sorted = topSlice(revenueTop.labels, revenueTop.values, revenueTop.labels.length);
-          let cumulative = 0;
-          const cumulativePct = sorted.values.map((v) => {
-            cumulative += v;
-            return round2((cumulative / Math.max(1, sumValues(sorted.values))) * 100);
-          });
-          Plotly.newPlot(target, [
-            { type: "bar", x: sorted.labels, y: sorted.values, marker: { color: plotPalette[0] }, name: "Value" },
-            { type: "scatter", x: sorted.labels, y: cumulativePct, yaxis: "y2", mode: "lines+markers", line: { color: "#16a34a" }, name: "Cumulative %" }
-          ], plotLayout({
-            showlegend: true,
-            yaxis2: { overlaying: "y", side: "right", range: [0, 110], ticksuffix: "%" }
-          }), plotlyConfig);
-        },
-        gantt(target) {
-          Plotly.newPlot(target, [{
-            type: "bar",
-            orientation: "h",
-            y: ["Open Shift", "Sales Window", "Reconcile", "Close Shift"],
-            x: [0.5, 6.0, 1.0, 0.5],
-            base: [8.0, 8.5, 14.5, 15.5],
-            marker: { color: [plotPalette[1], plotPalette[0], plotPalette[2], plotPalette[3]] }
-          }], plotLayout({
-            xaxis: { title: "Hour of Day", range: [7.5, 16.5] }
-          }), plotlyConfig);
-        },
-        network(target) {
-          const nodes = ["POS", "Sales", "Inventory", "Finance", "Customers", "Reports"];
-          const x = [0, 1, 2, 1, 0.5, 1.8];
-          const y = [1, 1.5, 1, 0.5, 0, 0.2];
-          const edges = [ [0, 1], [1, 2], [1, 3], [1, 4], [3, 5], [2, 5] ];
-          const lineX = [];
-          const lineY = [];
-          edges.forEach((pair) => {
-            lineX.push(x[pair[0]], x[pair[1]], null);
-            lineY.push(y[pair[0]], y[pair[1]], null);
-          });
-          Plotly.newPlot(target, [
-            { type: "scatter", mode: "lines", x: lineX, y: lineY, line: { color: "#94a3b8", width: 1 }, hoverinfo: "skip" },
-            { type: "scatter", mode: "markers+text", x: x, y: y, text: nodes, textposition: "top center", marker: { size: 10, color: "#0f172a" } }
-          ], plotLayout({
-            xaxis: { visible: false },
-            yaxis: { visible: false }
-          }), plotlyConfig);
-        },
-        wordCloud(target) {
-          const words = revenueTop.labels.slice(0, 6);
-          const weights = revenueTop.values.slice(0, words.length);
-          Plotly.newPlot(target, [{
-            type: "bar",
-            x: weights,
-            y: words,
-            orientation: "h",
-            marker: { color: plotPalette[1] }
-          }], plotLayout(), plotlyConfig);
-        },
-        calendarHeatmap(target) {
-          const weeks = ["W1", "W2", "W3", "W4", "W5", "W6"];
-          const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-          const z = days.map((_, dayIdx) => weeks.map((_, weekIdx) => {
-            const idx = (weekIdx * 7) + dayIdx;
-            return round2(trendValues[idx % trendValues.length]);
-          }));
-          Plotly.newPlot(target, [{
-            type: "heatmap",
-            z: z,
-            x: weeks,
-            y: days,
-            colorscale: "Blues"
-          }], plotLayout(), plotlyConfig);
-        },
-        pyramid(target) {
-          Plotly.newPlot(target, [{
-            type: "funnelarea",
-            labels: ["Leads", "Visits", "Carts", "Checkouts", "Paid"],
-            values: [100, 78, 52, 34, 27],
-            marker: { colors: plotPalette }
-          }], plotLayout(), plotlyConfig);
-        },
-        populationPyramid(target) {
-          Plotly.newPlot(target, [
-            { type: "bar", y: ["18-24", "25-34", "35-44", "45-54", "55+"], x: [-18, -26, -22, -14, -8], orientation: "h", name: "Male", marker: { color: plotPalette[1] } },
-            { type: "bar", y: ["18-24", "25-34", "35-44", "45-54", "55+"], x: [17, 24, 20, 13, 9], orientation: "h", name: "Female", marker: { color: plotPalette[3] } }
-          ], plotLayout({ barmode: "relative", showlegend: true }), plotlyConfig);
-        },
-        ternary(target) {
-          Plotly.newPlot(target, [{
-            type: "scatterternary",
-            mode: "markers",
-            a: [45, 30, 20, 35, 40],
-            b: [35, 45, 30, 25, 20],
-            c: [20, 25, 50, 40, 40],
-            marker: { size: 8, color: plotPalette[0] }
-          }], plotLayout(), plotlyConfig);
-        },
-        spiral(target) {
-          const theta = [];
-          const radius = [];
-          for (let i = 0; i < 40; i++) {
-            theta.push(i * 18);
-            radius.push(2 + (i * 0.12) + (Math.sin(i / 2) * 0.5));
-          }
-          Plotly.newPlot(target, [{
-            type: "scatterpolar",
-            mode: "lines",
-            theta: theta,
-            r: radius,
-            line: { color: plotPalette[0] }
-          }], plotLayout({ polar: { radialaxis: { visible: false } } }), plotlyConfig);
-        },
-        marimekko(target) {
-          const widths = revenueTop.values.map((v) => (v / revenueTotal) * 10);
-          let running = 0;
-          const centers = widths.map((w) => {
-            running += w / 2;
-            const center = running;
-            running += w / 2;
-            return center;
-          });
-          Plotly.newPlot(target, [
-            { type: "bar", x: centers, y: revenueTop.values, width: widths, name: "Revenue", marker: { color: plotPalette[0] } },
-            { type: "bar", x: centers, y: revenueTop.values.map((v) => round2(v * 0.35)), width: widths, name: "Margin", marker: { color: plotPalette[3] } }
-          ], plotLayout({
-            barmode: "stack",
-            showlegend: true,
-            xaxis: { tickmode: "array", tickvals: centers, ticktext: revenueTop.labels }
-          }), plotlyConfig);
-        }
-      };
-
-      const chartGroups = [
-        {
-          title: "Revenue Composition Views",
-          charts: [
-            { name: "Category Revenue Share", key: "pie" },
-            { name: "Revenue Share (Donut)", key: "donut" },
-            { name: "Revenue Share (Half Donut)", key: "semiDonut" },
-            { name: "Payment Mix by Day", key: "stackedBar" },
-            { name: "Payment Mix Trend", key: "stackedArea" },
-            { name: "Category Contribution Treemap", key: "treemap" },
-            { name: "Category Depth Sunburst", key: "sunburst" },
-            { name: "Net Revenue Bridge", key: "waterfall" },
-            { name: "Share Allocation Grid", key: "waffle" },
-            { name: "Conversion Funnel Snapshot", key: "funnel" }
-          ]
-        },
-        {
-          title: "Sales Distribution Views",
-          charts: [
-            { name: "Ticket Size Histogram", key: "histogram" },
-            { name: "Sales Frequency Curve", key: "frequencyPolygon" },
-            { name: "Order Density Estimate", key: "density" },
-            { name: "Order Value Spread", key: "box" },
-            { name: "Order Value Whiskers", key: "box" },
-            { name: "Order Value Shape", key: "violin" },
-            { name: "Sales Layered Density", key: "ridgeline" },
-            { name: "Transaction Strip", key: "strip" },
-            { name: "Transaction Cluster", key: "strip" },
-            { name: "Ticket Stem-and-Leaf", key: "stemLeaf" }
-          ]
-        },
-        {
-          title: "Sales Correlation Views",
-          charts: [
-            { name: "Sales vs Cash Correlation", key: "scatter" },
-            { name: "Customer Spend Bubble", key: "bubble" },
-            { name: "Transaction Concentration Hexbin", key: "hexbin" },
-            { name: "Hourly Activity Heatmap", key: "heatmap" },
-            { name: "KPI Scatter Matrix", key: "scatterMatrix" },
-            { name: "KPI Correlation Matrix", key: "correlogram" }
-          ]
-        },
-        {
-          title: "Regional Performance Views",
-          charts: [
-            { name: "Revenue by Country", key: "choropleth" },
-            { name: "Sales Symbol Map", key: "symbolMap" },
-            { name: "Transaction Density Map", key: "dotDensity" },
-            { name: "Revenue Emphasis Map", key: "choropleth" },
-            { name: "Sales Flow Routes", key: "flowMap" },
-            { name: "Geographic Revenue Heatmap", key: "geoHeatmap" }
-          ]
-        },
-        {
-          title: "Category Hierarchy Views",
-          charts: [
-            { name: "Category Treemap", key: "treemap" },
-            { name: "Category Sunburst", key: "sunburst" },
-            { name: "Category Cluster Dendrogram", key: "icicle" },
-            { name: "Category Icicle", key: "icicle" },
-            { name: "Category Tree Overview", key: "sunburst" }
-          ]
-        },
-        {
-          title: "Multi-KPI Comparison Views",
-          charts: [
-            { name: "KPI Parallel Coordinates", key: "parallel" },
-            { name: "Operational KPI Radar", key: "radar" },
-            { name: "Revenue-Volume Bubble", key: "bubble" },
-            { name: "Category Mix Mosaic", key: "mosaic" }
-          ]
-        },
-        {
-          title: "Checkout Flow Views",
-          charts: [
-            { name: "Checkout Stage Funnel", key: "funnel" },
-            { name: "Revenue Flow Sankey", key: "sankey" },
-            { name: "Department Flow Chord", key: "sankey" },
-            { name: "Payment Alluvial Flow", key: "sankey" },
-            { name: "POS Process Flow", key: "sankey" }
-          ]
-        },
-        {
-          title: "KPI Monitoring Views",
-          charts: [
-            { name: "Margin Target Bullet", key: "bullet" },
-            { name: "Sell-through Gauge", key: "gauge" },
-            { name: "Net Revenue Progress", key: "progress" },
-            { name: "Net Revenue Scorecard", key: "kpi" },
-            { name: "Daily Sales Sparkline", key: "sparkline" }
-          ]
-        },
-        {
-          title: "Financial Control Views",
-          charts: [
-            { name: "Sales Candlestick Range", key: "candlestick" },
-            { name: "Sales OHLC Range", key: "ohlc" },
-            { name: "Sales Control Limits", key: "control" },
-            { name: "Product Pareto", key: "pareto" },
-            { name: "Shift Timeline Gantt", key: "gantt" }
-          ]
-        },
-        {
-          title: "Advanced Insight Views",
-          charts: [
-            { name: "POS Module Network", key: "network" },
-            { name: "Module Force Layout", key: "network" },
-            { name: "Top Terms Cloud", key: "wordCloud" },
-            { name: "Weekly Calendar Heatmap", key: "calendarHeatmap" },
-            { name: "Funnel Area Pyramid", key: "pyramid" },
-            { name: "Customer Age Pyramid", key: "populationPyramid" },
-            { name: "Channel Ternary Mix", key: "ternary" },
-            { name: "Seasonal Spiral", key: "spiral" },
-            { name: "Advanced Revenue Waterfall", key: "waterfall" },
-            { name: "Category Marimekko", key: "marimekko" }
-          ]
-        }
-      ];
-
-      function renderChart(target, definition) {
-        if (!target) return;
-        const fn = renderer[definition.key];
-        if (typeof fn !== "function") {
-          placeholderPlot(target, "Not configured");
-          return;
-        }
-        try {
-          fn(target);
-          requestAnimationFrame(() => {
-            try {
-              const width = target.clientWidth || 320;
-              const height = target.clientHeight || 176;
-              Plotly.relayout(target, { width, height });
-            } catch (error) {
-              console.warn("Advanced chart resize skipped:", definition.name, error);
-            }
-          });
-        } catch (error) {
-          console.error("Advanced chart render failed:", definition.name, error);
-          placeholderPlot(target, "Rendering fallback");
-        }
-      }
-
-      chartGroups.forEach((group) => {
-        const section = document.createElement("section");
-        section.className = "rounded-xl border border-slate-200 bg-white px-4 py-4";
-
-        const heading = document.createElement("div");
-        heading.className = "text-sm font-semibold text-slate-800";
-        heading.textContent = `${group.title} (${group.charts.length})`;
-        section.appendChild(heading);
-
-        const grid = document.createElement("div");
-        grid.className = "mt-3 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4";
-        section.appendChild(grid);
-
-        galleryRoot.appendChild(section);
-
-        group.charts.forEach((chart, chartIdx) => {
-          const card = document.createElement("div");
-          card.className = "rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 overflow-hidden";
-
-          const title = document.createElement("div");
-          title.className = "text-xs font-semibold text-slate-700";
-          title.textContent = chart.name;
-          card.appendChild(title);
-
-          const plotId = `adv-${slugify(group.title)}-${chartIdx}-${slugify(chart.name)}`;
-          const plot = document.createElement("div");
-          plot.id = plotId;
-          plot.className = "mt-2 h-44 w-full";
-          card.appendChild(plot);
-
-          grid.appendChild(card);
-          renderChart(plot, chart);
-        });
-      });
-    }
-
-    initAdvancedChartGallery();
+    initExecutiveFilters();
+    initScenarioSimulator();
   </script>
 </body>
 </html>

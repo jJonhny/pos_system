@@ -41,4 +41,26 @@ class I18nLocaleSwitchIntegrationTest {
                 .orElse(null);
         assertThat(preference).isEqualToIgnoringCase("zh-CN");
     }
+
+    @Test
+    void langQueryParamCanSwitchBackFromZhCnToEnglish() throws Exception {
+        mockMvc.perform(get("/pos")
+                        .param("lang", "zh-CN")
+                        .with(SecurityMockMvcRequestPostProcessors.user("cashier").roles("CASHIER")))
+                .andExpect(status().isOk())
+                .andExpect(cookie().value("POS_LANG", "zh-CN"))
+                .andExpect(content().string(containsString("收银台")));
+
+        mockMvc.perform(get("/pos")
+                        .param("lang", "en")
+                        .with(SecurityMockMvcRequestPostProcessors.user("cashier").roles("CASHIER")))
+                .andExpect(status().isOk())
+                .andExpect(cookie().value("POS_LANG", "en"))
+                .andExpect(content().string(containsString("Point of Sale")));
+
+        String preference = appUserRepo.findByUsername("cashier")
+                .map(user -> user.getLanguagePreference())
+                .orElse(null);
+        assertThat(preference).isEqualToIgnoringCase("en");
+    }
 }

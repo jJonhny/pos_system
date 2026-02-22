@@ -240,12 +240,18 @@ public class PosController {
 
   @PostMapping("/cart/add/{productId}")
   public String addToCart(@PathVariable Long productId,
+                          @RequestParam(name = "qty", required = false, defaultValue = "1") Integer qty,
                           @RequestHeader(value = "HX-Request", required = false) String hxRequest,
                           @ModelAttribute("cart") Cart cart,
                           Model model) {
-    log.info("POS addToCart POST productId={} hxRequest={}", productId, hxRequest);
+    int requestedQty = qty == null ? 1 : Math.max(1, Math.min(99, qty));
+    log.info("POS addToCart POST productId={} qty={} hxRequest={}", productId, requestedQty, hxRequest);
     Product p = productRepo.findById(productId).orElse(null);
-    String error = addProductToCart(p, cart);
+    String error = null;
+    for (int i = 0; i < requestedQty; i++) {
+      error = addProductToCart(p, cart);
+      if (error != null) break;
+    }
     if (error != null) {
       if (isHtmx(hxRequest)) {
         model.addAttribute("cartError", error);
@@ -286,10 +292,12 @@ public class PosController {
   // Fallback for clients accidentally issuing GETs (e.g., scanner apps or bad redirects)
   @GetMapping("/cart/add/{productId}")
   public String addToCartGet(@PathVariable Long productId,
+                             @RequestParam(name = "qty", required = false, defaultValue = "1") Integer qty,
                              @ModelAttribute("cart") Cart cart,
                              Model model) {
-    log.info("POS addToCart GET productId={}", productId);
-    return addToCart(productId, null, cart, model);
+    int requestedQty = qty == null ? 1 : Math.max(1, Math.min(99, qty));
+    log.info("POS addToCart GET productId={} qty={}", productId, requestedQty);
+    return addToCart(productId, requestedQty, null, cart, model);
   }
 
   @PostMapping("/cart/update")

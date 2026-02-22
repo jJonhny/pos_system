@@ -153,7 +153,7 @@ public class ReceiptPayloadService {
         if (paymentLines != null && !paymentLines.isEmpty()) {
             out.append(repeat('-', WIDTH)).append('\n');
             for (ReceiptPaymentService.ReceiptPaymentLine paymentLine : paymentLines) {
-                String method = paymentMethodLabel(paymentLine.method(), locale);
+                String method = paymentMethodLabel(paymentLine.method(), locale).toUpperCase(locale);
                 String amount = money(paymentLine.amountBase(), baseCurrency);
                 out.append(twoCol(method, amount)).append('\n');
                 if (paymentLine.currencyCode() != null && paymentLine.foreignAmount() != null) {

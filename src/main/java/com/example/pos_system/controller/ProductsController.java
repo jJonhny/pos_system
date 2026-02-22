@@ -82,6 +82,15 @@ public class ProductsController {
         Specification<Product> specification = buildSpecification(categoryId, onlyLowStock, q, active, priceMin, priceMax, stockMin, stockMax);
 
         Page<Product> productPage = productRepo.findAll(specification, pageable);
+        if (productPage.getTotalPages() > 0 && pageNum >= productPage.getTotalPages()) {
+            int lastPage = Math.max(0, productPage.getTotalPages() - 1);
+            String redirect = buildListRedirect(categoryId, onlyLowStock, q, active, priceMin, priceMax,
+                    stockMin, stockMax, sort, dir, lastPage, pageSize);
+            if (hasText(error)) {
+                redirect = appendErrorCode(redirect, error);
+            }
+            return "redirect:" + redirect;
+        }
         List<Product> pageItems = productPage.getContent();
         int totalPages = Math.max(1, productPage.getTotalPages());
         int startPage = Math.max(0, productPage.getNumber() - 2);
@@ -263,10 +272,24 @@ public class ProductsController {
     public String importInventory(@RequestParam("file") MultipartFile file,
                                   @RequestParam(required = false, defaultValue = "false") boolean allowCreate,
                                   @RequestParam(required = false, defaultValue = "false") boolean createCategories,
+                                  @RequestParam(required = false) Long categoryId,
+                                  @RequestParam(required = false) Boolean lowStock,
+                                  @RequestParam(required = false) String q,
+                                  @RequestParam(required = false) Boolean active,
+                                  @RequestParam(required = false) BigDecimal priceMin,
+                                  @RequestParam(required = false) BigDecimal priceMax,
+                                  @RequestParam(required = false) Integer stockMin,
+                                  @RequestParam(required = false) Integer stockMax,
+                                  @RequestParam(required = false) String sort,
+                                  @RequestParam(required = false) String dir,
+                                  @RequestParam(required = false) Integer page,
+                                  @RequestParam(required = false) Integer size,
                                   RedirectAttributes redirectAttributes) {
+        String listRedirect = buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
+                stockMin, stockMax, sort, dir, page, size);
         if (file == null || file.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Please choose a CSV or Excel file to import.");
-            return "redirect:/products";
+            return "redirect:" + listRedirect;
         }
         String filename = file.getOriginalFilename() == null ? "" : file.getOriginalFilename().toLowerCase();
         ImportResult result;
@@ -277,11 +300,11 @@ public class ProductsController {
                 result = importFromCsv(file, allowCreate, createCategories);
             } else {
                 redirectAttributes.addFlashAttribute("error", "Unsupported file type. Please upload .csv or .xlsx.");
-                return "redirect:/products";
+                return "redirect:" + listRedirect;
             }
         } catch (IOException ex) {
             redirectAttributes.addFlashAttribute("error", "Import failed: " + ex.getMessage());
-            return "redirect:/products";
+            return "redirect:" + listRedirect;
         }
 
         if (result.errors != null && !result.errors.isEmpty()) {
@@ -310,7 +333,7 @@ public class ProductsController {
         } else {
             redirectAttributes.addFlashAttribute("error", "Import completed with some errors. " + summary);
         }
-        return "redirect:/products";
+        return "redirect:" + listRedirect;
     }
 
     @GetMapping("/export.csv")

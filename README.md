@@ -1,145 +1,75 @@
 # POS System
 
-Production-ready Point of Sale system built with **Spring Boot + Thymeleaf + HTMX**.
+Enterprise-oriented Point of Sale system built with Spring Boot MVC, Thymeleaf, and HTMX.
 
-## Overview
+## What this project includes
 
-This project delivers an end-to-end retail workflow:
+- Full cashier POS workflow (search, barcode scan, cart, hold/resume, checkout)
+- Multi-currency cash tender + split payment checkout
+- Shift management (open, cash in/out, close, variance checks)
+- Sales, return, void, receipt and PDF receipt flows
+- Product/category/supplier/purchase/receiving/inventory modules
+- Analytics and reporting pages with export endpoints
+- Role + permission based security model
+- Audit logging for sensitive actions
+- Optional local bridge integration for printer and cash drawer
 
-- fast cashier POS with split/multi-currency checkout
-- inventory integrity with stock movement ledger
-- supplier receiving (PO + GRN)
-- shift/cash-drawer reconciliation
-- analytics + report exports
-- security, RBAC, and immutable audit logging
-- optional local POS bridge for ESC/POS printing and drawer open
+## Internationalization (i18n)
 
----
+Single codebase, multilingual support:
 
-## Completed Feature Scope
-
-### POS & Checkout
-
-- Product search, category filter, quick-add by SKU/barcode, scanner flow
-- Cart with quantity/unit changes, notes, customer attach/create, clear cart
-- Cart discount/price/tax override audit coverage
-- Hold cart / resume cart
-- Split payments and multi-currency tendering
-- Idempotent checkout (`clientCheckoutId` + terminal guard) to prevent duplicates
-- Receipt page, PDF receipt, and reprint actions
-- POS keyboard + usability enhancements (recent/pinned items, quick totals, filters)
-
-### Shift & Cash Drawer
-
-- Open shift with opening float (per currency JSON)
-- Cash events during shift: `CASH_IN`, `CASH_OUT`, `DRAWER_OPEN`
-- Close shift with counted cash, expected cash, variance, notes
-- Manager/admin approval required for high variance (configurable threshold)
-- Shift summary reporting + Excel export
-
-### Hardware & Terminal Settings
-
-- Terminal/register management (`/pos-setting`)
-- Per-terminal receipt header/footer, tax ID, default currency
-- Printer mode: `BRIDGE` or `PDF`
-- Bridge print payload endpoint + drawer open endpoint
-- Test print and test drawer actions
-- Fallback behavior when bridge is unavailable (PDF/manual drawer)
-- Optional camera scanner flag per terminal
-
-### Inventory, Products, Categories
-
-- Product CRUD with pricing tiers, stock settings, active toggle
-- Category CRUD with sorting and active status
-- Bulk stock operations + CSV/XLSX import/export
-- Clipboard image paste support (`Ctrl/Cmd + V`) on product/category forms
-- Drag/drop image support with preview before save
-- Upload overflow handling with user-friendly error (no raw Whitelabel 413)
-
-### Stock Movement Ledger & Integrity
-
-- Unified `stock_movement` ledger (`SALE`, `RETURN`, `VOID`, `RECEIVE`, `ADJUSTMENT`, `IMPORT`, etc.)
-- Transactional on-hand updates
-- Negative stock blocked unless `allowNegativeStock=true`
-- Inventory movements screen + CSV/XLSX export
-
-### Suppliers, Purchase Orders, Goods Receipt
-
-- Supplier CRUD
-- Purchase order create/edit/list with line items
-- Goods receipt posting (linked/unlinked to PO)
-- Automatic PO status progression (`DRAFT`, `SENT`, `PARTIAL`, `RECEIVED`, `CANCELED`)
-- Receiving report + Excel export
-
-### Sales, Returns, Voids
-
-- Sales list with filters, sorting, pagination, CSV export
-- Bulk actions (void/export/reprint)
-- Return flow with refund math and customer point adjustment
-- Void flow with stock compensation movements
-- Transactional return/void service logic
-
-### Currency & Financial
-
-- Currency CRUD + activate/deactivate
-- Base currency switch
-- FX refresh from configurable provider
-- Currency analytics dashboard (converter + trend/volatility/freshness charts)
-
-### Analytics & Reports
-
-- Main analytics dashboard with KPI cards and operational insights
-- Chart.js + Plotly chart coverage (trends, composition, distribution, relationships, advanced gallery)
-- Report center:
-  - Sales Excel (`/reports/sales.xlsx`)
-  - Shift Excel (`/reports/shifts.xlsx`)
-  - Inventory ledger Excel (`/reports/inventory-ledger.xlsx`)
-  - Receiving Excel (`/reports/receiving.xlsx`)
-
-### Security, Users, Auditing
-
-- Spring Security login flow with access-denied handling
-- Roles: `ADMIN`, `MANAGER`, `CASHIER`
-- Permission-based overrides (authorities emitted as `PERM_*`)
-- User admin: role/status/password/permissions/MFA + bulk actions
-- Immutable `audit_event` log for sensitive POS/admin/inventory/currency actions
-- Admin audit search UI (`/admin/audit`, alias `/audit-events`)
-
----
+- Supported locales: `en`, `zh-CN`
+- Default locale: `en`
+- Fallback behavior: `zh-CN -> zh -> en`
+- Message bundles:
+  - `src/main/resources/messages.properties`
+  - `src/main/resources/messages_en.properties`
+  - `src/main/resources/messages_zh.properties`
+  - `src/main/resources/messages_zh_CN.properties`
+- Locale switching via query parameter: `?lang=en` or `?lang=zh-CN`
+- Preference persistence:
+  - logged-in users: persisted in `app_user.language_preference`
+  - non-logged-in context: locale cookie (`POS_LANG`)
+- Receipt/PDF localization uses the locale captured at payment time (`sale.receiptLocale`)
 
 ## Architecture
 
-- **Backend:** Spring Boot 4, Spring MVC, Spring Data JPA, Spring Security
-- **Frontend:** Thymeleaf templates + HTMX partial swaps + Tailwind CSS
-- **Database:** MySQL (runtime), H2 (tests)
-- **Charts:** Chart.js + Plotly
-- **PDF:** openhtmltopdf
+- Backend: Spring Boot `4.0.2`, Spring MVC, Spring Data JPA, Spring Security
+- View: Thymeleaf templates + HTMX partial updates
+- Styling: Tailwind CSS
+- DB: MySQL (runtime), H2 (tests)
+- PDF rendering: OpenHTMLtoPDF
+- Build: Maven Wrapper (`./mvnw`)
 
-Key principle used across modules:
+Core principles:
 
-- business logic in services (`@Transactional` where required)
-- thin MVC controllers
-- no SPA rewrite (server-rendered pages + HTMX fragments)
+- transactional business logic in services
+- thin controllers
+- server-rendered UI (no SPA rewrite)
 
----
+## Key POS capabilities
 
-## Requirements
+- Independent product/cart scrolling (desktop split layout)
+- Infinite product feed with cursor pagination (`/pos/products/feed`)
+- Request lock + de-dup + retry handling in UI flow
+- Product filters/search that reset cursor correctly
+- Cart totals and checkout actions optimized for fast operator flow
 
-- JDK 25
+## Prerequisites
+
+- Java 25
 - MySQL 8+
-- (Optional) Node.js for local POS bridge
+- Node.js (optional, only for local bridge)
 
----
+## Local setup
 
-## Local Setup
-
-1. Create database:
+1. Create DB:
 
 ```sql
 CREATE DATABASE pos_db;
 ```
 
-2. Configure DB in `src/main/resources/application.properties`:
+2. Configure datasource in `src/main/resources/application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/pos_db?useSSL=false&serverTimezone=UTC
@@ -147,62 +77,56 @@ spring.datasource.username=root
 spring.datasource.password=
 ```
 
-3. Run:
+3. Run application:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-4. Login:
+4. Default seeded users (when user table is empty):
 
-- Admin: `admin` / `admin123`
-- Cashier: `cashier` / `cashier123`
+- `admin / admin123`
+- `cashier / cashier123`
 
-> These are seeded only when user table is empty. Change passwords immediately.
+Change credentials immediately in non-dev environments.
 
----
+## Important configuration
 
-## Important Configuration
-
-### Currency / FX
+### Currency/FX
 
 ```properties
 app.currency.base=USD
 app.currency.rate-url=https://open.er-api.com/v6/latest/{base}
 app.currency.rate-path=rates
 app.currency.refresh-ms=3600000
+app.currency.refresh-initial-ms=5000
 ```
 
-### Shift close variance threshold
+### Shift variance control
 
 ```properties
 app.shift.variance-threshold=20.00
 ```
 
-Expected cash formula:
+### Product feed / cursor pagination
 
-`opening float + cash sales + cash in - cash out - cash refunds`
+```properties
+app.pagination.cursor-secret=${APP_PAGINATION_CURSOR_SECRET:change-me-in-prod}
+app.pagination.feed.rate-limit-per-minute=240
+```
 
-### Multipart upload limits
+### Upload limits
 
 ```properties
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=12MB
 ```
 
-Oversized uploads are redirected to friendly errors:
+## Optional POS bridge
 
-- `/products?error=uploadTooLarge`
-- `/categories?error=uploadTooLarge`
+Reference implementation:
 
----
-
-## POS Bridge (Optional Hardware Companion)
-
-Sample bridge implementation:
-
-- `bridge/pos-bridge-node`
-- Docs: `bridge/pos-bridge-node/README.md`
+- `bridge/pos-bridge-node/README.md`
 
 Bridge endpoints:
 
@@ -215,9 +139,7 @@ Main app hardware endpoints:
 - `POST /pos/checkout/{saleId}/print`
 - `POST /pos/drawer/open`
 
----
-
-## Routes (Main)
+## Main routes
 
 - `/login`
 - `/pos`
@@ -225,7 +147,6 @@ Main app hardware endpoints:
 - `/products`
 - `/categories`
 - `/commodity`
-- `/marketing`
 - `/suppliers`
 - `/purchases/po`
 - `/inventory/movements`
@@ -234,14 +155,9 @@ Main app hardware endpoints:
 - `/reports`
 - `/pos-setting`
 - `/users`
-- `/users/password`
 - `/admin/audit` (alias `/audit-events`)
 
----
-
-## Schema / Migration Scripts
-
-The app currently uses JPA schema update by default. Manual SQL scripts are provided for controlled environments:
+## SQL scripts (for controlled environments)
 
 - `src/main/resources/sql/audit_events.sql`
 - `src/main/resources/sql/checkout_attempts.sql`
@@ -249,28 +165,23 @@ The app currently uses JPA schema update by default. Manual SQL scripts are prov
 - `src/main/resources/sql/inventory_movements_and_purchases.sql`
 - `src/main/resources/sql/pos_hardware_terminal_settings.sql`
 
----
-
 ## Testing
 
-Run full test suite:
+Run full suite:
 
 ```bash
 ./mvnw test
 ```
 
-Examples of focused runs:
+Run focused suites:
 
 ```bash
-./mvnw -Dtest=PosAddToCartIntegrationTest test
-./mvnw -Dtest=AnalyticsPageIntegrationTest test
-./mvnw -Dtest=ImagePasteUploadUiIntegrationTest,UploadTooLargeMessageIntegrationTest test
+./mvnw -Dtest=I18nMessageSourceIntegrationTest,I18nLocaleSwitchIntegrationTest,ReceiptLocaleIntegrationTest,ReceiptPdfServiceIntegrationTest test
+./mvnw -Dtest=PosCashTenderIntegrationTest,PosPrintPayloadIntegrationTest,ReceiptPayloadServiceTests test
 ```
 
----
+Compile check:
 
-## Additional Docs
-
-- `docs.md` – recent implementation notes (clipboard image upload, upload-size handling, POS UI fixes)
-- `MANUAL_TEST_POS.md` – manual POS test checklist
-- `guidelines.md` – codebase conventions/pattern notes
+```bash
+./mvnw -DskipTests compile
+```
