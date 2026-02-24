@@ -28,6 +28,9 @@ class PosProductCardUiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("product-add-fab")))
                 .andExpect(content().string(Matchers.containsString("data-card-qty-input=\"true\"")))
-                .andExpect(content().string(Matchers.containsString("data-action=\"card-qty-inc\"")));
+                .andExpect(content().string(Matchers.containsString("data-action=\"card-qty-inc\"")))
+                .andExpect(content().string(Matchers.containsString("product-action-btn")))
+                .andExpect(content().string(Matchers.containsString("sort=stock")))
+                .andExpect(content().string(Matchers.containsString("dir=asc")));
     }
 }

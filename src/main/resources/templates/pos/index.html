@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
 
   <!-- UI helpers only (no logic change) -->
@@ -579,17 +579,27 @@
     }
 
     #productGridWrap .product-admin-actions{
-      opacity:0;
-      transform:translateY(-2px);
-      pointer-events:none;
-      transition:opacity .18s ease, transform .18s ease;
-    }
-
-    #productGridWrap [data-product-card='true'] .group:hover .product-admin-actions,
-    #productGridWrap [data-product-card='true'] .group:focus-within .product-admin-actions{
       opacity:1;
       transform:translateY(0);
       pointer-events:auto;
+      position:relative;
+      z-index:2;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+
+    @media (hover: hover) and (pointer: fine){
+      #productGridWrap .product-admin-actions{
+        opacity:0;
+        transform:translateY(-2px);
+        pointer-events:none;
+      }
+
+      #productGridWrap [data-product-card='true'] .group:hover .product-admin-actions,
+      #productGridWrap [data-product-card='true'] .group:focus-within .product-admin-actions{
+        opacity:1;
+        transform:translateY(0);
+        pointer-events:auto;
+      }
     }
 
     #productGridWrap .product-action-btn{
@@ -3508,6 +3518,17 @@
         e.preventDefault();
         e.stopPropagation();
         togglePin(pin);
+        return;
+      }
+
+      const productActionLink = e.target.closest(".product-admin-actions a.product-action-btn");
+      if (productActionLink) {
+        e.stopPropagation();
+        const href = productActionLink.getAttribute("href");
+        if (!href) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        window.location.assign(href);
         return;
       }
 

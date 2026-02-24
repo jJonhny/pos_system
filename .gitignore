@@ -37,3 +37,6 @@ build/
 
 ### Local data ###
 db/
+
+### Frontend tooling ###
+node_modules/

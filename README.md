@@ -59,7 +59,7 @@ Core principles:
 
 - Java 25
 - MySQL 8+
-- Node.js (optional, only for local bridge)
+- Node.js (required for Tailwind CSS build; also used for optional local bridge)
 
 ## Local setup
 
@@ -77,13 +77,26 @@ spring.datasource.username=root
 spring.datasource.password=
 ```
 
-3. Run application:
+3. Install frontend dependencies and build Tailwind CSS:
+
+```bash
+npm install
+npm run build:css
+```
+
+For active frontend development:
+
+```bash
+npm run watch:css
+```
+
+4. Run application:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-4. Default seeded users (when user table is empty):
+5. Default seeded users (when user table is empty):
 
 - `admin / admin123`
 - `cashier / cashier123`
