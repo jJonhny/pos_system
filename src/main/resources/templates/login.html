@@ -3,72 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Enterprise Login · POS System</title>
-
+  <title>Secure Sign In | Dev Core</title>
   <!-- Fonts & Styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
-
-  <style>
-    body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-    }
-
-    /* fade‑in animation */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-up {
-      animation: fadeUp 0.5s ease-out forwards;
-    }
-
-    /* very subtle floating for background (enterprise subtlety) */
-    @keyframes gentleFloat {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-      100% { transform: translateY(0px); }
-    }
-    .float-gentle {
-      animation: gentleFloat 12s ease-in-out infinite;
-    }
-
-    /* modern button with enterprise feel */
-    .btn-enterprise {
-      background: #0b1e33;
-      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-      box-shadow: 0 8px 20px -6px rgba(11, 30, 51, 0.2);
-    }
-    .btn-enterprise:hover {
-      background: #0f2a40;
-      transform: translateY(-1px);
-      box-shadow: 0 12px 24px -8px rgba(11, 30, 51, 0.3);
-    }
-    .btn-enterprise:active {
-      transform: translateY(0);
-      box-shadow: 0 8px 16px -6px rgba(11, 30, 51, 0.2);
-    }
-
-    /* focus styles */
-    .focus-ring-custom:focus {
-      outline: none;
-      ring: 2px solid #2563eb;
-      ring-offset: 2px;
-      border-color: transparent;
-    }
-
-    /* subtle pattern overlay */
-    .grid-pattern {
-      background-image: 
-        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-  </style>
 </head>
-<body class="h-screen overflow-hidden bg-slate-50 text-slate-900 antialiased">
+<body class="h-screen overflow-hidden bg-slate-50 text-slate-900 antialiased font-inter">
 
   <!-- Subtle background with gradient and pattern -->
   <div class="absolute inset-0 -z-10 bg-gradient-to-br from-slate-100 to-slate-200/60">
@@ -98,7 +40,7 @@
                   <path d="M10 16h4"/>
                 </svg>
               </div>
-              <span class="text-xl font-semibold tracking-tight">Store<span class="text-blue-300">OS</span></span>
+              <span class="text-xl font-semibold tracking-tight">Dev<span class="text-blue-300">Core</span></span>
             </div>
 
             <h1 class="text-3xl font-bold tracking-tight mb-4">Enterprise‑grade point of sale</h1>
@@ -145,8 +87,9 @@
           </div>
 
           <div class="text-xs text-slate-400 mt-8">
-            © <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> StoreOS. All rights reserved.
-            <br><a href="#" class="underline underline-offset-2 hover:text-white">Privacy Policy</a> · <a href="#" class="underline underline-offset-2 hover:text-white">Terms</a>
+            © <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> Dev Core. All rights reserved.
+            <br><a th:href="@{/legal/privacy}" href="/legal/privacy" class="underline underline-offset-2 hover:text-white">Privacy Policy</a> ·
+            <a th:href="@{/legal/terms}" href="/legal/terms" class="underline underline-offset-2 hover:text-white">Terms</a>
           </div>
         </div>
 
@@ -165,6 +108,12 @@
             </div>
             <div th:if="${param.logout}" class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               <span class="font-semibold">Signed out</span> – You have been logged out successfully.
+            </div>
+            <div th:if="${param.resetRequested}" class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <span class="font-semibold">Password help requested</span> – If the account exists, your administrator has been notified.
+            </div>
+            <div th:if="${param.ssoUnavailable}" class="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              <span class="font-semibold">SSO unavailable</span> – Corporate SSO is not configured for this environment.
             </div>
 
             <form method="post" action="/login" class="space-y-5">
@@ -220,7 +169,8 @@
                   <input type="checkbox" name="remember-me" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-300">
                   <span class="text-slate-600">Stay signed in</span>
                 </label>
-                <a href="#" class="font-medium text-blue-700 hover:text-blue-800 text-sm">Forgot password?</a>
+                <a th:href="@{/login/forgot-password}" href="/login/forgot-password"
+                   class="font-medium text-blue-700 hover:text-blue-800 text-sm">Forgot password?</a>
               </div>
 
               <!-- Submit -->
@@ -240,18 +190,20 @@
                 </div>
               </div>
 
-              <!-- SSO placeholder (could be a button) -->
-              <button type="button" class="w-full py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-medium
-                                         hover:bg-slate-50 transition flex items-center justify-center gap-2">
+              <!-- SSO action -->
+              <a th:href="@{/login/sso}" href="/login/sso"
+                 class="w-full py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-medium
+                        hover:bg-slate-50 transition flex items-center justify-center gap-2">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
                 </svg>
                 Sign in with corporate SSO
-              </button>
+              </a>
             </form>
 
             <div class="mt-6 text-xs text-center text-slate-400">
-              Need help? <a href="#" class="text-slate-600 underline underline-offset-2">Contact IT support</a>
+              Need help? <a th:href="@{/support/contact}" href="/support/contact"
+                            class="text-slate-600 underline underline-offset-2">Contact IT support</a>
             </div>
           </div>
         </div>

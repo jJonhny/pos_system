@@ -127,6 +127,13 @@ public class PosCartService {
         snapshot.put("priceTier", item.getPriceTier() == null ? null : item.getPriceTier().name());
         snapshot.put("unitType", item.getUnitType() == null ? null : item.getUnitType().name());
         snapshot.put("unitSize", item.getUnitSize());
+        snapshot.put("variantId", item.getVariantId());
+        snapshot.put("sellUnitId", item.getSellUnitId());
+        snapshot.put("sellUnitCode", item.getSellUnitCode());
+        snapshot.put("conversionToBase", item.getConversionToBase());
+        snapshot.put("priceSource", item.getPriceSource());
+        snapshot.put("appliedTierMinQty", item.getAppliedTierMinQty());
+        snapshot.put("appliedTierGroupCode", item.getAppliedTierGroupCode());
         snapshot.put("lineTotal", item.getLineTotal());
         return snapshot;
     }

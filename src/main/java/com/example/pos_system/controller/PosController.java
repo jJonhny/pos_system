@@ -2,6 +2,7 @@ package com.example.pos_system.controller;
 
 import com.example.pos_system.dto.Cart;
 import com.example.pos_system.dto.CartItem;
+import com.example.pos_system.dto.VariantApiDtos;
 import com.example.pos_system.entity.*;
 import com.example.pos_system.repository.*;
 import com.example.pos_system.service.CheckoutAttemptService;
@@ -15,6 +16,7 @@ import com.example.pos_system.service.PaginationObservabilityService;
 import com.example.pos_system.service.ShiftService;
 import com.example.pos_system.service.TerminalSettingsService;
 import com.example.pos_system.service.I18nService;
+import com.example.pos_system.service.SkuUnitPricingService;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,6 +51,9 @@ import java.util.Map;
 public class PosController {
   private static final Logger log = LoggerFactory.getLogger(PosController.class);
   private final ProductRepo productRepo;
+  private final ProductVariantRepo productVariantRepo;
+  private final SkuSellUnitRepo skuSellUnitRepo;
+  private final SkuUnitBarcodeRepo skuUnitBarcodeRepo;
   private final CategoryRepo categoryRepo;
   private final PosService posService;
   private final HeldSaleRepo heldSaleRepo;
@@ -63,11 +68,15 @@ public class PosController {
   private final EndpointRateLimiterService endpointRateLimiterService;
   private final PaginationObservabilityService paginationObservabilityService;
   private final I18nService i18nService;
+  private final SkuUnitPricingService skuUnitPricingService;
 
   @Value("${app.pagination.feed.rate-limit-per-minute:240}")
   private int productFeedRateLimitPerMinute;
 
   public PosController(ProductRepo productRepo,
+                       ProductVariantRepo productVariantRepo,
+                       SkuSellUnitRepo skuSellUnitRepo,
+                       SkuUnitBarcodeRepo skuUnitBarcodeRepo,
                        CategoryRepo categoryRepo,
                        PosService posService,
                        HeldSaleRepo heldSaleRepo,
@@ -81,8 +90,12 @@ public class PosController {
                        ProductFeedService productFeedService,
                        EndpointRateLimiterService endpointRateLimiterService,
                        PaginationObservabilityService paginationObservabilityService,
-                       I18nService i18nService) {
+                       I18nService i18nService,
+                       SkuUnitPricingService skuUnitPricingService) {
     this.productRepo = productRepo;
+    this.productVariantRepo = productVariantRepo;
+    this.skuSellUnitRepo = skuSellUnitRepo;
+    this.skuUnitBarcodeRepo = skuUnitBarcodeRepo;
     this.categoryRepo = categoryRepo;
     this.posService = posService;
     this.heldSaleRepo = heldSaleRepo;
@@ -97,6 +110,7 @@ public class PosController {
     this.endpointRateLimiterService = endpointRateLimiterService;
     this.paginationObservabilityService = paginationObservabilityService;
     this.i18nService = i18nService;
+    this.skuUnitPricingService = skuUnitPricingService;
   }
 
   @ModelAttribute("cart")
@@ -275,6 +289,18 @@ public class PosController {
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(msg("pos.error.enterSkuOrBarcode"));
     }
     String value = q.trim();
+    Customer customer = loadCustomer(cart.getCustomerId());
+    VariantScanAddResult variantResult = tryAddVariantFromLookup(value, cart, customer);
+    if (variantResult.matched()) {
+      if (variantResult.error() != null) {
+        model.addAttribute("cartError", variantResult.error());
+        enrichCartModel(model, cart);
+        return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(variantResult.error());
+      }
+      enrichCartModel(model, cart);
+      return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
+    }
+
     Product p = productRepo.findByBarcode(value).orElse(null);
     if (p == null) {
       p = productRepo.findBySkuIgnoreCase(value).orElse(null);
@@ -307,9 +333,8 @@ public class PosController {
     log.info("POS updateQty POST productId={} qty={} hxRequest={}", productId, qty, hxRequest);
     cart.setQty(productId, qty);
     if (qty > 0) {
-      Product p = productRepo.findById(productId).orElse(null);
       Customer customer = loadCustomer(cart.getCustomerId());
-      applyAutoPricing(cart, p, customer);
+      applyAutoPricingForLine(cart, cart.getItem(productId), customer);
     }
     enrichCartModel(model, cart);
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
@@ -326,6 +351,15 @@ public class PosController {
     if (item == null) {
       enrichCartModel(model, cart);
       return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
+    }
+    if (item.isVariantLine()) {
+      String error = msg("pos.error.variantUnitManaged");
+      if (isHtmx(hxRequest)) {
+        model.addAttribute("cartError", error);
+        enrichCartModel(model, cart);
+        return "pos/fragments :: cartPanel";
+      }
+      return redirectWithCartError(error);
     }
     if (p == null) {
       String error = msg("pos.error.productNotFound");
@@ -475,6 +509,13 @@ public class PosController {
       item.setPriceTier(ci.getPriceTier());
       item.setUnitType(ci.getUnitType());
       item.setUnitSize(ci.getUnitSize());
+      item.setVariantId(ci.getVariantId());
+      item.setSellUnitId(ci.getSellUnitId());
+      item.setSellUnitCode(ci.getSellUnitCode());
+      item.setConversionToBase(ci.getConversionToBase());
+      item.setPriceSource(ci.getPriceSource());
+      item.setAppliedTierMinQty(ci.getAppliedTierMinQty());
+      item.setAppliedTierGroupCode(ci.getAppliedTierGroupCode());
       item.setNote(ci.getNote());
       hold.getItems().add(item);
     }
@@ -510,7 +551,14 @@ public class PosController {
               item.getNote(),
               item.getPriceTier(),
               item.getUnitType(),
-              item.getUnitSize() == null ? 1 : item.getUnitSize());
+              item.getUnitSize() == null ? 1 : item.getUnitSize(),
+              item.getVariantId(),
+              item.getSellUnitId(),
+              item.getSellUnitCode(),
+              item.getConversionToBase(),
+              item.getPriceSource(),
+              item.getAppliedTierMinQty(),
+              item.getAppliedTierGroupCode());
     }
     if (hold.getDiscountType() != null) {
       cart.setDiscountType(hold.getDiscountType());
@@ -681,6 +729,19 @@ public class PosController {
       return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos?scanError=" + encode(msg("pos.error.pleaseEnterBarcode"));
     }
     String value = barcode.trim();
+    Customer customer = loadCustomer(cart.getCustomerId());
+    VariantScanAddResult variantResult = tryAddVariantFromLookup(value, cart, customer);
+    if (variantResult.matched()) {
+      if (variantResult.error() != null) {
+        model.addAttribute("cartError", variantResult.error());
+        enrichCartModel(model, cart);
+        return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : redirectWithCartError(variantResult.error());
+      }
+      model.addAttribute("scanError", null);
+      enrichCartModel(model, cart);
+      return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos";
+    }
+
     Product p = productRepo.findByBarcode(value).orElse(null);
     if (p == null) {
       p = productRepo.findBySkuIgnoreCase(value).orElse(null);
@@ -751,11 +812,18 @@ public class PosController {
       log.warn("POS product not found");
       return msg("pos.error.productNotFound");
     }
+    Customer customer = loadCustomer(cart.getCustomerId());
+    VariantAddDecision variantDecision = tryAddDefaultVariantForProduct(p, cart, customer);
+    if (variantDecision.handled()) {
+      return variantDecision.error();
+    }
     CartItem existing = cart.getItem(p.getId());
+    if (existing != null && existing.isVariantLine()) {
+      return msg("pos.error.variantInCartSwitchNotAllowed");
+    }
     UnitType unitType = existing == null ? UnitType.PIECE : existing.getUnitType();
     int unitSize = existing == null ? 1 : existing.getUnitSize();
     int nextQty = existing == null ? 1 : existing.getQty() + 1;
-    Customer customer = loadCustomer(cart.getCustomerId());
     PriceTier priceTier = autoPriceTier(p, customer, nextQty, unitSize);
     String error = validateSaleable(p, priceTier, unitType);
     if (error != null) return error;
@@ -765,29 +833,206 @@ public class PosController {
     return null;
   }
 
+  private VariantScanAddResult tryAddVariantFromLookup(String value, Cart cart, Customer customer) {
+    if (value == null || value.isBlank()) {
+      return new VariantScanAddResult(false, null);
+    }
+    String lookup = value.trim();
+
+    SkuUnitBarcode unitBarcode = skuUnitBarcodeRepo.findByBarcodeIgnoreCase(lookup)
+            .orElseGet(() -> skuUnitBarcodeRepo.findByBarcode(lookup).orElse(null));
+    if (unitBarcode != null) {
+      if (!Boolean.TRUE.equals(unitBarcode.getActive()) || unitBarcode.getSkuSellUnit() == null) {
+        return new VariantScanAddResult(true, msg("pos.error.variantBarcodeInactive"));
+      }
+      String error = addVariantSellUnitToCart(unitBarcode.getSkuSellUnit(), cart, customer, 1);
+      return new VariantScanAddResult(true, error);
+    }
+
+    ProductVariant variant = productVariantRepo.findByBarcode(lookup).orElse(null);
+    if (variant == null) {
+      variant = productVariantRepo.findBySkuIgnoreCase(lookup).orElse(null);
+    }
+    if (variant == null) {
+      return new VariantScanAddResult(false, null);
+    }
+    if (!isSaleableVariant(variant)) {
+      return new VariantScanAddResult(true, msg("pos.error.variantNotSaleable"));
+    }
+    SkuSellUnit defaultUnit = skuSellUnitRepo.findFirstByVariantAndEnabledTrueOrderByIsBaseDescIdAsc(variant)
+            .orElse(null);
+    if (defaultUnit == null) {
+      return new VariantScanAddResult(true, msg("pos.error.variantNoSellUnit"));
+    }
+    String error = addVariantSellUnitToCart(defaultUnit, cart, customer, 1);
+    return new VariantScanAddResult(true, error);
+  }
+
+  private VariantAddDecision tryAddDefaultVariantForProduct(Product product, Cart cart, Customer customer) {
+    if (product == null) {
+      return new VariantAddDecision(false, null);
+    }
+    List<ProductVariant> variants = productVariantRepo
+            .findByProductAndArchivedFalseAndEnabledTrueAndImpossibleFalseOrderByIdAsc(product);
+    if (variants.isEmpty()) {
+      return new VariantAddDecision(false, null);
+    }
+    if (variants.size() > 1) {
+      return new VariantAddDecision(true, msg("pos.error.variantSelectionRequired"));
+    }
+    ProductVariant variant = variants.get(0);
+    SkuSellUnit defaultUnit = skuSellUnitRepo.findFirstByVariantAndEnabledTrueOrderByIsBaseDescIdAsc(variant)
+            .orElse(null);
+    if (defaultUnit == null) {
+      return new VariantAddDecision(true, msg("pos.error.variantNoSellUnit"));
+    }
+    return new VariantAddDecision(true, addVariantSellUnitToCart(defaultUnit, cart, customer, 1));
+  }
+
+  private String addVariantSellUnitToCart(SkuSellUnit sellUnit, Cart cart, Customer customer, int qtyToAdd) {
+    if (sellUnit == null || sellUnit.getVariant() == null || sellUnit.getVariant().getProduct() == null) {
+      return msg("pos.error.variantNotFound");
+    }
+    if (!Boolean.TRUE.equals(sellUnit.getEnabled()) || !isSaleableVariant(sellUnit.getVariant())) {
+      return msg("pos.error.variantNotSaleable");
+    }
+    ProductVariant variant = sellUnit.getVariant();
+    Product product = variant.getProduct();
+    Long productId = product.getId();
+    if (productId == null) {
+      return msg("pos.error.productNotFound");
+    }
+
+    if (cart.hasVariantConflict(productId, variant.getId(), sellUnit.getId())) {
+      return msg("pos.error.variantConflictInCart");
+    }
+    CartItem existing = cart.getItem(productId);
+    int targetQty = (existing == null ? 0 : Math.max(0, existing.getQty())) + Math.max(1, qtyToAdd);
+
+    String variantLabel = variant.getVariantName();
+    String productName = product.getName() == null ? msg("pos.item") : product.getName();
+    String lineName = (variantLabel == null || variantLabel.isBlank())
+            ? productName
+            : productName + " - " + variantLabel;
+
+    VariantApiDtos.PricingQuoteLineResponse quoteLine;
+    try {
+      quoteLine = quoteVariantLine(variant.getId(), sellUnit.getId(), targetQty, customer);
+    } catch (IllegalArgumentException ex) {
+      return ex.getMessage();
+    } catch (IllegalStateException ex) {
+      return ex.getMessage();
+    }
+
+    cart.addVariant(
+            productId,
+            variant.getId(),
+            sellUnit.getId(),
+            lineName,
+            sellUnit.getUnit() == null ? null : sellUnit.getUnit().getCode(),
+            sellUnit.getConversionToBase(),
+            quoteLine.unitPrice(),
+            Math.max(1, qtyToAdd)
+    );
+    CartItem item = cart.getItem(productId);
+    if (item != null) {
+      item.setPriceSource(quoteLine.priceSource());
+      item.setUnitPrice(quoteLine.unitPrice());
+      item.setSellUnitCode(sellUnit.getUnit() == null ? item.getSellUnitCode() : sellUnit.getUnit().getCode());
+      item.setConversionToBase(sellUnit.getConversionToBase());
+      VariantApiDtos.AppliedTier tier = quoteLine.appliedTier();
+      item.setAppliedTierMinQty(tier == null ? null : tier.minQty());
+      item.setAppliedTierGroupCode(tier == null ? null : tier.customerGroupCode());
+      item.setPriceTier(PriceTier.RETAIL);
+      item.setUnitType(UnitType.PIECE);
+      item.setUnitSize(1);
+    }
+    return null;
+  }
+
+  private boolean isSaleableVariant(ProductVariant variant) {
+    if (variant == null) return false;
+    if (Boolean.TRUE.equals(variant.getArchived())) return false;
+    if (Boolean.TRUE.equals(variant.getImpossible())) return false;
+    if (!Boolean.TRUE.equals(variant.getEnabled())) return false;
+    return variant.getProduct() != null && !Boolean.FALSE.equals(variant.getProduct().getActive());
+  }
+
   private void applyAutoPricing(Cart cart, Product p, Customer customer) {
     if (p == null) return;
     CartItem item = cart.getItem(p.getId());
-    if (item == null) return;
-    int unitSize = item.getUnitSize();
-    PriceTier priceTier = autoPriceTier(p, customer, item.getQty(), unitSize);
-    BigDecimal unitPrice = resolveUnitPrice(p, priceTier, unitSize);
-    if (unitPrice != null) {
-      cart.setPriceTier(p.getId(), priceTier, unitPrice);
-    }
+    applyAutoPricingForLine(cart, item, customer);
   }
 
   private void applyAutoPricing(Cart cart, Customer customer) {
     for (CartItem item : cart.getItems()) {
-      Product p = productRepo.findById(item.getProductId()).orElse(null);
-      if (p == null) continue;
-      int unitSize = item.getUnitSize();
-      PriceTier priceTier = autoPriceTier(p, customer, item.getQty(), unitSize);
-      BigDecimal unitPrice = resolveUnitPrice(p, priceTier, unitSize);
-      if (unitPrice != null) {
-        cart.setPriceTier(item.getProductId(), priceTier, unitPrice);
-      }
+      applyAutoPricingForLine(cart, item, customer);
     }
+  }
+
+  private void applyAutoPricingForLine(Cart cart, CartItem item, Customer customer) {
+    if (item == null) return;
+    if (item.isVariantLine()) {
+      applyVariantAutoPricing(item, customer);
+      return;
+    }
+    Product p = productRepo.findById(item.getProductId()).orElse(null);
+    if (p == null) return;
+    int unitSize = item.getUnitSize();
+    PriceTier priceTier = autoPriceTier(p, customer, item.getQty(), unitSize);
+    BigDecimal unitPrice = resolveUnitPrice(p, priceTier, unitSize);
+    if (unitPrice != null) {
+      cart.setPriceTier(item.getProductId(), priceTier, unitPrice);
+    }
+  }
+
+  private void applyVariantAutoPricing(CartItem item, Customer customer) {
+    if (item == null || !item.isVariantLine()) return;
+    try {
+      VariantApiDtos.PricingQuoteLineResponse line = quoteVariantLine(
+              item.getVariantId(),
+              item.getSellUnitId(),
+              Math.max(1, item.getQty()),
+              customer
+      );
+      item.setUnitPrice(line.unitPrice());
+      item.setPriceSource(line.priceSource());
+      VariantApiDtos.AppliedTier tier = line.appliedTier();
+      item.setAppliedTierMinQty(tier == null ? null : tier.minQty());
+      item.setAppliedTierGroupCode(tier == null ? null : tier.customerGroupCode());
+    } catch (RuntimeException ex) {
+      log.warn("Unable to auto-price variant cart line productId={} variantId={} sellUnitId={}: {}",
+              item.getProductId(), item.getVariantId(), item.getSellUnitId(), ex.getMessage());
+    }
+  }
+
+  private VariantApiDtos.PricingQuoteLineResponse quoteVariantLine(Long variantId,
+                                                                    Long sellUnitId,
+                                                                    int qty,
+                                                                    Customer customer) {
+    BigDecimal quantity = BigDecimal.valueOf(Math.max(1, qty));
+    VariantApiDtos.PricingQuoteRequest quoteRequest = new VariantApiDtos.PricingQuoteRequest(
+            resolveCustomerGroupCode(customer),
+            currencyService.getBaseCurrency() == null ? "USD" : currencyService.getBaseCurrency().getCode(),
+            List.of(new VariantApiDtos.PricingQuoteLineRequest(variantId, sellUnitId, quantity))
+    );
+    VariantApiDtos.PricingQuoteResponse quoteResponse = skuUnitPricingService.quote(quoteRequest);
+    if (quoteResponse == null || quoteResponse.lines() == null || quoteResponse.lines().isEmpty()) {
+      throw new IllegalStateException("Unable to resolve variant pricing.");
+    }
+    return quoteResponse.lines().get(0);
+  }
+
+  private String resolveCustomerGroupCode(Customer customer) {
+    if (customer == null) return null;
+    if (customer.getCustomerGroup() != null && customer.getCustomerGroup().getCode() != null
+            && !customer.getCustomerGroup().getCode().isBlank()) {
+      return customer.getCustomerGroup().getCode();
+    }
+    if (Boolean.TRUE.equals(customer.getWholesale())) {
+      return "WHOLESALE";
+    }
+    return null;
   }
 
   private PriceTier autoPriceTier(Product p, Customer customer, int qty, int unitSize) {
@@ -1312,8 +1557,19 @@ public class PosController {
     CartItem copy = new CartItem(item.getProductId(), item.getName(), item.getUnitPrice(), item.getQty(),
             item.getPriceTier(), item.getUnitType(), item.getUnitSize());
     copy.setNote(item.getNote());
+    copy.setVariantId(item.getVariantId());
+    copy.setSellUnitId(item.getSellUnitId());
+    copy.setSellUnitCode(item.getSellUnitCode());
+    copy.setConversionToBase(item.getConversionToBase());
+    copy.setPriceSource(item.getPriceSource());
+    copy.setAppliedTierMinQty(item.getAppliedTierMinQty());
+    copy.setAppliedTierGroupCode(item.getAppliedTierGroupCode());
     return copy;
   }
+
+  private record VariantScanAddResult(boolean matched, String error) {}
+
+  private record VariantAddDecision(boolean handled, String error) {}
 
   public record ProductFeedResponse(
           List<ProductFeedService.ProductFeedItem> items,

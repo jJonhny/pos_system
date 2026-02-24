@@ -47,6 +47,27 @@ public class HeldSaleItem {
 
     private Integer unitSize;
 
+    @Column(name = "variant_id")
+    private Long variantId;
+
+    @Column(name = "sell_unit_id")
+    private Long sellUnitId;
+
+    @Column(name = "sell_unit_code", length = 64)
+    private String sellUnitCode;
+
+    @Column(name = "conversion_to_base", precision = 19, scale = 6)
+    private BigDecimal conversionToBase;
+
+    @Column(name = "price_source", length = 32)
+    private String priceSource;
+
+    @Column(name = "applied_tier_min_qty", precision = 19, scale = 6)
+    private BigDecimal appliedTierMinQty;
+
+    @Column(name = "applied_tier_group_code", length = 64)
+    private String appliedTierGroupCode;
+
     @Column(length = 255)
     private String note;
 }

@@ -347,9 +347,18 @@
           <div class="mt-0.5 text-xs text-slate-400"
                th:if="${ci.unitType != null and ci.unitType.name() != 'PIECE'}"
                th:text="${#messages.msg('pos.unitSize', ci.unitSize, @uiFormat.unitLabel(ci.unitType))}">Unit size</div>
+          <div class="mt-0.5 text-xs text-slate-400"
+               th:if="${ci.variantId != null and ci.sellUnitCode != null}">
+            <span th:text="#{pos.unit}">Unit</span>:
+            <span th:text="${ci.sellUnitCode}">PIECE</span>
+          </div>
           <div class="mt-0.5 text-xs text-amber-600"
                th:if="${ci.priceTier != null and ci.priceTier.name() == 'WHOLESALE'}">
             <span th:text="#{pos.wholesalePricing}">Wholesale pricing</span>
+          </div>
+          <div class="mt-0.5 text-xs text-emerald-700"
+               th:if="${ci.variantId != null and ci.priceSource != null}">
+            <span th:text="${ci.priceSource}">BASE_UNIT_PRICE</span>
           </div>
         </div>
         <div class="shrink-0 text-right">
@@ -368,6 +377,7 @@
       </form>
 
       <form action="/pos/cart/unit" method="post" class="mt-2 flex items-center gap-2"
+            th:if="${ci.variantId == null}"
             hx-post="/pos/cart/unit" hx-trigger="change" hx-target="#cartPanel" hx-swap="outerHTML">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name="productId" th:value="${ci.productId}"/>

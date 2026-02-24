@@ -29,6 +29,39 @@ public class Cart {
         });
     }
 
+    public void addVariant(Long productId,
+                           Long variantId,
+                           Long sellUnitId,
+                           String name,
+                           String sellUnitCode,
+                           BigDecimal conversionToBase,
+                           BigDecimal unitPrice,
+                           int qtyToAdd) {
+        if (productId == null || variantId == null || sellUnitId == null) {
+            throw new IllegalArgumentException("productId, variantId, and sellUnitId are required.");
+        }
+        int safeQty = qtyToAdd <= 0 ? 1 : qtyToAdd;
+        items.compute(productId, (k, v) -> {
+            if (v == null) {
+                CartItem item = new CartItem(productId, name, unitPrice, safeQty, PriceTier.RETAIL, UnitType.PIECE, 1);
+                item.setVariantId(variantId);
+                item.setSellUnitId(sellUnitId);
+                item.setSellUnitCode(sellUnitCode);
+                item.setConversionToBase(conversionToBase);
+                return item;
+            }
+            if (!sameVariant(v, variantId, sellUnitId)) {
+                throw new IllegalStateException("Another variant of this product is already in the cart.");
+            }
+            v.setQty(v.getQty() + safeQty);
+            if (name != null && !name.isBlank()) v.setName(name);
+            if (unitPrice != null) v.setUnitPrice(unitPrice);
+            if (sellUnitCode != null && !sellUnitCode.isBlank()) v.setSellUnitCode(sellUnitCode);
+            if (conversionToBase != null) v.setConversionToBase(conversionToBase);
+            return v;
+        });
+    }
+
     public void setQty(Long productId, int qty) {
         if (qty <= 0) items.remove(productId);
         else if (items.containsKey(productId)) items.get(productId).setQty(qty);
@@ -40,8 +73,23 @@ public class Cart {
 
     public void addItem(Long productId, String name, BigDecimal unitPrice, int qty, String note, PriceTier priceTier,
                         UnitType unitType, int unitSize) {
+        addItem(productId, name, unitPrice, qty, note, priceTier, unitType, unitSize,
+                null, null, null, null, null, null, null);
+    }
+
+    public void addItem(Long productId, String name, BigDecimal unitPrice, int qty, String note, PriceTier priceTier,
+                        UnitType unitType, int unitSize, Long variantId, Long sellUnitId, String sellUnitCode,
+                        BigDecimal conversionToBase, String priceSource, BigDecimal appliedTierMinQty,
+                        String appliedTierGroupCode) {
         CartItem item = new CartItem(productId, name, unitPrice, qty, priceTier, unitType, unitSize);
         item.setNote(note);
+        item.setVariantId(variantId);
+        item.setSellUnitId(sellUnitId);
+        item.setSellUnitCode(sellUnitCode);
+        item.setConversionToBase(conversionToBase);
+        item.setPriceSource(priceSource);
+        item.setAppliedTierMinQty(appliedTierMinQty);
+        item.setAppliedTierGroupCode(appliedTierGroupCode);
         items.put(productId, item);
     }
 
@@ -60,6 +108,13 @@ public class Cart {
     }
 
     public CartItem getItem(Long productId) { return items.get(productId); }
+
+    public boolean hasVariantConflict(Long productId, Long variantId, Long sellUnitId) {
+        CartItem existing = items.get(productId);
+        if (existing == null) return false;
+        if (existing.getVariantId() == null || existing.getSellUnitId() == null) return variantId != null || sellUnitId != null;
+        return !sameVariant(existing, variantId, sellUnitId);
+    }
 
     public void clear() {
         items.clear();
@@ -151,5 +206,11 @@ public class Cart {
         if (min != null && safe.compareTo(min) < 0) return min;
         if (max != null && safe.compareTo(max) > 0) return max;
         return safe;
+    }
+
+    private boolean sameVariant(CartItem item, Long variantId, Long sellUnitId) {
+        if (item == null) return false;
+        return Objects.equals(item.getVariantId(), variantId)
+                && Objects.equals(item.getSellUnitId(), sellUnitId);
     }
 }

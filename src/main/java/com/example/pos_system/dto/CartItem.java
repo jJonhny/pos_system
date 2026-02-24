@@ -4,6 +4,7 @@ import com.example.pos_system.entity.PriceTier;
 import com.example.pos_system.entity.UnitType;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class CartItem {
     private Long productId;
@@ -14,6 +15,13 @@ public class CartItem {
     private PriceTier priceTier = PriceTier.RETAIL;
     private UnitType unitType = UnitType.PIECE;
     private Integer unitSize = 1;
+    private Long variantId;
+    private Long sellUnitId;
+    private String sellUnitCode;
+    private BigDecimal conversionToBase = BigDecimal.ONE;
+    private String priceSource;
+    private BigDecimal appliedTierMinQty;
+    private String appliedTierGroupCode;
 
     public CartItem() {}
 
@@ -76,4 +84,48 @@ public class CartItem {
     public int getEffectiveQty() {
         return getUnitSize() * qty;
     }
+
+    public boolean isVariantLine() {
+        return variantId != null && sellUnitId != null;
+    }
+
+    public BigDecimal getConversionToBase() {
+        if (conversionToBase == null || conversionToBase.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ONE;
+        }
+        return conversionToBase;
+    }
+    public void setConversionToBase(BigDecimal conversionToBase) {
+        if (conversionToBase == null || conversionToBase.compareTo(BigDecimal.ZERO) <= 0) {
+            this.conversionToBase = BigDecimal.ONE;
+        } else {
+            this.conversionToBase = conversionToBase;
+        }
+    }
+
+    public BigDecimal getEffectiveBaseQty() {
+        BigDecimal qtyValue = BigDecimal.valueOf(Math.max(0, qty));
+        if (isVariantLine()) {
+            return getConversionToBase().multiply(qtyValue).setScale(6, RoundingMode.HALF_UP);
+        }
+        return BigDecimal.valueOf((long) getEffectiveQty()).setScale(6, RoundingMode.HALF_UP);
+    }
+
+    public Long getVariantId() { return variantId; }
+    public void setVariantId(Long variantId) { this.variantId = variantId; }
+
+    public Long getSellUnitId() { return sellUnitId; }
+    public void setSellUnitId(Long sellUnitId) { this.sellUnitId = sellUnitId; }
+
+    public String getSellUnitCode() { return sellUnitCode; }
+    public void setSellUnitCode(String sellUnitCode) { this.sellUnitCode = sellUnitCode; }
+
+    public String getPriceSource() { return priceSource; }
+    public void setPriceSource(String priceSource) { this.priceSource = priceSource; }
+
+    public BigDecimal getAppliedTierMinQty() { return appliedTierMinQty; }
+    public void setAppliedTierMinQty(BigDecimal appliedTierMinQty) { this.appliedTierMinQty = appliedTierMinQty; }
+
+    public String getAppliedTierGroupCode() { return appliedTierGroupCode; }
+    public void setAppliedTierGroupCode(String appliedTierGroupCode) { this.appliedTierGroupCode = appliedTierGroupCode; }
 }

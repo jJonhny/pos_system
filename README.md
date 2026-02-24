@@ -5,6 +5,9 @@ Enterprise-oriented Point of Sale system built with Spring Boot MVC, Thymeleaf, 
 ## What this project includes
 
 - Full cashier POS workflow (search, barcode scan, cart, hold/resume, checkout)
+- Dynamic product attributes and SKU variants (Taobao-style matrix generation)
+- Multi-unit SKU model (piece/box/carton/pack) with base-unit inventory conversion
+- Tier pricing with customer-group priority (`group tier > global tier > base unit price`)
 - Multi-currency cash tender + split payment checkout
 - Shift management (open, cash in/out, close, variance checks)
 - Sales, return, void, receipt and PDF receipt flows
@@ -38,6 +41,7 @@ Single codebase, multilingual support:
 - View: Thymeleaf templates + HTMX partial updates
 - Styling: Tailwind CSS
 - DB: MySQL (runtime), H2 (tests)
+- DB migration: Flyway (`src/main/resources/db/migration`)
 - PDF rendering: OpenHTMLtoPDF
 - Build: Maven Wrapper (`./mvnw`)
 
@@ -54,6 +58,9 @@ Core principles:
 - Request lock + de-dup + retry handling in UI flow
 - Product filters/search that reset cursor correctly
 - Cart totals and checkout actions optimized for fast operator flow
+- Variant barcode scan + variant SKU quick add (`/pos/scan`, `/pos/quick-add`)
+- Variant-aware POS pricing via unit + tier engine (`/api/v1/pos/pricing/quote` internally and API)
+- Variant sale checkout consumes inventory in base units and stores variant/unit references on sale lines
 
 ## Prerequisites
 
@@ -96,6 +103,8 @@ npm run watch:css
 ./mvnw spring-boot:run
 ```
 
+Flyway migrations run automatically on startup (`spring.flyway.enabled=true`).
+
 5. Default seeded users (when user table is empty):
 
 - `admin / admin123`
@@ -135,6 +144,14 @@ spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=12MB
 ```
 
+### Flyway migration
+
+```properties
+spring.flyway.enabled=true
+spring.flyway.baseline-on-migrate=true
+spring.flyway.locations=classpath:db/migration
+```
+
 ## Optional POS bridge
 
 Reference implementation:
@@ -170,7 +187,36 @@ Main app hardware endpoints:
 - `/users`
 - `/admin/audit` (alias `/audit-events`)
 
-## SQL scripts (for controlled environments)
+## Variant and pricing APIs
+
+Admin / inventory routes:
+
+- `POST /api/v1/attributes/groups`
+- `POST /api/v1/attributes/groups/{groupId}/values`
+- `PUT /api/v1/products/{productId}/attribute-config`
+- `POST /api/v1/products/{productId}/variants/generate`
+- `POST /api/v1/products/{productId}/variant-exclusions`
+- `PATCH /api/v1/variants/{variantId}/state`
+- `POST /api/v1/units`
+- `POST /api/v1/customer-groups`
+- `POST /api/v1/variants/{variantId}/sell-units`
+- `PUT /api/v1/sell-units/{sellUnitId}/tier-prices`
+- `POST /api/v1/inventory/deduct`
+
+POS pricing quote route:
+
+- `POST /api/v1/pos/pricing/quote`
+
+See [docs/variants-units-pricing.md](docs/variants-units-pricing.md) for full details, examples, and integration notes.
+
+## Database resources
+
+Flyway migrations:
+
+- `src/main/resources/db/migration/V20260224_01__dynamic_variants_units_pricing.sql`
+- `src/main/resources/db/migration/V20260224_02__variant_line_references.sql`
+
+Legacy SQL scripts (controlled/manual environments):
 
 - `src/main/resources/sql/audit_events.sql`
 - `src/main/resources/sql/checkout_attempts.sql`
@@ -191,6 +237,7 @@ Run focused suites:
 ```bash
 ./mvnw -Dtest=I18nMessageSourceIntegrationTest,I18nLocaleSwitchIntegrationTest,ReceiptLocaleIntegrationTest,ReceiptPdfServiceIntegrationTest test
 ./mvnw -Dtest=PosCashTenderIntegrationTest,PosPrintPayloadIntegrationTest,ReceiptPayloadServiceTests test
+./mvnw -Dtest=VariantAndPricingServiceIntegrationTest,PosVariantScanAndCheckoutIntegrationTest test
 ```
 
 Compile check:

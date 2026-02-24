@@ -7,6 +7,18 @@
   <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1"></script>
+    <style>
+      /* Smooth scrolling & UI polish */
+      html { scroll-behavior: smooth; }
+      header { transition: box-shadow 0.2s ease, background-color 0.2s ease; }
+      header.scrolled { box-shadow: 0 4px 12px rgba(0,0,0,0.05); background-color: rgba(255,255,255,0.95); }
+      .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+      .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
+      .chart-container { contain: content; }
+      /* Skeleton loader (optional) */
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      .chart-skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  </style>
 </head>
 
 <body class="bg-slate-100 text-slate-900">
@@ -3717,6 +3729,8 @@
         }
       }
     });
+
+    
 
     initExecutiveFilters();
     initScenarioSimulator();

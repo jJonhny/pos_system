@@ -29,12 +29,14 @@ public class PosService {
     private final DiscountAuditRepo discountAuditRepo;
     private final AuditEventService auditEventService;
     private final StockMovementService stockMovementService;
+    private final VariantInventoryService variantInventoryService;
     private final UserLocalePreferenceService userLocalePreferenceService;
     private final I18nService i18nService;
 
     public PosService(ProductRepo productRepo, SaleRepo saleRepo, CustomerRepo customerRepo,
                       DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService,
                       StockMovementService stockMovementService,
+                      VariantInventoryService variantInventoryService,
                       UserLocalePreferenceService userLocalePreferenceService,
                       I18nService i18nService) {
         this.productRepo = productRepo;
@@ -43,6 +45,7 @@ public class PosService {
         this.discountAuditRepo = discountAuditRepo;
         this.auditEventService = auditEventService;
         this.stockMovementService = stockMovementService;
+        this.variantInventoryService = variantInventoryService;
         this.userLocalePreferenceService = userLocalePreferenceService;
         this.i18nService = i18nService;
     }
@@ -78,17 +81,7 @@ public class PosService {
         sale = saleRepo.save(sale);
 
         for (CartItem ci : cart.getItems()) {
-            Product p = stockMovementService.recordSale(
-                    ci.getProductId(),
-                    ci.getEffectiveQty(),
-                    null,
-                    null,
-                    "SALE",
-                    String.valueOf(sale.getId()),
-                    checkoutTerminalId,
-                    "POS checkout"
-            );
-
+            Product p = consumeCartItemInventory(ci, sale, checkoutTerminalId, "POS checkout");
             SaleItem si = new SaleItem();
             si.setSale(sale);
             si.setProduct(p);
@@ -99,6 +92,7 @@ public class PosService {
             si.setPriceTier(ci.getPriceTier());
             si.setUnitType(ci.getUnitType());
             si.setUnitSize(ci.getUnitSize());
+            applyVariantLineFields(si, ci);
             si.setReturnedQty(0);
 
             sale.getItems().add(si);
@@ -153,17 +147,7 @@ public class PosService {
         sale = saleRepo.save(sale);
 
         for (CartItem ci : cart.getItems()) {
-            Product p = stockMovementService.recordSale(
-                    ci.getProductId(),
-                    ci.getEffectiveQty(),
-                    null,
-                    null,
-                    "SALE",
-                    String.valueOf(sale.getId()),
-                    checkoutTerminalId,
-                    "POS split checkout"
-            );
-
+            Product p = consumeCartItemInventory(ci, sale, checkoutTerminalId, "POS split checkout");
             SaleItem si = new SaleItem();
             si.setSale(sale);
             si.setProduct(p);
@@ -174,6 +158,7 @@ public class PosService {
             si.setPriceTier(ci.getPriceTier());
             si.setUnitType(ci.getUnitType());
             si.setUnitSize(ci.getUnitSize());
+            applyVariantLineFields(si, ci);
             si.setReturnedQty(0);
 
             sale.getItems().add(si);
@@ -189,6 +174,41 @@ public class PosService {
         recordDiscountAudit(saved, cart, cashierUsername);
         recordCheckoutAudit("POS_CHECKOUT_SPLIT", saved, cart);
         return saved;
+    }
+
+    private Product consumeCartItemInventory(CartItem item, Sale sale, String terminalId, String notes) {
+        if (item == null) {
+            throw new IllegalArgumentException(msg("pos.error.productNotFound"));
+        }
+        if (Boolean.TRUE.equals(item.isVariantLine())) {
+            ProductVariant variant = variantInventoryService.recordSale(item.getVariantId(), item.getEffectiveBaseQty());
+            Product product = variant.getProduct();
+            if (product == null) {
+                throw new IllegalStateException(msg("pos.error.productNotFound"));
+            }
+            return product;
+        }
+        return stockMovementService.recordSale(
+                item.getProductId(),
+                item.getEffectiveQty(),
+                null,
+                null,
+                "SALE",
+                String.valueOf(sale.getId()),
+                terminalId,
+                notes
+        );
+    }
+
+    private void applyVariantLineFields(SaleItem saleItem, CartItem item) {
+        if (saleItem == null || item == null || !item.isVariantLine()) return;
+        saleItem.setVariantId(item.getVariantId());
+        saleItem.setSellUnitId(item.getSellUnitId());
+        saleItem.setSellUnitCode(item.getSellUnitCode());
+        saleItem.setConversionToBase(item.getConversionToBase());
+        saleItem.setPriceSource(item.getPriceSource());
+        saleItem.setAppliedTierMinQty(item.getAppliedTierMinQty());
+        saleItem.setAppliedTierGroupCode(item.getAppliedTierGroupCode());
     }
 
     private void applyLoyaltyPoints(Sale sale, Customer customer) {
@@ -263,6 +283,13 @@ public class PosService {
             value.put("lineTotal", item.getLineTotal());
             value.put("priceTier", item.getPriceTier() == null ? null : item.getPriceTier().name());
             value.put("unitType", item.getUnitType() == null ? null : item.getUnitType().name());
+            value.put("variantId", item.getVariantId());
+            value.put("sellUnitId", item.getSellUnitId());
+            value.put("sellUnitCode", item.getSellUnitCode());
+            value.put("conversionToBase", item.getConversionToBase());
+            value.put("priceSource", item.getPriceSource());
+            value.put("appliedTierMinQty", item.getAppliedTierMinQty());
+            value.put("appliedTierGroupCode", item.getAppliedTierGroupCode());
             value.put("note", item.getNote());
             items.add(value);
         }

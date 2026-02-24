@@ -331,6 +331,152 @@
             </div>
           </div>
 
+          <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5"
+               th:attr="data-product-id=${product.id},data-csrf-header=${_csrf.headerName},data-csrf-token=${_csrf.token}">
+            <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
+              <div>
+                <div class="text-base font-semibold">Variants & Unit Pricing (API Form)</div>
+                <div class="text-sm text-slate-500">Manage dynamic attributes, variants, sell units, tiers, and quote testing.</div>
+              </div>
+              <div class="text-xs text-slate-500">Use after saving product.</div>
+            </div>
+
+            <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700"
+                 th:if="${product.id == null}">
+              Save this product first. Variant actions need a persisted product id.
+            </div>
+
+            <div th:if="${product.id != null}" class="mt-4 space-y-4" id="variantApiFormRoot">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                  <div class="text-sm font-semibold text-slate-800">Create Attribute Group</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input id="attrGroupCode" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Code (e.g. SIZE)"/>
+                    <input id="attrGroupName" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Name (e.g. Size)"/>
+                    <input id="attrGroupSort" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Sort" value="10"/>
+                  </div>
+                  <button type="button" id="btnCreateAttrGroup"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Create group
+                  </button>
+                </div>
+
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                  <div class="text-sm font-semibold text-slate-800">Create Attribute Value</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <input id="attrValueGroupId" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Group ID"/>
+                    <input id="attrValueCode" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Code (e.g. RED)"/>
+                    <input id="attrValueName" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Display name"/>
+                    <input id="attrValueSort" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Sort" value="10"/>
+                  </div>
+                  <button type="button" id="btnCreateAttrValue"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Create value
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                <div class="text-sm font-semibold text-slate-800">Attribute Config (JSON)</div>
+                <textarea id="attrConfigJson" rows="8"
+                          class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-300">{
+  "groups": [
+    { "groupId": 1, "sortOrder": 10, "required": true },
+    { "groupId": 2, "sortOrder": 20, "required": true }
+  ],
+  "allowedValues": [
+    { "groupId": 1, "valueIds": [1, 2, 3] },
+    { "groupId": 2, "valueIds": [4, 5] }
+  ]
+}</textarea>
+                <div class="flex gap-2">
+                  <button type="button" id="btnSaveAttrConfig"
+                          class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50">
+                    Save attribute config
+                  </button>
+                  <button type="button" id="btnGenerateVariants"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Generate/merge variants
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                  <div class="text-sm font-semibold text-slate-800">Upsert Sell Unit</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input id="sellUnitVariantId" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Variant ID"/>
+                    <input id="sellUnitCode" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Unit code (PIECE/BOX/CARTON)"/>
+                    <input id="sellUnitConv" type="number" step="0.000001" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Conversion to base" value="24"/>
+                    <input id="sellUnitPrice" type="number" step="0.01" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Unit price" value="34.00"/>
+                    <select id="sellUnitIsBase" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                      <option value="false" selected>isBase: false</option>
+                      <option value="true">isBase: true</option>
+                    </select>
+                    <select id="sellUnitEnabled" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                      <option value="true" selected>enabled: true</option>
+                      <option value="false">enabled: false</option>
+                    </select>
+                  </div>
+                  <button type="button" id="btnUpsertSellUnit"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Save sell unit
+                  </button>
+                </div>
+
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                  <div class="text-sm font-semibold text-slate-800">Replace Tier Prices (JSON)</div>
+                  <input id="tierSellUnitId" type="number" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Sell Unit ID"/>
+                  <textarea id="tierJson" rows="6"
+                            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-300">{
+  "currencyCode": "USD",
+  "tiers": [
+    { "customerGroupCode": "WHOLESALE", "minQty": 10, "unitPrice": 30.50, "active": true },
+    { "customerGroupCode": null, "minQty": 10, "unitPrice": 32.00, "active": true }
+  ]
+}</textarea>
+                  <button type="button" id="btnReplaceTiers"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Replace tiers
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                  <div class="text-sm font-semibold text-slate-800">Test Quote</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <input id="quoteVariantId" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Variant ID"/>
+                    <input id="quoteSellUnitId" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Sell Unit ID"/>
+                    <input id="quoteQty" type="number" step="0.000001" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Qty" value="12"/>
+                    <input id="quoteGroup" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Group code" value="WHOLESALE"/>
+                  </div>
+                  <button type="button" id="btnQuote"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Quote price
+                  </button>
+                </div>
+
+                <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                  <div class="text-sm font-semibold text-slate-800">Deduct Inventory</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input id="deductSellUnitId" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Sell Unit ID"/>
+                    <input id="deductQty" type="number" step="0.000001" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Qty" value="1"/>
+                  </div>
+                  <button type="button" id="btnDeduct"
+                          class="rounded-lg bg-slate-900 text-white px-3 py-2 text-xs font-semibold hover:bg-slate-800">
+                    Deduct stock
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-slate-900 text-slate-100 p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-300">API Result</div>
+                <pre id="variantApiResult" class="mt-2 text-xs whitespace-pre-wrap break-words">Run an action to see response.</pre>
+              </div>
+            </div>
+          </div>
+
           <!-- Actions -->
           <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
             <a th:href="${returnToListUrl}" href="/products"
@@ -463,6 +609,141 @@
       document.addEventListener("paste", handlePaste);
       if (clearBtn) clearBtn.addEventListener("click", clearSelection);
       window.addEventListener("beforeunload", clearPreviewUrl);
+    })();
+
+    (() => {
+      const root = document.getElementById("variantApiFormRoot");
+      if (!root) return;
+      const wrap = root.closest("[data-product-id]");
+      const productId = wrap?.dataset?.productId;
+      const csrfHeader = wrap?.dataset?.csrfHeader || "X-CSRF-TOKEN";
+      const csrfToken = wrap?.dataset?.csrfToken || "";
+      const resultEl = document.getElementById("variantApiResult");
+      if (!productId || !resultEl) return;
+
+      const showResult = (payload, isError) => {
+        const output = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+        resultEl.textContent = output;
+        resultEl.classList.toggle("text-rose-300", Boolean(isError));
+        resultEl.classList.toggle("text-slate-100", !isError);
+      };
+
+      const parseJson = (text) => {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error("Invalid JSON payload.");
+        }
+      };
+
+      const request = async (method, url, body) => {
+        const headers = { "Content-Type": "application/json" };
+        if (csrfToken) headers[csrfHeader] = csrfToken;
+        const res = await fetch(url, {
+          method,
+          headers,
+          body: body == null ? null : JSON.stringify(body)
+        });
+        const raw = await res.text();
+        let data;
+        try {
+          data = raw ? JSON.parse(raw) : { status: res.status };
+        } catch (_ignored) {
+          data = raw || { status: res.status };
+        }
+        if (!res.ok) {
+          const message = data && typeof data === "object" && data.message ? data.message : data;
+          throw new Error(typeof message === "string" ? message : JSON.stringify(message));
+        }
+        return data;
+      };
+
+      const num = (id) => {
+        const v = document.getElementById(id)?.value;
+        if (v == null || String(v).trim() === "") return null;
+        return Number(v);
+      };
+      const str = (id) => {
+        const v = document.getElementById(id)?.value;
+        return v == null ? "" : String(v).trim();
+      };
+      const bool = (id) => str(id) === "true";
+
+      const run = async (fn) => {
+        try {
+          const data = await fn();
+          showResult(data, false);
+        } catch (e) {
+          showResult(e?.message || "Request failed.", true);
+        }
+      };
+
+      document.getElementById("btnCreateAttrGroup")?.addEventListener("click", () => run(() =>
+        request("POST", "/api/v1/attributes/groups", {
+          code: str("attrGroupCode"),
+          name: str("attrGroupName"),
+          sortOrder: num("attrGroupSort")
+        })
+      ));
+
+      document.getElementById("btnCreateAttrValue")?.addEventListener("click", () => run(() => {
+        const gid = num("attrValueGroupId");
+        if (!gid) throw new Error("Group ID is required.");
+        return request("POST", `/api/v1/attributes/groups/${gid}/values`, {
+          code: str("attrValueCode"),
+          displayName: str("attrValueName"),
+          sortOrder: num("attrValueSort")
+        });
+      }));
+
+      document.getElementById("btnSaveAttrConfig")?.addEventListener("click", () => run(() =>
+        request("PUT", `/api/v1/products/${productId}/attribute-config`, parseJson(str("attrConfigJson")))
+      ));
+
+      document.getElementById("btnGenerateVariants")?.addEventListener("click", () => run(() =>
+        request("POST", `/api/v1/products/${productId}/variants/generate`, {
+          mode: "MERGE",
+          preserveFields: ["sku", "barcode", "price", "cost", "stock", "enabled", "impossible"],
+          maxVariants: 2000
+        })
+      ));
+
+      document.getElementById("btnUpsertSellUnit")?.addEventListener("click", () => run(() => {
+        const variantId = num("sellUnitVariantId");
+        if (!variantId) throw new Error("Variant ID is required.");
+        return request("POST", `/api/v1/variants/${variantId}/sell-units`, {
+          unitCode: str("sellUnitCode"),
+          conversionToBase: num("sellUnitConv"),
+          isBase: bool("sellUnitIsBase"),
+          basePrice: num("sellUnitPrice"),
+          enabled: bool("sellUnitEnabled")
+        });
+      }));
+
+      document.getElementById("btnReplaceTiers")?.addEventListener("click", () => run(() => {
+        const sellUnitId = num("tierSellUnitId");
+        if (!sellUnitId) throw new Error("Sell Unit ID is required.");
+        return request("PUT", `/api/v1/sell-units/${sellUnitId}/tier-prices`, parseJson(str("tierJson")));
+      }));
+
+      document.getElementById("btnQuote")?.addEventListener("click", () => run(() => {
+        const variantId = num("quoteVariantId");
+        const sellUnitId = num("quoteSellUnitId");
+        const qty = num("quoteQty");
+        if (!variantId || !sellUnitId || !qty) throw new Error("Variant ID, Sell Unit ID, and Qty are required.");
+        return request("POST", "/api/v1/pos/pricing/quote", {
+          customerGroupCode: str("quoteGroup") || null,
+          currencyCode: "USD",
+          lines: [{ variantId, sellUnitId, qty }]
+        });
+      }));
+
+      document.getElementById("btnDeduct")?.addEventListener("click", () => run(() => {
+        const sellUnitId = num("deductSellUnitId");
+        const qty = num("deductQty");
+        if (!sellUnitId || !qty) throw new Error("Sell Unit ID and Qty are required.");
+        return request("POST", "/api/v1/inventory/deduct", { sellUnitId, qty });
+      }));
     })();
   </script>
 </body>

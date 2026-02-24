@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-lang-switcher-auto>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,9 +10,11 @@
 
   <!-- UI-only helpers -->
   <style>
-    /* Smooth canvas sizing inside cards */
     .chart-wrap { height: 220px; }
     @media (min-width: 1024px){ .chart-wrap { height: 240px; } }
+    /* Mobile menu transition */
+    #mobileNav { transition: opacity 0.2s ease-in-out; }
+    #mobileNav:not(.hidden) { opacity: 1; }
   </style>
 </head>
 
@@ -22,6 +24,7 @@
     <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
       <div class="w-full px-6 lg:px-10 py-5">
         <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <!-- Logo area -->
           <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
@@ -36,9 +39,24 @@
             </div>
           </div>
 
-                    <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+          <!-- Desktop navigation (replaced by fragment) -->
+          <nav th:replace="~{fragments/navigation :: mainNav}" class="hidden lg:block"></nav>
 
+          <!-- Right side: language switcher, auth buttons, mobile menu trigger -->
           <div class="flex flex-wrap items-center justify-end gap-2">
+            <!-- Language Switcher (enterprise version) -->
+            <form data-lang-switcher-form="true" method="get" class="m-0">
+              <select data-lang-switcher-select="true"
+                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                      aria-label="Select language">
+                <option value="en" selected>🇬🇧 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+              </select>
+            </form>
+
+            <!-- Login/Logout -->
             <a sec:authorize="isAnonymous()" href="/login"
                class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
               Login
@@ -49,7 +67,19 @@
                 Logout
               </button>
             </form>
+
+            <!-- Mobile menu button (hamburger) -->
+            <button id="mobileMenuBtn" class="lg:hidden rounded-xl border border-slate-200 p-2 bg-white hover:bg-slate-50 transition" aria-label="Toggle menu">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
           </div>
+        </div>
+
+        <!-- Mobile navigation (hidden by default) -->
+        <div id="mobileNav" class="lg:hidden mt-4 hidden border-t border-slate-200 pt-4">
+          <nav th:replace="~{fragments/navigation :: mainNav}" class="flex flex-col space-y-2"></nav>
         </div>
       </div>
     </header>
@@ -97,7 +127,7 @@
         </div>
       </section>
 
-      <!-- Charts -->
+      <!-- Charts (unchanged) -->
       <section class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Line -->
         <div class="rounded-3xl bg-white border border-slate-200 p-6 shadow-sm">
@@ -164,7 +194,7 @@
         </div>
       </section>
 
-      <!-- Navigation cards -->
+      <!-- Navigation cards (unchanged) -->
       <section class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <a href="/pos"
            class="group rounded-3xl bg-white p-7 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition">
@@ -229,7 +259,7 @@
       </section>
     </main>
 
-    <!-- FOOTER -->
+    <!-- FOOTER (unchanged) -->
     <footer class="w-full px-4 sm:px-6 lg:px-10 pb-10">
       <div class="rounded-3xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm">
         <div class="flex flex-col items-center gap-4 text-center">
@@ -253,11 +283,12 @@
   </div>
 
   <script th:inline="javascript">
-    // UI-only: mobile nav toggle
+    // UI-only: mobile nav toggle (now the button exists)
     document.getElementById("mobileMenuBtn")?.addEventListener("click", () => {
       document.getElementById("mobileNav")?.classList.toggle("hidden");
     });
 
+    // Chart data from Thymeleaf (unchanged)
     const dailyLabels = /*[[${dailyLabels}]]*/ [];
     const dailySales = /*[[${dailySales}]]*/ [];
     const monthlyLabels = /*[[${monthlyLabels}]]*/ [];
@@ -430,6 +461,180 @@
         }
       });
     }
+  </script>
+
+  <!-- Enterprise‑grade language switcher (embedded) -->
+  <script>
+    (function(global) {
+      'use strict';
+
+      const DEFAULTS = {
+        selectSelector: '[data-lang-switcher-select="true"]',
+        formSelector: '[data-lang-switcher-form="true"]',
+        preserveInputSelector: 'input[data-lang-preserve="true"]',
+        urlParam: 'lang',
+        method: 'auto',
+        usePushState: false,
+        preserveQueryParams: true,
+        logLevel: 'error',
+        ariaLive: 'polite',
+      };
+
+      const LOG_LEVELS = { debug: 0, info: 1, warn: 2, error: 3, none: 4 };
+      class Logger {
+        constructor(level = 'error') {
+          this.level = LOG_LEVELS[level] ?? LOG_LEVELS.error;
+        }
+        debug(...args) { if (this.level <= LOG_LEVELS.debug) console.debug('[LangSwitcher]', ...args); }
+        info(...args)  { if (this.level <= LOG_LEVELS.info)  console.info('[LangSwitcher]', ...args); }
+        warn(...args)  { if (this.level <= LOG_LEVELS.warn)  console.warn('[LangSwitcher]', ...args); }
+        error(...args) { if (this.level <= LOG_LEVELS.error) console.error('[LangSwitcher]', ...args); }
+      }
+
+      class LangSwitcher {
+        constructor(options = {}) {
+          this.options = { ...DEFAULTS, ...options };
+          this.logger = new Logger(this.options.logLevel);
+          this.boundSelects = new WeakSet();
+          this.changeHandler = this.handleChange.bind(this);
+          this.init();
+        }
+
+        init() {
+          try {
+            document.addEventListener('change', this.changeHandler);
+            this.scanExisting();
+            this.logger.debug('LangSwitcher initialised');
+          } catch (err) {
+            this.logger.error('Initialisation failed:', err);
+          }
+        }
+
+        scanExisting() {
+          const selects = document.querySelectorAll(this.options.selectSelector);
+          selects.forEach(select => {
+            if (!this.boundSelects.has(select)) {
+              this.prepareForm(select);
+              this.boundSelects.add(select);
+            }
+          });
+        }
+
+        prepareForm(select) {
+          if (!this.options.preserveQueryParams) return;
+          const form = select.closest(this.options.formSelector);
+          if (!form) return;
+
+          const oldInputs = form.querySelectorAll(this.options.preserveInputSelector);
+          oldInputs.forEach(input => input.remove());
+
+          try {
+            const url = new URL(window.location.href);
+            for (const [key, value] of url.searchParams.entries()) {
+              if (key === this.options.urlParam) continue;
+              const hidden = document.createElement('input');
+              hidden.type = 'hidden';
+              hidden.name = key;
+              hidden.value = value;
+              hidden.setAttribute('data-lang-preserve', 'true');
+              form.appendChild(hidden);
+            }
+            this.logger.debug('Preserved query params added to form', form);
+          } catch (err) {
+            this.logger.error('Failed to preserve query params:', err);
+          }
+        }
+
+        handleChange(event) {
+          const select = event.target;
+          if (!select.matches(this.options.selectSelector)) return;
+
+          if (!this.boundSelects.has(select)) {
+            this.prepareForm(select);
+            this.boundSelects.add(select);
+          }
+
+          try {
+            this.execute(select);
+          } catch (err) {
+            this.logger.error('Error during language switch:', err);
+          }
+        }
+
+        execute(select) {
+          const form = select.closest(this.options.formSelector);
+          const method = this.resolveMethod(select, form);
+          const lang = select.value.trim();
+
+          if (!lang) {
+            this.logger.warn('No language value selected');
+            return;
+          }
+
+          this.announce(lang);
+
+          if (method === 'form' && form) {
+            form.submit();
+            this.logger.debug('Form submitted', form);
+          } else if (method === 'redirect') {
+            this.redirect(lang);
+          } else {
+            this.logger.warn('No valid method (form or redirect) available');
+          }
+        }
+
+        resolveMethod(select, form) {
+          const methodAttr = select.dataset.langMethod || this.options.method;
+          if (methodAttr === 'form') return 'form';
+          if (methodAttr === 'redirect') return 'redirect';
+          return form ? 'form' : 'redirect';
+        }
+
+        redirect(lang) {
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.set(this.options.urlParam, lang);
+
+            if (this.options.usePushState) {
+              history.pushState(null, '', url.toString());
+              window.dispatchEvent(new CustomEvent('langswitcher:changed', { detail: { lang } }));
+              this.logger.debug('History state updated', url.toString());
+            } else {
+              window.location.assign(url.toString());
+              this.logger.debug('Redirecting to', url.toString());
+            }
+          } catch (err) {
+            this.logger.error('Redirect failed:', err);
+          }
+        }
+
+        announce(lang) {
+          const liveRegion = document.querySelector('[aria-live="polite"], [aria-live="assertive"]');
+          if (liveRegion && this.options.ariaLive !== 'none') {
+            liveRegion.textContent = `Language changed to ${lang}`;
+          }
+        }
+
+        destroy() {
+          document.removeEventListener('change', this.changeHandler);
+          this.logger.debug('LangSwitcher destroyed');
+        }
+      }
+
+      global.LangSwitcher = LangSwitcher;
+
+      function autoInit() {
+        if (document.documentElement.hasAttribute('data-lang-switcher-auto')) {
+          new LangSwitcher();
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', autoInit, { once: true });
+      } else {
+        autoInit();
+      }
+    })(typeof window !== 'undefined' ? window : this);
   </script>
 </body>
 </html>

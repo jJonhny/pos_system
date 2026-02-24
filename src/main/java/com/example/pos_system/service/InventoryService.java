@@ -1,12 +1,16 @@
 package com.example.pos_system.service;
 
 import com.example.pos_system.entity.Product;
+import com.example.pos_system.entity.ProductVariant;
+import com.example.pos_system.entity.SkuSellUnit;
 import com.example.pos_system.entity.StockMovementType;
 import com.example.pos_system.repository.ProductRepo;
+import com.example.pos_system.repository.SkuSellUnitRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,12 +22,18 @@ public class InventoryService {
     private final ProductRepo productRepo;
     private final AuditEventService auditEventService;
     private final StockMovementService stockMovementService;
+    private final SkuSellUnitRepo skuSellUnitRepo;
+    private final VariantInventoryService variantInventoryService;
 
     public InventoryService(ProductRepo productRepo, AuditEventService auditEventService,
-                            StockMovementService stockMovementService) {
+                            StockMovementService stockMovementService,
+                            SkuSellUnitRepo skuSellUnitRepo,
+                            VariantInventoryService variantInventoryService) {
         this.productRepo = productRepo;
         this.auditEventService = auditEventService;
         this.stockMovementService = stockMovementService;
+        this.skuSellUnitRepo = skuSellUnitRepo;
+        this.variantInventoryService = variantInventoryService;
     }
 
     public Product quickUpdate(Long id, String price, String stockQty) {
@@ -87,6 +97,62 @@ public class InventoryService {
             auditEventService.record("PRICE_OVERRIDE", "PRODUCT", saved.getId(), before, after, metadata);
         }
         return saved;
+    }
+
+    public VariantUnitDeductionResult deductVariantUnitStock(Long sellUnitId, BigDecimal qty) {
+        if (sellUnitId == null) {
+            throw new IllegalArgumentException("sellUnitId is required.");
+        }
+        BigDecimal soldQty = normalizeQty(qty);
+        if (soldQty.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("qty must be positive.");
+        }
+
+        SkuSellUnit sellUnit = skuSellUnitRepo.findById(sellUnitId)
+                .orElseThrow(() -> new IllegalArgumentException("Sell unit not found."));
+        if (!Boolean.TRUE.equals(sellUnit.getEnabled())) {
+            throw new IllegalStateException("Sell unit is disabled.");
+        }
+        ProductVariant variant = sellUnit.getVariant();
+        if (variant == null || variant.getId() == null) {
+            throw new IllegalStateException("Variant not found for sell unit.");
+        }
+        if (Boolean.TRUE.equals(variant.getArchived())
+                || Boolean.TRUE.equals(variant.getImpossible())
+                || !Boolean.TRUE.equals(variant.getEnabled())) {
+            throw new IllegalStateException("Variant is not saleable.");
+        }
+        if (variant.getProduct() == null || Boolean.FALSE.equals(variant.getProduct().getActive())) {
+            throw new IllegalStateException("Product is inactive.");
+        }
+
+        BigDecimal conversion = normalizeQty(sellUnit.getConversionToBase());
+        if (conversion.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Sell unit conversion must be positive.");
+        }
+        BigDecimal deductedBaseQty = soldQty.multiply(conversion).setScale(6, RoundingMode.HALF_UP);
+
+        BigDecimal beforeStock = normalizeQty(variant.getStockBaseQty());
+        ProductVariant updated = variantInventoryService.recordSale(variant.getId(), deductedBaseQty);
+        BigDecimal afterStock = normalizeQty(updated.getStockBaseQty());
+
+        Map<String, Object> before = variantSnapshot(variant.getId(), beforeStock);
+        Map<String, Object> after = variantSnapshot(updated.getId(), afterStock);
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("sellUnitId", sellUnit.getId());
+        metadata.put("unitCode", sellUnit.getUnit() == null ? null : sellUnit.getUnit().getCode());
+        metadata.put("soldQty", soldQty);
+        metadata.put("conversionToBase", conversion);
+        metadata.put("deductedBaseQty", deductedBaseQty);
+        auditEventService.record("SKU_STOCK_DEDUCT", "PRODUCT_VARIANT", updated.getId(), before, after, metadata);
+
+        return new VariantUnitDeductionResult(
+                updated.getId(),
+                sellUnit.getId(),
+                soldQty,
+                deductedBaseQty,
+                afterStock
+        );
     }
 
     public int bulkAdjustStock(List<Long> ids, String operation, String qty) {
@@ -223,5 +289,24 @@ public class InventoryService {
 
     private int safeStock(Integer value) {
         return value == null ? 0 : value;
+    }
+
+    private BigDecimal normalizeQty(BigDecimal qty) {
+        if (qty == null) return BigDecimal.ZERO.setScale(6, RoundingMode.HALF_UP);
+        return qty.setScale(6, RoundingMode.HALF_UP);
+    }
+
+    private Map<String, Object> variantSnapshot(Long variantId, BigDecimal stockBaseUnits) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("variantId", variantId);
+        snapshot.put("stockBaseUnits", stockBaseUnits);
+        return snapshot;
+    }
+
+    public record VariantUnitDeductionResult(Long variantId,
+                                             Long sellUnitId,
+                                             BigDecimal soldQty,
+                                             BigDecimal deductedBaseQty,
+                                             BigDecimal remainingBaseQty) {
     }
 }

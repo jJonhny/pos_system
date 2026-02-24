@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.example.pos_system.service.AppUserDetailsService;
 import com.example.pos_system.config.LoginSuccessHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,12 +16,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Value("${app.security.remember-me.key:pos-system-dev-remember-me-key-change-in-prod}")
+    private String rememberMeKey;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, LoginSuccessHandler loginSuccessHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   LoginSuccessHandler loginSuccessHandler,
+                                                   AppUserDetailsService appUserDetailsService) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/error", "/access-denied").permitAll()
+                        .requestMatchers("/login", "/login/forgot-password", "/login/sso", "/error", "/access-denied").permitAll()
+                        .requestMatchers("/support/**", "/legal/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
                         .requestMatchers("/users/password").authenticated()
                         .requestMatchers("/users/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
@@ -41,6 +47,10 @@ public class SecurityConfig {
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_POS_PRINT') or hasAuthority('PERM_USE_POS')"))
                         .requestMatchers("/pos/drawer/open").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_POS_DRAWER_OPEN') or hasAuthority('PERM_USE_POS')"))
+                        .requestMatchers("/api/v1/pos/pricing/quote").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_USE_POS')"))
+                        .requestMatchers("/api/v1/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                                "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')"))
                         .requestMatchers("/", "/pos/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER','CASHIER') or hasAuthority('PERM_USE_POS')"))
                         .requestMatchers("/sales/*/receipt").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
@@ -61,6 +71,13 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .successHandler(loginSuccessHandler)
                         .permitAll()
+                )
+                .rememberMe(remember -> remember
+                        .rememberMeParameter("remember-me")
+                        .rememberMeCookieName("POS_REMEMBER_ME")
+                        .tokenValiditySeconds(60 * 60 * 24 * 14)
+                        .key(rememberMeKey)
+                        .userDetailsService(appUserDetailsService)
                 )
                 .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())
                 .exceptionHandling(e -> e.accessDeniedPage("/access-denied"));

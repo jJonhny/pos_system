@@ -62,7 +62,10 @@ public class ApiExceptionHandler {
     private boolean expectsJson(HttpServletRequest request) {
         if (request == null) return false;
         String uri = request.getRequestURI();
-        if (uri != null && (uri.startsWith("/pos/products/feed") || uri.startsWith("/pos/checkout/") || uri.startsWith("/pos/drawer/"))) {
+        if (uri != null && (uri.startsWith("/api/v1/")
+                || uri.startsWith("/pos/products/feed")
+                || uri.startsWith("/pos/checkout/")
+                || uri.startsWith("/pos/drawer/"))) {
             return true;
         }
         String accept = request.getHeader("Accept");

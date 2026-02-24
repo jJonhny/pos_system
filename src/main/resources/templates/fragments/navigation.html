@@ -97,6 +97,16 @@
     <span th:text="#{nav.reports}">Reports</span>
   </a>
 
+  <a sec:authorize="hasRole('ADMIN')"
+     href="/admin/audit"
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M5 4h14v16H5z"/>
+      <path d="M8 8h8M8 12h8M8 16h5"/>
+    </svg>
+    <span th:text="#{nav.audit}">Audit</span>
+  </a>
+
   <a sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_MANAGE_USERS')"
      href="/users"
      class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
