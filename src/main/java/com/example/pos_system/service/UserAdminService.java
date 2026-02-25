@@ -24,13 +24,16 @@ public class UserAdminService {
     private final PasswordEncoder passwordEncoder;
     private final UserAuditLogRepo auditLogRepo;
     private final AuditEventService auditEventService;
+    private final RolePermissionService rolePermissionService;
 
     public UserAdminService(AppUserRepo appUserRepo, PasswordEncoder passwordEncoder,
-                            UserAuditLogRepo auditLogRepo, AuditEventService auditEventService) {
+                            UserAuditLogRepo auditLogRepo, AuditEventService auditEventService,
+                            RolePermissionService rolePermissionService) {
         this.appUserRepo = appUserRepo;
         this.passwordEncoder = passwordEncoder;
         this.auditLogRepo = auditLogRepo;
         this.auditEventService = auditEventService;
+        this.rolePermissionService = rolePermissionService;
     }
 
     public AppUser createUser(String username,
@@ -48,9 +51,10 @@ public class UserAdminService {
         user.setActive(active);
         user.setMustResetPassword(mustResetPassword);
         user.setMfaRequired(mfaRequired);
-        if (permissions != null && !permissions.isEmpty()) {
-            user.setPermissions(permissions);
-        }
+        Set<Permission> effectivePermissions = (permissions == null || permissions.isEmpty())
+                ? rolePermissionService.defaultsForRole(role)
+                : permissions;
+        user.setPermissions(effectivePermissions);
         AppUser saved = appUserRepo.save(user);
         recordAction(actor, saved, "USER_CREATE", "User created.");
         auditEventService.record("USER_CREATE", "USER", saved.getId(), null, userSnapshot(saved), null);
@@ -70,6 +74,9 @@ public class UserAdminService {
                               Authentication actor, String details) {
         Map<String, Object> before = userSnapshot(user);
         user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setFailedLoginAttempts(0);
+        user.setLastFailedLoginAt(null);
+        user.setLockedUntil(null);
         if (temporary) {
             user.setMustResetPassword(true);
         }
@@ -110,6 +117,9 @@ public class UserAdminService {
         Map<String, Object> before = userSnapshot(user);
         user.setPassword(passwordEncoder.encode(password));
         user.setMustResetPassword(false);
+        user.setFailedLoginAttempts(0);
+        user.setLastFailedLoginAt(null);
+        user.setLockedUntil(null);
         AppUser saved = appUserRepo.save(user);
         recordAction(actor, saved, "PASSWORD_CHANGE", "User updated their password.");
         auditEventService.record("PASSWORD_CHANGE", "USER", saved.getId(), before, userSnapshot(saved), null);
@@ -200,6 +210,9 @@ public class UserAdminService {
         snapshot.put("mfaRequired", user.getMfaRequired());
         snapshot.put("permissions", user.getPermissions() == null ? List.of() : user.getPermissions());
         snapshot.put("lastLoginAt", user.getLastLoginAt());
+        snapshot.put("failedLoginAttempts", user.getFailedLoginAttempts());
+        snapshot.put("lastFailedLoginAt", user.getLastFailedLoginAt());
+        snapshot.put("lockedUntil", user.getLockedUntil());
         return snapshot;
     }
 }

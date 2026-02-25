@@ -19,6 +19,10 @@
     "url": "https://github.com/johnappleseed/pos_system/issues"
   },
   "homepage": "https://github.com/johnappleseed/pos_system#readme",
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
+  },
   "devDependencies": {
     "autoprefixer": "^10.4.24",
     "postcss": "^8.5.6",

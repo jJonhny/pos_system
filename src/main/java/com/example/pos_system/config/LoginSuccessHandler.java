@@ -4,6 +4,7 @@ import com.example.pos_system.entity.AppUser;
 import com.example.pos_system.entity.UserAuditLog;
 import com.example.pos_system.repository.AppUserRepo;
 import com.example.pos_system.repository.UserAuditLogRepo;
+import com.example.pos_system.service.LoginSecurityService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,10 +20,14 @@ import java.time.LocalDateTime;
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
     private final AppUserRepo appUserRepo;
     private final UserAuditLogRepo auditLogRepo;
+    private final LoginSecurityService loginSecurityService;
 
-    public LoginSuccessHandler(AppUserRepo appUserRepo, UserAuditLogRepo auditLogRepo) {
+    public LoginSuccessHandler(AppUserRepo appUserRepo,
+                               UserAuditLogRepo auditLogRepo,
+                               LoginSecurityService loginSecurityService) {
         this.appUserRepo = appUserRepo;
         this.auditLogRepo = auditLogRepo;
+        this.loginSecurityService = loginSecurityService;
         setDefaultTargetUrl("/");
     }
 
@@ -31,7 +36,8 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         String username = authentication.getName();
-        AppUser user = appUserRepo.findByUsername(username).orElse(null);
+        loginSecurityService.registerSuccess(username);
+        AppUser user = appUserRepo.findByUsernameIgnoreCase(username).orElse(null);
         if (user != null) {
             user.setLastLoginAt(LocalDateTime.now());
             appUserRepo.save(user);

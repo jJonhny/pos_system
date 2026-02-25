@@ -39,6 +39,7 @@ public class UserSeeder implements CommandLineRunner {
 
         AppUser admin = new AppUser();
         admin.setUsername(adminUsername);
+        admin.setEmail(adminUsername + "@pos.local");
         admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRole(UserRole.ADMIN);
         admin.setLanguagePreference("en");
@@ -46,6 +47,7 @@ public class UserSeeder implements CommandLineRunner {
 
         AppUser cashier = new AppUser();
         cashier.setUsername(cashierUsername);
+        cashier.setEmail(cashierUsername + "@pos.local");
         cashier.setPassword(passwordEncoder.encode(cashierPassword));
         cashier.setRole(UserRole.CASHIER);
         cashier.setLanguagePreference("en");

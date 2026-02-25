@@ -7,6 +7,7 @@ import com.example.pos_system.entity.*;
 import com.example.pos_system.repository.*;
 import com.example.pos_system.service.CheckoutAttemptService;
 import com.example.pos_system.service.CurrencyService;
+import com.example.pos_system.service.MarketingPricingService;
 import com.example.pos_system.service.PosCartService;
 import com.example.pos_system.service.PosHardwareService;
 import com.example.pos_system.service.ProductFeedService;
@@ -69,6 +70,7 @@ public class PosController {
   private final PaginationObservabilityService paginationObservabilityService;
   private final I18nService i18nService;
   private final SkuUnitPricingService skuUnitPricingService;
+  private final MarketingPricingService marketingPricingService;
 
   @Value("${app.pagination.feed.rate-limit-per-minute:240}")
   private int productFeedRateLimitPerMinute;
@@ -91,7 +93,8 @@ public class PosController {
                        EndpointRateLimiterService endpointRateLimiterService,
                        PaginationObservabilityService paginationObservabilityService,
                        I18nService i18nService,
-                       SkuUnitPricingService skuUnitPricingService) {
+                       SkuUnitPricingService skuUnitPricingService,
+                       MarketingPricingService marketingPricingService) {
     this.productRepo = productRepo;
     this.productVariantRepo = productVariantRepo;
     this.skuSellUnitRepo = skuSellUnitRepo;
@@ -111,6 +114,7 @@ public class PosController {
     this.paginationObservabilityService = paginationObservabilityService;
     this.i18nService = i18nService;
     this.skuUnitPricingService = skuUnitPricingService;
+    this.marketingPricingService = marketingPricingService;
   }
 
   @ModelAttribute("cart")
@@ -567,6 +571,8 @@ public class PosController {
       cart.setDiscount(hold.getDiscount() == null ? BigDecimal.ZERO : hold.getDiscount());
     }
     cart.setDiscountReason(hold.getDiscountReason());
+    boolean hasDiscount = cart.getDiscount().compareTo(BigDecimal.ZERO) > 0;
+    cart.setManualDiscountOverride(hasDiscount && !marketingPricingService.isAutoCampaignReason(cart.getDiscountReason()));
     cart.setTaxRate(hold.getTaxRate() == null ? new BigDecimal("0.00") : hold.getTaxRate());
     if (hold.getCustomer() != null) {
       cart.setCustomerId(hold.getCustomer().getId());
@@ -1121,10 +1127,13 @@ public class PosController {
     if (preferredTerminalId == null) {
       preferredTerminalId = terminalSettingsService.preferredTerminalId();
     }
+    Customer currentCustomer = loadCustomer(cart.getCustomerId());
+    MarketingPricingService.AppliedCampaign appliedCampaign = marketingPricingService.applyBestCampaign(cart, currentCustomer);
     TerminalSettings terminalSettings = terminalSettingsService.resolveForTerminal(preferredTerminalId);
     model.addAttribute("terminalSettings", terminalSettings);
     model.addAttribute("preferredTerminalId", terminalSettings.getTerminalId());
     model.addAttribute("cart", cart);
+    model.addAttribute("autoMarketingCampaign", appliedCampaign.applied() ? appliedCampaign : null);
     model.addAttribute("baseCurrency", currencyService.getBaseCurrency());
     model.addAttribute("currencies", currencyService.getActiveCurrencies());
     model.addAttribute("shiftVarianceThreshold", shiftService.varianceThreshold());
@@ -1167,11 +1176,7 @@ public class PosController {
       model.addAttribute("shiftVarianceAmounts", Map.of());
       model.addAttribute("terminalId", preferredTerminalId);
     }
-    if (cart.getCustomerId() != null) {
-      customerRepo.findById(cart.getCustomerId()).ifPresent(c -> model.addAttribute("currentCustomer", c));
-    } else {
-      model.addAttribute("currentCustomer", null);
-    }
+    model.addAttribute("currentCustomer", currentCustomer);
   }
 
   private Shift findOpenShift(String username) {
@@ -1315,6 +1320,8 @@ public class PosController {
       return "redirect:/pos?scanError=" + encode(msg("pos.error.cartEmpty"));
     }
     try {
+      Customer customer = loadCustomer(cart.getCustomerId());
+      marketingPricingService.applyBestCampaign(cart, customer);
       BigDecimal expectedTotal = cart.getTotal() == null ? BigDecimal.ZERO : cart.getTotal().setScale(2, RoundingMode.HALF_UP);
       if (method == PaymentMethod.CASH && foreignAmount == null) {
         throw new IllegalStateException(msg("pos.error.enterCashReceived"));
@@ -1339,7 +1346,6 @@ public class PosController {
       if (openShift.getTerminalId() != null && !openShift.getTerminalId().isBlank()) {
         resolvedTerminalId = openShift.getTerminalId();
       }
-      Customer customer = loadCustomer(cart.getCustomerId());
       String checkoutTerminalId = resolvedTerminalId;
       CheckoutAttemptService.CheckoutResult result = checkoutAttemptService.process(
               clientCheckoutId,
@@ -1457,6 +1463,8 @@ public class PosController {
       }
       return "redirect:/pos?cartError=" + encode(msg("pos.error.noPayments"));
     }
+    Customer customer = loadCustomer(cart.getCustomerId());
+    marketingPricingService.applyBestCampaign(cart, customer);
     BigDecimal total = payments.stream()
             .map(SalePayment::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -1483,7 +1491,6 @@ public class PosController {
       if (openShift.getTerminalId() != null && !openShift.getTerminalId().isBlank()) {
         resolvedTerminalId = openShift.getTerminalId();
       }
-      Customer customer = loadCustomer(cart.getCustomerId());
       String checkoutTerminalId = resolvedTerminalId;
       CheckoutAttemptService.CheckoutResult result = checkoutAttemptService.process(
               clientCheckoutId,

@@ -31,6 +31,9 @@ public class AppUser {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(unique = true, length = 160)
+    private String email;
+
     @Column(nullable = false)
     private String password;
 
@@ -47,6 +50,14 @@ public class AppUser {
     private String languagePreference = "en";
 
     private LocalDateTime lastLoginAt;
+    private Integer failedLoginAttempts = 0;
+    private LocalDateTime lastFailedLoginAt;
+    private LocalDateTime lockedUntil;
+    @Column(length = 128)
+    private String totpSecret;
+    @Column(nullable = false)
+    private Boolean totpEnabled = false;
+    private LocalDateTime lastTotpVerifiedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

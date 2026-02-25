@@ -1,0 +1,500 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sales Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --a1: #06b6d4;
+      --a2: #f97316;
+      --a3: #22c55e;
+      --a4: #334155;
+    }
+
+    body {
+      font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1100px 600px at 100% -10%, rgba(6, 182, 212, 0.2), transparent 62%),
+        radial-gradient(900px 500px at -15% 115%, rgba(249, 115, 22, 0.16), transparent 55%),
+        var(--bg);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .h-main {
+      height: 300px;
+    }
+
+    .h-sub {
+      height: 240px;
+    }
+
+    .kpi-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .kpi-track > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--a1), #0ea5e9);
+      transition: width .35s ease;
+    }
+
+    @media (max-width: 768px) {
+      .h-main { height: 250px; }
+      .h-sub { height: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19V5M10 19V9M16 19V7M22 19H2"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Sales Analysis</div>
+              <div class="text-sm text-slate-500">Style dashboard for campaign performance</div>
+            </div>
+          </div>
+
+          <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+
+          <div class="flex items-center justify-end gap-2">
+            <button id="focusBtn"
+                    class="rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-semibold text-cyan-900 hover:bg-cyan-100 transition">
+              Focus 6M
+            </button>
+            <button id="resetBtn"
+                    class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Reset
+            </button>
+            <a href="/analytics"
+               class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+              Legacy
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-7">
+      <section class="panel p-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">12 Mo Sales</div>
+            <div id="kpi12MoSales" class="mt-2 text-2xl font-bold">$0.00</div>
+            <div class="mt-2 kpi-track"><span id="bar12MoSales"></span></div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">12 Mo Margin</div>
+            <div id="kpi12MoMargin" class="mt-2 text-2xl font-bold">0.00%</div>
+            <div class="mt-2 kpi-track"><span id="bar12MoMargin"></span></div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Current Mo Sales</div>
+            <div id="kpiCurrentSales" class="mt-2 text-2xl font-bold">$0.00</div>
+            <div class="mt-2 kpi-track"><span id="barCurrentSales"></span></div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Current Mo Margin</div>
+            <div id="kpiCurrentMargin" class="mt-2 text-2xl font-bold">0.00%</div>
+            <div class="mt-2 kpi-track"><span id="barCurrentMargin"></span></div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Variance</div>
+            <div id="kpiVariance" class="mt-2 text-2xl font-bold">$0.00</div>
+            <div class="mt-1 text-xs text-slate-500">Current vs previous month</div>
+            <div class="mt-2 kpi-track"><span id="barVariance"></span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="mt-6 panel p-5">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          <div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-lg font-semibold">12 Mo Sales Trends</div>
+                <div class="text-sm text-slate-500">Current bars + previous line + rolling average</div>
+              </div>
+              <div class="text-xs text-slate-500">Rolling months</div>
+            </div>
+            <div class="h-main mt-3"><canvas id="salesTrendChart"></canvas></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-lg font-semibold">Revenue / Cost / Profit</div>
+                <div class="text-sm text-slate-500">Shows margin pressure by period</div>
+              </div>
+              <div class="text-xs text-slate-500">Rolling months</div>
+            </div>
+            <div class="h-main mt-3"><canvas id="marginTrendChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <article class="panel p-5">
+          <div class="text-lg font-semibold">Category Sales Share</div>
+          <div class="text-sm text-slate-500">Top categories by revenue</div>
+          <div class="h-sub mt-3"><canvas id="categoryShareChart"></canvas></div>
+        </article>
+        <article class="panel p-5">
+          <div class="text-lg font-semibold">Payment Mix</div>
+          <div class="text-sm text-slate-500">Cash, card, and QR distribution</div>
+          <div class="h-sub mt-3"><canvas id="paymentMixChart"></canvas></div>
+        </article>
+        <article class="panel p-5">
+          <div class="text-lg font-semibold">Top Products</div>
+          <div class="text-sm text-slate-500">Best sellers by revenue</div>
+          <div class="h-sub mt-3"><canvas id="topProductsChart"></canvas></div>
+        </article>
+      </section>
+
+      <section class="mt-6 panel p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs uppercase tracking-wide text-slate-500">Orders</div>
+            <div id="kpiOrders" class="mt-2 text-2xl font-bold">0</div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs uppercase tracking-wide text-slate-500">Avg Order Value</div>
+            <div id="kpiAov" class="mt-2 text-2xl font-bold">$0.00</div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs uppercase tracking-wide text-slate-500">Refund Total</div>
+            <div id="kpiRefund" class="mt-2 text-2xl font-bold">$0.00</div>
+          </article>
+          <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-xs uppercase tracking-wide text-slate-500">Discount Total</div>
+            <div id="kpiDiscount" class="mt-2 text-2xl font-bold">$0.00</div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script th:inline="javascript">
+    const monthlyLabelsRaw = /*[[${monthlyLabels}]]*/ [];
+    const monthlySalesRaw = /*[[${monthlySales}]]*/ [];
+    const grossRevenueValuesRaw = /*[[${grossRevenueValues}]]*/ [];
+    const grossCostValuesRaw = /*[[${grossCostValues}]]*/ [];
+    const grossProfitValuesRaw = /*[[${grossProfitValues}]]*/ [];
+    const topCategoryLabelsRaw = /*[[${topCategoryLabels}]]*/ [];
+    const topCategoryValuesRaw = /*[[${topCategoryValues}]]*/ [];
+    const topProductLabelsRaw = /*[[${topProductLabels}]]*/ [];
+    const topProductValuesRaw = /*[[${topProductValues}]]*/ [];
+    const paymentCashRaw = /*[[${paymentCash}]]*/ [];
+    const paymentCardRaw = /*[[${paymentCard}]]*/ [];
+    const paymentQrRaw = /*[[${paymentQr}]]*/ [];
+    const saleCount = Number(/*[[${saleCount}]]*/ 0) || 0;
+    const avgOrderValue = Number(/*[[${avgOrderValue}]]*/ 0) || 0;
+    const refundTotal = Number(/*[[${refundTotal}]]*/ 0) || 0;
+    const discountTotal = Number(/*[[${discountTotal}]]*/ 0) || 0;
+    const grossMarginPercent = Number(/*[[${grossMarginPercent}]]*/ 0) || 0;
+
+    const monthlyLabels = Array.isArray(monthlyLabelsRaw) ? monthlyLabelsRaw : [];
+    const monthlySales = Array.isArray(monthlySalesRaw) ? monthlySalesRaw : [];
+    const grossRevenueValues = Array.isArray(grossRevenueValuesRaw) ? grossRevenueValuesRaw : [];
+    const grossCostValues = Array.isArray(grossCostValuesRaw) ? grossCostValuesRaw : [];
+    const grossProfitValues = Array.isArray(grossProfitValuesRaw) ? grossProfitValuesRaw : [];
+    const topCategoryLabels = Array.isArray(topCategoryLabelsRaw) ? topCategoryLabelsRaw : [];
+    const topCategoryValues = Array.isArray(topCategoryValuesRaw) ? topCategoryValuesRaw : [];
+    const topProductLabels = Array.isArray(topProductLabelsRaw) ? topProductLabelsRaw : [];
+    const topProductValues = Array.isArray(topProductValuesRaw) ? topProductValuesRaw : [];
+    const paymentCash = Array.isArray(paymentCashRaw) ? paymentCashRaw : [];
+    const paymentCard = Array.isArray(paymentCardRaw) ? paymentCardRaw : [];
+    const paymentQr = Array.isArray(paymentQrRaw) ? paymentQrRaw : [];
+
+    const toNum = (v) => Number(v) || 0;
+    const sum = (arr) => arr.reduce((a, b) => a + toNum(b), 0);
+    const money = (v) => toNum(v).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+    const percent = (v) => `${toNum(v).toFixed(2)}%`;
+    const movingAvg = (arr, w) => arr.map((_, i) => {
+      const s = Math.max(0, i - w + 1);
+      const sample = arr.slice(s, i + 1).map(toNum);
+      return sample.length ? sum(sample) / sample.length : 0;
+    });
+
+    const colors = {
+      cyan: "#06b6d4",
+      orange: "#f97316",
+      green: "#22c55e",
+      slate: "#334155",
+      soft: ["#06b6d4", "#38bdf8", "#0284c7", "#f97316", "#fb923c", "#334155", "#64748b"]
+    };
+
+    const dataStore = {
+      labels: monthlyLabels,
+      sales: monthlySales.map(toNum),
+      revenue: grossRevenueValues.map(toNum),
+      cost: grossCostValues.map(toNum),
+      profit: grossProfitValues.map(toNum)
+    };
+
+    let mode = "12M";
+    let salesTrendChart;
+    let marginTrendChart;
+
+    function windowed() {
+      const size = mode === "6M" ? 6 : 12;
+      return {
+        labels: dataStore.labels.slice(-size),
+        sales: dataStore.sales.slice(-size),
+        revenue: dataStore.revenue.slice(-size),
+        cost: dataStore.cost.slice(-size),
+        profit: dataStore.profit.slice(-size)
+      };
+    }
+
+    function updateKpi() {
+      const { sales, revenue, profit } = windowed();
+      const totalSales = sum(sales);
+      const current = sales.length ? sales[sales.length - 1] : 0;
+      const previous = sales.length > 1 ? sales[sales.length - 2] : 0;
+      const variance = current - previous;
+      const currentRevenue = revenue.length ? revenue[revenue.length - 1] : 0;
+      const currentProfit = profit.length ? profit[profit.length - 1] : 0;
+      const currentMargin = currentRevenue > 0 ? (currentProfit / currentRevenue) * 100 : 0;
+      const maxRef = Math.max(1, totalSales);
+
+      document.getElementById("kpi12MoSales").textContent = money(totalSales);
+      document.getElementById("kpi12MoMargin").textContent = percent(grossMarginPercent);
+      document.getElementById("kpiCurrentSales").textContent = money(current);
+      document.getElementById("kpiCurrentMargin").textContent = percent(currentMargin);
+      document.getElementById("kpiVariance").textContent = `${variance >= 0 ? "+" : "-"}${money(Math.abs(variance))}`;
+      document.getElementById("kpiVariance").className = `mt-2 text-2xl font-bold ${variance >= 0 ? "text-emerald-600" : "text-rose-600"}`;
+      document.getElementById("kpiOrders").textContent = saleCount.toLocaleString();
+      document.getElementById("kpiAov").textContent = money(avgOrderValue);
+      document.getElementById("kpiRefund").textContent = money(refundTotal);
+      document.getElementById("kpiDiscount").textContent = money(discountTotal);
+
+      const bars = {
+        bar12MoSales: Math.min(100, totalSales / maxRef * 100),
+        bar12MoMargin: Math.min(100, Math.max(0, grossMarginPercent)),
+        barCurrentSales: Math.min(100, current / maxRef * 100),
+        barCurrentMargin: Math.min(100, Math.max(0, currentMargin)),
+        barVariance: Math.min(100, Math.abs(variance) / maxRef * 100)
+      };
+      Object.keys(bars).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = `${bars[id].toFixed(1)}%`;
+      });
+    }
+
+    function renderSalesTrend() {
+      const ctx = document.getElementById("salesTrendChart");
+      const { labels, sales } = windowed();
+      const previous = sales.map((_, i) => i === 0 ? sales[0] : sales[i - 1]);
+      const rolling = movingAvg(sales, 3);
+
+      if (salesTrendChart) salesTrendChart.destroy();
+      salesTrendChart = new Chart(ctx, {
+        data: {
+          labels,
+          datasets: [
+            {
+              type: "bar",
+              label: "Current",
+              data: sales,
+              backgroundColor: "rgba(6, 182, 212, 0.8)",
+              borderRadius: 6,
+              maxBarThickness: 30
+            },
+            {
+              type: "line",
+              label: "Previous",
+              data: previous,
+              borderColor: colors.orange,
+              backgroundColor: colors.orange,
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 2
+            },
+            {
+              type: "line",
+              label: "Rolling Avg",
+              data: rolling,
+              borderColor: colors.slate,
+              backgroundColor: colors.slate,
+              borderDash: [6, 4],
+              borderWidth: 2,
+              tension: 0.3,
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { boxWidth: 10, usePointStyle: true } },
+            tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${money(c.parsed.y)}` } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, ticks: { callback: (v) => money(v) }, grid: { color: "rgba(148,163,184,0.25)" } }
+          }
+        }
+      });
+    }
+
+    function renderMarginTrend() {
+      const ctx = document.getElementById("marginTrendChart");
+      const { labels, revenue, cost, profit } = windowed();
+
+      if (marginTrendChart) marginTrendChart.destroy();
+      marginTrendChart = new Chart(ctx, {
+        data: {
+          labels,
+          datasets: [
+            {
+              type: "bar",
+              label: "Revenue",
+              data: revenue,
+              backgroundColor: "rgba(51, 65, 85, 0.82)",
+              borderRadius: 6,
+              maxBarThickness: 26
+            },
+            {
+              type: "bar",
+              label: "Cost",
+              data: cost,
+              backgroundColor: "rgba(249, 115, 22, 0.82)",
+              borderRadius: 6,
+              maxBarThickness: 26
+            },
+            {
+              type: "line",
+              label: "Profit",
+              data: profit,
+              borderColor: colors.green,
+              backgroundColor: colors.green,
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { boxWidth: 10, usePointStyle: true } },
+            tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${money(c.parsed.y)}` } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, ticks: { callback: (v) => money(v) }, grid: { color: "rgba(148,163,184,0.25)" } }
+          }
+        }
+      });
+    }
+
+    function renderStaticCharts() {
+      new Chart(document.getElementById("categoryShareChart"), {
+        type: "doughnut",
+        data: {
+          labels: topCategoryLabels,
+          datasets: [{ data: topCategoryValues.map(toNum), backgroundColor: colors.soft, borderWidth: 0 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "right", labels: { boxWidth: 10 } },
+            tooltip: { callbacks: { label: (c) => `${c.label}: ${money(c.parsed)}` } }
+          }
+        }
+      });
+
+      new Chart(document.getElementById("paymentMixChart"), {
+        type: "pie",
+        data: {
+          labels: ["Cash", "Card", "QR"],
+          datasets: [{
+            data: [sum(paymentCash), sum(paymentCard), sum(paymentQr)],
+            backgroundColor: [colors.cyan, colors.orange, colors.slate],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "right", labels: { boxWidth: 10 } },
+            tooltip: { callbacks: { label: (c) => `${c.label}: ${money(c.parsed)}` } }
+          }
+        }
+      });
+
+      new Chart(document.getElementById("topProductsChart"), {
+        type: "bar",
+        data: {
+          labels: topProductLabels,
+          datasets: [{ label: "Revenue", data: topProductValues.map(toNum), backgroundColor: "rgba(51, 65, 85, 0.85)", borderRadius: 6 }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (c) => money(c.parsed.x) } }
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { callback: (v) => money(v) }, grid: { color: "rgba(148,163,184,0.25)" } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function renderAll() {
+      updateKpi();
+      renderSalesTrend();
+      renderMarginTrend();
+    }
+
+    document.getElementById("focusBtn").addEventListener("click", () => {
+      mode = "6M";
+      renderAll();
+    });
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      mode = "12M";
+      renderAll();
+    });
+
+    renderStaticCharts();
+    renderAll();
+  </script>
+</body>
+</html>

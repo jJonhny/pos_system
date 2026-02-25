@@ -25,6 +25,12 @@ public class HomeController {
         return "analytics";
     }
 
+    @GetMapping("/analytics/sales")
+    public String analyticsSales(Model model) {
+        populateDashboard(model);
+        return "analytics-sales";
+    }
+
     private void populateDashboard(Model model) {
         DashboardStats stats = dashboardService.buildStats();
         model.addAttribute("dailyLabels", stats.dailyLabels());

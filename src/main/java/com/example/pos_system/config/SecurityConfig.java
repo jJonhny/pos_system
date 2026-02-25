@@ -3,7 +3,6 @@ package com.example.pos_system.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.example.pos_system.service.AppUserDetailsService;
-import com.example.pos_system.config.LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -12,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,10 +22,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    LoginSuccessHandler loginSuccessHandler,
-                                                   AppUserDetailsService appUserDetailsService) throws Exception {
+                                                   LoginFailureHandler loginFailureHandler,
+                                                   AppUserDetailsService appUserDetailsService,
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        "/api/v1/auth/register",
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/verify-otp"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/login/forgot-password", "/login/sso", "/error", "/access-denied").permitAll()
+                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/verify-otp").permitAll()
+                        .requestMatchers("/api/v1/auth/me").authenticated()
                         .requestMatchers("/support/**", "/legal/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**", "/favicon.ico").permitAll()
                         .requestMatchers("/users/password").authenticated()
@@ -37,7 +45,7 @@ public class SecurityConfig {
                                 "hasRole('ADMIN')"))
                         .requestMatchers("/reports/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"))
-                        .requestMatchers("/analytics").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+                        .requestMatchers("/analytics", "/analytics/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"))
                         .requestMatchers("/marketing/**").access(new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                                 "hasAnyRole('ADMIN','MANAGER')"))
@@ -70,6 +78,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(loginSuccessHandler)
+                        .failureHandler(loginFailureHandler)
                         .permitAll()
                 )
                 .rememberMe(remember -> remember
@@ -79,6 +88,7 @@ public class SecurityConfig {
                         .key(rememberMeKey)
                         .userDetailsService(appUserDetailsService)
                 )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())
                 .exceptionHandling(e -> e.accessDeniedPage("/access-denied"));
         return http.build();

@@ -187,6 +187,30 @@ Main app hardware endpoints:
 - `/users`
 - `/admin/audit` (alias `/audit-events`)
 
+## Auth API (Email + TOTP + JWT)
+
+New auth endpoints:
+
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/verify-otp`
+- `GET /api/v1/auth/me` (requires Bearer token after OTP verification)
+
+Flow:
+
+1. Register with email + password (`bcrypt` hashing via app password encoder).
+2. Login with email + password.
+3. If first login, backend returns TOTP setup payload (`otpauthUrl` + QR data URL) generated via `speakeasy`.
+4. Verify OTP code.
+5. Receive JWT access token.
+
+Role set supported by auth API:
+
+- `SUPER_ADMIN`
+- `BRANCH_MANAGER`
+- `CASHIER`
+- `INVENTORY_STAFF`
+
 ## Variant and pricing APIs
 
 Admin / inventory routes:

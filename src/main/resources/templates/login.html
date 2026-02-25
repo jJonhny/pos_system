@@ -104,7 +104,17 @@
 
             <!-- Messages -->
             <div th:if="${param.error}" class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <span class="font-semibold">Authentication failed</span> – Invalid username or password.
+              <span th:if="${param.reason != null and !#lists.isEmpty(param.reason) and param.reason[0] == 'locked'}">
+                <span class="font-semibold">Account temporarily locked</span> – Too many failed attempts. Try again in
+                <span th:text="${param.lockedMinutes != null and !#lists.isEmpty(param.lockedMinutes) ? param.lockedMinutes[0] : '15'}">15</span>
+                minute(s).
+              </span>
+              <span th:if="${param.reason != null and !#lists.isEmpty(param.reason) and param.reason[0] == 'disabled'}">
+                <span class="font-semibold">Account disabled</span> – Please contact your administrator.
+              </span>
+              <span th:if="${param.reason == null or #lists.isEmpty(param.reason) or param.reason[0] == 'bad-credentials'}">
+                <span class="font-semibold">Authentication failed</span> – Invalid username or password.
+              </span>
             </div>
             <div th:if="${param.logout}" class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               <span class="font-semibold">Signed out</span> – You have been logged out successfully.

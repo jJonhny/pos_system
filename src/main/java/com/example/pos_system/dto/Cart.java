@@ -14,6 +14,7 @@ public class Cart {
     private DiscountType discountType = DiscountType.AMOUNT;
     private BigDecimal discountValue = BigDecimal.ZERO;
     private String discountReason;
+    private boolean manualDiscountOverride;
     private BigDecimal taxRate = new BigDecimal("0.00");
     private Long customerId;
 
@@ -121,6 +122,7 @@ public class Cart {
         discountType = DiscountType.AMOUNT;
         discountValue = BigDecimal.ZERO;
         discountReason = null;
+        manualDiscountOverride = false;
         taxRate = new BigDecimal("0.00");
         customerId = null;
     }
@@ -156,6 +158,11 @@ public class Cart {
     public void setDiscountReason(String discountReason) {
         String cleaned = discountReason == null ? null : discountReason.trim();
         this.discountReason = cleaned == null || cleaned.isEmpty() ? null : cleaned;
+    }
+
+    public boolean isManualDiscountOverride() { return manualDiscountOverride; }
+    public void setManualDiscountOverride(boolean manualDiscountOverride) {
+        this.manualDiscountOverride = manualDiscountOverride;
     }
 
     public BigDecimal getDiscount() {

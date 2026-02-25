@@ -36,10 +36,13 @@ public class PosCartService {
         cart.setDiscountType(safeType);
         cart.setDiscountValue(safeValue);
         cart.setDiscountReason(discountReason);
+        cart.setManualDiscountOverride(safeValue.compareTo(BigDecimal.ZERO) > 0
+                || (discountReason != null && !discountReason.isBlank()));
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("discountType", safeType.name());
         metadata.put("discountValue", safeValue);
         metadata.put("discountReason", cart.getDiscountReason());
+        metadata.put("manualOverride", cart.isManualDiscountOverride());
         auditEventService.record("POS_CART_DISCOUNT", "CART", "session", before, cartSnapshot(cart), metadata);
     }
 
@@ -110,6 +113,7 @@ public class PosCartService {
         snapshot.put("discountValue", cart.getDiscountValue());
         snapshot.put("discount", cart.getDiscount());
         snapshot.put("discountReason", cart.getDiscountReason());
+        snapshot.put("manualDiscountOverride", cart.isManualDiscountOverride());
         snapshot.put("taxRate", cart.getTaxRate());
         snapshot.put("taxRatePercent", cart.getTaxRatePercent());
         snapshot.put("tax", cart.getTax());

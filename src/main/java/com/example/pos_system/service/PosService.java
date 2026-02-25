@@ -32,13 +32,15 @@ public class PosService {
     private final VariantInventoryService variantInventoryService;
     private final UserLocalePreferenceService userLocalePreferenceService;
     private final I18nService i18nService;
+    private final MarketingPricingService marketingPricingService;
 
     public PosService(ProductRepo productRepo, SaleRepo saleRepo, CustomerRepo customerRepo,
                       DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService,
                       StockMovementService stockMovementService,
                       VariantInventoryService variantInventoryService,
                       UserLocalePreferenceService userLocalePreferenceService,
-                      I18nService i18nService) {
+                      I18nService i18nService,
+                      MarketingPricingService marketingPricingService) {
         this.productRepo = productRepo;
         this.saleRepo = saleRepo;
         this.customerRepo = customerRepo;
@@ -48,6 +50,7 @@ public class PosService {
         this.variantInventoryService = variantInventoryService;
         this.userLocalePreferenceService = userLocalePreferenceService;
         this.i18nService = i18nService;
+        this.marketingPricingService = marketingPricingService;
     }
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
@@ -56,6 +59,7 @@ public class PosService {
 
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException(msg("pos.error.cartEmpty"));
+        marketingPricingService.applyBestCampaign(cart, customer);
         String checkoutTerminalId = requireCheckoutShift(shift, terminalId);
 
         PaymentMethod method = payment == null ? PaymentMethod.CASH : payment.getMethod();
@@ -123,6 +127,7 @@ public class PosService {
     public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException(msg("pos.error.cartEmpty"));
         if (payments == null || payments.isEmpty()) throw new IllegalStateException(msg("pos.error.noPayments"));
+        marketingPricingService.applyBestCampaign(cart, customer);
         String checkoutTerminalId = requireCheckoutShift(shift, terminalId);
 
         Sale sale = new Sale();
@@ -268,6 +273,8 @@ public class PosService {
         snapshot.put("discountType", cart.getDiscountType() == null ? null : cart.getDiscountType().name());
         snapshot.put("discountValue", cart.getDiscountValue());
         snapshot.put("discount", cart.getDiscount());
+        snapshot.put("discountReason", cart.getDiscountReason());
+        snapshot.put("manualDiscountOverride", cart.isManualDiscountOverride());
         snapshot.put("taxRate", cart.getTaxRate());
         snapshot.put("tax", cart.getTax());
         snapshot.put("total", cart.getTotal());

@@ -10,10 +10,4 @@ public class ManagementPagesController {
     public String commodity() {
         return "commodity/index";
     }
-
-    @GetMapping("/marketing")
-    public String marketing() {
-        return "marketing/index";
-    }
-
 }

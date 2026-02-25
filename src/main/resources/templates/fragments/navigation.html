@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="mainNav"
-     class="hidden lg:flex items-center justify-start xl:justify-center gap-3 text-[12px] font-semibold min-w-0 overflow-x-auto">
+     class="app-main-nav hidden lg:flex items-center justify-start xl:justify-center gap-1.5 text-[12px] font-semibold min-w-0 overflow-x-auto rounded-2xl border border-slate-200 bg-white/70 px-2 py-1 shadow-sm">
   <a href="/pos"
      class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
     <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
@@ -85,6 +85,18 @@
       <path d="M7 14l3-3 4 4 5-6"/>
     </svg>
     <span th:text="#{nav.analytics}">Analytics</span>
+  </a>
+
+  <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"
+     href="/analytics/sales"
+     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
+    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M4 19V5"/>
+      <path d="M10 19V11"/>
+      <path d="M16 19V8"/>
+      <path d="M22 19H2"/>
+    </svg>
+    <span>Sales View</span>
   </a>
 
   <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"

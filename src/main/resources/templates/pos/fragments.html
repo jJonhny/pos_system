@@ -747,6 +747,13 @@
     </div>
 
     <div class="text-sm font-semibold text-slate-800" th:text="#{pos.adjustments}">Adjustments</div>
+    <div th:if="${autoMarketingCampaign != null}"
+         class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+      <span class="font-semibold">Auto campaign:</span>
+      <span th:text="${autoMarketingCampaign.title}">Campaign</span>
+      <span class="mx-1 text-emerald-700/80">·</span>
+      <span th:text="${@uiFormat.money(autoMarketingCampaign.discountAmount)}">$0.00</span>
+    </div>
     <div class="grid grid-cols-1 2xl:grid-cols-2 gap-2">
       <form action="/pos/cart/discount" method="post" class="m-0"
             hx-post="/pos/cart/discount" hx-target="#cartPanel" hx-swap="outerHTML">
