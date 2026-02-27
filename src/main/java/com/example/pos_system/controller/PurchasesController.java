@@ -24,10 +24,51 @@ import java.util.List;
 public class PurchasesController {
     private final PurchaseService purchaseService;
 
+    /**
+     * Executes the PurchasesController operation.
+     * <p>Return value: A fully initialized PurchasesController instance.</p>
+     *
+     * @param purchaseService Parameter of type {@code PurchaseService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PurchasesController(PurchaseService purchaseService) {
         this.purchaseService = purchaseService;
     }
 
+    /**
+     * Executes the poList operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poList operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poList operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/po")
     public String poList(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -42,6 +83,30 @@ public class PurchasesController {
         return "purchases/po-list";
     }
 
+    /**
+     * Executes the poNew operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poNew operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poNew operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/po/new")
     public String poNew(Model model) {
         model.addAttribute("po", null);
@@ -51,6 +116,33 @@ public class PurchasesController {
         return "purchases/po-form";
     }
 
+    /**
+     * Executes the poEdit operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poEdit operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poEdit operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/po/{id}/edit")
     public String poEdit(@PathVariable Long id, Model model) {
         PurchaseOrder po = purchaseService.getPurchaseOrder(id);
@@ -61,6 +153,63 @@ public class PurchasesController {
         return "purchases/po-form";
     }
 
+    /**
+     * Executes the savePo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param status Parameter of type {@code PurchaseOrderStatus} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param expectedAt Parameter of type {@code LocalDate} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param lineProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param lineOrderedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param lineUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param lineTax Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param lineDiscount Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the savePo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param status Parameter of type {@code PurchaseOrderStatus} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param expectedAt Parameter of type {@code LocalDate} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param lineProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param lineOrderedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param lineUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param lineTax Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param lineDiscount Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the savePo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param status Parameter of type {@code PurchaseOrderStatus} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param expectedAt Parameter of type {@code LocalDate} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param lineProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param lineOrderedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param lineUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param lineTax Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param lineDiscount Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/po")
     public String savePo(@RequestParam(required = false) Long id,
                          @RequestParam Long supplierId,
@@ -92,6 +241,33 @@ public class PurchasesController {
         }
     }
 
+    /**
+     * Executes the receiveFromPo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the receiveFromPo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the receiveFromPo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/po/{id}/receive")
     public String receiveFromPo(@PathVariable Long id, Model model) {
         PurchaseOrder po = purchaseService.getPurchaseOrder(id);
@@ -101,6 +277,33 @@ public class PurchasesController {
         return "purchases/grn-form";
     }
 
+    /**
+     * Executes the receiveStandalone operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the receiveStandalone operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the receiveStandalone operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/receive")
     public String receiveStandalone(@RequestParam(required = false) Long poId, Model model) {
         PurchaseOrder po = poId == null ? null : purchaseService.getPurchaseOrder(poId);
@@ -110,6 +313,51 @@ public class PurchasesController {
         return "purchases/grn-form";
     }
 
+    /**
+     * Executes the postReceive operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param grnProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param grnReceivedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param grnUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the postReceive operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param grnProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param grnReceivedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param grnUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the postReceive operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param grnProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param grnReceivedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param grnUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/receive")
     public String postReceive(@RequestParam(required = false) Long poId,
                               @RequestParam(required = false) String invoiceNo,
@@ -138,6 +386,51 @@ public class PurchasesController {
         }
     }
 
+    /**
+     * Executes the postReceiveForPo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param grnProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param grnReceivedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param grnUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the postReceiveForPo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param grnProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param grnReceivedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param grnUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the postReceiveForPo operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param grnProductId Parameter of type {@code List<Long>} used by this operation.
+     * @param grnReceivedQty Parameter of type {@code List<Integer>} used by this operation.
+     * @param grnUnitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/po/{id}/receive")
     public String postReceiveForPo(@PathVariable Long id,
                                    @RequestParam(required = false) String invoiceNo,
@@ -150,23 +443,104 @@ public class PurchasesController {
         return postReceive(id, invoiceNo, notes, terminalId, grnProductId, grnReceivedQty, grnUnitCost, redirectAttributes);
     }
 
+    /**
+     * Executes the poLine operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poLine operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the poLine operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/po/line")
     public String poLine(Model model) {
         model.addAttribute("products", purchaseService.listProducts());
         return "purchases/fragments :: poLine";
     }
 
+    /**
+     * Executes the grnLine operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the grnLine operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the grnLine operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/grn/line")
     public String grnLine(Model model) {
         model.addAttribute("products", purchaseService.listProducts());
         return "purchases/fragments :: grnLine";
     }
 
+    /**
+     * Executes the removeLine operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the removeLine operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the removeLine operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/line/remove")
     public String removeLine() {
         return "purchases/fragments :: empty";
     }
 
+    /**
+     * Executes the buildPoLines operation.
+     *
+     * @param productIds Parameter of type {@code List<Long>} used by this operation.
+     * @param ordered Parameter of type {@code List<Integer>} used by this operation.
+     * @param unitCosts Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param taxes Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @param discounts Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @return {@code List<PurchaseService.PurchaseOrderLineInput>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<PurchaseService.PurchaseOrderLineInput> buildPoLines(List<Long> productIds,
                                                                       List<Integer> ordered,
                                                                       List<BigDecimal> unitCosts,
@@ -186,6 +560,16 @@ public class PurchasesController {
         return lines;
     }
 
+    /**
+     * Executes the buildGrnLines operation.
+     *
+     * @param productIds Parameter of type {@code List<Long>} used by this operation.
+     * @param qty Parameter of type {@code List<Integer>} used by this operation.
+     * @param unitCost Parameter of type {@code List<BigDecimal>} used by this operation.
+     * @return {@code List<PurchaseService.GoodsReceiptLineInput>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<PurchaseService.GoodsReceiptLineInput> buildGrnLines(List<Long> productIds,
                                                                        List<Integer> qty,
                                                                        List<BigDecimal> unitCost) {
@@ -201,6 +585,30 @@ public class PurchasesController {
         return lines;
     }
 
+    /**
+     * Executes the maxSize operation.
+     *
+     * @param lists Parameter of type {@code List<?>...} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the maxSize operation.
+     *
+     * @param lists Parameter of type {@code List<?>...} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the maxSize operation.
+     *
+     * @param lists Parameter of type {@code List<?>...} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @SafeVarargs
     private int maxSize(List<?>... lists) {
         int max = 0;
@@ -212,6 +620,15 @@ public class PurchasesController {
         return max;
     }
 
+    /**
+     * Executes the at operation.
+     *
+     * @param list Parameter of type {@code List<T>} used by this operation.
+     * @param index Parameter of type {@code int} used by this operation.
+     * @return {@code T} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private <T> T at(List<T> list, int index) {
         if (list == null || index < 0 || index >= list.size()) {
             return null;

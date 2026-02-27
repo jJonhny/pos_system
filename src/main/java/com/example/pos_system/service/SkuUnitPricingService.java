@@ -40,6 +40,19 @@ public class SkuUnitPricingService {
     private final SkuUnitBarcodeRepo skuUnitBarcodeRepo;
     private final SkuUnitTierPriceRepo skuUnitTierPriceRepo;
 
+    /**
+     * Executes the SkuUnitPricingService operation.
+     * <p>Return value: A fully initialized SkuUnitPricingService instance.</p>
+     *
+     * @param unitOfMeasureRepo Parameter of type {@code UnitOfMeasureRepo} used by this operation.
+     * @param customerGroupRepo Parameter of type {@code CustomerGroupRepo} used by this operation.
+     * @param productVariantRepo Parameter of type {@code ProductVariantRepo} used by this operation.
+     * @param skuSellUnitRepo Parameter of type {@code SkuSellUnitRepo} used by this operation.
+     * @param skuUnitBarcodeRepo Parameter of type {@code SkuUnitBarcodeRepo} used by this operation.
+     * @param skuUnitTierPriceRepo Parameter of type {@code SkuUnitTierPriceRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SkuUnitPricingService(UnitOfMeasureRepo unitOfMeasureRepo,
                                  CustomerGroupRepo customerGroupRepo,
                                  ProductVariantRepo productVariantRepo,
@@ -54,6 +67,14 @@ public class SkuUnitPricingService {
         this.skuUnitTierPriceRepo = skuUnitTierPriceRepo;
     }
 
+    /**
+     * Executes the createUnit operation.
+     *
+     * @param request Parameter of type {@code VariantApiDtos.UnitCreateRequest} used by this operation.
+     * @return {@code UnitOfMeasure} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public UnitOfMeasure createUnit(VariantApiDtos.UnitCreateRequest request) {
         String code = normalizeCode(request == null ? null : request.code());
         String name = normalizeText(request == null ? null : request.name());
@@ -71,6 +92,14 @@ public class SkuUnitPricingService {
         return unitOfMeasureRepo.save(unit);
     }
 
+    /**
+     * Executes the createCustomerGroup operation.
+     *
+     * @param request Parameter of type {@code VariantApiDtos.CustomerGroupCreateRequest} used by this operation.
+     * @return {@code CustomerGroup} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public CustomerGroup createCustomerGroup(VariantApiDtos.CustomerGroupCreateRequest request) {
         String code = normalizeCode(request == null ? null : request.code());
         String name = normalizeText(request == null ? null : request.name());
@@ -88,6 +117,15 @@ public class SkuUnitPricingService {
         return customerGroupRepo.save(group);
     }
 
+    /**
+     * Executes the upsertSellUnit operation.
+     *
+     * @param variantId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.SellUnitUpsertRequest} used by this operation.
+     * @return {@code SkuSellUnit} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SkuSellUnit upsertSellUnit(Long variantId, VariantApiDtos.SellUnitUpsertRequest request) {
         ProductVariant variant = requireVariant(variantId);
         UnitOfMeasure unit = requireUnitByCode(request == null ? null : request.unitCode());
@@ -101,6 +139,15 @@ public class SkuUnitPricingService {
         return saved;
     }
 
+    /**
+     * Executes the upsertSellUnitById operation.
+     *
+     * @param sellUnitId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.SellUnitUpsertRequest} used by this operation.
+     * @return {@code SkuSellUnit} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SkuSellUnit upsertSellUnitById(Long sellUnitId, VariantApiDtos.SellUnitUpsertRequest request) {
         SkuSellUnit sellUnit = skuSellUnitRepo.findById(sellUnitId)
                 .orElseThrow(() -> new IllegalArgumentException("Sell unit not found."));
@@ -115,6 +162,15 @@ public class SkuUnitPricingService {
         return saved;
     }
 
+    /**
+     * Executes the addBarcode operation.
+     *
+     * @param sellUnitId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.BarcodeCreateRequest} used by this operation.
+     * @return {@code SkuUnitBarcode} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SkuUnitBarcode addBarcode(Long sellUnitId, VariantApiDtos.BarcodeCreateRequest request) {
         SkuSellUnit sellUnit = skuSellUnitRepo.findById(sellUnitId)
                 .orElseThrow(() -> new IllegalArgumentException("Sell unit not found."));
@@ -143,6 +199,15 @@ public class SkuUnitPricingService {
         return skuUnitBarcodeRepo.save(row);
     }
 
+    /**
+     * Executes the replaceTierPrices operation.
+     *
+     * @param sellUnitId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.TierPriceReplaceRequest} used by this operation.
+     * @return {@code List<SkuUnitTierPrice>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public List<SkuUnitTierPrice> replaceTierPrices(Long sellUnitId, VariantApiDtos.TierPriceReplaceRequest request) {
         SkuSellUnit sellUnit = skuSellUnitRepo.findById(sellUnitId)
                 .orElseThrow(() -> new IllegalArgumentException("Sell unit not found."));
@@ -181,6 +246,30 @@ public class SkuUnitPricingService {
         return saved;
     }
 
+    /**
+     * Executes the quote operation.
+     *
+     * @param request Parameter of type {@code VariantApiDtos.PricingQuoteRequest} used by this operation.
+     * @return {@code VariantApiDtos.PricingQuoteResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the quote operation.
+     *
+     * @param request Parameter of type {@code VariantApiDtos.PricingQuoteRequest} used by this operation.
+     * @return {@code VariantApiDtos.PricingQuoteResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the quote operation.
+     *
+     * @param request Parameter of type {@code VariantApiDtos.PricingQuoteRequest} used by this operation.
+     * @return {@code VariantApiDtos.PricingQuoteResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public VariantApiDtos.PricingQuoteResponse quote(VariantApiDtos.PricingQuoteRequest request) {
         List<VariantApiDtos.PricingQuoteLineRequest> lines = request == null || request.lines() == null
@@ -285,6 +374,17 @@ public class SkuUnitPricingService {
         );
     }
 
+    /**
+     * Executes the bestTier operation.
+     *
+     * @param tiers Parameter of type {@code List<SkuUnitTierPrice>} used by this operation.
+     * @param customerGroup Parameter of type {@code CustomerGroup} used by this operation.
+     * @param qty Parameter of type {@code BigDecimal} used by this operation.
+     * @param now Parameter of type {@code LocalDateTime} used by this operation.
+     * @return {@code SkuUnitTierPrice} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private SkuUnitTierPrice bestTier(List<SkuUnitTierPrice> tiers,
                                       CustomerGroup customerGroup,
                                       BigDecimal qty,
@@ -299,6 +399,15 @@ public class SkuUnitPricingService {
                 .orElse(null);
     }
 
+    /**
+     * Executes the groupMatches operation.
+     *
+     * @param tier Parameter of type {@code SkuUnitTierPrice} used by this operation.
+     * @param group Parameter of type {@code CustomerGroup} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean groupMatches(SkuUnitTierPrice tier, CustomerGroup group) {
         if (group == null) {
             return tier.getCustomerGroup() == null;
@@ -309,6 +418,15 @@ public class SkuUnitPricingService {
         return tier.getCustomerGroup().getId().equals(group.getId());
     }
 
+    /**
+     * Executes the withinWindow operation.
+     *
+     * @param tier Parameter of type {@code SkuUnitTierPrice} used by this operation.
+     * @param now Parameter of type {@code LocalDateTime} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean withinWindow(SkuUnitTierPrice tier, LocalDateTime now) {
         LocalDateTime from = tier.getEffectiveFrom();
         LocalDateTime to = tier.getEffectiveTo();
@@ -317,6 +435,15 @@ public class SkuUnitPricingService {
         return true;
     }
 
+    /**
+     * Executes the applySellUnitValues operation.
+     *
+     * @param sellUnit Parameter of type {@code SkuSellUnit} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.SellUnitUpsertRequest} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void applySellUnitValues(SkuSellUnit sellUnit, VariantApiDtos.SellUnitUpsertRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Sell unit payload is required.");
@@ -338,6 +465,14 @@ public class SkuUnitPricingService {
         sellUnit.setEnabled(request.enabled() == null || request.enabled());
     }
 
+    /**
+     * Executes the enforceSingleBase operation.
+     *
+     * @param saved Parameter of type {@code SkuSellUnit} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void enforceSingleBase(SkuSellUnit saved) {
         if (!Boolean.TRUE.equals(saved.getIsBase())) {
             return;
@@ -352,6 +487,14 @@ public class SkuUnitPricingService {
         }
     }
 
+    /**
+     * Executes the resolveSellUnit operation.
+     *
+     * @param line Parameter of type {@code VariantApiDtos.PricingQuoteLineRequest} used by this operation.
+     * @return {@code SkuSellUnit} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private SkuSellUnit resolveSellUnit(VariantApiDtos.PricingQuoteLineRequest line) {
         if (line == null) {
             throw new IllegalArgumentException("Line is required.");
@@ -370,11 +513,27 @@ public class SkuUnitPricingService {
                 .orElseThrow(() -> new IllegalArgumentException("No sell unit configured for variant: " + line.variantId()));
     }
 
+    /**
+     * Executes the requireVariant operation.
+     *
+     * @param variantId Parameter of type {@code Long} used by this operation.
+     * @return {@code ProductVariant} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ProductVariant requireVariant(Long variantId) {
         return productVariantRepo.findById(variantId)
                 .orElseThrow(() -> new IllegalArgumentException("Variant not found."));
     }
 
+    /**
+     * Executes the requireUnitByCode operation.
+     *
+     * @param code Parameter of type {@code String} used by this operation.
+     * @return {@code UnitOfMeasure} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private UnitOfMeasure requireUnitByCode(String code) {
         String normalized = normalizeCode(code);
         if (normalized == null) {
@@ -384,12 +543,28 @@ public class SkuUnitPricingService {
                 .orElseThrow(() -> new IllegalArgumentException("Unit code not found: " + normalized));
     }
 
+    /**
+     * Executes the normalizeCode operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeCode(String value) {
         if (value == null) return null;
         String normalized = value.trim().toUpperCase(Locale.ROOT);
         return normalized.isEmpty() ? null : normalized;
     }
 
+    /**
+     * Executes the normalizeText operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeText(String value) {
         if (value == null) return null;
         String normalized = value.trim();

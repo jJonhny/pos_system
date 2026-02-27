@@ -21,6 +21,15 @@ public class AuditEventService {
     private final AppUserRepo appUserRepo;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
+    /**
+     * Executes the AuditEventService operation.
+     * <p>Return value: A fully initialized AuditEventService instance.</p>
+     *
+     * @param auditEventRepo Parameter of type {@code AuditEventRepo} used by this operation.
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AuditEventService(AuditEventRepo auditEventRepo, AppUserRepo appUserRepo) {
         this.auditEventRepo = auditEventRepo;
         this.appUserRepo = appUserRepo;
@@ -51,6 +60,13 @@ public class AuditEventService {
         return auditEventRepo.save(event);
     }
 
+    /**
+     * Executes the resolveActor operation.
+     *
+     * @return {@code Actor} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Actor resolveActor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -64,6 +80,13 @@ public class AuditEventService {
         return new Actor(userId, username);
     }
 
+    /**
+     * Executes the currentRequest operation.
+     *
+     * @return {@code HttpServletRequest} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private HttpServletRequest currentRequest() {
         var attributes = RequestContextHolder.getRequestAttributes();
         if (attributes instanceof ServletRequestAttributes servletAttributes) {
@@ -72,6 +95,14 @@ public class AuditEventService {
         return null;
     }
 
+    /**
+     * Executes the extractIpAddress operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String extractIpAddress(HttpServletRequest request) {
         if (request == null) return null;
         String forwarded = sanitize(request.getHeader("X-Forwarded-For"));
@@ -84,6 +115,14 @@ public class AuditEventService {
         return sanitize(request.getRemoteAddr());
     }
 
+    /**
+     * Executes the extractTerminalId operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String extractTerminalId(HttpServletRequest request) {
         if (request == null) return null;
         String terminal = sanitize(request.getHeader("X-Terminal-Id"));
@@ -91,6 +130,14 @@ public class AuditEventService {
         return sanitize(request.getHeader("X-POS-Terminal"));
     }
 
+    /**
+     * Executes the toJson operation.
+     *
+     * @param value Parameter of type {@code Object} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String toJson(Object value) {
         if (value == null) return null;
         try {
@@ -100,6 +147,14 @@ public class AuditEventService {
         }
     }
 
+    /**
+     * Executes the sanitize operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String sanitize(String value) {
         if (value == null) return null;
         String cleaned = value.trim();

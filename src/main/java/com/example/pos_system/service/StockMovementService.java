@@ -29,6 +29,16 @@ public class StockMovementService {
     private final StockMovementRepo stockMovementRepo;
     private final AppUserRepo appUserRepo;
 
+    /**
+     * Executes the StockMovementService operation.
+     * <p>Return value: A fully initialized StockMovementService instance.</p>
+     *
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param stockMovementRepo Parameter of type {@code StockMovementRepo} used by this operation.
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public StockMovementService(ProductRepo productRepo,
                                 StockMovementRepo stockMovementRepo,
                                 AppUserRepo appUserRepo) {
@@ -37,6 +47,21 @@ public class StockMovementService {
         this.appUserRepo = appUserRepo;
     }
 
+    /**
+     * Executes the recordSale operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param soldQty Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product recordSale(Long productId,
                               int soldQty,
                               BigDecimal unitCost,
@@ -52,6 +77,21 @@ public class StockMovementService {
                 StockMovementType.SALE, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the recordReturn operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param qty Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product recordReturn(Long productId,
                                 int qty,
                                 BigDecimal unitCost,
@@ -67,6 +107,21 @@ public class StockMovementService {
                 StockMovementType.RETURN, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the recordVoid operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param qty Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product recordVoid(Long productId,
                               int qty,
                               BigDecimal unitCost,
@@ -82,6 +137,21 @@ public class StockMovementService {
                 StockMovementType.VOID, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the recordReceive operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param qty Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product recordReceive(Long productId,
                                  int qty,
                                  BigDecimal unitCost,
@@ -97,6 +167,22 @@ public class StockMovementService {
                 StockMovementType.RECEIVE, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the adjustToTarget operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param targetOnHand Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product adjustToTarget(Long productId,
                                   int targetOnHand,
                                   BigDecimal unitCost,
@@ -118,6 +204,22 @@ public class StockMovementService {
         return applyLocked(locked, delta, unitCost, currency, type, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the adjustByDelta operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param qtyDelta Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product adjustByDelta(Long productId,
                                  int qtyDelta,
                                  BigDecimal unitCost,
@@ -133,6 +235,39 @@ public class StockMovementService {
         return applyDelta(productId, qtyDelta, unitCost, currency, type, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the findMovements operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @return {@code List<StockMovement>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findMovements operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @return {@code List<StockMovement>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findMovements operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @return {@code List<StockMovement>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<StockMovement> findMovements(LocalDate from,
                                              LocalDate to,
@@ -159,6 +294,22 @@ public class StockMovementService {
         return stockMovementRepo.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt", "id"));
     }
 
+    /**
+     * Executes the applyDelta operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param qtyDelta Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product applyDelta(Long productId,
                                int qtyDelta,
                                BigDecimal unitCost,
@@ -172,6 +323,22 @@ public class StockMovementService {
         return applyLocked(locked, qtyDelta, unitCost, currency, type, refType, refId, terminalId, notes);
     }
 
+    /**
+     * Executes the applyLocked operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param qtyDelta Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param refType Parameter of type {@code String} used by this operation.
+     * @param refId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product applyLocked(Product product,
                                 int qtyDelta,
                                 BigDecimal unitCost,
@@ -219,6 +386,14 @@ public class StockMovementService {
         return savedProduct;
     }
 
+    /**
+     * Executes the lockProduct operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product lockProduct(Long productId) {
         if (productId == null) {
             throw new IllegalArgumentException("Product not found.");
@@ -227,20 +402,54 @@ public class StockMovementService {
                 .orElseThrow(() -> new IllegalArgumentException("Product not found."));
     }
 
+    /**
+     * Executes the safeStock operation.
+     *
+     * @param stockQty Parameter of type {@code Integer} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int safeStock(Integer stockQty) {
         return stockQty == null ? 0 : stockQty;
     }
 
+    /**
+     * Executes the scaleMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal scaleMoney(BigDecimal value) {
         if (value == null) return null;
         return value.setScale(4, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the normalizeCode operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeCode(String value, int maxLength) {
         String trimmed = trimTo(value, maxLength);
         return trimmed == null ? null : trimmed.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Executes the trimTo operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimTo(String value, int maxLength) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -248,6 +457,14 @@ public class StockMovementService {
         return trimmed.length() <= maxLength ? trimmed : trimmed.substring(0, maxLength);
     }
 
+    /**
+     * Executes the safeName operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String safeName(Product product) {
         if (product == null || product.getName() == null || product.getName().isBlank()) {
             return "product #" + (product == null ? "?" : product.getId());
@@ -255,6 +472,13 @@ public class StockMovementService {
         return product.getName();
     }
 
+    /**
+     * Executes the resolveActorUserId operation.
+     *
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Long resolveActorUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -267,6 +491,13 @@ public class StockMovementService {
         return appUserRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
     }
 
+    /**
+     * Executes the requireMovementView operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void requireMovementView() {
         if (hasAuthority("ROLE_ADMIN")
                 || hasAuthority("ROLE_MANAGER")
@@ -278,6 +509,14 @@ public class StockMovementService {
         throw new AccessDeniedException("Inventory movement view permission required.");
     }
 
+    /**
+     * Executes the hasAuthority operation.
+     *
+     * @param expected Parameter of type {@code String} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasAuthority(String expected) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return false;

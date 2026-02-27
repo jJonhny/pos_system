@@ -27,6 +27,27 @@ class I18nLocaleSwitchIntegrationTest {
     @Autowired
     private AppUserRepo appUserRepo;
 
+    /**
+     * Executes the langQueryParamSwitchesLocaleToZhCnSetsCookieAndPersistsUserPreference operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the langQueryParamSwitchesLocaleToZhCnSetsCookieAndPersistsUserPreference operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the langQueryParamSwitchesLocaleToZhCnSetsCookieAndPersistsUserPreference operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void langQueryParamSwitchesLocaleToZhCnSetsCookieAndPersistsUserPreference() throws Exception {
         mockMvc.perform(get("/pos")
@@ -42,6 +63,27 @@ class I18nLocaleSwitchIntegrationTest {
         assertThat(preference).isEqualToIgnoringCase("zh-CN");
     }
 
+    /**
+     * Executes the langQueryParamCanSwitchBackFromZhCnToEnglish operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the langQueryParamCanSwitchBackFromZhCnToEnglish operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the langQueryParamCanSwitchBackFromZhCnToEnglish operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void langQueryParamCanSwitchBackFromZhCnToEnglish() throws Exception {
         mockMvc.perform(get("/pos")

@@ -1,7 +1,7 @@
 package com.example.pos_system.config;
 
-import com.example.pos_system.repository.CurrencyRepo;
-import com.example.pos_system.service.CurrencyService;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.infrastructure.CurrencyRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -19,11 +19,44 @@ public class CurrencySeeder implements CommandLineRunner {
     private final CurrencyRepo currencyRepo;
     private final CurrencyService currencyService;
 
+    /**
+     * Executes the CurrencySeeder operation.
+     * <p>Return value: A fully initialized CurrencySeeder instance.</p>
+     *
+     * @param currencyRepo Parameter of type {@code CurrencyRepo} used by this operation.
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public CurrencySeeder(CurrencyRepo currencyRepo, CurrencyService currencyService) {
         this.currencyRepo = currencyRepo;
         this.currencyService = currencyService;
     }
 
+    /**
+     * Executes the run operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the run operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the run operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Override
     public void run(String... args) {
         currencyService.ensureBaseCurrency();

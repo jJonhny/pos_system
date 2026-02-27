@@ -27,10 +27,69 @@ public class AuditEventsController {
     private static final int PAGE_SIZE = 50;
     private final AuditEventRepo auditEventRepo;
 
+    /**
+     * Executes the AuditEventsController operation.
+     * <p>Return value: A fully initialized AuditEventsController instance.</p>
+     *
+     * @param auditEventRepo Parameter of type {@code AuditEventRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AuditEventsController(AuditEventRepo auditEventRepo) {
         this.auditEventRepo = auditEventRepo;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param user Parameter of type {@code String} used by this operation.
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param targetType Parameter of type {@code String} used by this operation.
+     * @param targetId Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param hxRequest Parameter of type {@code String} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param user Parameter of type {@code String} used by this operation.
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param targetType Parameter of type {@code String} used by this operation.
+     * @param targetId Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param hxRequest Parameter of type {@code String} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param user Parameter of type {@code String} used by this operation.
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param targetType Parameter of type {@code String} used by this operation.
+     * @param targetId Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param hxRequest Parameter of type {@code String} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -67,6 +126,19 @@ public class AuditEventsController {
         return isHtmx(hxRequest) ? "admin/audit/fragments :: results" : "admin/audit/index";
     }
 
+    /**
+     * Executes the buildSpec operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param user Parameter of type {@code String} used by this operation.
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param targetType Parameter of type {@code String} used by this operation.
+     * @param targetId Parameter of type {@code String} used by this operation.
+     * @return {@code Specification<AuditEvent>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Specification<AuditEvent> buildSpec(LocalDate from,
                                                 LocalDate to,
                                                 String user,
@@ -98,10 +170,26 @@ public class AuditEventsController {
         };
     }
 
+    /**
+     * Executes the isHtmx operation.
+     *
+     * @param hxRequest Parameter of type {@code String} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean isHtmx(String hxRequest) {
         return hxRequest != null && !hxRequest.isBlank();
     }
 
+    /**
+     * Executes the resolveBasePath operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String resolveBasePath(HttpServletRequest request) {
         if (request == null) return "/admin/audit";
         String uri = request.getRequestURI();

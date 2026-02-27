@@ -9,7 +9,6 @@ import com.example.pos_system.dto.ReorderRecommendation;
 import com.example.pos_system.dto.ShiftPerformance;
 import com.example.pos_system.dto.SimpleStat;
 import com.example.pos_system.dto.SkuPerformance;
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.PaymentMethod;
 import com.example.pos_system.entity.Product;
 import com.example.pos_system.entity.Sale;
@@ -17,6 +16,8 @@ import com.example.pos_system.entity.SaleItem;
 import com.example.pos_system.entity.SaleStatus;
 import com.example.pos_system.entity.Shift;
 import com.example.pos_system.entity.ShiftStatus;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.repository.ShiftRepo;
@@ -57,6 +58,17 @@ public class DashboardService {
     private final ShiftRepo shiftRepo;
     private final CurrencyService currencyService;
 
+    /**
+     * Executes the DashboardService operation.
+     * <p>Return value: A fully initialized DashboardService instance.</p>
+     *
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param shiftRepo Parameter of type {@code ShiftRepo} used by this operation.
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public DashboardService(SaleRepo saleRepo, ProductRepo productRepo, ShiftRepo shiftRepo, CurrencyService currencyService) {
         this.saleRepo = saleRepo;
         this.productRepo = productRepo;
@@ -64,6 +76,13 @@ public class DashboardService {
         this.currencyService = currencyService;
     }
 
+    /**
+     * Executes the buildStats operation.
+     *
+     * @return {@code DashboardStats} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public DashboardStats buildStats() {
         List<Sale> sales = saleRepo.findAll();
         List<Product> products = productRepo.findAll();
@@ -734,6 +753,14 @@ public class DashboardService {
         );
     }
 
+    /**
+     * Executes the buildDailyRange operation.
+     *
+     * @param daysCount Parameter of type {@code int} used by this operation.
+     * @return {@code List<LocalDate>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<LocalDate> buildDailyRange(int daysCount) {
         LocalDate today = LocalDate.now();
         List<LocalDate> days = new ArrayList<>();
@@ -743,6 +770,13 @@ public class DashboardService {
         return days;
     }
 
+    /**
+     * Executes the buildMonthlyRange operation.
+     *
+     * @return {@code List<YearMonth>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<YearMonth> buildMonthlyRange() {
         YearMonth current = YearMonth.now();
         List<YearMonth> months = new ArrayList<>();
@@ -752,6 +786,15 @@ public class DashboardService {
         return months;
     }
 
+    /**
+     * Executes the topEntries operation.
+     *
+     * @param map Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @return {@code List<Map.Entry<String, BigDecimal>>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<Map.Entry<String, BigDecimal>> topEntries(Map<String, BigDecimal> map, int limit) {
         return map.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -759,6 +802,15 @@ public class DashboardService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Executes the topEntriesInt operation.
+     *
+     * @param map Parameter of type {@code Map<String, Integer>} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @return {@code List<Map.Entry<String, Integer>>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<Map.Entry<String, Integer>> topEntriesInt(Map<String, Integer> map, int limit) {
         return map.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -766,6 +818,15 @@ public class DashboardService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Executes the buildRevenueShare operation.
+     *
+     * @param categoryTotals Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @return {@code RevenueShare} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private RevenueShare buildRevenueShare(Map<String, BigDecimal> categoryTotals, int limit) {
         List<Map.Entry<String, BigDecimal>> sorted = categoryTotals.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -793,6 +854,14 @@ public class DashboardService {
         return new RevenueShare(labels, values);
     }
 
+    /**
+     * Executes the lineTotal operation.
+     *
+     * @param item Parameter of type {@code SaleItem} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal lineTotal(SaleItem item) {
         int qty = item.getQty() == null ? 0 : item.getQty();
         int returned = item.getReturnedQty() == null ? 0 : item.getReturnedQty();
@@ -804,29 +873,79 @@ public class DashboardService {
         return BigDecimal.ZERO;
     }
 
+    /**
+     * Executes the unitSize operation.
+     *
+     * @param item Parameter of type {@code SaleItem} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int unitSize(SaleItem item) {
         if (item == null) return 1;
         Integer size = item.getUnitSize();
         return size == null || size <= 0 ? 1 : size;
     }
 
+    /**
+     * Executes the safeAmount operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeAmount(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    /**
+     * Executes the toDouble operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code double} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private double toDouble(BigDecimal value) {
         if (value == null) return 0.0;
         return value.setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
+    /**
+     * Executes the round2 operation.
+     *
+     * @param value Parameter of type {@code double} used by this operation.
+     * @return {@code double} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private double round2(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
+    /**
+     * Executes the formatMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String formatMoney(BigDecimal value) {
         return "$" + BigDecimal.ZERO.add(safeAmount(value)).setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the rfmScore operation.
+     *
+     * @param recencyDays Parameter of type {@code int} used by this operation.
+     * @param frequency Parameter of type {@code int} used by this operation.
+     * @param monetary Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int rfmScore(int recencyDays, int frequency, BigDecimal monetary) {
         int recencyScore;
         if (recencyDays <= 30) recencyScore = 5;
@@ -857,6 +976,15 @@ public class DashboardService {
         private final List<String> labels;
         private final List<Double> values;
 
+        /**
+         * Executes the RevenueShare operation.
+         * <p>Return value: A fully initialized RevenueShare instance.</p>
+         *
+         * @param labels Parameter of type {@code List<String>} used by this operation.
+         * @param values Parameter of type {@code List<Double>} used by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private RevenueShare(List<String> labels, List<Double> values) {
             this.labels = labels;
             this.values = values;
@@ -882,6 +1010,14 @@ public class DashboardService {
         private BigDecimal monetary = BigDecimal.ZERO;
         private LocalDateTime lastPurchase;
 
+        /**
+         * Executes the CustomerAccumulator operation.
+         * <p>Return value: A fully initialized CustomerAccumulator instance.</p>
+         *
+         * @param name Parameter of type {@code String} used by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private CustomerAccumulator(String name) {
             this.name = name;
         }

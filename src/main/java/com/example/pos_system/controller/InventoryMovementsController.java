@@ -33,11 +33,56 @@ public class InventoryMovementsController {
     private final StockMovementService stockMovementService;
     private final ProductRepo productRepo;
 
+    /**
+     * Executes the InventoryMovementsController operation.
+     * <p>Return value: A fully initialized InventoryMovementsController instance.</p>
+     *
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public InventoryMovementsController(StockMovementService stockMovementService, ProductRepo productRepo) {
         this.stockMovementService = stockMovementService;
         this.productRepo = productRepo;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -56,6 +101,42 @@ public class InventoryMovementsController {
         return "inventory/movements";
     }
 
+    /**
+     * Executes the exportCsv operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportCsv operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportCsv operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/export.csv")
     public void exportCsv(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -88,6 +169,42 @@ public class InventoryMovementsController {
         }
     }
 
+    /**
+     * Executes the exportExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/export.xlsx")
     public void exportExcel(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -140,14 +257,38 @@ public class InventoryMovementsController {
         }
     }
 
+    /**
+     * Executes the nullToEmpty operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
+    /**
+     * Executes the stringValue operation.
+     *
+     * @param value Parameter of type {@code Long} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String stringValue(Long value) {
         return value == null ? "" : String.valueOf(value);
     }
 
+    /**
+     * Executes the csv operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String csv(String value) {
         if (value == null) return "";
         String escaped = value.replace("\"", "\"\"");

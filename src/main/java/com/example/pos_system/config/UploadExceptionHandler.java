@@ -15,6 +15,15 @@ public class UploadExceptionHandler {
             MultipartException.class,
             InvalidParameterException.class
     })
+    /**
+     * Executes the handleUploadExceptions operation.
+     *
+     * @param ex Parameter of type {@code Exception} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String handleUploadExceptions(Exception ex, HttpServletRequest request) throws Exception {
         if (!isUploadTooLarge(ex)) {
             throw ex;
@@ -29,6 +38,14 @@ public class UploadExceptionHandler {
         return "redirect:/?error=uploadTooLarge";
     }
 
+    /**
+     * Executes the isUploadTooLarge operation.
+     *
+     * @param ex Parameter of type {@code Throwable} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean isUploadTooLarge(Throwable ex) {
         Throwable cursor = ex;
         while (cursor != null) {

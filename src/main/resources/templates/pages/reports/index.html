@@ -1,0 +1,239 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reports</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
+  <style>
+    body {
+      font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { animation: riseIn 0.6s ease-out both; }
+    .reveal.delay-1 { animation-delay: 0.05s; }
+    .reveal.delay-2 { animation-delay: 0.1s; }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+  <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div class="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl"></div>
+    <div class="absolute top-40 -left-24 h-96 w-96 rounded-full bg-slate-200/60 blur-3xl"></div>
+    <div class="absolute -bottom-32 right-10 h-96 w-96 rounded-full bg-amber-200/30 blur-3xl"></div>
+  </div>
+
+  <div class="min-h-screen relative">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16v16H4z"/>
+                <path d="M8 8h8M8 12h8M8 16h6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Reports</div>
+              <div class="text-sm text-slate-500">Exports and summaries</div>
+            </div>
+          </div>
+
+                    <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+
+          <div class="flex items-center justify-end gap-2">
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Login
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-8">
+      <div class="mb-6 flex justify-end">
+        <a href="/"
+           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
+          Dashboard
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-1 space-y-6">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal">
+            <div class="text-sm text-slate-500">Transactions</div>
+            <div class="mt-2 text-3xl font-semibold text-slate-900" th:text="${salesCount}">0</div>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div class="text-[10px] uppercase tracking-wide">Total Revenue</div>
+                <div class="mt-1 text-sm font-semibold text-slate-900"
+                     th:text="${@uiFormat.money(totalRevenue)}">$0.00</div>
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div class="text-[10px] uppercase tracking-wide">Avg Ticket</div>
+                <div class="mt-1 text-sm font-semibold text-slate-900"
+                     th:text="${@uiFormat.money(avgTicket)}">$0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal delay-1">
+            <div class="text-base font-semibold">Filter Range</div>
+            <div class="text-sm text-slate-500">Adjust export date range</div>
+            <form action="/reports" method="get" class="mt-4 space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">From</label>
+                <input type="date" name="from"
+                       th:value="${from}"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">To</label>
+                <input type="date" name="to"
+                       th:value="${to}"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                              focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Shift Cashier</label>
+                <select name="cashier"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option value="">All cashiers</option>
+                  <option th:each="c : ${shiftCashiers}" th:value="${c}" th:text="${c}" th:selected="${cashier == c}">cashier</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">Shift Terminal</label>
+                <select name="terminal"
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option value="">All terminals</option>
+                  <option th:each="t : ${shiftTerminals}" th:value="${t}" th:text="${t}" th:selected="${terminal == t}">terminal</option>
+                </select>
+              </div>
+              <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold
+                             hover:bg-slate-800 transition active:scale-[0.99]">
+                Apply Range
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="xl:col-span-2">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal delay-2">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="text-base font-semibold">Sales Export</div>
+                <div class="text-sm text-slate-500">Download detailed sales data for Excel or CSV</div>
+              </div>
+              <div class="text-xs text-slate-500">
+                Range:
+                <span th:text="${from != null ? @uiFormat.date(from) : 'All'}">All</span>
+                –
+                <span th:text="${to != null ? @uiFormat.date(to) : 'All'}">All</span>
+              </div>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+              <a th:href="@{/reports/sales.xlsx(from=${from}, to=${to})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 text-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-800 transition">
+                Export Excel (.xlsx)
+              </a>
+              <a th:href="@{/reports/shifts.xlsx(from=${from}, to=${to}, cashier=${cashier}, terminal=${terminal})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-50 transition">
+                Export Shift Summary
+              </a>
+              <a th:href="@{/sales/export(from=${from}, to=${to})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-50 transition">
+                Export CSV
+              </a>
+              <a th:href="@{/reports/inventory-ledger(from=${from}, to=${to})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-50 transition">
+                Inventory Ledger
+              </a>
+              <a th:href="@{/reports/receiving(from=${from}, to=${to})}"
+                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold
+                        hover:bg-slate-50 transition">
+                Receiving Report
+              </a>
+            </div>
+
+            <div class="mt-6 text-xs text-slate-500">
+              Tip: Use Excel export for pivot tables. CSV is ideal for quick sharing.
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal delay-2">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-base font-semibold">Shift Summary</div>
+                <div class="text-sm text-slate-500">Filtered by date, cashier, and terminal</div>
+              </div>
+              <div class="text-xs text-slate-500" th:text="${'Rows: ' + #lists.size(shiftSummary)}">Rows: 0</div>
+            </div>
+            <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200">
+              <table class="min-w-full text-xs">
+                <thead class="bg-slate-50 text-slate-600">
+                  <tr>
+                    <th class="px-3 py-2 text-left font-semibold">Shift</th>
+                    <th class="px-3 py-2 text-left font-semibold">Cashier</th>
+                    <th class="px-3 py-2 text-left font-semibold">Terminal</th>
+                    <th class="px-3 py-2 text-right font-semibold">Opening</th>
+                    <th class="px-3 py-2 text-right font-semibold">Cash Sales</th>
+                    <th class="px-3 py-2 text-right font-semibold">Refunds</th>
+                    <th class="px-3 py-2 text-right font-semibold">Cash In</th>
+                    <th class="px-3 py-2 text-right font-semibold">Cash Out</th>
+                    <th class="px-3 py-2 text-right font-semibold">Expected</th>
+                    <th class="px-3 py-2 text-right font-semibold">Counted</th>
+                    <th class="px-3 py-2 text-right font-semibold">Variance</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr th:if="${#lists.isEmpty(shiftSummary)}">
+                    <td colspan="11" class="px-3 py-4 text-center text-slate-500">No closed shifts for this filter.</td>
+                  </tr>
+                  <tr th:each="s : ${shiftSummary}">
+                    <td class="px-3 py-2 whitespace-nowrap text-slate-700" th:text="${s.id}">1</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-slate-700" th:text="${s.cashierUsername}">cashier</td>
+                    <td class="px-3 py-2 whitespace-nowrap text-slate-700" th:text="${s.terminalId}">TERM-1</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.openingCash)}">$0.00</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.cashTotal)}">$0.00</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.cashRefundTotal)}">$0.00</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.cashInTotal)}">$0.00</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.cashOutTotal)}">$0.00</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.expectedCash)}">$0.00</td>
+                    <td class="px-3 py-2 text-right text-slate-700" th:text="${@uiFormat.money(s.closingCash)}">$0.00</td>
+                    <td class="px-3 py-2 text-right font-semibold"
+                        th:classappend="${s.varianceCash != null and s.varianceCash.signum() != 0} ? ' text-rose-600' : ' text-slate-700'"
+                        th:text="${@uiFormat.money(s.varianceCash)}">$0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

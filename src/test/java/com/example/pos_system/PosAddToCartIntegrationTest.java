@@ -32,6 +32,27 @@ class PosAddToCartIntegrationTest {
     @Autowired
     private ProductRepo productRepo;
 
+    /**
+     * Executes the addToCartAddsLineItemForCashier operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the addToCartAddsLineItemForCashier operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the addToCartAddsLineItemForCashier operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void addToCartAddsLineItemForCashier() throws Exception {
         Product product = createProduct();
@@ -47,6 +68,13 @@ class PosAddToCartIntegrationTest {
         assertThat(cartObject).isNotNull();
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct() {
         Category category = new Category();
         category.setName("POS Test Category");

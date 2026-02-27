@@ -26,6 +26,18 @@ public class UserAdminService {
     private final AuditEventService auditEventService;
     private final RolePermissionService rolePermissionService;
 
+    /**
+     * Executes the UserAdminService operation.
+     * <p>Return value: A fully initialized UserAdminService instance.</p>
+     *
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * @param passwordEncoder Parameter of type {@code PasswordEncoder} used by this operation.
+     * @param auditLogRepo Parameter of type {@code UserAuditLogRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * @param rolePermissionService Parameter of type {@code RolePermissionService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public UserAdminService(AppUserRepo appUserRepo, PasswordEncoder passwordEncoder,
                             UserAuditLogRepo auditLogRepo, AuditEventService auditEventService,
                             RolePermissionService rolePermissionService) {
@@ -36,6 +48,21 @@ public class UserAdminService {
         this.rolePermissionService = rolePermissionService;
     }
 
+    /**
+     * Executes the createUser operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @param password Parameter of type {@code String} used by this operation.
+     * @param role Parameter of type {@code UserRole} used by this operation.
+     * @param active Parameter of type {@code boolean} used by this operation.
+     * @param mustResetPassword Parameter of type {@code boolean} used by this operation.
+     * @param mfaRequired Parameter of type {@code boolean} used by this operation.
+     * @param permissions Parameter of type {@code Set<Permission>} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @return {@code AppUser} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AppUser createUser(String username,
                               String password,
                               UserRole role,
@@ -61,6 +88,17 @@ public class UserAdminService {
         return saved;
     }
 
+    /**
+     * Executes the updateRole operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param role Parameter of type {@code UserRole} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void updateRole(AppUser user, UserRole role, Authentication actor, String details) {
         Map<String, Object> before = userSnapshot(user);
         user.setRole(role);
@@ -70,6 +108,18 @@ public class UserAdminService {
                 Map.of("details", details));
     }
 
+    /**
+     * Executes the resetPassword operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param rawPassword Parameter of type {@code String} used by this operation.
+     * @param temporary Parameter of type {@code boolean} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void resetPassword(AppUser user, String rawPassword, boolean temporary,
                               Authentication actor, String details) {
         Map<String, Object> before = userSnapshot(user);
@@ -86,6 +136,17 @@ public class UserAdminService {
                 Map.of("temporary", temporary, "details", details));
     }
 
+    /**
+     * Executes the updateStatus operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param active Parameter of type {@code boolean} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void updateStatus(AppUser user, boolean active, Authentication actor, String details) {
         Map<String, Object> before = userSnapshot(user);
         user.setActive(active);
@@ -95,6 +156,17 @@ public class UserAdminService {
                 Map.of("active", active, "details", details));
     }
 
+    /**
+     * Executes the updatePermissions operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param permissions Parameter of type {@code Set<Permission>} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void updatePermissions(AppUser user, Set<Permission> permissions, Authentication actor, String details) {
         Map<String, Object> before = userSnapshot(user);
         user.setPermissions(permissions);
@@ -104,6 +176,17 @@ public class UserAdminService {
                 Map.of("details", details));
     }
 
+    /**
+     * Executes the updateMfa operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param required Parameter of type {@code boolean} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void updateMfa(AppUser user, boolean required, Authentication actor, String details) {
         Map<String, Object> before = userSnapshot(user);
         user.setMfaRequired(required);
@@ -113,6 +196,16 @@ public class UserAdminService {
                 Map.of("required", required, "details", details));
     }
 
+    /**
+     * Executes the updateOwnPassword operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param password Parameter of type {@code String} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void updateOwnPassword(AppUser user, String password, Authentication actor) {
         Map<String, Object> before = userSnapshot(user);
         user.setPassword(passwordEncoder.encode(password));
@@ -125,6 +218,58 @@ public class UserAdminService {
         auditEventService.record("PASSWORD_CHANGE", "USER", saved.getId(), before, userSnapshot(saved), null);
     }
 
+    /**
+     * Executes the updateOwnMfa operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param required Parameter of type {@code boolean} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    public void updateOwnMfa(AppUser user, boolean required, Authentication actor) {
+        Map<String, Object> before = userSnapshot(user);
+        user.setMfaRequired(required);
+        AppUser saved = appUserRepo.save(user);
+        recordAction(actor, saved, "MFA_SELF_UPDATE", "User changed own MFA requirement to " + required + ".");
+        auditEventService.record("MFA_SELF_UPDATE", "USER", saved.getId(), before, userSnapshot(saved),
+                Map.of("required", required));
+    }
+
+    /**
+     * Executes the clearOwnLoginSecurityState operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    public void clearOwnLoginSecurityState(AppUser user, Authentication actor) {
+        Map<String, Object> before = userSnapshot(user);
+        user.setFailedLoginAttempts(0);
+        user.setLastFailedLoginAt(null);
+        user.setLockedUntil(null);
+        AppUser saved = appUserRepo.save(user);
+        recordAction(actor, saved, "LOGIN_SECURITY_RESET", "User reset own login security counters.");
+        auditEventService.record("LOGIN_SECURITY_RESET", "USER", saved.getId(), before, userSnapshot(saved), null);
+    }
+
+    /**
+     * Executes the applyBulkAction operation.
+     *
+     * @param users Parameter of type {@code List<AppUser>} used by this operation.
+     * @param action Parameter of type {@code String} used by this operation.
+     * @param role Parameter of type {@code UserRole} used by this operation.
+     * @param permission Parameter of type {@code Permission} used by this operation.
+     * @param password Parameter of type {@code String} used by this operation.
+     * @param actor Parameter of type {@code Authentication} used by this operation.
+     * @param selfUsername Parameter of type {@code String} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public int applyBulkAction(List<AppUser> users,
                                String action,
                                UserRole role,
@@ -190,6 +335,17 @@ public class UserAdminService {
         return updated;
     }
 
+    /**
+     * Executes the recordAction operation.
+     *
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @param target Parameter of type {@code AppUser} used by this operation.
+     * @param action Parameter of type {@code String} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void recordAction(Authentication authentication, AppUser target, String action, String details) {
         UserAuditLog log = new UserAuditLog();
         log.setActorUsername(authentication == null ? "system" : authentication.getName());
@@ -200,6 +356,14 @@ public class UserAdminService {
         auditLogRepo.save(log);
     }
 
+    /**
+     * Executes the userSnapshot operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> userSnapshot(AppUser user) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("id", user.getId());

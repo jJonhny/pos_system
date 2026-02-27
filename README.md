@@ -17,6 +17,11 @@ Enterprise-oriented Point of Sale system built with Spring Boot MVC, Thymeleaf, 
 - Audit logging for sensitive actions
 - Optional local bridge integration for printer and cash drawer
 
+## Project layout
+
+- [docs/architecture/project-structure.md](docs/architecture/project-structure.md)
+- [docs/architecture/backend-frontend-split-proposal.md](docs/architecture/backend-frontend-split-proposal.md)
+
 ## Internationalization (i18n)
 
 Single codebase, multilingual support:
@@ -231,7 +236,7 @@ POS pricing quote route:
 
 - `POST /api/v1/pos/pricing/quote`
 
-See [docs/variants-units-pricing.md](docs/variants-units-pricing.md) for full details, examples, and integration notes.
+See [docs/features/variants-units-pricing.md](docs/features/variants-units-pricing.md) for full details, examples, and integration notes.
 
 ## Database resources
 

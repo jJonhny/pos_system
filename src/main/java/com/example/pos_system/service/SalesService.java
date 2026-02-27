@@ -26,6 +26,17 @@ public class SalesService {
     private final AuditEventService auditEventService;
     private final StockMovementService stockMovementService;
 
+    /**
+     * Executes the SalesService operation.
+     * <p>Return value: A fully initialized SalesService instance.</p>
+     *
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param customerRepo Parameter of type {@code CustomerRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SalesService(SaleRepo saleRepo, CustomerRepo customerRepo,
                         AuditEventService auditEventService, StockMovementService stockMovementService) {
         this.saleRepo = saleRepo;
@@ -34,6 +45,33 @@ public class SalesService {
         this.stockMovementService = stockMovementService;
     }
 
+    /**
+     * Executes the processReturn operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param params Parameter of type {@code Map<String, String>} used by this operation.
+     * @return {@code ReturnOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the processReturn operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param params Parameter of type {@code Map<String, String>} used by this operation.
+     * @return {@code ReturnOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the processReturn operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param params Parameter of type {@code Map<String, String>} used by this operation.
+     * @return {@code ReturnOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public ReturnOutcome processReturn(Long id, Map<String, String> params) {
         Sale sale = saleRepo.findById(id).orElseThrow();
@@ -143,6 +181,30 @@ public class SalesService {
         return new ReturnOutcome(saved.getId(), refundTotal);
     }
 
+    /**
+     * Executes the voidSale operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code VoidOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the voidSale operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code VoidOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the voidSale operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code VoidOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public VoidOutcome voidSale(Long id) {
         Sale sale = saleRepo.findById(id).orElseThrow();
@@ -183,6 +245,14 @@ public class SalesService {
         return new VoidOutcome(saved.getId(), true);
     }
 
+    /**
+     * Executes the saleSnapshot operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> saleSnapshot(Sale sale) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("id", sale.getId());
@@ -197,15 +267,39 @@ public class SalesService {
         return snapshot;
     }
 
+    /**
+     * Executes the safeAmount operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeAmount(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    /**
+     * Executes the unitSize operation.
+     *
+     * @param item Parameter of type {@code SaleItem} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int unitSize(SaleItem item) {
         if (item == null || item.getUnitSize() == null || item.getUnitSize() <= 0) return 1;
         return item.getUnitSize();
     }
 
+    /**
+     * Executes the parseInt operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int parseInt(String value) {
         try {
             return Integer.parseInt(value == null ? "0" : value.trim());

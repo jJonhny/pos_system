@@ -21,6 +21,27 @@ class UploadTooLargeMessageIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * Executes the productsPageShowsUploadTooLargeMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the productsPageShowsUploadTooLargeMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the productsPageShowsUploadTooLargeMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void productsPageShowsUploadTooLargeMessage() throws Exception {
         mockMvc.perform(get("/products")
@@ -30,6 +51,27 @@ class UploadTooLargeMessageIntegrationTest {
                 .andExpect(content().string(Matchers.containsString("Maximum upload size is 10MB")));
     }
 
+    /**
+     * Executes the categoriesPageShowsUploadTooLargeMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the categoriesPageShowsUploadTooLargeMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the categoriesPageShowsUploadTooLargeMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void categoriesPageShowsUploadTooLargeMessage() throws Exception {
         mockMvc.perform(get("/categories")

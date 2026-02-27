@@ -21,11 +21,29 @@ public class MarketingPricingService {
     private final MarketingCampaignRepo marketingCampaignRepo;
     private final SaleRepo saleRepo;
 
+    /**
+     * Executes the MarketingPricingService operation.
+     * <p>Return value: A fully initialized MarketingPricingService instance.</p>
+     *
+     * @param marketingCampaignRepo Parameter of type {@code MarketingCampaignRepo} used by this operation.
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public MarketingPricingService(MarketingCampaignRepo marketingCampaignRepo, SaleRepo saleRepo) {
         this.marketingCampaignRepo = marketingCampaignRepo;
         this.saleRepo = saleRepo;
     }
 
+    /**
+     * Executes the applyBestCampaign operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @return {@code AppliedCampaign} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AppliedCampaign applyBestCampaign(Cart cart, Customer customer) {
         if (cart == null) return AppliedCampaign.none();
 
@@ -81,10 +99,26 @@ public class MarketingPricingService {
         return new AppliedCampaign(winner.getId(), winner.getTitle(), winner.getType(), appliedAmount);
     }
 
+    /**
+     * Executes the isAutoCampaignReason operation.
+     *
+     * @param reason Parameter of type {@code String} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public boolean isAutoCampaignReason(String reason) {
         return reason != null && reason.startsWith(AUTO_REASON_PREFIX);
     }
 
+    /**
+     * Executes the hasManualDiscount operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasManualDiscount(Cart cart) {
         if (cart.isManualDiscountOverride()) {
             return true;
@@ -96,6 +130,14 @@ public class MarketingPricingService {
         return !isAutoCampaignReason(cart.getDiscountReason());
     }
 
+    /**
+     * Executes the clearAutoCampaignDiscount operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void clearAutoCampaignDiscount(Cart cart) {
         if (cart == null || cart.isManualDiscountOverride()) {
             return;
@@ -108,11 +150,30 @@ public class MarketingPricingService {
         cart.setDiscountReason(null);
     }
 
+    /**
+     * Executes the hasPriorNonVoidSale operation.
+     *
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasPriorNonVoidSale(Customer customer) {
         if (customer == null || customer.getId() == null) return false;
         return saleRepo.existsByCustomer_IdAndStatusNot(customer.getId(), SaleStatus.VOID);
     }
 
+    /**
+     * Executes the isEligible operation.
+     *
+     * @param campaign Parameter of type {@code MarketingCampaign} used by this operation.
+     * @param subtotal Parameter of type {@code BigDecimal} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @param hasPriorNonVoidSale Parameter of type {@code boolean} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean isEligible(MarketingCampaign campaign,
                                BigDecimal subtotal,
                                Customer customer,
@@ -130,6 +191,15 @@ public class MarketingPricingService {
         return true;
     }
 
+    /**
+     * Executes the calculateDiscount operation.
+     *
+     * @param campaign Parameter of type {@code MarketingCampaign} used by this operation.
+     * @param subtotal Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal calculateDiscount(MarketingCampaign campaign, BigDecimal subtotal) {
         BigDecimal fixedAmount = safeMoney(campaign.getDiscountAmount());
         BigDecimal percentAmount = BigDecimal.ZERO;
@@ -148,11 +218,27 @@ public class MarketingPricingService {
         return result.max(BigDecimal.ZERO);
     }
 
+    /**
+     * Executes the buildAutoReason operation.
+     *
+     * @param campaign Parameter of type {@code MarketingCampaign} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String buildAutoReason(MarketingCampaign campaign) {
         String title = campaign == null || campaign.getTitle() == null ? "Campaign" : campaign.getTitle();
         return AUTO_REASON_PREFIX + title;
     }
 
+    /**
+     * Executes the safeMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeMoney(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
@@ -161,10 +247,24 @@ public class MarketingPricingService {
                                   String title,
                                   MarketingCampaignType type,
                                   BigDecimal discountAmount) {
+        /**
+         * Executes the none operation.
+         *
+         * @return {@code AppliedCampaign} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         public static AppliedCampaign none() {
             return new AppliedCampaign(null, null, null, BigDecimal.ZERO);
         }
 
+        /**
+         * Executes the applied operation.
+         *
+         * @return {@code boolean} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         public boolean applied() {
             return campaignId != null && discountAmount != null && discountAmount.compareTo(BigDecimal.ZERO) > 0;
         }

@@ -22,11 +22,44 @@ public class AuthApiController {
     private final AuthService authService;
     private final AppUserRepo appUserRepo;
 
+    /**
+     * Executes the AuthApiController operation.
+     * <p>Return value: A fully initialized AuthApiController instance.</p>
+     *
+     * @param authService Parameter of type {@code AuthService} used by this operation.
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AuthApiController(AuthService authService, AppUserRepo appUserRepo) {
         this.authService = authService;
         this.appUserRepo = appUserRepo;
     }
 
+    /**
+     * Executes the register operation.
+     *
+     * @param request Parameter of type {@code RegisterRequest} used by this operation.
+     * @return {@code ResponseEntity<RegisterResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the register operation.
+     *
+     * @param request Parameter of type {@code RegisterRequest} used by this operation.
+     * @return {@code ResponseEntity<RegisterResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the register operation.
+     *
+     * @param request Parameter of type {@code RegisterRequest} used by this operation.
+     * @return {@code ResponseEntity<RegisterResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
         AuthService.RegisterResult result =
@@ -40,6 +73,33 @@ public class AuthApiController {
         ));
     }
 
+    /**
+     * Executes the login operation.
+     *
+     * @param request Parameter of type {@code LoginRequest} used by this operation.
+     * @param servletRequest Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code ResponseEntity<LoginResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the login operation.
+     *
+     * @param request Parameter of type {@code LoginRequest} used by this operation.
+     * @param servletRequest Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code ResponseEntity<LoginResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the login operation.
+     *
+     * @param request Parameter of type {@code LoginRequest} used by this operation.
+     * @param servletRequest Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code ResponseEntity<LoginResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletRequest servletRequest) {
         AuthService.LoginResult result = authService.loginWithPassword(request.email(), request.password(), servletRequest);
@@ -89,6 +149,33 @@ public class AuthApiController {
         ));
     }
 
+    /**
+     * Executes the verifyOtp operation.
+     *
+     * @param request Parameter of type {@code OtpVerifyRequest} used by this operation.
+     * @param servletRequest Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code ResponseEntity<OtpVerifyResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the verifyOtp operation.
+     *
+     * @param request Parameter of type {@code OtpVerifyRequest} used by this operation.
+     * @param servletRequest Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code ResponseEntity<OtpVerifyResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the verifyOtp operation.
+     *
+     * @param request Parameter of type {@code OtpVerifyRequest} used by this operation.
+     * @param servletRequest Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code ResponseEntity<OtpVerifyResponse>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/verify-otp")
     public ResponseEntity<OtpVerifyResponse> verifyOtp(@RequestBody OtpVerifyRequest request,
                                                        HttpServletRequest servletRequest) {
@@ -139,6 +226,30 @@ public class AuthApiController {
         ));
     }
 
+    /**
+     * Executes the me operation.
+     *
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code AuthProfileResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the me operation.
+     *
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code AuthProfileResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the me operation.
+     *
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code AuthProfileResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/me")
     public AuthProfileResponse me(Authentication authentication) {
         if (authentication == null || authentication.getName() == null || authentication.getName().isBlank()) {

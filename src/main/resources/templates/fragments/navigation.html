@@ -2,151 +2,471 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav th:fragment="mainNav"
-     class="app-main-nav hidden lg:flex items-center justify-start xl:justify-center gap-1.5 text-[12px] font-semibold min-w-0 overflow-x-auto rounded-2xl border border-slate-200 bg-white/70 px-2 py-1 shadow-sm">
-  <a href="/pos"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M6 6h12v4H6V6z"/>
-      <path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/>
-      <path d="M9 14h6"/>
-    </svg>
-    <span th:text="#{nav.pos}">POS</span>
-  </a>
+     data-soft-nav-root="true"
+     class="app-main-nav hidden lg:flex items-center justify-center min-w-0"
+     aria-label="Main navigation">
+  <style>
+    html {
+      scrollbar-gutter: stable;
+    }
+    .app-main-nav {
+      width: 100%;
+      min-width: 0;
+      gap: 0.3rem;
+      color: #334155;
+      overflow: visible;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      justify-content: center;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (min-width: 1024px) {
+      .grid:has(> .app-main-nav) {
+        grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+      }
+      .grid:has(> .app-main-nav) > :first-child,
+      .grid:has(> .app-main-nav) > :last-child {
+        min-width: 220px;
+      }
+      .grid:has(> .app-main-nav) > :first-child {
+        justify-self: start;
+      }
+      .grid:has(> .app-main-nav) > :last-child {
+        justify-self: end;
+      }
+      .grid:has(> .app-main-nav) > .app-main-nav {
+        width: max-content;
+        max-width: 100%;
+        justify-self: center;
+      }
+    }
+    .app-main-nav .nav-link,
+    .app-main-nav .nav-dropdown-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      height: 2.2rem;
+      padding: 0 0.85rem;
+      border-radius: 0.7rem;
+      border: 1px solid transparent;
+      color: #111827;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      background: transparent;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .app-main-nav .nav-link:hover,
+    .app-main-nav .nav-dropdown-toggle:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+    .app-main-nav .nav-link:focus-visible,
+    .app-main-nav .nav-dropdown-toggle:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.5);
+    }
+    .app-main-nav .nav-link svg,
+    .app-main-nav .nav-dropdown-toggle svg {
+      width: 0.95rem;
+      height: 0.95rem;
+      color: #64748b;
+      flex: 0 0 auto;
+    }
+    .nav-dropdown {
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .nav-dropdown-toggle {
+      list-style: none;
+    }
+    .nav-dropdown-toggle::-webkit-details-marker {
+      display: none;
+    }
+    .nav-dropdown-toggle::marker {
+      display: none;
+    }
+    .nav-dropdown-chevron {
+      width: 0.85rem;
+      height: 0.85rem;
+      color: #64748b;
+      transition: transform 0.2s ease;
+    }
+    .nav-dropdown[open] .nav-dropdown-chevron {
+      transform: rotate(180deg);
+    }
+    .nav-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.45rem);
+      left: 0;
+      z-index: 120;
+      min-width: 22rem;
+      display: none;
+      border-radius: 1.1rem;
+      border: 1px solid #dbe3ee;
+      background: #ffffff;
+      box-shadow: 0 20px 30px -24px rgba(15, 23, 42, 0.45);
+      padding: 0.5rem;
+      max-height: min(26rem, calc(100vh - 6rem));
+      overflow-y: auto;
+    }
+    .nav-dropdown[open] .nav-dropdown-menu {
+      display: block;
+    }
+    .nav-dropdown-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      width: 100%;
+      border-radius: 0.85rem;
+      padding: 0.72rem;
+      text-decoration: none;
+      color: #0f172a;
+      transition: background-color 0.2s ease;
+    }
+    .nav-dropdown-item:hover {
+      background: #f8fafc;
+    }
+    .nav-dropdown-item-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.65rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      flex: 0 0 auto;
+    }
+    .nav-dropdown-item-icon svg {
+      width: 1rem;
+      height: 1rem;
+      color: #475569;
+    }
+    .nav-dropdown-item-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #0f172a;
+    }
+    .nav-dropdown-item-desc {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: 0.78rem;
+      line-height: 1.3;
+      color: #64748b;
+    }
+    .nav-dropdown-footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 0.25rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .nav-dropdown-footer-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.7rem;
+      color: #334155;
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-right: 1px solid #e2e8f0;
+      transition: background-color 0.2s ease;
+    }
+    .nav-dropdown-footer-link:last-child {
+      border-right: 0;
+    }
+    .nav-dropdown-footer-link:hover {
+      background: #f8fafc;
+    }
+    .app-main-nav .nav-lang-group {
+      margin-left: 0.45rem;
+      padding-left: 0.75rem;
+      border-left: 1px solid #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex: 0 0 auto;
+    }
+    .app-main-nav .nav-lang-select-shell {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      height: 2.2rem;
+      border-radius: 0.65rem;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      padding-left: 1.5rem;
+      padding-right: 1.2rem;
+    }
+    .app-main-nav .nav-lang-select {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #0f172a;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .app-main-nav .nav-lang-select:focus-visible {
+      outline: none;
+    }
+    .app-main-nav .nav-lang-icon {
+      position: absolute;
+      left: 0.45rem;
+      width: 0.85rem;
+      height: 0.85rem;
+      color: #64748b;
+      pointer-events: none;
+    }
+    .app-main-nav .nav-lang-caret {
+      position: absolute;
+      right: 0.4rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      color: #64748b;
+      pointer-events: none;
+    }
+    .app-main-nav .nav-apply-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 2.2rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.65rem;
+      padding: 0 0.8rem;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: #1f2937;
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 8px 16px -12px rgba(15, 23, 42, 0.25);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .app-main-nav .nav-apply-btn:hover {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      border-color: #94a3b8;
+    }
+  </style>
 
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_SALES')"
-     href="/sales"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/>
-      <path d="M9 7h6M9 11h6M9 15h4"/>
-    </svg>
-    <span th:text="#{nav.sales}">Sales</span>
-  </a>
+  <details class="nav-dropdown" sec:authorize="isAuthenticated()">
+    <summary class="nav-dropdown-toggle nav-link" role="button" aria-haspopup="menu">
+      <span>Product</span>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="nav-dropdown-chevron" aria-hidden="true">
+        <path d="M6 8l4 4 4-4"/>
+      </svg>
+    </summary>
+    <div class="nav-dropdown-menu" role="menu">
+      <a href="/pos" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h12v4H6V6z"/><path d="M6 10h12v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8z"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.pos}">POS</span>
+          <span class="nav-dropdown-item-desc">Point of sale terminal and checkout.</span>
+        </span>
+      </a>
+      <a href="/sales" class="nav-dropdown-item"
+         sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_SALES')">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1-2 1V3z"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.sales}">Sales</span>
+          <span class="nav-dropdown-item-desc">Sales history, returns, and receipts.</span>
+        </span>
+      </a>
+      <a href="/commodity" class="nav-dropdown-item"
+         sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9 5-9-5 9-5 9 5z"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.commodity}">Commodity</span>
+          <span class="nav-dropdown-item-desc">Catalog and inventory browsing.</span>
+        </span>
+      </a>
+      <a href="/marketing" class="nav-dropdown-item"
+         sec:authorize="hasAnyRole('ADMIN','MANAGER')">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18"/><path d="M5 7v11h14V7"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.marketing}">Marketing</span>
+          <span class="nav-dropdown-item-desc">Campaigns and promotional pricing.</span>
+        </span>
+      </a>
+      <div class="nav-dropdown-footer">
+        <a href="/products" class="nav-dropdown-footer-link"
+           sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')">
+          Products
+        </a>
+        <a href="/categories" class="nav-dropdown-footer-link"
+           sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')">
+          Categories
+        </a>
+      </div>
+    </div>
+  </details>
 
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')"
-     href="/commodity"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
-      <path d="M3 8v8l9 5 9-5V8"/>
-    </svg>
-    <span th:text="#{nav.commodity}">Commodity</span>
-  </a>
-
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER')"
-     href="/marketing"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M3 7h18"/>
-      <path d="M5 7v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7"/>
-      <path d="M9 11h6"/>
-      <path d="M9 15h6"/>
-    </svg>
-    <span th:text="#{nav.marketing}">Marketing</span>
-  </a>
-
-  <a sec:authorize="hasRole('ADMIN')"
-     href="/currencies"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="9"/>
-      <path d="M8 10h8"/>
-      <path d="M8 14h8"/>
-      <path d="M12 7v10"/>
+  <a sec:authorize="hasRole('ADMIN')" href="/currencies" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><path d="M8 10h8"/><path d="M8 14h8"/>
     </svg>
     <span th:text="#{nav.financial}">Financial</span>
   </a>
 
   <a sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_POS_TERMINAL_SETTINGS')"
      href="/pos-setting"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8z"/>
-      <path d="M3 12h2m14 0h2M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M18.4 5.6L17 7m-10 10l-1.4 1.4"/>
+     class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8z"/><path d="M3 12h2m14 0h2M12 3v2m0 14v2"/>
     </svg>
     <span th:text="#{nav.posSetting}">POS Setting</span>
   </a>
 
-  <a sec:authorize="isAuthenticated()"
-     href="/users/password"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
-      <path d="M3 21a9 9 0 0 1 18 0"/>
-    </svg>
-    <span th:text="#{nav.account}">Account</span>
-  </a>
+  <details class="nav-dropdown"
+           sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')">
+    <summary class="nav-dropdown-toggle nav-link" role="button" aria-haspopup="menu">
+      <span th:text="#{nav.analytics}">Analytics</span>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="nav-dropdown-chevron" aria-hidden="true">
+        <path d="M6 8l4 4 4-4"/>
+      </svg>
+    </summary>
+    <div class="nav-dropdown-menu" role="menu">
+      <a href="/analytics" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 4 4 5-6"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.analytics}">Analytics</span>
+          <span class="nav-dropdown-item-desc">Overview dashboards and KPIs.</span>
+        </span>
+      </a>
+      <a href="/analytics/sales" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"/><path d="M10 19V11"/><path d="M16 19V8"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title">Sales View</span>
+          <span class="nav-dropdown-item-desc">Sales performance deep-dive.</span>
+        </span>
+      </a>
+    </div>
+  </details>
 
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"
-     href="/analytics"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M3 3v18h18"/>
-      <path d="M7 14l3-3 4 4 5-6"/>
-    </svg>
-    <span th:text="#{nav.analytics}">Analytics</span>
-  </a>
+  <details class="nav-dropdown"
+           sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')">
+    <summary class="nav-dropdown-toggle nav-link" role="button" aria-haspopup="menu">
+      <span th:text="#{nav.reports}">Reports</span>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="nav-dropdown-chevron" aria-hidden="true">
+        <path d="M6 8l4 4 4-4"/>
+      </svg>
+    </summary>
+    <div class="nav-dropdown-menu" role="menu">
+      <a href="/reports" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.reports}">Reports</span>
+          <span class="nav-dropdown-item-desc">All report entries.</span>
+        </span>
+      </a>
+      <a href="/reports/inventory-ledger" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M9 8h6"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title">Inventory Ledger</span>
+          <span class="nav-dropdown-item-desc">Stock movement ledger by SKU.</span>
+        </span>
+      </a>
+      <a href="/reports/receiving" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18"/><path d="M5 7v11h14V7"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title">Receiving</span>
+          <span class="nav-dropdown-item-desc">Goods receiving activity reports.</span>
+        </span>
+      </a>
+    </div>
+  </details>
 
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_ANALYTICS')"
-     href="/analytics/sales"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M4 19V5"/>
-      <path d="M10 19V11"/>
-      <path d="M16 19V8"/>
-      <path d="M22 19H2"/>
-    </svg>
-    <span>Sales View</span>
-  </a>
-
-  <a sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_VIEW_REPORTS')"
-     href="/reports"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M4 4h16v16H4z"/>
-      <path d="M8 8h8M8 12h8M8 16h6"/>
-    </svg>
-    <span th:text="#{nav.reports}">Reports</span>
-  </a>
-
-  <a sec:authorize="hasRole('ADMIN')"
-     href="/admin/audit"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M5 4h14v16H5z"/>
-      <path d="M8 8h8M8 12h8M8 16h5"/>
+  <a sec:authorize="hasRole('ADMIN')" href="/admin/audit" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M5 4h14v16H5z"/><path d="M8 8h8"/>
     </svg>
     <span th:text="#{nav.audit}">Audit</span>
   </a>
 
-  <a sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_MANAGE_USERS')"
-     href="/users"
-     class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition">
-    <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0z"/>
-      <path d="M3 20a7 7 0 0 1 18 0"/>
-    </svg>
-    <span th:text="#{nav.user}">User</span>
-  </a>
+  <details class="nav-dropdown" sec:authorize="isAuthenticated()">
+    <summary class="nav-dropdown-toggle nav-link" role="button" aria-haspopup="menu">
+      <span th:text="#{nav.account}">Account</span>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="nav-dropdown-chevron" aria-hidden="true">
+        <path d="M6 8l4 4 4-4"/>
+      </svg>
+    </summary>
+    <div class="nav-dropdown-menu" role="menu">
+      <a href="/users/password" class="nav-dropdown-item">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a5 5 0 1 0 0-10"/><path d="M3 21a9 9 0 0 1 18 0"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.account}">Account</span>
+          <span class="nav-dropdown-item-desc">Profile, password, and security settings.</span>
+        </span>
+      </a>
+      <a href="/users" class="nav-dropdown-item"
+         sec:authorize="hasRole('ADMIN') or hasAuthority('PERM_MANAGE_USERS')">
+        <span class="nav-dropdown-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 20a7 7 0 0 1 18 0"/></svg>
+        </span>
+        <span>
+          <span class="nav-dropdown-item-title" th:text="#{nav.user}">User</span>
+          <span class="nav-dropdown-item-desc">User roles and permission administration.</span>
+        </span>
+      </a>
+    </div>
+  </details>
 
-  <form method="get"
-        class="ml-2 inline-flex items-center gap-1"
-        data-lang-switcher-form="true">
-    <label class="sr-only" for="navLanguageSwitcher" th:text="#{common.language}">Language</label>
-    <select id="navLanguageSwitcher"
-            name="lang"
-            class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[12px] text-slate-700 hover:bg-slate-50 transition"
-            th:aria-label="#{common.language}"
-            data-lang-switcher-select="true">
-      <option value="en" th:selected="${#locale.language == 'en'}" th:text="#{common.language.en}">English</option>
-      <option value="zh-CN" th:selected="${#locale.language == 'zh'}" th:text="#{common.language.zh-CN}">中文</option>
-    </select>
-    <button type="submit"
-            class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 transition"
-            th:text="#{common.apply}">
-      Apply
-    </button>
-  </form>
+  <div class="nav-lang-group">
+    <form method="get" class="nav-lang-form" data-lang-switcher-form="true">
+      <label for="navLanguageSwitcher" class="sr-only" th:text="#{common.language}">Language</label>
+      <div class="nav-lang-select-shell">
+        <select id="navLanguageSwitcher"
+                name="lang"
+                class="nav-lang-select"
+                th:aria-label="#{common.language}"
+                data-lang-switcher-select="true">
+          <option value="en" th:selected="${#locale.language == 'en'}" th:text="#{common.language.en}">English</option>
+          <option value="zh-CN" th:selected="${#locale.language == 'zh'}" th:text="#{common.language.zh-CN}">中文</option>
+        </select>
+        <svg class="nav-lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20"/>
+        </svg>
+        <svg class="nav-lang-caret" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M6 8l4 4 4-4"/>
+        </svg>
+      </div>
+      <button type="submit" class="nav-apply-btn" th:text="#{common.apply}">Apply</button>
+    </form>
+  </div>
+
+  <script th:src="@{/js/soft-nav.js(v='20260226-1')}" src="/js/soft-nav.js"></script>
+  <script th:src="@{/js/breadcrumbs.js(v='20260227-1')}" src="/js/breadcrumbs.js"></script>
+  <script th:src="@{/js/nav-dropdown.js(v='20260226-2')}" src="/js/nav-dropdown.js" defer></script>
   <script th:src="@{/js/lang-switcher.js(v='20260216-3')}" src="/js/lang-switcher.js" defer></script>
 </nav>
 </body>

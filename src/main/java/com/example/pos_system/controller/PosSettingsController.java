@@ -26,12 +26,48 @@ public class PosSettingsController {
     private final TerminalSettingsService terminalSettingsService;
     private final PosHardwareService posHardwareService;
 
+    /**
+     * Executes the PosSettingsController operation.
+     * <p>Return value: A fully initialized PosSettingsController instance.</p>
+     *
+     * @param terminalSettingsService Parameter of type {@code TerminalSettingsService} used by this operation.
+     * @param posHardwareService Parameter of type {@code PosHardwareService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PosSettingsController(TerminalSettingsService terminalSettingsService,
                                  PosHardwareService posHardwareService) {
         this.terminalSettingsService = terminalSettingsService;
         this.posHardwareService = posHardwareService;
     }
 
+    /**
+     * Executes the index operation.
+     *
+     * @param editId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the index operation.
+     *
+     * @param editId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the index operation.
+     *
+     * @param editId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String index(@RequestParam(required = false) Long editId, Model model) {
         List<TerminalSettings> terminals = terminalSettingsService.list();
@@ -46,6 +82,63 @@ public class PosSettingsController {
         return "pos-setting/index";
     }
 
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param defaultCurrency Parameter of type {@code String} used by this operation.
+     * @param receiptHeader Parameter of type {@code String} used by this operation.
+     * @param receiptFooter Parameter of type {@code String} used by this operation.
+     * @param taxId Parameter of type {@code String} used by this operation.
+     * @param printerMode Parameter of type {@code PrinterMode} used by this operation.
+     * @param bridgeUrl Parameter of type {@code String} used by this operation.
+     * @param autoPrintEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param cameraScannerEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param defaultCurrency Parameter of type {@code String} used by this operation.
+     * @param receiptHeader Parameter of type {@code String} used by this operation.
+     * @param receiptFooter Parameter of type {@code String} used by this operation.
+     * @param taxId Parameter of type {@code String} used by this operation.
+     * @param printerMode Parameter of type {@code PrinterMode} used by this operation.
+     * @param bridgeUrl Parameter of type {@code String} used by this operation.
+     * @param autoPrintEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param cameraScannerEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param defaultCurrency Parameter of type {@code String} used by this operation.
+     * @param receiptHeader Parameter of type {@code String} used by this operation.
+     * @param receiptFooter Parameter of type {@code String} used by this operation.
+     * @param taxId Parameter of type {@code String} used by this operation.
+     * @param printerMode Parameter of type {@code PrinterMode} used by this operation.
+     * @param bridgeUrl Parameter of type {@code String} used by this operation.
+     * @param autoPrintEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param cameraScannerEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/terminals")
     public String save(@RequestParam(required = false) Long id,
                        @RequestParam String terminalId,
@@ -81,6 +174,33 @@ public class PosSettingsController {
         }
     }
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/terminals/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         terminalSettingsService.delete(id);
@@ -88,6 +208,30 @@ public class PosSettingsController {
         return "redirect:/pos-setting";
     }
 
+    /**
+     * Executes the testPrint operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code PosHardwareService.PrintResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the testPrint operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code PosHardwareService.PrintResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the testPrint operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code PosHardwareService.PrintResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping(value = "/terminals/{id}/test-print", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public PosHardwareService.PrintResponse testPrint(@PathVariable Long id) {
@@ -96,6 +240,33 @@ public class PosSettingsController {
         return posHardwareService.buildPrinterTestResponse(terminal.getTerminalId());
     }
 
+    /**
+     * Executes the testDrawer operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code PosHardwareService.DrawerResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the testDrawer operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code PosHardwareService.DrawerResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the testDrawer operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code PosHardwareService.DrawerResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping(value = "/terminals/{id}/test-drawer", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public PosHardwareService.DrawerResponse testDrawer(@PathVariable Long id,

@@ -61,6 +61,27 @@ class AuditEventIntegrationTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Executes the checkoutIdempotencyCreatesSingleSaleAndSingleAuditEvent operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutIdempotencyCreatesSingleSaleAndSingleAuditEvent operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutIdempotencyCreatesSingleSaleAndSingleAuditEvent operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "audit_admin", roles = "ADMIN")
     void checkoutIdempotencyCreatesSingleSaleAndSingleAuditEvent() {
@@ -109,6 +130,27 @@ class AuditEventIntegrationTests {
         assertThat(event.getBeforeJson()).contains("items");
     }
 
+    /**
+     * Executes the stockAdjustmentAuditPreventsNegativeInventory operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the stockAdjustmentAuditPreventsNegativeInventory operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the stockAdjustmentAuditPreventsNegativeInventory operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "audit_admin", roles = "ADMIN")
     void stockAdjustmentAuditPreventsNegativeInventory() {
@@ -123,6 +165,15 @@ class AuditEventIntegrationTests {
         assertThat(updated.getStockQty()).isEqualTo(3);
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @param sku Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code int} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct(String sku, int stockQty) {
         Category category = new Category();
         category.setName("Audit Category " + sku);
@@ -140,6 +191,15 @@ class AuditEventIntegrationTests {
         return productRepo.save(product);
     }
 
+    /**
+     * Executes the createShift operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Shift} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Shift createShift(String username, String terminalId) {
         Shift shift = new Shift();
         shift.setCashierUsername(username);
@@ -150,6 +210,14 @@ class AuditEventIntegrationTests {
         return shiftRepo.save(shift);
     }
 
+    /**
+     * Executes the ensureActor operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void ensureActor(String username) {
         if (appUserRepo.findByUsername(username).isPresent()) return;
         AppUser user = new AppUser();

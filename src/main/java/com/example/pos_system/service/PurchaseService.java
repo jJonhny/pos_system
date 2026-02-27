@@ -41,6 +41,20 @@ public class PurchaseService {
     private final StockMovementService stockMovementService;
     private final AuditEventService auditEventService;
 
+    /**
+     * Executes the PurchaseService operation.
+     * <p>Return value: A fully initialized PurchaseService instance.</p>
+     *
+     * @param supplierRepo Parameter of type {@code SupplierRepo} used by this operation.
+     * @param purchaseOrderRepo Parameter of type {@code PurchaseOrderRepo} used by this operation.
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param goodsReceiptRepo Parameter of type {@code GoodsReceiptRepo} used by this operation.
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PurchaseService(SupplierRepo supplierRepo,
                            PurchaseOrderRepo purchaseOrderRepo,
                            ProductRepo productRepo,
@@ -57,12 +71,57 @@ public class PurchaseService {
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the listPurchaseOrders operation.
+     *
+     * @return {@code List<PurchaseOrder>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listPurchaseOrders operation.
+     *
+     * @return {@code List<PurchaseOrder>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listPurchaseOrders operation.
+     *
+     * @return {@code List<PurchaseOrder>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<PurchaseOrder> listPurchaseOrders() {
         requirePurchasesAccess();
         return purchaseOrderRepo.findAllByOrderByCreatedAtDesc();
     }
 
+    /**
+     * Executes the getPurchaseOrder operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code PurchaseOrder} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the getPurchaseOrder operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code PurchaseOrder} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the getPurchaseOrder operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code PurchaseOrder} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public PurchaseOrder getPurchaseOrder(Long id) {
         requirePurchasesAccess();
@@ -70,18 +129,74 @@ public class PurchaseService {
         return purchaseOrderRepo.findDetailedById(id).orElse(null);
     }
 
+    /**
+     * Executes the listSuppliers operation.
+     *
+     * @return {@code List<Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listSuppliers operation.
+     *
+     * @return {@code List<Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listSuppliers operation.
+     *
+     * @return {@code List<Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<Supplier> listSuppliers() {
         requirePurchasesAccess();
         return supplierRepo.findAll(Sort.by("name").ascending());
     }
 
+    /**
+     * Executes the listProducts operation.
+     *
+     * @return {@code List<Product>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listProducts operation.
+     *
+     * @return {@code List<Product>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listProducts operation.
+     *
+     * @return {@code List<Product>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<Product> listProducts() {
         requirePurchasesAccess();
         return productRepo.findAll(Sort.by("name").ascending());
     }
 
+    /**
+     * Executes the savePurchaseOrder operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param status Parameter of type {@code PurchaseOrderStatus} used by this operation.
+     * @param currency Parameter of type {@code String} used by this operation.
+     * @param expectedAt Parameter of type {@code LocalDate} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param lines Parameter of type {@code List<PurchaseOrderLineInput>} used by this operation.
+     * @return {@code PurchaseOrder} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PurchaseOrder savePurchaseOrder(Long id,
                                            Long supplierId,
                                            PurchaseOrderStatus status,
@@ -97,6 +212,13 @@ public class PurchaseService {
         }
 
         PurchaseOrder po = id == null
+                /**
+                 * Executes the PurchaseOrder operation.
+                 *
+                 * @return {@code ? new} Result produced by this operation.
+                 * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+                 * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+                 */
                 ? new PurchaseOrder()
                 : purchaseOrderRepo.findDetailedById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Purchase order not found."));
@@ -151,6 +273,18 @@ public class PurchaseService {
         return saved;
     }
 
+    /**
+     * Executes the postGoodsReceipt operation.
+     *
+     * @param poId Parameter of type {@code Long} used by this operation.
+     * @param invoiceNo Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param lines Parameter of type {@code List<GoodsReceiptLineInput>} used by this operation.
+     * @return {@code GoodsReceipt} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public GoodsReceipt postGoodsReceipt(Long poId,
                                          String invoiceNo,
                                          String notes,
@@ -240,6 +374,36 @@ public class PurchaseService {
         return saved;
     }
 
+    /**
+     * Executes the listGoodsReceipts operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<GoodsReceipt>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listGoodsReceipts operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<GoodsReceipt>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listGoodsReceipts operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<GoodsReceipt>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<GoodsReceipt> listGoodsReceipts(LocalDate from, LocalDate to, Long supplierId) {
         requirePurchasesAccess();
@@ -249,6 +413,36 @@ public class PurchaseService {
                 .toList();
     }
 
+    /**
+     * Executes the buildReceivingReport operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<ReceivingReportRow>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildReceivingReport operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<ReceivingReportRow>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildReceivingReport operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<ReceivingReportRow>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<ReceivingReportRow> buildReceivingReport(LocalDate from, LocalDate to, Long supplierId) {
         List<GoodsReceipt> receipts = listGoodsReceipts(from, to, supplierId);
@@ -276,6 +470,14 @@ public class PurchaseService {
                 .toList();
     }
 
+    /**
+     * Executes the updatePoStatusFromReceipts operation.
+     *
+     * @param po Parameter of type {@code PurchaseOrder} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void updatePoStatusFromReceipts(PurchaseOrder po) {
         int ordered = 0;
         int received = 0;
@@ -304,6 +506,16 @@ public class PurchaseService {
         }
     }
 
+    /**
+     * Executes the withinRange operation.
+     *
+     * @param receipt Parameter of type {@code GoodsReceipt} used by this operation.
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean withinRange(GoodsReceipt receipt, LocalDate from, LocalDate to) {
         if (receipt == null || receipt.getReceivedAt() == null) return false;
         LocalDate date = receipt.getReceivedAt().toLocalDate();
@@ -312,12 +524,29 @@ public class PurchaseService {
         return true;
     }
 
+    /**
+     * Executes the matchesSupplier operation.
+     *
+     * @param receipt Parameter of type {@code GoodsReceipt} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean matchesSupplier(GoodsReceipt receipt, Long supplierId) {
         if (supplierId == null) return true;
         Long actual = supplierId(receipt);
         return actual != null && actual.equals(supplierId);
     }
 
+    /**
+     * Executes the supplierId operation.
+     *
+     * @param receipt Parameter of type {@code GoodsReceipt} used by this operation.
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Long supplierId(GoodsReceipt receipt) {
         if (receipt == null || receipt.getPurchaseOrder() == null || receipt.getPurchaseOrder().getSupplier() == null) {
             return null;
@@ -325,6 +554,14 @@ public class PurchaseService {
         return receipt.getPurchaseOrder().getSupplier().getId();
     }
 
+    /**
+     * Executes the supplierName operation.
+     *
+     * @param receipt Parameter of type {@code GoodsReceipt} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String supplierName(GoodsReceipt receipt) {
         if (receipt == null || receipt.getPurchaseOrder() == null || receipt.getPurchaseOrder().getSupplier() == null) {
             return "Unlinked";
@@ -333,16 +570,41 @@ public class PurchaseService {
         return value == null || value.isBlank() ? "Unnamed supplier" : value;
     }
 
+    /**
+     * Executes the safeMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeMoney(BigDecimal value) {
         if (value == null) return BigDecimal.ZERO.setScale(4, RoundingMode.HALF_UP);
         return value.max(BigDecimal.ZERO).setScale(4, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the safeOptionalMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeOptionalMoney(BigDecimal value) {
         if (value == null) return null;
         return value.max(BigDecimal.ZERO).setScale(4, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the trimTo operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param max Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimTo(String value, int max) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -350,6 +612,13 @@ public class PurchaseService {
         return trimmed.length() <= max ? trimmed : trimmed.substring(0, max);
     }
 
+    /**
+     * Executes the currentUsername operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String currentUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return null;
@@ -358,30 +627,66 @@ public class PurchaseService {
         return name;
     }
 
+    /**
+     * Executes the currentUserId operation.
+     *
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Long currentUserId() {
         String username = currentUsername();
         if (username == null) return null;
         return appUserRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
     }
 
+    /**
+     * Executes the requireManagePurchases operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void requireManagePurchases() {
         if (!hasAnyAuthority("PERM_PURCHASES_MANAGE", "ROLE_ADMIN", "ROLE_MANAGER")) {
             throw new AccessDeniedException("Purchase management permission required.");
         }
     }
 
+    /**
+     * Executes the requireReceivingPost operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void requireReceivingPost() {
         if (!hasAnyAuthority("PERM_RECEIVING_POST", "PERM_PURCHASES_MANAGE", "ROLE_ADMIN", "ROLE_MANAGER")) {
             throw new AccessDeniedException("Receiving post permission required.");
         }
     }
 
+    /**
+     * Executes the requirePurchasesAccess operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void requirePurchasesAccess() {
         if (!hasAnyAuthority("PERM_PURCHASES_MANAGE", "PERM_RECEIVING_POST", "PERM_VIEW_REPORTS", "ROLE_ADMIN", "ROLE_MANAGER")) {
             throw new AccessDeniedException("Purchase access permission required.");
         }
     }
 
+    /**
+     * Executes the hasAnyAuthority operation.
+     *
+     * @param required Parameter of type {@code String...} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasAnyAuthority(String... required) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) return false;
@@ -395,6 +700,14 @@ public class PurchaseService {
         return false;
     }
 
+    /**
+     * Executes the poSnapshot operation.
+     *
+     * @param po Parameter of type {@code PurchaseOrder} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> poSnapshot(PurchaseOrder po) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", po.getId());
@@ -418,6 +731,14 @@ public class PurchaseService {
         return map;
     }
 
+    /**
+     * Executes the grnSnapshot operation.
+     *
+     * @param grn Parameter of type {@code GoodsReceipt} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> grnSnapshot(GoodsReceipt grn) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", grn.getId());
@@ -463,12 +784,29 @@ public class PurchaseService {
         private int totalQty;
         private BigDecimal totalCost = BigDecimal.ZERO;
 
+        /**
+         * Executes the ReceivingAccumulator operation.
+         * <p>Return value: A fully initialized ReceivingAccumulator instance.</p>
+         *
+         * @param date Parameter of type {@code LocalDate} used by this operation.
+         * @param supplierId Parameter of type {@code Long} used by this operation.
+         * @param supplierName Parameter of type {@code String} used by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private ReceivingAccumulator(LocalDate date, Long supplierId, String supplierName) {
             this.date = date;
             this.supplierId = supplierId;
             this.supplierName = supplierName;
         }
 
+        /**
+         * Executes the toRow operation.
+         *
+         * @return {@code ReceivingReportRow} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private ReceivingReportRow toRow() {
             return new ReceivingReportRow(date, supplierId, supplierName, receiptCount, totalQty,
                     totalCost.setScale(2, RoundingMode.HALF_UP));

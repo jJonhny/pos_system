@@ -3,9 +3,9 @@ package com.example.pos_system.util;
 import org.springframework.stereotype.Component;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import com.example.pos_system.entity.Currency;
-import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.entity.PaymentMethod;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,12 +25,29 @@ public class UiFormat {
     private final CurrencyService currencyService;
     private final MessageSource messageSource;
 
+    /**
+     * Executes the UiFormat operation.
+     * <p>Return value: A fully initialized UiFormat instance.</p>
+     *
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * @param messageSource Parameter of type {@code MessageSource} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public UiFormat(CurrencyService currencyService,
                     MessageSource messageSource) {
         this.currencyService = currencyService;
         this.messageSource = messageSource;
     }
 
+    /**
+     * Executes the money operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String money(BigDecimal value) {
         if (value == null) return "-";
         Currency base = currencyService.getBaseCurrency();
@@ -41,6 +58,15 @@ public class UiFormat {
         return formatCurrency(scaled, symbol, code, decimals, LocaleContextHolder.getLocale());
     }
 
+    /**
+     * Executes the moneyForCurrency operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @param currencyCode Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String moneyForCurrency(BigDecimal value, String currencyCode) {
         if (value == null) return "-";
         if (currencyCode == null || currencyCode.isBlank()) return money(value);
@@ -51,6 +77,18 @@ public class UiFormat {
         return formatCurrency(scaled, currency.getSymbol(), currency.getCode(), decimals, LocaleContextHolder.getLocale());
     }
 
+    /**
+     * Executes the formatCurrency operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @param symbol Parameter of type {@code String} used by this operation.
+     * @param code Parameter of type {@code String} used by this operation.
+     * @param decimals Parameter of type {@code int} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String formatCurrency(BigDecimal value, String symbol, String code, int decimals, Locale locale) {
         NumberFormat nf = NumberFormat.getNumberInstance(locale == null ? Locale.ENGLISH : locale);
         if (nf instanceof DecimalFormat decimalFormat) {
@@ -70,18 +108,42 @@ public class UiFormat {
         return text;
     }
 
+    /**
+     * Executes the dateTime operation.
+     *
+     * @param value Parameter of type {@code LocalDateTime} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String dateTime(LocalDateTime value) {
         if (value == null) return "-";
         Locale locale = LocaleContextHolder.getLocale();
         return value.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale));
     }
 
+    /**
+     * Executes the date operation.
+     *
+     * @param value Parameter of type {@code LocalDate} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String date(LocalDate value) {
         if (value == null) return "-";
         Locale locale = LocaleContextHolder.getLocale();
         return value.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale));
     }
 
+    /**
+     * Executes the unitLabel operation.
+     *
+     * @param unitType Parameter of type {@code UnitType} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String unitLabel(UnitType unitType) {
         Locale locale = LocaleContextHolder.getLocale();
         if (unitType == null) return messageSource.getMessage("common.unit.piece", null, "pc", locale);
@@ -92,6 +154,14 @@ public class UiFormat {
         };
     }
 
+    /**
+     * Executes the paymentMethodLabel operation.
+     *
+     * @param method Parameter of type {@code PaymentMethod} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String paymentMethodLabel(PaymentMethod method) {
         Locale locale = LocaleContextHolder.getLocale();
         if (method == null) return messageSource.getMessage("payment.method.cash", null, "Cash", locale);

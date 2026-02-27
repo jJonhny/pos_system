@@ -13,6 +13,14 @@ import java.util.stream.Collectors;
 @Service
 public class VariantCombinationKeyService {
 
+    /**
+     * Executes the canonicalKey operation.
+     *
+     * @param valuesByGroupCode Parameter of type {@code Map<String, String>} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String canonicalKey(Map<String, String> valuesByGroupCode) {
         if (valuesByGroupCode == null || valuesByGroupCode.isEmpty()) {
             return "";
@@ -30,6 +38,14 @@ public class VariantCombinationKeyService {
                 .collect(Collectors.joining("|"));
     }
 
+    /**
+     * Executes the parseCanonicalKey operation.
+     *
+     * @param combinationKey Parameter of type {@code String} used by this operation.
+     * @return {@code Map<String, String>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Map<String, String> parseCanonicalKey(String combinationKey) {
         Map<String, String> values = new LinkedHashMap<>();
         if (combinationKey == null || combinationKey.isBlank()) {
@@ -47,6 +63,14 @@ public class VariantCombinationKeyService {
         return new TreeMap<>(values);
     }
 
+    /**
+     * Executes the hash operation.
+     *
+     * @param canonicalKey Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String hash(String canonicalKey) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

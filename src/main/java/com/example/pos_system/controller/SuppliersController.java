@@ -17,10 +17,51 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class SuppliersController {
     private final SupplierService supplierService;
 
+    /**
+     * Executes the SuppliersController operation.
+     * <p>Return value: A fully initialized SuppliersController instance.</p>
+     *
+     * @param supplierService Parameter of type {@code SupplierService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SuppliersController(SupplierService supplierService) {
         this.supplierService = supplierService;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @param editId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @param editId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @param editId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String list(@RequestParam(required = false) String q,
                        @RequestParam(required = false) SupplierStatus status,
@@ -35,6 +76,48 @@ public class SuppliersController {
         return "suppliers/list";
     }
 
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param phone Parameter of type {@code String} used by this operation.
+     * @param email Parameter of type {@code String} used by this operation.
+     * @param address Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param phone Parameter of type {@code String} used by this operation.
+     * @param email Parameter of type {@code String} used by this operation.
+     * @param address Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param phone Parameter of type {@code String} used by this operation.
+     * @param email Parameter of type {@code String} used by this operation.
+     * @param address Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping
     public String save(@RequestParam(required = false) Long id,
                        @RequestParam String name,
@@ -52,6 +135,33 @@ public class SuppliersController {
         return "redirect:/suppliers";
     }
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

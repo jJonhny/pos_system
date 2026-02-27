@@ -58,6 +58,27 @@ class StockMovementReceivingIntegrationTests {
     @Autowired
     private StockMovementRepo stockMovementRepo;
 
+    /**
+     * Executes the grnPostingIncreasesStockAndWritesReceiveMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the grnPostingIncreasesStockAndWritesReceiveMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the grnPostingIncreasesStockAndWritesReceiveMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "ops_manager", roles = "MANAGER")
     void grnPostingIncreasesStockAndWritesReceiveMovement() {
@@ -95,6 +116,27 @@ class StockMovementReceivingIntegrationTests {
         assertThat(refreshedPo.getStatus()).isEqualTo(PurchaseOrderStatus.PARTIAL);
     }
 
+    /**
+     * Executes the checkoutDecreasesStockAndWritesSaleMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutDecreasesStockAndWritesSaleMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutDecreasesStockAndWritesSaleMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "ops_manager", roles = "MANAGER")
     void checkoutDecreasesStockAndWritesSaleMovement() {
@@ -121,6 +163,27 @@ class StockMovementReceivingIntegrationTests {
         assertThat(saleMovements.getFirst().getRefId()).isEqualTo(String.valueOf(sale.getId()));
     }
 
+    /**
+     * Executes the returnIncreasesStockAndWritesReturnMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the returnIncreasesStockAndWritesReturnMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the returnIncreasesStockAndWritesReturnMovement operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "ops_manager", roles = "MANAGER")
     void returnIncreasesStockAndWritesReturnMovement() {
@@ -148,6 +211,27 @@ class StockMovementReceivingIntegrationTests {
         assertThat(returnMovements.getFirst().getRefId()).isEqualTo(String.valueOf(sale.getId()));
     }
 
+    /**
+     * Executes the negativeStockBlockedWhenAllowNegativeStockFalse operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the negativeStockBlockedWhenAllowNegativeStockFalse operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the negativeStockBlockedWhenAllowNegativeStockFalse operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "ops_manager", roles = "MANAGER")
     void negativeStockBlockedWhenAllowNegativeStockFalse() {
@@ -178,6 +262,16 @@ class StockMovementReceivingIntegrationTests {
         assertThat(saleMovementCount).isZero();
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @param sku Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code int} used by this operation.
+     * @param price Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct(String sku, int stockQty, BigDecimal price) {
         Category category = new Category();
         category.setName("Inventory Category " + sku);
@@ -197,6 +291,14 @@ class StockMovementReceivingIntegrationTests {
         return productRepo.save(product);
     }
 
+    /**
+     * Executes the createSupplier operation.
+     *
+     * @param name Parameter of type {@code String} used by this operation.
+     * @return {@code Supplier} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Supplier createSupplier(String name) {
         Supplier supplier = new Supplier();
         supplier.setName(name);

@@ -47,6 +47,20 @@ public class AuthService {
     @Value("${app.security.jwt.access-token-minutes:720}")
     private long accessTokenMinutes;
 
+    /**
+     * Executes the AuthService operation.
+     * <p>Return value: A fully initialized AuthService instance.</p>
+     *
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * @param passwordEncoder Parameter of type {@code PasswordEncoder} used by this operation.
+     * @param rolePermissionService Parameter of type {@code RolePermissionService} used by this operation.
+     * @param speakeasyTotpService Parameter of type {@code SpeakeasyTotpService} used by this operation.
+     * @param jwtTokenService Parameter of type {@code JwtTokenService} used by this operation.
+     * @param userAuditLogRepo Parameter of type {@code UserAuditLogRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AuthService(AppUserRepo appUserRepo,
                        PasswordEncoder passwordEncoder,
                        RolePermissionService rolePermissionService,
@@ -63,6 +77,16 @@ public class AuthService {
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the register operation.
+     *
+     * @param email Parameter of type {@code String} used by this operation.
+     * @param password Parameter of type {@code String} used by this operation.
+     * @param roleName Parameter of type {@code String} used by this operation.
+     * @return {@code RegisterResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public RegisterResult register(String email, String password, String roleName) {
         String normalizedEmail = normalizeEmail(email);
         validatePassword(password);
@@ -104,6 +128,16 @@ public class AuthService {
         );
     }
 
+    /**
+     * Executes the loginWithPassword operation.
+     *
+     * @param email Parameter of type {@code String} used by this operation.
+     * @param password Parameter of type {@code String} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code LoginResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public LoginResult loginWithPassword(String email, String password, HttpServletRequest request) {
         String normalizedEmail = normalizeEmail(email);
         AppUser user = appUserRepo.findByEmailIgnoreCase(normalizedEmail).orElse(null);
@@ -165,6 +199,16 @@ public class AuthService {
         return LoginResult.otpRequired(challengeToken, firstTimeSetup, otpauthUrl, qrDataUrl);
     }
 
+    /**
+     * Executes the verifyOtp operation.
+     *
+     * @param challengeToken Parameter of type {@code String} used by this operation.
+     * @param otpCode Parameter of type {@code String} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code OtpResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public OtpResult verifyOtp(String challengeToken, String otpCode, HttpServletRequest request) {
         Claims claims = jwtTokenService.parseOtpChallengeToken(challengeToken);
         Long userId = parseUserId(claims.getSubject());
@@ -216,6 +260,16 @@ public class AuthService {
         );
     }
 
+    /**
+     * Executes the onFailedAttempt operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param reason Parameter of type {@code String} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code LoginResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private LoginResult onFailedAttempt(AppUser user, String reason, HttpServletRequest request) {
         LocalDateTime now = LocalDateTime.now();
         int attempts = safeAttempts(user) + 1;
@@ -251,6 +305,14 @@ public class AuthService {
         return LoginResult.invalidCredentials();
     }
 
+    /**
+     * Executes the clearFailures operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void clearFailures(AppUser user) {
         if (user == null) {
             return;
@@ -261,6 +323,14 @@ public class AuthService {
         appUserRepo.save(user);
     }
 
+    /**
+     * Executes the isLocked operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean isLocked(AppUser user) {
         if (user == null || user.getLockedUntil() == null) {
             return false;
@@ -268,6 +338,14 @@ public class AuthService {
         return user.getLockedUntil().isAfter(LocalDateTime.now());
     }
 
+    /**
+     * Executes the remainingMinutes operation.
+     *
+     * @param lockedUntil Parameter of type {@code LocalDateTime} used by this operation.
+     * @return {@code long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private long remainingMinutes(LocalDateTime lockedUntil) {
         if (lockedUntil == null) {
             return normalizedMinutes(lockDurationMinutes);
@@ -276,6 +354,14 @@ public class AuthService {
         return Math.max(1, minutes);
     }
 
+    /**
+     * Executes the normalizeEmail operation.
+     *
+     * @param email Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeEmail(String email) {
         String normalized = email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
         if (normalized.isEmpty() || !EMAIL_PATTERN.matcher(normalized).matches()) {
@@ -284,12 +370,28 @@ public class AuthService {
         return normalized;
     }
 
+    /**
+     * Executes the validatePassword operation.
+     *
+     * @param password Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void validatePassword(String password) {
         if (password == null || password.length() < 8) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 8 characters.");
         }
     }
 
+    /**
+     * Executes the resolveRole operation.
+     *
+     * @param roleName Parameter of type {@code String} used by this operation.
+     * @return {@code UserRole} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private UserRole resolveRole(String roleName) {
         if (roleName == null || roleName.isBlank()) {
             return UserRole.CASHIER;
@@ -304,6 +406,14 @@ public class AuthService {
         };
     }
 
+    /**
+     * Executes the generateUsernameFromEmail operation.
+     *
+     * @param email Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String generateUsernameFromEmail(String email) {
         String localPart = email.substring(0, email.indexOf('@')).trim().toLowerCase(Locale.ROOT);
         String base = localPart.replaceAll("[^a-z0-9._-]", ".");
@@ -321,6 +431,17 @@ public class AuthService {
         return candidate;
     }
 
+    /**
+     * Executes the recordAudit operation.
+     *
+     * @param actorUsername Parameter of type {@code String} used by this operation.
+     * @param targetUsername Parameter of type {@code String} used by this operation.
+     * @param action Parameter of type {@code String} used by this operation.
+     * @param details Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void recordAudit(String actorUsername, String targetUsername, String action, String details) {
         UserAuditLog log = new UserAuditLog();
         log.setActorUsername(actorUsername);
@@ -330,6 +451,14 @@ public class AuthService {
         userAuditLogRepo.save(log);
     }
 
+    /**
+     * Executes the authSnapshot operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> authSnapshot(AppUser user) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("id", user.getId());
@@ -340,6 +469,14 @@ public class AuthService {
         return snapshot;
     }
 
+    /**
+     * Executes the permissionNames operation.
+     *
+     * @param permissions Parameter of type {@code Set<Permission>} used by this operation.
+     * @return {@code List<String>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<String> permissionNames(Set<Permission> permissions) {
         if (permissions == null || permissions.isEmpty()) {
             return List.of();
@@ -347,6 +484,14 @@ public class AuthService {
         return permissions.stream().map(Enum::name).sorted().toList();
     }
 
+    /**
+     * Executes the safeAttempts operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int safeAttempts(AppUser user) {
         if (user == null || user.getFailedLoginAttempts() == null) {
             return 0;
@@ -354,14 +499,37 @@ public class AuthService {
         return Math.max(0, user.getFailedLoginAttempts());
     }
 
+    /**
+     * Executes the normalizedMaxAttempts operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int normalizedMaxAttempts() {
         return Math.max(1, maxFailedAttempts);
     }
 
+    /**
+     * Executes the normalizedMinutes operation.
+     *
+     * @param configured Parameter of type {@code long} used by this operation.
+     * @return {@code long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private long normalizedMinutes(long configured) {
         return configured <= 0 ? 5 : configured;
     }
 
+    /**
+     * Executes the parseUserId operation.
+     *
+     * @param subject Parameter of type {@code String} used by this operation.
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Long parseUserId(String subject) {
         if (subject == null || subject.isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid challenge token.");
@@ -373,6 +541,14 @@ public class AuthService {
         }
     }
 
+    /**
+     * Executes the extractIp operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String extractIp(HttpServletRequest request) {
         if (request == null) {
             return null;
@@ -402,18 +578,51 @@ public class AuthService {
                               String otpauthUrl,
                               String qrDataUrl,
                               Long lockedMinutes) {
+        /**
+         * Executes the invalidCredentials operation.
+         *
+         * @return {@code LoginResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static LoginResult invalidCredentials() {
             return new LoginResult(LoginStatus.INVALID_CREDENTIALS, null, false, null, null, null);
         }
 
+        /**
+         * Executes the disabled operation.
+         *
+         * @return {@code LoginResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static LoginResult disabled() {
             return new LoginResult(LoginStatus.DISABLED, null, false, null, null, null);
         }
 
+        /**
+         * Executes the locked operation.
+         *
+         * @param lockedMinutes Parameter of type {@code long} used by this operation.
+         * @return {@code LoginResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static LoginResult locked(long lockedMinutes) {
             return new LoginResult(LoginStatus.LOCKED, null, false, null, null, lockedMinutes);
         }
 
+        /**
+         * Executes the otpRequired operation.
+         *
+         * @param challengeToken Parameter of type {@code String} used by this operation.
+         * @param firstTimeSetup Parameter of type {@code boolean} used by this operation.
+         * @param otpauthUrl Parameter of type {@code String} used by this operation.
+         * @param qrDataUrl Parameter of type {@code String} used by this operation.
+         * @return {@code LoginResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static LoginResult otpRequired(String challengeToken,
                                                boolean firstTimeSetup,
                                                String otpauthUrl,
@@ -428,18 +637,51 @@ public class AuthService {
                             UserRole role,
                             List<String> permissions,
                             Long lockedMinutes) {
+        /**
+         * Executes the invalidOtp operation.
+         *
+         * @return {@code OtpResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static OtpResult invalidOtp() {
             return new OtpResult(OtpStatus.INVALID_OTP, null, 0, null, List.of(), null);
         }
 
+        /**
+         * Executes the disabled operation.
+         *
+         * @return {@code OtpResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static OtpResult disabled() {
             return new OtpResult(OtpStatus.DISABLED, null, 0, null, List.of(), null);
         }
 
+        /**
+         * Executes the locked operation.
+         *
+         * @param lockedMinutes Parameter of type {@code long} used by this operation.
+         * @return {@code OtpResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static OtpResult locked(long lockedMinutes) {
             return new OtpResult(OtpStatus.LOCKED, null, 0, null, List.of(), lockedMinutes);
         }
 
+        /**
+         * Executes the success operation.
+         *
+         * @param accessToken Parameter of type {@code String} used by this operation.
+         * @param expiresInSeconds Parameter of type {@code long} used by this operation.
+         * @param role Parameter of type {@code UserRole} used by this operation.
+         * @param permissions Parameter of type {@code List<String>} used by this operation.
+         * @return {@code OtpResult} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static OtpResult success(String accessToken,
                                          long expiresInSeconds,
                                          UserRole role,

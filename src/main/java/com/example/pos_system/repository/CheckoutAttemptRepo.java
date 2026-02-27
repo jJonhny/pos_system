@@ -17,6 +17,15 @@ public interface CheckoutAttemptRepo extends JpaRepository<CheckoutAttempt, Long
             where c.terminalId = :terminalId
               and c.clientCheckoutId = :clientCheckoutId
             """)
+    /**
+     * Executes the findForUpdate operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<CheckoutAttempt>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     Optional<CheckoutAttempt> findForUpdate(@Param("terminalId") String terminalId,
                                             @Param("clientCheckoutId") String clientCheckoutId);
 }

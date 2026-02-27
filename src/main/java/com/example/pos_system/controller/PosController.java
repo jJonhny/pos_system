@@ -4,9 +4,10 @@ import com.example.pos_system.dto.Cart;
 import com.example.pos_system.dto.CartItem;
 import com.example.pos_system.dto.VariantApiDtos;
 import com.example.pos_system.entity.*;
+import com.example.pos_system.modules.currency.domain.Currency;
 import com.example.pos_system.repository.*;
 import com.example.pos_system.service.CheckoutAttemptService;
-import com.example.pos_system.service.CurrencyService;
+import com.example.pos_system.modules.currency.application.CurrencyService;
 import com.example.pos_system.service.MarketingPricingService;
 import com.example.pos_system.service.PosCartService;
 import com.example.pos_system.service.PosHardwareService;
@@ -75,6 +76,33 @@ public class PosController {
   @Value("${app.pagination.feed.rate-limit-per-minute:240}")
   private int productFeedRateLimitPerMinute;
 
+  /**
+   * Executes the PosController operation.
+   * <p>Return value: A fully initialized PosController instance.</p>
+   *
+   * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+   * @param productVariantRepo Parameter of type {@code ProductVariantRepo} used by this operation.
+   * @param skuSellUnitRepo Parameter of type {@code SkuSellUnitRepo} used by this operation.
+   * @param skuUnitBarcodeRepo Parameter of type {@code SkuUnitBarcodeRepo} used by this operation.
+   * @param categoryRepo Parameter of type {@code CategoryRepo} used by this operation.
+   * @param posService Parameter of type {@code PosService} used by this operation.
+   * @param heldSaleRepo Parameter of type {@code HeldSaleRepo} used by this operation.
+   * @param customerRepo Parameter of type {@code CustomerRepo} used by this operation.
+   * @param shiftService Parameter of type {@code ShiftService} used by this operation.
+   * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+   * @param posCartService Parameter of type {@code PosCartService} used by this operation.
+   * @param checkoutAttemptService Parameter of type {@code CheckoutAttemptService} used by this operation.
+   * @param terminalSettingsService Parameter of type {@code TerminalSettingsService} used by this operation.
+   * @param posHardwareService Parameter of type {@code PosHardwareService} used by this operation.
+   * @param productFeedService Parameter of type {@code ProductFeedService} used by this operation.
+   * @param endpointRateLimiterService Parameter of type {@code EndpointRateLimiterService} used by this operation.
+   * @param paginationObservabilityService Parameter of type {@code PaginationObservabilityService} used by this operation.
+   * @param i18nService Parameter of type {@code I18nService} used by this operation.
+   * @param skuUnitPricingService Parameter of type {@code SkuUnitPricingService} used by this operation.
+   * @param marketingPricingService Parameter of type {@code MarketingPricingService} used by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   public PosController(ProductRepo productRepo,
                        ProductVariantRepo productVariantRepo,
                        SkuSellUnitRepo skuSellUnitRepo,
@@ -117,9 +145,75 @@ public class PosController {
     this.marketingPricingService = marketingPricingService;
   }
 
+  /**
+   * Executes the cart operation.
+   *
+   * @return {@code Cart} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the cart operation.
+   *
+   * @return {@code Cart} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the cart operation.
+   *
+   * @return {@code Cart} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @ModelAttribute("cart")
   public Cart cart() { return new Cart(); }
 
+  /**
+   * Executes the pos operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param page Parameter of type {@code Integer} used by this operation.
+   * @param scanError Parameter of type {@code String} used by this operation.
+   * @param cartError Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the pos operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param page Parameter of type {@code Integer} used by this operation.
+   * @param scanError Parameter of type {@code String} used by this operation.
+   * @param cartError Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the pos operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param page Parameter of type {@code Integer} used by this operation.
+   * @param scanError Parameter of type {@code String} used by this operation.
+   * @param cartError Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping
   public String pos(@RequestParam(required=false) String q,
                     @RequestParam(required=false) Long categoryId,
@@ -146,6 +240,42 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: productGridWrap" : "pos/index";
   }
 
+  /**
+   * Executes the productsFragment operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param page Parameter of type {@code int} used by this operation.
+   * @param append Parameter of type {@code Boolean} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the productsFragment operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param page Parameter of type {@code int} used by this operation.
+   * @param append Parameter of type {@code Boolean} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the productsFragment operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param page Parameter of type {@code int} used by this operation.
+   * @param append Parameter of type {@code Boolean} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/products")
   public String productsFragment(@RequestParam(required=false) String q,
                                  @RequestParam(required=false) Long categoryId,
@@ -164,6 +294,42 @@ public class PosController {
     return "pos/fragments :: productGridWrap";
   }
 
+  /**
+   * Executes the productsFeed operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param cursor Parameter of type {@code String} used by this operation.
+   * @param size Parameter of type {@code Integer} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code ProductFeedResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the productsFeed operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param cursor Parameter of type {@code String} used by this operation.
+   * @param size Parameter of type {@code Integer} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code ProductFeedResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the productsFeed operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param categoryId Parameter of type {@code Long} used by this operation.
+   * @param cursor Parameter of type {@code String} used by this operation.
+   * @param size Parameter of type {@code Integer} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code ProductFeedResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping(value = "/products/feed", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public ProductFeedResponse productsFeed(@RequestParam(required = false) String q,
@@ -256,6 +422,42 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the addToCart operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the addToCart operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the addToCart operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/add/{productId}")
   public String addToCart(@PathVariable Long productId,
                           @RequestParam(name = "qty", required = false, defaultValue = "1") Integer qty,
@@ -282,6 +484,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the quickAdd operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the quickAdd operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the quickAdd operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/quick-add")
   public String quickAdd(@RequestParam(required = false) String q,
                          @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -320,6 +555,39 @@ public class PosController {
   }
 
   // Fallback for clients accidentally issuing GETs (e.g., scanner apps or bad redirects)
+  /**
+   * Executes the addToCartGet operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the addToCartGet operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the addToCartGet operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/cart/add/{productId}")
   public String addToCartGet(@PathVariable Long productId,
                              @RequestParam(name = "qty", required = false, defaultValue = "1") Integer qty,
@@ -330,6 +598,42 @@ public class PosController {
     return addToCart(productId, requestedQty, null, cart, model);
   }
 
+  /**
+   * Executes the updateQty operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code int} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateQty operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code int} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateQty operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code int} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/update")
   public String updateQty(@RequestParam Long productId, @RequestParam int qty,
                           @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -344,6 +648,42 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the updateUnit operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param unitType Parameter of type {@code UnitType} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateUnit operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param unitType Parameter of type {@code UnitType} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateUnit operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param unitType Parameter of type {@code UnitType} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/unit")
   public String updateUnit(@RequestParam Long productId,
                            @RequestParam UnitType unitType,
@@ -406,6 +746,42 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the updateNote operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param note Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateNote operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param note Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateNote operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param note Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/note")
   public String updateNote(@RequestParam Long productId,
                            @RequestParam(required = false) String note,
@@ -416,6 +792,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the attachCustomer operation.
+   *
+   * @param query Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the attachCustomer operation.
+   *
+   * @param query Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the attachCustomer operation.
+   *
+   * @param query Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/customer/lookup")
   public String attachCustomer(@RequestParam(required = false) String query,
                                @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -440,6 +849,48 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the createCustomer operation.
+   *
+   * @param name Parameter of type {@code String} used by this operation.
+   * @param phone Parameter of type {@code String} used by this operation.
+   * @param email Parameter of type {@code String} used by this operation.
+   * @param wholesale Parameter of type {@code Boolean} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the createCustomer operation.
+   *
+   * @param name Parameter of type {@code String} used by this operation.
+   * @param phone Parameter of type {@code String} used by this operation.
+   * @param email Parameter of type {@code String} used by this operation.
+   * @param wholesale Parameter of type {@code Boolean} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the createCustomer operation.
+   *
+   * @param name Parameter of type {@code String} used by this operation.
+   * @param phone Parameter of type {@code String} used by this operation.
+   * @param email Parameter of type {@code String} used by this operation.
+   * @param wholesale Parameter of type {@code Boolean} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/customer/create")
   public String createCustomer(@RequestParam String name,
                                @RequestParam(required = false) String phone,
@@ -471,6 +922,36 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the clearCustomer operation.
+   *
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the clearCustomer operation.
+   *
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the clearCustomer operation.
+   *
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/customer/clear")
   public String clearCustomer(@RequestHeader(value = "HX-Request", required = false) String hxRequest,
                               @ModelAttribute("cart") Cart cart,
@@ -481,6 +962,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the holdCart operation.
+   *
+   * @param label Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the holdCart operation.
+   *
+   * @param label Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the holdCart operation.
+   *
+   * @param label Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/hold")
   public String holdCart(@RequestParam(required = false) String label,
                          @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -530,6 +1044,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the resumeHold operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the resumeHold operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the resumeHold operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/holds/{id}/resume")
   public String resumeHold(@PathVariable Long id,
                            @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -583,6 +1130,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the deleteHold operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the deleteHold operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the deleteHold operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/holds/{id}/delete")
   public String deleteHold(@PathVariable Long id,
                            @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -596,6 +1176,45 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the openShift operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the openShift operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the openShift operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/shift/open")
   public String openShift(@RequestParam Map<String, String> params,
                           @RequestParam(required = false) String terminalId,
@@ -623,6 +1242,54 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the addShiftCashEvent operation.
+   *
+   * @param eventType Parameter of type {@code ShiftCashEventType} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param amount Parameter of type {@code BigDecimal} used by this operation.
+   * @param reason Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the addShiftCashEvent operation.
+   *
+   * @param eventType Parameter of type {@code ShiftCashEventType} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param amount Parameter of type {@code BigDecimal} used by this operation.
+   * @param reason Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the addShiftCashEvent operation.
+   *
+   * @param eventType Parameter of type {@code ShiftCashEventType} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param amount Parameter of type {@code BigDecimal} used by this operation.
+   * @param reason Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/shift/cash-event")
   public String addShiftCashEvent(@RequestParam ShiftCashEventType eventType,
                                   @RequestParam(required = false) String currencyCode,
@@ -647,6 +1314,48 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the closeShift operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param notes Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the closeShift operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param notes Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the closeShift operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param notes Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/shift/close")
   public String closeShift(@RequestParam Map<String, String> params,
                            @RequestParam(required = false) String notes,
@@ -681,6 +1390,39 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the updateQtyGet operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateQtyGet operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateQtyGet operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code Integer} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/cart/update")
   public String updateQtyGet(@RequestParam(required = false) Long productId,
                              @RequestParam(required = false) Integer qty,
@@ -693,6 +1435,45 @@ public class PosController {
     return updateQty(productId, qty, null, cart, model);
   }
 
+  /**
+   * Executes the updateDiscount operation.
+   *
+   * @param discountType Parameter of type {@code DiscountType} used by this operation.
+   * @param discountValue Parameter of type {@code BigDecimal} used by this operation.
+   * @param discountReason Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateDiscount operation.
+   *
+   * @param discountType Parameter of type {@code DiscountType} used by this operation.
+   * @param discountValue Parameter of type {@code BigDecimal} used by this operation.
+   * @param discountReason Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateDiscount operation.
+   *
+   * @param discountType Parameter of type {@code DiscountType} used by this operation.
+   * @param discountValue Parameter of type {@code BigDecimal} used by this operation.
+   * @param discountReason Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/discount")
   public String updateDiscount(@RequestParam(required = false) DiscountType discountType,
                                @RequestParam(required = false) BigDecimal discountValue,
@@ -704,6 +1485,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the updateTax operation.
+   *
+   * @param taxRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateTax operation.
+   *
+   * @param taxRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the updateTax operation.
+   *
+   * @param taxRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/tax")
   public String updateTax(@RequestParam(required = false) BigDecimal taxRate,
                           @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -713,6 +1527,39 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartPanel" : "redirect:/pos";
   }
 
+  /**
+   * Executes the remove operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the remove operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the remove operation.
+   *
+   * @param productId Parameter of type {@code Long} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/cart/remove/{productId}")
   public String remove(@PathVariable Long productId,
                        @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -723,6 +1570,39 @@ public class PosController {
   }
 
   // Barcode scan endpoint: scans then adds to cart
+  /**
+   * Executes the scan operation.
+   *
+   * @param barcode Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the scan operation.
+   *
+   * @param barcode Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the scan operation.
+   *
+   * @param barcode Parameter of type {@code String} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/scan")
   public String scan(@RequestParam String barcode,
                      @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -771,6 +1651,36 @@ public class PosController {
     return isHtmx(hxRequest) ? "pos/fragments :: cartContainer" : "redirect:/pos";
   }
 
+  /**
+   * Executes the scanGet operation.
+   *
+   * @param barcode Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the scanGet operation.
+   *
+   * @param barcode Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the scanGet operation.
+   *
+   * @param barcode Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/scan")
   public String scanGet(@RequestParam(required = false) String barcode,
                         @ModelAttribute("cart") Cart cart,
@@ -779,10 +1689,57 @@ public class PosController {
     return scan(barcode, null, cart, model);
   }
 
+  /**
+   * Executes the isHtmx operation.
+   *
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean isHtmx(String hxRequest) {
     return hxRequest != null && !hxRequest.isBlank();
   }
 
+  /**
+   * Executes the handleResponseStatusException operation.
+   *
+   * @param ex Parameter of type {@code ResponseStatusException} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param hxTarget Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the handleResponseStatusException operation.
+   *
+   * @param ex Parameter of type {@code ResponseStatusException} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param hxTarget Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the handleResponseStatusException operation.
+   *
+   * @param ex Parameter of type {@code ResponseStatusException} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param hxTarget Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @ExceptionHandler(ResponseStatusException.class)
   public String handleResponseStatusException(ResponseStatusException ex,
                                               @RequestHeader(value = "HX-Request", required = false) String hxRequest,
@@ -808,11 +1765,28 @@ public class PosController {
     return "pos/fragments :: cartPanel";
   }
 
+  /**
+   * Executes the normalizeHxTarget operation.
+   *
+   * @param hxTarget Parameter of type {@code String} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String normalizeHxTarget(String hxTarget) {
     if (hxTarget == null || hxTarget.isBlank()) return null;
     return hxTarget.startsWith("#") ? hxTarget.substring(1) : hxTarget;
   }
 
+  /**
+   * Executes the addProductToCart operation.
+   *
+   * @param p Parameter of type {@code Product} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String addProductToCart(Product p, Cart cart) {
     if (p == null) {
       log.warn("POS product not found");
@@ -839,6 +1813,16 @@ public class PosController {
     return null;
   }
 
+  /**
+   * Executes the tryAddVariantFromLookup operation.
+   *
+   * @param value Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return {@code VariantScanAddResult} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private VariantScanAddResult tryAddVariantFromLookup(String value, Cart cart, Customer customer) {
     if (value == null || value.isBlank()) {
       return new VariantScanAddResult(false, null);
@@ -874,6 +1858,16 @@ public class PosController {
     return new VariantScanAddResult(true, error);
   }
 
+  /**
+   * Executes the tryAddDefaultVariantForProduct operation.
+   *
+   * @param product Parameter of type {@code Product} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return {@code VariantAddDecision} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private VariantAddDecision tryAddDefaultVariantForProduct(Product product, Cart cart, Customer customer) {
     if (product == null) {
       return new VariantAddDecision(false, null);
@@ -895,6 +1889,17 @@ public class PosController {
     return new VariantAddDecision(true, addVariantSellUnitToCart(defaultUnit, cart, customer, 1));
   }
 
+  /**
+   * Executes the addVariantSellUnitToCart operation.
+   *
+   * @param sellUnit Parameter of type {@code SkuSellUnit} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @param qtyToAdd Parameter of type {@code int} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String addVariantSellUnitToCart(SkuSellUnit sellUnit, Cart cart, Customer customer, int qtyToAdd) {
     if (sellUnit == null || sellUnit.getVariant() == null || sellUnit.getVariant().getProduct() == null) {
       return msg("pos.error.variantNotFound");
@@ -956,6 +1961,14 @@ public class PosController {
     return null;
   }
 
+  /**
+   * Executes the isSaleableVariant operation.
+   *
+   * @param variant Parameter of type {@code ProductVariant} used by this operation.
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean isSaleableVariant(ProductVariant variant) {
     if (variant == null) return false;
     if (Boolean.TRUE.equals(variant.getArchived())) return false;
@@ -964,18 +1977,47 @@ public class PosController {
     return variant.getProduct() != null && !Boolean.FALSE.equals(variant.getProduct().getActive());
   }
 
+  /**
+   * Executes the applyAutoPricing operation.
+   *
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param p Parameter of type {@code Product} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void applyAutoPricing(Cart cart, Product p, Customer customer) {
     if (p == null) return;
     CartItem item = cart.getItem(p.getId());
     applyAutoPricingForLine(cart, item, customer);
   }
 
+  /**
+   * Executes the applyAutoPricing operation.
+   *
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void applyAutoPricing(Cart cart, Customer customer) {
     for (CartItem item : cart.getItems()) {
       applyAutoPricingForLine(cart, item, customer);
     }
   }
 
+  /**
+   * Executes the applyAutoPricingForLine operation.
+   *
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param item Parameter of type {@code CartItem} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void applyAutoPricingForLine(Cart cart, CartItem item, Customer customer) {
     if (item == null) return;
     if (item.isVariantLine()) {
@@ -992,6 +2034,15 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the applyVariantAutoPricing operation.
+   *
+   * @param item Parameter of type {@code CartItem} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void applyVariantAutoPricing(CartItem item, Customer customer) {
     if (item == null || !item.isVariantLine()) return;
     try {
@@ -1012,6 +2063,17 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the quoteVariantLine operation.
+   *
+   * @param variantId Parameter of type {@code Long} used by this operation.
+   * @param sellUnitId Parameter of type {@code Long} used by this operation.
+   * @param qty Parameter of type {@code int} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return {@code VariantApiDtos.PricingQuoteLineResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private VariantApiDtos.PricingQuoteLineResponse quoteVariantLine(Long variantId,
                                                                     Long sellUnitId,
                                                                     int qty,
@@ -1029,6 +2091,14 @@ public class PosController {
     return quoteResponse.lines().get(0);
   }
 
+  /**
+   * Executes the resolveCustomerGroupCode operation.
+   *
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String resolveCustomerGroupCode(Customer customer) {
     if (customer == null) return null;
     if (customer.getCustomerGroup() != null && customer.getCustomerGroup().getCode() != null
@@ -1041,6 +2111,17 @@ public class PosController {
     return null;
   }
 
+  /**
+   * Executes the autoPriceTier operation.
+   *
+   * @param p Parameter of type {@code Product} used by this operation.
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @param qty Parameter of type {@code int} used by this operation.
+   * @param unitSize Parameter of type {@code int} used by this operation.
+   * @return {@code PriceTier} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private PriceTier autoPriceTier(Product p, Customer customer, int qty, int unitSize) {
     if (p == null) return PriceTier.RETAIL;
     boolean wholesaleCustomer = customer != null && Boolean.TRUE.equals(customer.getWholesale());
@@ -1053,6 +2134,15 @@ public class PosController {
     return PriceTier.RETAIL;
   }
 
+  /**
+   * Executes the resolveUnitSizeForSelection operation.
+   *
+   * @param p Parameter of type {@code Product} used by this operation.
+   * @param unitType Parameter of type {@code UnitType} used by this operation.
+   * @return {@code Integer} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Integer resolveUnitSizeForSelection(Product p, UnitType unitType) {
     if (unitType == null || unitType == UnitType.PIECE) return 1;
     if (p == null) return null;
@@ -1064,10 +2154,28 @@ public class PosController {
     return size != null && size > 0 ? size : null;
   }
 
+  /**
+   * Executes the safeUnitSize operation.
+   *
+   * @param unitSize Parameter of type {@code Integer} used by this operation.
+   * @return {@code int} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private int safeUnitSize(Integer unitSize) {
     return unitSize == null || unitSize <= 0 ? 1 : unitSize;
   }
 
+  /**
+   * Executes the validateSaleable operation.
+   *
+   * @param p Parameter of type {@code Product} used by this operation.
+   * @param priceTier Parameter of type {@code PriceTier} used by this operation.
+   * @param unitType Parameter of type {@code UnitType} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String validateSaleable(Product p, PriceTier priceTier, UnitType unitType) {
     if (p == null) {
       log.warn("POS product not found");
@@ -1084,8 +2192,22 @@ public class PosController {
       return msg("pos.error.caseSizeNotSet");
     }
     int unitSize = unitType == UnitType.BOX
+            /**
+             * Executes the safeUnitSize operation.
+             *
+             * @return {@code ?} Result produced by this operation.
+             * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+             * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+             */
             ? safeUnitSize(p.getUnitsPerBox())
             : unitType == UnitType.CASE
+            /**
+             * Executes the safeUnitSize operation.
+             *
+             * @return {@code ?} Result produced by this operation.
+             * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+             * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+             */
             ? safeUnitSize(p.getUnitsPerCase())
             : 1;
     BigDecimal price = resolveUnitPrice(p, priceTier, unitSize);
@@ -1096,6 +2218,16 @@ public class PosController {
     return null;
   }
 
+  /**
+   * Executes the resolveUnitPrice operation.
+   *
+   * @param p Parameter of type {@code Product} used by this operation.
+   * @param priceTier Parameter of type {@code PriceTier} used by this operation.
+   * @param unitSize Parameter of type {@code int} used by this operation.
+   * @return {@code BigDecimal} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private BigDecimal resolveUnitPrice(Product p, PriceTier priceTier, int unitSize) {
     if (p == null) return null;
     BigDecimal base = priceTier == PriceTier.WHOLESALE ? p.getWholesalePrice() : p.getPrice();
@@ -1103,14 +2235,39 @@ public class PosController {
     return base.multiply(BigDecimal.valueOf(safeUnitSize(unitSize)));
   }
 
+  /**
+   * Executes the redirectWithCartError operation.
+   *
+   * @param message Parameter of type {@code String} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String redirectWithCartError(String message) {
     return "redirect:/pos?cartError=" + encode(message);
   }
 
+  /**
+   * Executes the msg operation.
+   *
+   * @param key Parameter of type {@code String} used by this operation.
+   * @param args Parameter of type {@code Object...} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String msg(String key, Object... args) {
     return i18nService.msg(key, args);
   }
 
+  /**
+   * Executes the encode operation.
+   *
+   * @param message Parameter of type {@code String} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String encode(String message) {
     return org.springframework.web.util.UriUtils.encode(
             message == null ? "" : message,
@@ -1118,10 +2275,29 @@ public class PosController {
     );
   }
 
+  /**
+   * Executes the enrichCartModel operation.
+   *
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void enrichCartModel(Model model, Cart cart) {
     enrichCartModel(model, cart, null);
   }
 
+  /**
+   * Executes the enrichCartModel operation.
+   *
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void enrichCartModel(Model model, Cart cart, String terminalId) {
     String preferredTerminalId = sanitizeTerminalId(terminalId);
     if (preferredTerminalId == null) {
@@ -1179,15 +2355,41 @@ public class PosController {
     model.addAttribute("currentCustomer", currentCustomer);
   }
 
+  /**
+   * Executes the findOpenShift operation.
+   *
+   * @param username Parameter of type {@code String} used by this operation.
+   * @return {@code Shift} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Shift findOpenShift(String username) {
     return findOpenShift(username, null);
   }
 
+  /**
+   * Executes the findOpenShift operation.
+   *
+   * @param username Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @return {@code Shift} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Shift findOpenShift(String username, String terminalId) {
     if (username == null || username.isBlank()) return null;
     return shiftService.findOpenShift(username, sanitizeTerminalId(terminalId)).orElse(null);
   }
 
+  /**
+   * Executes the parseCurrencyAmounts operation.
+   *
+   * @param params Parameter of type {@code Map<String, String>} used by this operation.
+   * @param prefix Parameter of type {@code String} used by this operation.
+   * @return {@code Map<String, BigDecimal>} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Map<String, BigDecimal> parseCurrencyAmounts(Map<String, String> params, String prefix) {
     Map<String, BigDecimal> values = new LinkedHashMap<>();
     if (params == null || prefix == null || prefix.isBlank()) return values;
@@ -1203,6 +2405,14 @@ public class PosController {
     return values;
   }
 
+  /**
+   * Executes the parseAmount operation.
+   *
+   * @param raw Parameter of type {@code String} used by this operation.
+   * @return {@code BigDecimal} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private BigDecimal parseAmount(String raw) {
     if (raw == null || raw.isBlank()) return null;
     try {
@@ -1214,6 +2424,15 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the resolveTerminalId operation.
+   *
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String resolveTerminalId(String terminalId, HttpServletRequest request) {
     String explicit = sanitizeTerminalId(terminalId);
     if (explicit != null) return explicit;
@@ -1225,6 +2444,14 @@ public class PosController {
     return terminalSettingsService.preferredTerminalId();
   }
 
+  /**
+   * Executes the sanitizeTerminalId operation.
+   *
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String sanitizeTerminalId(String terminalId) {
     if (terminalId == null) return null;
     String trimmed = terminalId.trim();
@@ -1232,6 +2459,13 @@ public class PosController {
     return trimmed.length() <= 128 ? trimmed : trimmed.substring(0, 128);
   }
 
+  /**
+   * Executes the hasManagerPrivileges operation.
+   *
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean hasManagerPrivileges() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null || !auth.isAuthenticated()) return false;
@@ -1242,11 +2476,31 @@ public class PosController {
     });
   }
 
+  /**
+   * Executes the loadCustomer operation.
+   *
+   * @param customerId Parameter of type {@code Long} used by this operation.
+   * @return {@code Customer} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Customer loadCustomer(Long customerId) {
     if (customerId == null) return null;
     return customerRepo.findById(customerId).orElse(null);
   }
 
+  /**
+   * Executes the addSplitPayment operation.
+   *
+   * @param payments Parameter of type {@code List<SalePayment>} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param baseCurrency Parameter of type {@code Currency} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private void addSplitPayment(List<SalePayment> payments, PaymentMethod method, BigDecimal foreignAmount,
                                String currencyCode, Currency baseCurrency) {
     if (method == null || foreignAmount == null) return;
@@ -1276,6 +2530,18 @@ public class PosController {
     payments.add(payment);
   }
 
+  /**
+   * Executes the buildPayment operation.
+   *
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param baseTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param currencyRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+   * @return {@code SalePayment} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private SalePayment buildPayment(PaymentMethod method, BigDecimal baseTotal,
                                    String currencyCode, BigDecimal currencyRate, BigDecimal foreignAmount) {
     SalePayment payment = new SalePayment();
@@ -1297,6 +2563,63 @@ public class PosController {
     return payment;
   }
 
+  /**
+   * Executes the checkout operation.
+   *
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param currencyRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param sessionStatus Parameter of type {@code SessionStatus} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the checkout operation.
+   *
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param currencyRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param sessionStatus Parameter of type {@code SessionStatus} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the checkout operation.
+   *
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param currencyRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param sessionStatus Parameter of type {@code SessionStatus} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/checkout")
   public String checkout(@RequestParam PaymentMethod method,
                          @RequestParam(required = false) String currencyCode,
@@ -1379,6 +2702,16 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the resolveCashTender operation.
+   *
+   * @param currencyCode Parameter of type {@code String} used by this operation.
+   * @param currencyRate Parameter of type {@code BigDecimal} used by this operation.
+   * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+   * @return {@code CashTenderData} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private CashTenderData resolveCashTender(String currencyCode, BigDecimal currencyRate, BigDecimal foreignAmount) {
     Currency baseCurrency = currencyService.getBaseCurrency();
     BigDecimal effectiveRate = null;
@@ -1423,6 +2756,78 @@ public class PosController {
                                 BigDecimal receivedBaseAmount) {
   }
 
+  /**
+   * Executes the checkoutSplit operation.
+   *
+   * @param method1 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount1 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode1 Parameter of type {@code String} used by this operation.
+   * @param method2 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount2 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode2 Parameter of type {@code String} used by this operation.
+   * @param method3 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount3 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode3 Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param sessionStatus Parameter of type {@code SessionStatus} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the checkoutSplit operation.
+   *
+   * @param method1 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount1 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode1 Parameter of type {@code String} used by this operation.
+   * @param method2 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount2 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode2 Parameter of type {@code String} used by this operation.
+   * @param method3 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount3 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode3 Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param sessionStatus Parameter of type {@code SessionStatus} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the checkoutSplit operation.
+   *
+   * @param method1 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount1 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode1 Parameter of type {@code String} used by this operation.
+   * @param method2 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount2 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode2 Parameter of type {@code String} used by this operation.
+   * @param method3 Parameter of type {@code PaymentMethod} used by this operation.
+   * @param amount3 Parameter of type {@code BigDecimal} used by this operation.
+   * @param currencyCode3 Parameter of type {@code String} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+   * @param cart Parameter of type {@code Cart} used by this operation.
+   * @param sessionStatus Parameter of type {@code SessionStatus} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @param hxRequest Parameter of type {@code String} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/checkout/split")
   public String checkoutSplit(@RequestParam(required = false) PaymentMethod method1,
                               @RequestParam(required = false) BigDecimal amount1,
@@ -1524,6 +2929,39 @@ public class PosController {
     }
   }
 
+  /**
+   * Executes the printReceipt operation.
+   *
+   * @param saleId Parameter of type {@code Long} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param reprint Parameter of type {@code boolean} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code PosHardwareService.PrintResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the printReceipt operation.
+   *
+   * @param saleId Parameter of type {@code Long} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param reprint Parameter of type {@code boolean} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code PosHardwareService.PrintResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the printReceipt operation.
+   *
+   * @param saleId Parameter of type {@code Long} used by this operation.
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param reprint Parameter of type {@code boolean} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code PosHardwareService.PrintResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping(value = "/checkout/{saleId}/print", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public PosHardwareService.PrintResponse printReceipt(@PathVariable Long saleId,
@@ -1534,6 +2972,36 @@ public class PosController {
     return posHardwareService.buildReceiptPrintResponse(saleId, resolvedTerminalId, reprint);
   }
 
+  /**
+   * Executes the openDrawer operation.
+   *
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param saleId Parameter of type {@code Long} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code PosHardwareService.DrawerResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the openDrawer operation.
+   *
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param saleId Parameter of type {@code Long} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code PosHardwareService.DrawerResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the openDrawer operation.
+   *
+   * @param terminalId Parameter of type {@code String} used by this operation.
+   * @param saleId Parameter of type {@code Long} used by this operation.
+   * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+   * @return {@code PosHardwareService.DrawerResponse} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping(value = "/drawer/open", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public PosHardwareService.DrawerResponse openDrawer(@RequestParam(required = false) String terminalId,
@@ -1547,10 +3015,25 @@ public class PosController {
     return posHardwareService.openDrawer(actor, resolvedTerminalId, saleId);
   }
 
+  /**
+   * Executes the nanosToMillis operation.
+   *
+   * @param nanos Parameter of type {@code long} used by this operation.
+   * @return {@code long} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private long nanosToMillis(long nanos) {
     return Math.max(0L, nanos / 1_000_000L);
   }
 
+  /**
+   * Executes the currentUsername operation.
+   *
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String currentUsername() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null || !auth.isAuthenticated()) return null;
@@ -1559,6 +3042,14 @@ public class PosController {
     return name;
   }
 
+  /**
+   * Executes the copyCartItem operation.
+   *
+   * @param item Parameter of type {@code CartItem} used by this operation.
+   * @return {@code CartItem} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private CartItem copyCartItem(CartItem item) {
     if (item == null) return null;
     CartItem copy = new CartItem(item.getProductId(), item.getName(), item.getUnitPrice(), item.getQty(),

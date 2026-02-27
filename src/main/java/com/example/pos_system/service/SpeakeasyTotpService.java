@@ -18,12 +18,20 @@ public class SpeakeasyTotpService {
     @Value("${app.security.totp.node-command:node}")
     private String nodeCommand;
 
-    @Value("${app.security.totp.script-path:scripts/speakeasy-totp.js}")
+    @Value("${app.security.totp.script-path:scripts/dev/speakeasy-totp.js}")
     private String scriptPath;
 
     @Value("${app.security.totp.issuer:DevCore POS}")
     private String issuer;
 
+    /**
+     * Executes the generateSetup operation.
+     *
+     * @param label Parameter of type {@code String} used by this operation.
+     * @return {@code SetupPayload} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SetupPayload generateSetup(String label) {
         JsonNode node = runNodeCommand("setup", label, issuer);
         String base32 = text(node, "base32");
@@ -35,6 +43,15 @@ public class SpeakeasyTotpService {
         return new SetupPayload(base32, otpauthUrl, qrDataUrl);
     }
 
+    /**
+     * Executes the verifyCode operation.
+     *
+     * @param base32Secret Parameter of type {@code String} used by this operation.
+     * @param code Parameter of type {@code String} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public boolean verifyCode(String base32Secret, String code) {
         if (base32Secret == null || base32Secret.isBlank()) {
             return false;
@@ -47,6 +64,14 @@ public class SpeakeasyTotpService {
         return node.path("valid").asBoolean(false);
     }
 
+    /**
+     * Executes the runNodeCommand operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return {@code JsonNode} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private JsonNode runNodeCommand(String... args) {
         List<String> command = new ArrayList<>();
         command.add(nodeCommand);
@@ -78,6 +103,13 @@ public class SpeakeasyTotpService {
         }
     }
 
+    /**
+     * Executes the resolveScriptPath operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String resolveScriptPath() {
         Path path = Path.of(scriptPath);
         if (path.isAbsolute()) {
@@ -86,6 +118,15 @@ public class SpeakeasyTotpService {
         return Path.of("").toAbsolutePath().resolve(path).normalize().toString();
     }
 
+    /**
+     * Executes the text operation.
+     *
+     * @param node Parameter of type {@code JsonNode} used by this operation.
+     * @param field Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String text(JsonNode node, String field) {
         if (node == null || node.path(field).isMissingNode()) {
             return null;

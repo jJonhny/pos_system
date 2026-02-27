@@ -15,10 +15,51 @@ import java.util.Map;
 public class PosCartService {
     private final AuditEventService auditEventService;
 
+    /**
+     * Executes the PosCartService operation.
+     * <p>Return value: A fully initialized PosCartService instance.</p>
+     *
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PosCartService(AuditEventService auditEventService) {
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the applyDiscount operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param discountType Parameter of type {@code DiscountType} used by this operation.
+     * @param discountValue Parameter of type {@code BigDecimal} used by this operation.
+     * @param discountReason Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the applyDiscount operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param discountType Parameter of type {@code DiscountType} used by this operation.
+     * @param discountValue Parameter of type {@code BigDecimal} used by this operation.
+     * @param discountReason Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the applyDiscount operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param discountType Parameter of type {@code DiscountType} used by this operation.
+     * @param discountValue Parameter of type {@code BigDecimal} used by this operation.
+     * @param discountReason Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public void applyDiscount(Cart cart, DiscountType discountType, BigDecimal discountValue, String discountReason) {
         Map<String, Object> before = cartSnapshot(cart);
@@ -46,6 +87,33 @@ public class PosCartService {
         auditEventService.record("POS_CART_DISCOUNT", "CART", "session", before, cartSnapshot(cart), metadata);
     }
 
+    /**
+     * Executes the applyTax operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param taxRatePercent Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the applyTax operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param taxRatePercent Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the applyTax operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param taxRatePercent Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public void applyTax(Cart cart, BigDecimal taxRatePercent) {
         Map<String, Object> before = cartSnapshot(cart);
@@ -61,6 +129,39 @@ public class PosCartService {
         auditEventService.record("POS_CART_TAX_OVERRIDE", "CART", "session", before, cartSnapshot(cart), metadata);
     }
 
+    /**
+     * Executes the recordPriceOverride operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param before Parameter of type {@code CartItem} used by this operation.
+     * @param after Parameter of type {@code CartItem} used by this operation.
+     * @param reason Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the recordPriceOverride operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param before Parameter of type {@code CartItem} used by this operation.
+     * @param after Parameter of type {@code CartItem} used by this operation.
+     * @param reason Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the recordPriceOverride operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param before Parameter of type {@code CartItem} used by this operation.
+     * @param after Parameter of type {@code CartItem} used by this operation.
+     * @param reason Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public void recordPriceOverride(Cart cart, CartItem before, CartItem after, String reason) {
         if (before == null || after == null) return;
@@ -74,6 +175,33 @@ public class PosCartService {
                 beforeState, afterState, metadata);
     }
 
+    /**
+     * Executes the recordHoldCart operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param hold Parameter of type {@code HeldSale} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the recordHoldCart operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param hold Parameter of type {@code HeldSale} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the recordHoldCart operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param hold Parameter of type {@code HeldSale} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public void recordHoldCart(Cart cart, HeldSale hold) {
         if (cart == null || hold == null) return;
@@ -85,6 +213,33 @@ public class PosCartService {
         auditEventService.record("POS_HOLD_CART", "HOLD", hold.getId(), cartSnapshot(cart), null, metadata);
     }
 
+    /**
+     * Executes the recordResumeHold operation.
+     *
+     * @param hold Parameter of type {@code HeldSale} used by this operation.
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the recordResumeHold operation.
+     *
+     * @param hold Parameter of type {@code HeldSale} used by this operation.
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the recordResumeHold operation.
+     *
+     * @param hold Parameter of type {@code HeldSale} used by this operation.
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public void recordResumeHold(HeldSale hold, Cart cart) {
         if (hold == null || cart == null) return;
@@ -95,6 +250,15 @@ public class PosCartService {
         auditEventService.record("POS_RESUME_HOLD", "HOLD", hold.getId(), null, cartSnapshot(cart), metadata);
     }
 
+    /**
+     * Executes the hasPriceChange operation.
+     *
+     * @param before Parameter of type {@code CartItem} used by this operation.
+     * @param after Parameter of type {@code CartItem} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasPriceChange(CartItem before, CartItem after) {
         if (before.getUnitPrice() == null && after.getUnitPrice() != null) return true;
         if (before.getUnitPrice() != null && after.getUnitPrice() == null) return true;
@@ -106,6 +270,14 @@ public class PosCartService {
         return before.getUnitType() != after.getUnitType() || before.getUnitSize() != after.getUnitSize();
     }
 
+    /**
+     * Executes the cartSnapshot operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> cartSnapshot(Cart cart) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("subtotal", cart.getSubtotal());
@@ -122,6 +294,14 @@ public class PosCartService {
         return snapshot;
     }
 
+    /**
+     * Executes the lineSnapshot operation.
+     *
+     * @param item Parameter of type {@code CartItem} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> lineSnapshot(CartItem item) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("productId", item.getProductId());

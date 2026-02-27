@@ -21,11 +21,31 @@ public class ProductFeedService {
     private final ProductRepo productRepo;
     private final CursorTokenService cursorTokenService;
 
+    /**
+     * Executes the ProductFeedService operation.
+     * <p>Return value: A fully initialized ProductFeedService instance.</p>
+     *
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param cursorTokenService Parameter of type {@code CursorTokenService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductFeedService(ProductRepo productRepo, CursorTokenService cursorTokenService) {
         this.productRepo = productRepo;
         this.cursorTokenService = cursorTokenService;
     }
 
+    /**
+     * Executes the fetchFeed operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param cursor Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code ProductFeedSlice} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductFeedSlice fetchFeed(String q,
                                       Long categoryId,
                                       String cursor,
@@ -56,6 +76,14 @@ public class ProductFeedService {
         return new ProductFeedSlice(items, nextCursor, hasMore, batchSize, normalizedQuery, categoryId);
     }
 
+    /**
+     * Executes the toFeedItem operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return {@code ProductFeedItem} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductFeedItem toFeedItem(Product product) {
         if (product == null) return null;
         Long category = product.getCategory() == null ? null : product.getCategory().getId();
@@ -80,12 +108,28 @@ public class ProductFeedService {
         );
     }
 
+    /**
+     * Executes the clampSize operation.
+     *
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int clampSize(Integer size) {
         if (size == null) return DEFAULT_BATCH_SIZE;
         int safe = Math.max(MIN_BATCH_SIZE, size);
         return Math.min(MAX_BATCH_SIZE, safe);
     }
 
+    /**
+     * Executes the normalizeQuery operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeQuery(String value) {
         if (value == null) return null;
         String trimmed = value.trim();

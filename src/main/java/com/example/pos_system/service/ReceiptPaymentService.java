@@ -1,9 +1,10 @@
 package com.example.pos_system.service;
 
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.PaymentMethod;
 import com.example.pos_system.entity.Sale;
 import com.example.pos_system.entity.SalePayment;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,10 +16,26 @@ import java.util.List;
 public class ReceiptPaymentService {
     private final CurrencyService currencyService;
 
+    /**
+     * Executes the ReceiptPaymentService operation.
+     * <p>Return value: A fully initialized ReceiptPaymentService instance.</p>
+     *
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ReceiptPaymentService(CurrencyService currencyService) {
         this.currencyService = currencyService;
     }
 
+    /**
+     * Executes the buildLines operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code List<ReceiptPaymentLine>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public List<ReceiptPaymentLine> buildLines(Sale sale) {
         List<ReceiptPaymentLine> lines = new ArrayList<>();
         if (sale == null) return lines;
@@ -64,6 +81,14 @@ public class ReceiptPaymentService {
         return lines;
     }
 
+    /**
+     * Executes the totalCashReceivedBase operation.
+     *
+     * @param lines Parameter of type {@code List<ReceiptPaymentLine>} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal totalCashReceivedBase(List<ReceiptPaymentLine> lines) {
         if (lines == null || lines.isEmpty()) return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal total = BigDecimal.ZERO;
@@ -74,6 +99,14 @@ public class ReceiptPaymentService {
         return total.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the totalCashChangeBase operation.
+     *
+     * @param lines Parameter of type {@code List<ReceiptPaymentLine>} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal totalCashChangeBase(List<ReceiptPaymentLine> lines) {
         if (lines == null || lines.isEmpty()) return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         BigDecimal total = BigDecimal.ZERO;
@@ -84,6 +117,19 @@ public class ReceiptPaymentService {
         return total.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the cashLine operation.
+     *
+     * @param method Parameter of type {@code PaymentMethod} used by this operation.
+     * @param amountBase Parameter of type {@code BigDecimal} used by this operation.
+     * @param currencyCode Parameter of type {@code String} used by this operation.
+     * @param rate Parameter of type {@code BigDecimal} used by this operation.
+     * @param receivedForeign Parameter of type {@code BigDecimal} used by this operation.
+     * @param singleCashPayment Parameter of type {@code boolean} used by this operation.
+     * @return {@code ReceiptPaymentLine} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ReceiptPaymentLine cashLine(PaymentMethod method,
                                         BigDecimal amountBase,
                                         String currencyCode,
@@ -118,6 +164,17 @@ public class ReceiptPaymentService {
         );
     }
 
+    /**
+     * Executes the nonCashLine operation.
+     *
+     * @param method Parameter of type {@code PaymentMethod} used by this operation.
+     * @param amountBase Parameter of type {@code BigDecimal} used by this operation.
+     * @param currencyCode Parameter of type {@code String} used by this operation.
+     * @param foreignAmount Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code ReceiptPaymentLine} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ReceiptPaymentLine nonCashLine(PaymentMethod method,
                                            BigDecimal amountBase,
                                            String currencyCode,
@@ -136,21 +193,54 @@ public class ReceiptPaymentService {
         );
     }
 
+    /**
+     * Executes the money operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal money(BigDecimal value) {
         if (value == null) return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         return value.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the money4 operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal money4(BigDecimal value) {
         if (value == null) return BigDecimal.ZERO.setScale(4, RoundingMode.HALF_UP);
         return value.setScale(4, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the positive operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @param fallback Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal positive(BigDecimal value, BigDecimal fallback) {
         if (value == null) return fallback;
         return value.compareTo(BigDecimal.ZERO) > 0 ? value : fallback;
     }
 
+    /**
+     * Executes the resolveRate operation.
+     *
+     * @param currencyCode Parameter of type {@code String} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal resolveRate(String currencyCode) {
         if (currencyCode == null || currencyCode.isBlank()) return BigDecimal.ONE;
         Currency currency = currencyService.findByCode(currencyCode);
@@ -160,6 +250,14 @@ public class ReceiptPaymentService {
         return currency.getRateToBase();
     }
 
+    /**
+     * Executes the blankToNull operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String blankToNull(String value) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -178,6 +276,13 @@ public class ReceiptPaymentService {
             BigDecimal cashChangeForeign,
             boolean displayCashChange
     ) {
+        /**
+         * Executes the cash operation.
+         *
+         * @return {@code boolean} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         public boolean cash() {
             return method == PaymentMethod.CASH;
         }

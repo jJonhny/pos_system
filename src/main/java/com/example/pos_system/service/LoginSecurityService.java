@@ -33,6 +33,16 @@ public class LoginSecurityService {
     @Value("${app.security.login.lock-duration-minutes:15}")
     private int lockDurationMinutes;
 
+    /**
+     * Executes the LoginSecurityService operation.
+     * <p>Return value: A fully initialized LoginSecurityService instance.</p>
+     *
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * @param userAuditLogRepo Parameter of type {@code UserAuditLogRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public LoginSecurityService(AppUserRepo appUserRepo,
                                 UserAuditLogRepo userAuditLogRepo,
                                 AuditEventService auditEventService) {
@@ -41,6 +51,16 @@ public class LoginSecurityService {
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the registerFailure operation.
+     *
+     * @param rawUsername Parameter of type {@code String} used by this operation.
+     * @param exception Parameter of type {@code AuthenticationException} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code FailureOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public FailureOutcome registerFailure(String rawUsername,
                                           AuthenticationException exception,
                                           HttpServletRequest request) {
@@ -66,6 +86,14 @@ public class LoginSecurityService {
         return outcome;
     }
 
+    /**
+     * Executes the registerSuccess operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void registerSuccess(String username) {
         String normalized = normalize(username);
         if (normalized == null) {
@@ -84,10 +112,27 @@ public class LoginSecurityService {
         }
     }
 
+    /**
+     * Executes the isCurrentlyLocked operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public boolean isCurrentlyLocked(AppUser user) {
         return isCurrentlyLocked(user, LocalDateTime.now());
     }
 
+    /**
+     * Executes the processCredentialFailure operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param now Parameter of type {@code LocalDateTime} used by this operation.
+     * @return {@code FailureOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private FailureOutcome processCredentialFailure(AppUser user, LocalDateTime now) {
         if (user == null) {
             return FailureOutcome.badCredentials();
@@ -111,6 +156,15 @@ public class LoginSecurityService {
         return FailureOutcome.badCredentials();
     }
 
+    /**
+     * Executes the clearExpiredLock operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param now Parameter of type {@code LocalDateTime} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void clearExpiredLock(AppUser user, LocalDateTime now) {
         if (user == null) {
             return;
@@ -123,6 +177,15 @@ public class LoginSecurityService {
         }
     }
 
+    /**
+     * Executes the isCurrentlyLocked operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param now Parameter of type {@code LocalDateTime} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean isCurrentlyLocked(AppUser user, LocalDateTime now) {
         if (user == null || user.getLockedUntil() == null) {
             return false;
@@ -130,6 +193,17 @@ public class LoginSecurityService {
         return user.getLockedUntil().isAfter(now);
     }
 
+    /**
+     * Executes the recordFailureAudit operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @param attemptedUsername Parameter of type {@code String} used by this operation.
+     * @param outcome Parameter of type {@code FailureOutcome} used by this operation.
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void recordFailureAudit(AppUser user,
                                     String attemptedUsername,
                                     FailureOutcome outcome,
@@ -160,6 +234,14 @@ public class LoginSecurityService {
         );
     }
 
+    /**
+     * Executes the extractIpAddress operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String extractIpAddress(HttpServletRequest request) {
         if (request == null) {
             return null;
@@ -176,6 +258,14 @@ public class LoginSecurityService {
         return normalize(request.getRemoteAddr());
     }
 
+    /**
+     * Executes the safeAttempts operation.
+     *
+     * @param user Parameter of type {@code AppUser} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int safeAttempts(AppUser user) {
         if (user == null || user.getFailedLoginAttempts() == null) {
             return 0;
@@ -183,14 +273,36 @@ public class LoginSecurityService {
         return Math.max(0, user.getFailedLoginAttempts());
     }
 
+    /**
+     * Executes the maxAllowedAttempts operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int maxAllowedAttempts() {
         return Math.max(1, maxFailedAttempts);
     }
 
+    /**
+     * Executes the lockMinutes operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int lockMinutes() {
         return Math.max(1, lockDurationMinutes);
     }
 
+    /**
+     * Executes the normalize operation.
+     *
+     * @param raw Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalize(String raw) {
         if (raw == null) {
             return null;
@@ -200,14 +312,36 @@ public class LoginSecurityService {
     }
 
     public record FailureOutcome(String reason, LocalDateTime lockedUntil) {
+        /**
+         * Executes the badCredentials operation.
+         *
+         * @return {@code FailureOutcome} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static FailureOutcome badCredentials() {
             return new FailureOutcome(REASON_BAD_CREDENTIALS, null);
         }
 
+        /**
+         * Executes the locked operation.
+         *
+         * @param lockedUntil Parameter of type {@code LocalDateTime} used by this operation.
+         * @return {@code FailureOutcome} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static FailureOutcome locked(LocalDateTime lockedUntil) {
             return new FailureOutcome(REASON_LOCKED, lockedUntil);
         }
 
+        /**
+         * Executes the disabled operation.
+         *
+         * @return {@code FailureOutcome} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private static FailureOutcome disabled() {
             return new FailureOutcome(REASON_DISABLED, null);
         }

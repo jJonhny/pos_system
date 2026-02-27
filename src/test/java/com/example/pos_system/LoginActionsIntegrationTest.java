@@ -32,17 +32,59 @@ class LoginActionsIntegrationTest {
     @Autowired
     private AppUserRepo appUserRepo;
 
+    /**
+     * Executes the loginPageIncludesBackendActionLinks operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the loginPageIncludesBackendActionLinks operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the loginPageIncludesBackendActionLinks operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void loginPageIncludesBackendActionLinks() throws Exception {
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("/login/forgot-password")))
-                .andExpect(content().string(containsString("/login/sso")))
+                .andExpect(content().string(containsString("Username/password sign-in only for this environment.")))
                 .andExpect(content().string(containsString("/support/contact")))
                 .andExpect(content().string(containsString("/legal/privacy")))
                 .andExpect(content().string(containsString("/legal/terms")));
     }
 
+    /**
+     * Executes the forgotPasswordPageRendersForAnonymousUser operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the forgotPasswordPageRendersForAnonymousUser operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the forgotPasswordPageRendersForAnonymousUser operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void forgotPasswordPageRendersForAnonymousUser() throws Exception {
         mockMvc.perform(get("/login/forgot-password"))
@@ -50,6 +92,27 @@ class LoginActionsIntegrationTest {
                 .andExpect(content().string(containsString("Forgot password?")));
     }
 
+    /**
+     * Executes the forgotPasswordRequestRedirectsBackToLoginWithConfirmation operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the forgotPasswordRequestRedirectsBackToLoginWithConfirmation operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the forgotPasswordRequestRedirectsBackToLoginWithConfirmation operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void forgotPasswordRequestRedirectsBackToLoginWithConfirmation() throws Exception {
         mockMvc.perform(post("/login/forgot-password")
@@ -59,6 +122,27 @@ class LoginActionsIntegrationTest {
                 .andExpect(redirectedUrl("/login?resetRequested=1"));
     }
 
+    /**
+     * Executes the ssoEndpointRedirectsToLoginWithMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the ssoEndpointRedirectsToLoginWithMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the ssoEndpointRedirectsToLoginWithMessage operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void ssoEndpointRedirectsToLoginWithMessage() throws Exception {
         mockMvc.perform(get("/login/sso"))
@@ -66,6 +150,27 @@ class LoginActionsIntegrationTest {
                 .andExpect(redirectedUrl("/login?ssoUnavailable=1"));
     }
 
+    /**
+     * Executes the supportAndLegalPagesArePublic operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the supportAndLegalPagesArePublic operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the supportAndLegalPagesArePublic operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void supportAndLegalPagesArePublic() throws Exception {
         mockMvc.perform(get("/support/contact"))
@@ -81,6 +186,27 @@ class LoginActionsIntegrationTest {
                 .andExpect(content().string(containsString("Terms of Service")));
     }
 
+    /**
+     * Executes the repeatedBadCredentialsTemporarilyLockUser operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the repeatedBadCredentialsTemporarilyLockUser operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the repeatedBadCredentialsTemporarilyLockUser operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void repeatedBadCredentialsTemporarilyLockUser() throws Exception {
         for (int i = 0; i < 4; i++) {
@@ -105,6 +231,27 @@ class LoginActionsIntegrationTest {
         assertThat(lockedUser.getLastFailedLoginAt()).isNotNull();
     }
 
+    /**
+     * Executes the successfulLoginClearsFailureTracking operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the successfulLoginClearsFailureTracking operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the successfulLoginClearsFailureTracking operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void successfulLoginClearsFailureTracking() throws Exception {
         AppUser admin = appUserRepo.findByUsernameIgnoreCase("admin").orElseThrow();

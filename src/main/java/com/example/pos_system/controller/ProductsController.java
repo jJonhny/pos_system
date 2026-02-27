@@ -26,6 +26,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -53,12 +56,85 @@ public class ProductsController {
     private final CategoryRepo categoryRepo;
     private final InventoryService inventoryService;
 
+    /**
+     * Executes the ProductsController operation.
+     * <p>Return value: A fully initialized ProductsController instance.</p>
+     *
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param categoryRepo Parameter of type {@code CategoryRepo} used by this operation.
+     * @param inventoryService Parameter of type {@code InventoryService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductsController(ProductRepo productRepo, CategoryRepo categoryRepo, InventoryService inventoryService) {
         this.productRepo = productRepo;
         this.categoryRepo = categoryRepo;
         this.inventoryService = inventoryService;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param error Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param size Parameter of type {@code int} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param error Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param size Parameter of type {@code int} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param error Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param size Parameter of type {@code int} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String list(@RequestParam(required = false) Long categoryId,
                        @RequestParam(required = false) Boolean lowStock,
@@ -120,7 +196,7 @@ public class ProductsController {
         model.addAttribute("dir", dir);
         ProductListStats stats = buildProductListStats(pageItems, categories);
         model.addAttribute("productStats", stats);
-        model.addAttribute("totalProducts", productRepo.count());
+        model.addAttribute("totalProducts", productRepo.count(buildSpecification(null, false, null, null, null, null, null, null)));
         model.addAttribute("filteredTotal", productPage.getTotalElements());
         if ("invalidImage".equals(error)) {
             model.addAttribute("error", "Please upload a valid image file.");
@@ -137,6 +213,9 @@ public class ProductsController {
         if ("invalidStock".equals(error)) {
             model.addAttribute("error", "Stock value is invalid or would break stock rules.");
         }
+        if ("invalidDateRange".equals(error)) {
+            model.addAttribute("error", "Expiration date must be on or after manufacture date.");
+        }
         if ("notFound".equals(error)) {
             model.addAttribute("error", "Product not found.");
         }
@@ -146,6 +225,66 @@ public class ProductsController {
         return "products/list";
     }
 
+    /**
+     * Executes the createForm operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the createForm operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the createForm operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/new")
     public String createForm(@RequestParam(required = false) Long categoryId,
                              @RequestParam(required = false) Boolean lowStock,
@@ -161,6 +300,7 @@ public class ProductsController {
                              @RequestParam(defaultValue = "20") Integer size,
                              Model model) {
         Product product = new Product();
+        product.setStockQty(0);
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryRepo.findAll(Sort.by("sortOrder").ascending().and(Sort.by("name").ascending())));
         addProductAnalytics(model, product);
@@ -168,6 +308,69 @@ public class ProductsController {
         return "products/form";
     }
 
+    /**
+     * Executes the editForm operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the editForm operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the editForm operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id,
                            @RequestParam(required = false) Long categoryId,
@@ -191,6 +394,72 @@ public class ProductsController {
         return "products/form";
     }
 
+    /**
+     * Executes the save operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @param returnCategoryId Parameter of type {@code Long} used by this operation.
+     * @param returnLowStock Parameter of type {@code Boolean} used by this operation.
+     * @param returnQ Parameter of type {@code String} used by this operation.
+     * @param returnActive Parameter of type {@code Boolean} used by this operation.
+     * @param returnPriceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param returnPriceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param returnStockMin Parameter of type {@code Integer} used by this operation.
+     * @param returnStockMax Parameter of type {@code Integer} used by this operation.
+     * @param returnSort Parameter of type {@code String} used by this operation.
+     * @param returnDir Parameter of type {@code String} used by this operation.
+     * @param returnPage Parameter of type {@code Integer} used by this operation.
+     * @param returnSize Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @param returnCategoryId Parameter of type {@code Long} used by this operation.
+     * @param returnLowStock Parameter of type {@code Boolean} used by this operation.
+     * @param returnQ Parameter of type {@code String} used by this operation.
+     * @param returnActive Parameter of type {@code Boolean} used by this operation.
+     * @param returnPriceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param returnPriceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param returnStockMin Parameter of type {@code Integer} used by this operation.
+     * @param returnStockMax Parameter of type {@code Integer} used by this operation.
+     * @param returnSort Parameter of type {@code String} used by this operation.
+     * @param returnDir Parameter of type {@code String} used by this operation.
+     * @param returnPage Parameter of type {@code Integer} used by this operation.
+     * @param returnSize Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @param returnCategoryId Parameter of type {@code Long} used by this operation.
+     * @param returnLowStock Parameter of type {@code Boolean} used by this operation.
+     * @param returnQ Parameter of type {@code String} used by this operation.
+     * @param returnActive Parameter of type {@code Boolean} used by this operation.
+     * @param returnPriceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param returnPriceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param returnStockMin Parameter of type {@code Integer} used by this operation.
+     * @param returnStockMax Parameter of type {@code Integer} used by this operation.
+     * @param returnSort Parameter of type {@code String} used by this operation.
+     * @param returnDir Parameter of type {@code String} used by this operation.
+     * @param returnPage Parameter of type {@code Integer} used by this operation.
+     * @param returnSize Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping
     public String save(@ModelAttribute Product product,
                        @RequestParam(required = false) Long categoryId,
@@ -209,10 +478,6 @@ public class ProductsController {
                        @RequestParam(name = "returnSize", required = false) Integer returnSize) {
         String listRedirect = buildListRedirect(returnCategoryId, returnLowStock, returnQ, returnActive, returnPriceMin,
                 returnPriceMax, returnStockMin, returnStockMax, returnSort, returnDir, returnPage, returnSize);
-        Integer requestedStock = product.getStockQty();
-        if (requestedStock != null && requestedStock < 0) {
-            return "redirect:" + appendErrorCode(listRedirect, "invalidStock");
-        }
         Product existing = null;
         int currentStock = 0;
         if (product.getId() != null) {
@@ -222,13 +487,13 @@ public class ProductsController {
             }
             currentStock = existing.getStockQty() == null ? 0 : existing.getStockQty();
         }
-        if (requestedStock == null) {
-            requestedStock = product.getId() == null ? 0 : currentStock;
-        }
         product.setStockQty(currentStock);
 
         normalizeEmptyStrings(product);
         normalizeNumbers(product);
+        if (hasInvalidDateRange(product)) {
+            return "redirect:" + appendErrorCode(listRedirect, "invalidDateRange");
+        }
         if (categoryId != null) {
             product.setCategory(categoryRepo.findById(categoryId).orElse(null));
         } else {
@@ -240,6 +505,7 @@ public class ProductsController {
         if (product.getAllowNegativeStock() == null) {
             product.setAllowNegativeStock(false);
         }
+        applyDeleteLifecycle(product);
         if (imageFile != null && !imageFile.isEmpty()) {
             if (imageFile.getContentType() == null || !imageFile.getContentType().startsWith("image/")) {
                 return "redirect:" + appendErrorCode(listRedirect, "invalidImage");
@@ -253,21 +519,82 @@ public class ProductsController {
             return "redirect:" + appendErrorCode(listRedirect, "imageUrlTooLong");
         }
         try {
-            Product saved = productRepo.save(product);
-            inventoryService.setStockFromAdjustment(
-                    saved.getId(),
-                    requestedStock,
-                    "PRODUCT_FORM:" + saved.getId(),
-                    "Product form stock sync"
-            );
+            productRepo.save(product);
         } catch (DataIntegrityViolationException ex) {
             return "redirect:" + appendErrorCode(listRedirect, "duplicate");
-        } catch (IllegalStateException ex) {
-            return "redirect:" + appendErrorCode(listRedirect, "invalidStock");
         }
         return "redirect:" + listRedirect;
     }
 
+    /**
+     * Executes the importInventory operation.
+     *
+     * @param file Parameter of type {@code MultipartFile} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the importInventory operation.
+     *
+     * @param file Parameter of type {@code MultipartFile} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the importInventory operation.
+     *
+     * @param file Parameter of type {@code MultipartFile} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/import")
     public String importInventory(@RequestParam("file") MultipartFile file,
                                   @RequestParam(required = false, defaultValue = "false") boolean allowCreate,
@@ -336,6 +663,60 @@ public class ProductsController {
         return "redirect:" + listRedirect;
     }
 
+    /**
+     * Executes the exportCsv operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportCsv operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportCsv operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/export.csv")
     public void exportCsv(@RequestParam(required = false) Long categoryId,
                           @RequestParam(required = false) Boolean lowStock,
@@ -355,13 +736,67 @@ public class ProductsController {
         response.setHeader("Content-Disposition", "attachment; filename=\"inventory-export.csv\"");
 
         try (PrintWriter writer = response.getWriter()) {
-            writer.println("ID,Name,SKU,Barcode,Category,Price,Cost,Stock,LowStockThreshold,Active");
+            writer.println("ID,Name,SKU,Barcode,Category,Price,Cost,Stock,LowStockThreshold,Active,BasicUnit,BoxSpecifications,WeightValue,WeightUnit,LengthValue,LengthUnit,WidthValue,WidthUnit,HeightValue,HeightUnit,ManufactureDate,ExpirationDate,DeletedStatus,UpdatedAt,DeletedAt");
             for (Product product : products) {
                 writer.println(buildCsvRow(product));
             }
         }
     }
 
+    /**
+     * Executes the exportExcel operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportExcel operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportExcel operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/export.xlsx")
     public void exportExcel(@RequestParam(required = false) Long categoryId,
                             @RequestParam(required = false) Boolean lowStock,
@@ -383,7 +818,14 @@ public class ProductsController {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Inventory");
             String[] headers = new String[] {
-                    "ID", "Name", "SKU", "Barcode", "Category", "Price", "Cost", "Stock", "Low Stock", "Active"
+                    "ID", "Name", "SKU", "Barcode", "Category", "Price", "Cost", "Stock", "Low Stock", "Active",
+                    "Basic Unit", "Box Specifications",
+                    "Weight Value", "Weight Unit",
+                    "Length Value", "Length Unit",
+                    "Width Value", "Width Unit",
+                    "Height Value", "Height Unit",
+                    "Manufacture Date", "Expiration Date",
+                    "Deleted Status", "Updated At", "Deleted At"
             };
             Row header = sheet.createRow(0);
             CellStyle headerStyle = workbook.createCellStyle();
@@ -410,6 +852,21 @@ public class ProductsController {
                 row.createCell(7).setCellValue(product.getStockQty() == null ? "" : String.valueOf(product.getStockQty()));
                 row.createCell(8).setCellValue(product.getLowStockThreshold() == null ? "" : String.valueOf(product.getLowStockThreshold()));
                 row.createCell(9).setCellValue(Boolean.TRUE.equals(product.getActive()) ? "Active" : "Inactive");
+                row.createCell(10).setCellValue(nullToEmpty(product.getBasicUnit()));
+                row.createCell(11).setCellValue(nullToEmpty(product.getBoxSpecifications()));
+                row.createCell(12).setCellValue(product.getWeightValue() == null ? "" : product.getWeightValue().toPlainString());
+                row.createCell(13).setCellValue(nullToEmpty(product.getWeightUnit()));
+                row.createCell(14).setCellValue(product.getLengthValue() == null ? "" : product.getLengthValue().toPlainString());
+                row.createCell(15).setCellValue(nullToEmpty(product.getLengthUnit()));
+                row.createCell(16).setCellValue(product.getWidthValue() == null ? "" : product.getWidthValue().toPlainString());
+                row.createCell(17).setCellValue(nullToEmpty(product.getWidthUnit()));
+                row.createCell(18).setCellValue(product.getHeightValue() == null ? "" : product.getHeightValue().toPlainString());
+                row.createCell(19).setCellValue(nullToEmpty(product.getHeightUnit()));
+                row.createCell(20).setCellValue(product.getManufactureDate() == null ? "" : product.getManufactureDate().toString());
+                row.createCell(21).setCellValue(product.getExpirationDate() == null ? "" : product.getExpirationDate().toString());
+                row.createCell(22).setCellValue(Boolean.TRUE.equals(product.getDeletedStatus()));
+                row.createCell(23).setCellValue(product.getUpdatedAt() == null ? "" : product.getUpdatedAt().toString());
+                row.createCell(24).setCellValue(product.getDeletedAt() == null ? "" : product.getDeletedAt().toString());
             }
 
             for (int i = 0; i < headers.length; i++) {
@@ -420,6 +877,75 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Executes the quickUpdate operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param price Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the quickUpdate operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param price Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the quickUpdate operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param price Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/{id}/quick-update")
     public String quickUpdate(@PathVariable Long id,
                               @RequestParam(required = false) String price,
@@ -447,6 +973,75 @@ public class ProductsController {
                 stockMin, stockMax, sort, dir, page, size);
     }
 
+    /**
+     * Executes the bulkStockAdjust operation.
+     *
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param operation Parameter of type {@code String} used by this operation.
+     * @param qty Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the bulkStockAdjust operation.
+     *
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param operation Parameter of type {@code String} used by this operation.
+     * @param qty Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the bulkStockAdjust operation.
+     *
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param operation Parameter of type {@code String} used by this operation.
+     * @param qty Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/bulk-stock")
     public String bulkStockAdjust(@RequestParam(required = false) List<Long> ids,
                                   @RequestParam(required = false) String operation,
@@ -474,6 +1069,66 @@ public class ProductsController {
                 stockMin, stockMax, sort, dir, page, size);
     }
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id,
                          @RequestParam(required = false) Long categoryId,
@@ -488,11 +1143,80 @@ public class ProductsController {
                          @RequestParam(required = false) String dir,
                          @RequestParam(required = false) Integer page,
                          @RequestParam(required = false) Integer size) {
-        productRepo.deleteById(id);
+        Product product = productRepo.findById(id).orElse(null);
+        if (product != null) {
+            product.setDeletedStatus(true);
+            product.setDeletedAt(LocalDateTime.now());
+            product.setActive(false);
+            // Release unique identifiers so new products can reuse old SKU/barcode values.
+            product.setSku(null);
+            product.setBarcode(null);
+            productRepo.save(product);
+        }
         return "redirect:" + buildListRedirect(categoryId, lowStock, q, active, priceMin, priceMax,
                 stockMin, stockMax, sort, dir, page, size);
     }
 
+    /**
+     * Executes the toggleActive operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the toggleActive operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the toggleActive operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/{id}/toggle-active")
     public String toggleActive(@PathVariable Long id,
                                @RequestParam(required = false) Long categoryId,
@@ -515,6 +1239,14 @@ public class ProductsController {
                 stockMin, stockMax, sort, dir, page, size);
     }
 
+    /**
+     * Executes the storeImage operation.
+     *
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String storeImage(MultipartFile imageFile) {
         String originalName = imageFile.getOriginalFilename();
         String ext = "";
@@ -542,6 +1274,14 @@ public class ProductsController {
         return "/uploads/" + filename;
     }
 
+    /**
+     * Executes the normalizeEmptyStrings operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void normalizeEmptyStrings(Product product) {
         if (product.getSku() != null && product.getSku().trim().isEmpty()) {
             product.setSku(null);
@@ -555,8 +1295,34 @@ public class ProductsController {
         if (product.getName() != null && product.getName().trim().isEmpty()) {
             product.setName(null);
         }
+        if (product.getBoxSpecifications() != null && product.getBoxSpecifications().trim().isEmpty()) {
+            product.setBoxSpecifications(null);
+        }
+        if (product.getWeightUnit() != null && product.getWeightUnit().trim().isEmpty()) {
+            product.setWeightUnit(null);
+        }
+        if (product.getLengthUnit() != null && product.getLengthUnit().trim().isEmpty()) {
+            product.setLengthUnit(null);
+        }
+        if (product.getWidthUnit() != null && product.getWidthUnit().trim().isEmpty()) {
+            product.setWidthUnit(null);
+        }
+        if (product.getHeightUnit() != null && product.getHeightUnit().trim().isEmpty()) {
+            product.setHeightUnit(null);
+        }
+        if (product.getBasicUnit() != null && product.getBasicUnit().trim().isEmpty()) {
+            product.setBasicUnit(null);
+        }
     }
 
+    /**
+     * Executes the normalizeNumbers operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void normalizeNumbers(Product product) {
         if (product.getUnitsPerBox() != null && product.getUnitsPerBox() <= 0) {
             product.setUnitsPerBox(null);
@@ -567,8 +1333,71 @@ public class ProductsController {
         if (product.getWholesaleMinQty() != null && product.getWholesaleMinQty() <= 0) {
             product.setWholesaleMinQty(null);
         }
+        if (product.getWeightValue() != null && product.getWeightValue().compareTo(BigDecimal.ZERO) <= 0) {
+            product.setWeightValue(null);
+        }
+        if (product.getLengthValue() != null && product.getLengthValue().compareTo(BigDecimal.ZERO) <= 0) {
+            product.setLengthValue(null);
+        }
+        if (product.getWidthValue() != null && product.getWidthValue().compareTo(BigDecimal.ZERO) <= 0) {
+            product.setWidthValue(null);
+        }
+        if (product.getHeightValue() != null && product.getHeightValue().compareTo(BigDecimal.ZERO) <= 0) {
+            product.setHeightValue(null);
+        }
     }
 
+    /**
+     * Executes the hasInvalidDateRange operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    private boolean hasInvalidDateRange(Product product) {
+        LocalDate manufactureDate = product.getManufactureDate();
+        LocalDate expirationDate = product.getExpirationDate();
+        return manufactureDate != null && expirationDate != null && expirationDate.isBefore(manufactureDate);
+    }
+
+    /**
+     * Executes the applyDeleteLifecycle operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    private void applyDeleteLifecycle(Product product) {
+        if (product.getDeletedStatus() == null) {
+            product.setDeletedStatus(false);
+        }
+        if (Boolean.TRUE.equals(product.getDeletedStatus())) {
+            if (product.getDeletedAt() == null) {
+                product.setDeletedAt(LocalDateTime.now());
+            }
+            product.setActive(false);
+        } else {
+            product.setDeletedAt(null);
+        }
+    }
+
+    /**
+     * Executes the buildSpecification operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param onlyLowStock Parameter of type {@code boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @return {@code Specification<Product>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Specification<Product> buildSpecification(Long categoryId,
                                                       boolean onlyLowStock,
                                                       String q,
@@ -579,6 +1408,11 @@ public class ProductsController {
                                                       Integer stockMax) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new java.util.ArrayList<>();
+            var deletedStatusExpr = root.get("deletedStatus").as(Boolean.class);
+            predicates.add(cb.or(
+                    cb.isNull(deletedStatusExpr),
+                    cb.isFalse(deletedStatusExpr)
+            ));
             if (categoryId != null) {
                 predicates.add(cb.equal(root.get("category").get("id"), categoryId));
             }
@@ -620,6 +1454,15 @@ public class ProductsController {
         };
     }
 
+    /**
+     * Executes the buildSort operation.
+     *
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @return {@code Sort} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Sort buildSort(String sort, String dir) {
         Sort.Order order;
         if ("price".equalsIgnoreCase(sort)) {
@@ -637,6 +1480,23 @@ public class ProductsController {
         return Sort.by(order);
     }
 
+    /**
+     * Executes the findFilteredProducts operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @return {@code List<Product>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<Product> findFilteredProducts(Long categoryId,
                                                Boolean lowStock,
                                                String q,
@@ -653,6 +1513,14 @@ public class ProductsController {
         return productRepo.findAll(specification, sortSpec);
     }
 
+    /**
+     * Executes the buildCsvRow operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String buildCsvRow(Product product) {
         String category = product.getCategory() != null ? nullToEmpty(product.getCategory().getName()) : "Uncategorized";
         return String.join(",",
@@ -665,10 +1533,33 @@ public class ProductsController {
                 csv(safeAmount(product.getCostPrice()).toPlainString()),
                 csv(product.getStockQty() == null ? "" : String.valueOf(product.getStockQty())),
                 csv(product.getLowStockThreshold() == null ? "" : String.valueOf(product.getLowStockThreshold())),
-                csv(Boolean.TRUE.equals(product.getActive()) ? "Active" : "Inactive")
+                csv(Boolean.TRUE.equals(product.getActive()) ? "Active" : "Inactive"),
+                csv(nullToEmpty(product.getBasicUnit())),
+                csv(nullToEmpty(product.getBoxSpecifications())),
+                csv(product.getWeightValue() == null ? "" : product.getWeightValue().toPlainString()),
+                csv(nullToEmpty(product.getWeightUnit())),
+                csv(product.getLengthValue() == null ? "" : product.getLengthValue().toPlainString()),
+                csv(nullToEmpty(product.getLengthUnit())),
+                csv(product.getWidthValue() == null ? "" : product.getWidthValue().toPlainString()),
+                csv(nullToEmpty(product.getWidthUnit())),
+                csv(product.getHeightValue() == null ? "" : product.getHeightValue().toPlainString()),
+                csv(nullToEmpty(product.getHeightUnit())),
+                csv(product.getManufactureDate() == null ? "" : product.getManufactureDate().toString()),
+                csv(product.getExpirationDate() == null ? "" : product.getExpirationDate().toString()),
+                csv(Boolean.TRUE.equals(product.getDeletedStatus()) ? "true" : "false"),
+                csv(product.getUpdatedAt() == null ? "" : product.getUpdatedAt().toString()),
+                csv(product.getDeletedAt() == null ? "" : product.getDeletedAt().toString())
         );
     }
 
+    /**
+     * Executes the csv operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String csv(String value) {
         if (value == null) return "";
         String escaped = value.replace("\"", "\"\"");
@@ -678,14 +1569,40 @@ public class ProductsController {
         return escaped;
     }
 
+    /**
+     * Executes the safeAmount operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeAmount(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    /**
+     * Executes the nullToEmpty operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
+    /**
+     * Executes the importFromCsv operation.
+     *
+     * @param file Parameter of type {@code MultipartFile} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @return {@code ImportResult} Result produced by this operation.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ImportResult importFromCsv(MultipartFile file, boolean allowCreate, boolean createCategories) throws IOException {
         ImportResult result = new ImportResult();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -715,6 +1632,16 @@ public class ProductsController {
         return result;
     }
 
+    /**
+     * Executes the importFromExcel operation.
+     *
+     * @param file Parameter of type {@code MultipartFile} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @return {@code ImportResult} Result produced by this operation.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ImportResult importFromExcel(MultipartFile file, boolean allowCreate, boolean createCategories) throws IOException {
         ImportResult result = new ImportResult();
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
@@ -769,6 +1696,18 @@ public class ProductsController {
         return result;
     }
 
+    /**
+     * Executes the applyImportRow operation.
+     *
+     * @param row Parameter of type {@code Map<String, String>} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @param errors Parameter of type {@code List<String>} used by this operation.
+     * @param rowNum Parameter of type {@code int} used by this operation.
+     * @return {@code ImportOutcome} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ImportOutcome applyImportRow(Map<String, String> row,
                                          boolean allowCreate,
                                          boolean createCategories,
@@ -930,6 +1869,109 @@ public class ProductsController {
                 product.setUnitsPerCase(unitsPerCase);
             }
         }
+        String boxSpecificationsRaw = trimToNull(row.get("boxSpecifications"));
+        if (boxSpecificationsRaw != null) {
+            product.setBoxSpecifications(boxSpecificationsRaw);
+        }
+
+        String basicUnitRaw = trimToNull(row.get("basicUnit"));
+        if (basicUnitRaw != null) {
+            product.setBasicUnit(basicUnitRaw);
+        }
+
+        String weightRaw = row.get("weightValue");
+        if (hasText(weightRaw)) {
+            BigDecimal weightValue = parseBigDecimal(weightRaw);
+            if (weightValue == null) {
+                errors.add("Row " + rowNum + ": invalid weight value.");
+                return ImportOutcome.FAILED;
+            }
+            product.setWeightValue(weightValue);
+        }
+        String weightUnitRaw = trimToNull(row.get("weightUnit"));
+        if (weightUnitRaw != null) {
+            product.setWeightUnit(weightUnitRaw);
+        }
+
+        String lengthRaw = row.get("lengthValue");
+        if (hasText(lengthRaw)) {
+            BigDecimal lengthValue = parseBigDecimal(lengthRaw);
+            if (lengthValue == null) {
+                errors.add("Row " + rowNum + ": invalid length value.");
+                return ImportOutcome.FAILED;
+            }
+            product.setLengthValue(lengthValue);
+        }
+        String lengthUnitRaw = trimToNull(row.get("lengthUnit"));
+        if (lengthUnitRaw != null) {
+            product.setLengthUnit(lengthUnitRaw);
+        }
+
+        String widthRaw = row.get("widthValue");
+        if (hasText(widthRaw)) {
+            BigDecimal widthValue = parseBigDecimal(widthRaw);
+            if (widthValue == null) {
+                errors.add("Row " + rowNum + ": invalid width value.");
+                return ImportOutcome.FAILED;
+            }
+            product.setWidthValue(widthValue);
+        }
+        String widthUnitRaw = trimToNull(row.get("widthUnit"));
+        if (widthUnitRaw != null) {
+            product.setWidthUnit(widthUnitRaw);
+        }
+
+        String heightRaw = row.get("heightValue");
+        if (hasText(heightRaw)) {
+            BigDecimal heightValue = parseBigDecimal(heightRaw);
+            if (heightValue == null) {
+                errors.add("Row " + rowNum + ": invalid height value.");
+                return ImportOutcome.FAILED;
+            }
+            product.setHeightValue(heightValue);
+        }
+        String heightUnitRaw = trimToNull(row.get("heightUnit"));
+        if (heightUnitRaw != null) {
+            product.setHeightUnit(heightUnitRaw);
+        }
+
+        String manufactureDateRaw = row.get("manufactureDate");
+        if (hasText(manufactureDateRaw)) {
+            LocalDate manufactureDate = parseLocalDate(manufactureDateRaw);
+            if (manufactureDate == null) {
+                errors.add("Row " + rowNum + ": invalid manufacture date.");
+                return ImportOutcome.FAILED;
+            }
+            product.setManufactureDate(manufactureDate);
+        }
+        String expirationDateRaw = row.get("expirationDate");
+        if (hasText(expirationDateRaw)) {
+            LocalDate expirationDate = parseLocalDate(expirationDateRaw);
+            if (expirationDate == null) {
+                errors.add("Row " + rowNum + ": invalid expiration date.");
+                return ImportOutcome.FAILED;
+            }
+            product.setExpirationDate(expirationDate);
+        }
+
+        String deletedStatusRaw = row.get("deletedStatus");
+        if (hasText(deletedStatusRaw)) {
+            Boolean deletedStatus = parseBoolean(deletedStatusRaw);
+            if (deletedStatus == null) {
+                errors.add("Row " + rowNum + ": invalid deleted status value.");
+                return ImportOutcome.FAILED;
+            }
+            product.setDeletedStatus(deletedStatus);
+        }
+        String deletedAtRaw = row.get("deletedAt");
+        if (hasText(deletedAtRaw)) {
+            LocalDateTime deletedAt = parseLocalDateTime(deletedAtRaw);
+            if (deletedAt == null) {
+                errors.add("Row " + rowNum + ": invalid deleted date.");
+                return ImportOutcome.FAILED;
+            }
+            product.setDeletedAt(deletedAt);
+        }
 
         String activeRaw = row.get("active");
         if (hasText(activeRaw)) {
@@ -959,6 +2001,13 @@ public class ProductsController {
         if (product.getId() == null && product.getStockQty() == null) {
             product.setStockQty(0);
         }
+        normalizeEmptyStrings(product);
+        normalizeNumbers(product);
+        if (hasInvalidDateRange(product)) {
+            errors.add("Row " + rowNum + ": expiration date must be on or after manufacture date.");
+            return ImportOutcome.FAILED;
+        }
+        applyDeleteLifecycle(product);
 
         try {
             Product saved = productRepo.save(product);
@@ -981,6 +2030,14 @@ public class ProductsController {
         return created ? ImportOutcome.CREATED : ImportOutcome.UPDATED;
     }
 
+    /**
+     * Executes the buildHeaderIndex operation.
+     *
+     * @param headers Parameter of type {@code List<String>} used by this operation.
+     * @return {@code Map<String, Integer>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Integer> buildHeaderIndex(List<String> headers) {
         Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < headers.size(); i++) {
@@ -993,6 +2050,15 @@ public class ProductsController {
         return map;
     }
 
+    /**
+     * Executes the mapRow operation.
+     *
+     * @param values Parameter of type {@code List<String>} used by this operation.
+     * @param headerIndex Parameter of type {@code Map<String, Integer>} used by this operation.
+     * @return {@code Map<String, String>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, String> mapRow(List<String> values, Map<String, Integer> headerIndex) {
         Map<String, String> row = new HashMap<>();
         for (Map.Entry<String, Integer> entry : headerIndex.entrySet()) {
@@ -1002,11 +2068,27 @@ public class ProductsController {
         return row;
     }
 
+    /**
+     * Executes the normalizeHeader operation.
+     *
+     * @param header Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeHeader(String header) {
         if (header == null) return "";
         return header.trim().toLowerCase().replaceAll("[^a-z0-9]", "");
     }
 
+    /**
+     * Executes the mapHeader operation.
+     *
+     * @param normalized Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String mapHeader(String normalized) {
         return switch (normalized) {
             case "id" -> "id";
@@ -1023,10 +2105,32 @@ public class ProductsController {
             case "wholesaleminqty", "wholesalemin", "wholesaleminquantity" -> "wholesaleMinQty";
             case "unitsperbox", "boxqty" -> "unitsPerBox";
             case "unitspercase", "caseqty" -> "unitsPerCase";
+            case "boxspecifications", "boxspec" -> "boxSpecifications";
+            case "basicunit", "baseunit" -> "basicUnit";
+            case "weight", "weightvalue" -> "weightValue";
+            case "weightunit" -> "weightUnit";
+            case "length", "lengthvalue" -> "lengthValue";
+            case "lengthunit" -> "lengthUnit";
+            case "width", "widthvalue" -> "widthValue";
+            case "widthunit" -> "widthUnit";
+            case "height", "heightvalue" -> "heightValue";
+            case "heightunit" -> "heightUnit";
+            case "manufacturedate", "manufacturingdate", "mfgdate" -> "manufactureDate";
+            case "expirationdate", "expirydate", "expdate" -> "expirationDate";
+            case "deletedstatus", "isdeleted" -> "deletedStatus";
+            case "deletedat", "deleteddate" -> "deletedAt";
             default -> null;
         };
     }
 
+    /**
+     * Executes the parseCsvLine operation.
+     *
+     * @param line Parameter of type {@code String} used by this operation.
+     * @return {@code List<String>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<String> parseCsvLine(String line) {
         if (line == null) return Collections.emptyList();
         List<String> values = new ArrayList<>();
@@ -1052,6 +2156,14 @@ public class ProductsController {
         return values;
     }
 
+    /**
+     * Executes the parseInteger operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code Integer} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Integer parseInteger(String value) {
         if (!hasText(value)) return null;
         try {
@@ -1061,6 +2173,14 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Executes the parseLong operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Long parseLong(String value) {
         if (!hasText(value)) return null;
         try {
@@ -1070,6 +2190,14 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Executes the parseBigDecimal operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal parseBigDecimal(String value) {
         if (!hasText(value)) return null;
         try {
@@ -1079,18 +2207,78 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Executes the parseBoolean operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code Boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Boolean parseBoolean(String value) {
         if (!hasText(value)) return null;
         String normalized = value.trim().toLowerCase();
-        if (normalized.equals("true") || normalized.equals("yes") || normalized.equals("1") || normalized.equals("active")) {
+        if (normalized.equals("true") || normalized.equals("yes") || normalized.equals("1")
+                || normalized.equals("active") || normalized.equals("deleted")) {
             return true;
         }
-        if (normalized.equals("false") || normalized.equals("no") || normalized.equals("0") || normalized.equals("inactive")) {
+        if (normalized.equals("false") || normalized.equals("no") || normalized.equals("0")
+                || normalized.equals("inactive") || normalized.equals("notdeleted")) {
             return false;
         }
         return null;
     }
 
+    /**
+     * Executes the parseLocalDate operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code LocalDate} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    private LocalDate parseLocalDate(String value) {
+        if (!hasText(value)) return null;
+        String normalized = value.trim();
+        try {
+            return LocalDate.parse(normalized);
+        } catch (DateTimeParseException ignored) {
+            // Support common imports where date-time is provided for a date-only field.
+            LocalDateTime dateTime = parseLocalDateTime(normalized);
+            return dateTime == null ? null : dateTime.toLocalDate();
+        }
+    }
+
+    /**
+     * Executes the parseLocalDateTime operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code LocalDateTime} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    private LocalDateTime parseLocalDateTime(String value) {
+        if (!hasText(value)) return null;
+        String normalized = value.trim().replace(" ", "T");
+        try {
+            return LocalDateTime.parse(normalized);
+        } catch (DateTimeParseException ignored) {
+            try {
+                return LocalDate.parse(normalized).atStartOfDay();
+            } catch (DateTimeParseException ignoredAgain) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Executes the trimToNull operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimToNull(String value) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -1111,6 +2299,14 @@ public class ProductsController {
         private int failed;
         private final List<String> errors = new ArrayList<>();
 
+        /**
+         * Executes the increment operation.
+         *
+         * @param outcome Parameter of type {@code ImportOutcome} used by this operation.
+         * @return void No value is returned; the method applies side effects to existing state.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private void increment(ImportOutcome outcome) {
             if (outcome == null) return;
             switch (outcome) {
@@ -1122,6 +2318,15 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Executes the buildProductListStats operation.
+     *
+     * @param products Parameter of type {@code List<Product>} used by this operation.
+     * @param categories Parameter of type {@code List<Category>} used by this operation.
+     * @return {@code ProductListStats} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ProductListStats buildProductListStats(List<Product> products, List<Category> categories) {
         int total = products.size();
         long activeCount = 0;
@@ -1225,6 +2430,15 @@ public class ProductsController {
         );
     }
 
+    /**
+     * Executes the topStockValue operation.
+     *
+     * @param products Parameter of type {@code List<Product>} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @return {@code List<ProductValue>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<ProductValue> topStockValue(List<Product> products, int limit) {
         Comparator<ProductValue> comparator = Comparator.comparing(ProductValue::value);
         PriorityQueue<ProductValue> queue = new PriorityQueue<>(comparator);
@@ -1240,6 +2454,15 @@ public class ProductsController {
                 .toList();
     }
 
+    /**
+     * Executes the topMargin operation.
+     *
+     * @param products Parameter of type {@code List<Product>} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @return {@code List<ProductMargin>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<ProductMargin> topMargin(List<Product> products, int limit) {
         Comparator<ProductMargin> comparator = Comparator.comparing(ProductMargin::margin);
         PriorityQueue<ProductMargin> queue = new PriorityQueue<>(comparator);
@@ -1257,6 +2480,16 @@ public class ProductsController {
                 .toList();
     }
 
+    /**
+     * Executes the topCategoryValue operation.
+     *
+     * @param products Parameter of type {@code List<Product>} used by this operation.
+     * @param categoryNames Parameter of type {@code Map<Long, String>} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @return {@code List<CategoryMetric>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<CategoryMetric> topCategoryValue(List<Product> products, Map<Long, String> categoryNames, int limit) {
         Map<Long, CategoryMetricBuilder> map = new HashMap<>();
         for (Product product : products) {
@@ -1281,6 +2514,17 @@ public class ProductsController {
                 .toList();
     }
 
+    /**
+     * Executes the addTop operation.
+     *
+     * @param queue Parameter of type {@code PriorityQueue<T>} used by this operation.
+     * @param value Parameter of type {@code T} used by this operation.
+     * @param limit Parameter of type {@code int} used by this operation.
+     * @param comparator Parameter of type {@code Comparator<T>} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private <T> void addTop(PriorityQueue<T> queue, T value, int limit, Comparator<T> comparator) {
         if (limit <= 0) return;
         if (queue.size() < limit) {
@@ -1294,6 +2538,14 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Executes the safeName operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String safeName(Product product) {
         if (product == null) return "-";
         if (hasText(product.getName())) return product.getName();
@@ -1301,10 +2553,27 @@ public class ProductsController {
         return "Product";
     }
 
+    /**
+     * Executes the hasText operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }
 
+    /**
+     * Executes the addProductAnalytics operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void addProductAnalytics(Model model, Product product) {
         if (product == null) {
             model.addAttribute("productAnalytics", new ProductAnalytics(null, null, null, null, null, null, null, null, null, "Not tracked"));
@@ -1403,6 +2672,14 @@ public class ProductsController {
         private BigDecimal value = BigDecimal.ZERO;
         private long count = 0;
 
+        /**
+         * Executes the CategoryMetricBuilder operation.
+         * <p>Return value: A fully initialized CategoryMetricBuilder instance.</p>
+         *
+         * @param name Parameter of type {@code String} used by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         private CategoryMetricBuilder(String name) {
             this.name = name;
         }
@@ -1422,6 +2699,26 @@ public class ProductsController {
     ) {}
 
     // Keep current list state in the form so save/cancel can return users to the same page.
+    /**
+     * Executes the addReturnState operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void addReturnState(Model model,
                                 Long categoryId,
                                 Boolean lowStock,
@@ -1453,6 +2750,15 @@ public class ProductsController {
                 stockMin, stockMax, sort, dir, safePage, safeSize));
     }
 
+    /**
+     * Executes the appendErrorCode operation.
+     *
+     * @param baseRedirect Parameter of type {@code String} used by this operation.
+     * @param errorCode Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String appendErrorCode(String baseRedirect, String errorCode) {
         if (!hasText(errorCode)) {
             return baseRedirect;
@@ -1461,6 +2767,14 @@ public class ProductsController {
         return baseRedirect + separator + "error=" + java.net.URLEncoder.encode(errorCode, java.nio.charset.StandardCharsets.UTF_8);
     }
 
+    /**
+     * Executes the normalizePageSize operation.
+     *
+     * @param requestedSize Parameter of type {@code Integer} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int normalizePageSize(Integer requestedSize) {
         if (requestedSize == null || requestedSize <= 0) {
             return DEFAULT_PAGE_SIZE;
@@ -1469,6 +2783,25 @@ public class ProductsController {
     }
 
     // Rebuild the list URL with paging/sorting/filter state after item-level actions.
+    /**
+     * Executes the buildListRedirect operation.
+     *
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @param lowStock Parameter of type {@code Boolean} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param active Parameter of type {@code Boolean} used by this operation.
+     * @param priceMin Parameter of type {@code BigDecimal} used by this operation.
+     * @param priceMax Parameter of type {@code BigDecimal} used by this operation.
+     * @param stockMin Parameter of type {@code Integer} used by this operation.
+     * @param stockMax Parameter of type {@code Integer} used by this operation.
+     * @param sort Parameter of type {@code String} used by this operation.
+     * @param dir Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code Integer} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String buildListRedirect(Long categoryId, Boolean lowStock, String q, Boolean active,
                                      BigDecimal priceMin, BigDecimal priceMax,
                                      Integer stockMin, Integer stockMax,

@@ -53,6 +53,23 @@ public class DevDataSeeder implements CommandLineRunner {
     private final ShiftService shiftService;
     private final StockMovementService stockMovementService;
 
+    /**
+     * Executes the DevDataSeeder operation.
+     * <p>Return value: A fully initialized DevDataSeeder instance.</p>
+     *
+     * @param categoryRepo Parameter of type {@code CategoryRepo} used by this operation.
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param supplierRepo Parameter of type {@code SupplierRepo} used by this operation.
+     * @param purchaseOrderRepo Parameter of type {@code PurchaseOrderRepo} used by this operation.
+     * @param goodsReceiptRepo Parameter of type {@code GoodsReceiptRepo} used by this operation.
+     * @param inventoryService Parameter of type {@code InventoryService} used by this operation.
+     * @param posService Parameter of type {@code PosService} used by this operation.
+     * @param shiftService Parameter of type {@code ShiftService} used by this operation.
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public DevDataSeeder(CategoryRepo categoryRepo,
                          ProductRepo productRepo,
                          SaleRepo saleRepo,
@@ -75,6 +92,30 @@ public class DevDataSeeder implements CommandLineRunner {
         this.stockMovementService = stockMovementService;
     }
 
+    /**
+     * Executes the run operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the run operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the run operation.
+     *
+     * @param args Parameter of type {@code String...} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Override
     public void run(String... args) {
         seedCategoriesAndProducts();
@@ -82,6 +123,13 @@ public class DevDataSeeder implements CommandLineRunner {
         seedSuppliersAndReceiving();
     }
 
+    /**
+     * Executes the seedCategoriesAndProducts operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void seedCategoriesAndProducts() {
         List<Category> existingCategories = categoryRepo.findAll();
         Map<String, Category> byName = new HashMap<>();
@@ -126,6 +174,13 @@ public class DevDataSeeder implements CommandLineRunner {
         }
     }
 
+    /**
+     * Executes the seedSampleSales operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void seedSampleSales() {
         if (saleRepo.count() > 0) return;
 
@@ -179,6 +234,13 @@ public class DevDataSeeder implements CommandLineRunner {
         }
     }
 
+    /**
+     * Executes the seedSuppliersAndReceiving operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void seedSuppliersAndReceiving() {
         Map<String, Supplier> suppliersByName = ensureSuppliers();
         if (purchaseOrderRepo.count() > 0 || goodsReceiptRepo.count() > 0) return;
@@ -243,6 +305,13 @@ public class DevDataSeeder implements CommandLineRunner {
         purchaseOrderRepo.save(po2);
     }
 
+    /**
+     * Executes the ensureSuppliers operation.
+     *
+     * @return {@code Map<String, Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Supplier> ensureSuppliers() {
         List<SupplierSeed> seeds = List.of(
                 new SupplierSeed("Alpha Distribution Co.", "+1-555-1001", "sales@alpha-dist.example", "101 Warehouse Ave, Springfield"),
@@ -281,6 +350,15 @@ public class DevDataSeeder implements CommandLineRunner {
         return byName;
     }
 
+    /**
+     * Executes the applyGoodsReceipt operation.
+     *
+     * @param receipt Parameter of type {@code GoodsReceipt} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void applyGoodsReceipt(GoodsReceipt receipt, String terminalId) {
         if (receipt == null || receipt.getItems() == null || receipt.getItems().isEmpty()) return;
 
@@ -314,6 +392,14 @@ public class DevDataSeeder implements CommandLineRunner {
         po.setStatus(resolvePoStatus(po));
     }
 
+    /**
+     * Executes the resolvePoStatus operation.
+     *
+     * @param po Parameter of type {@code PurchaseOrder} used by this operation.
+     * @return {@code PurchaseOrderStatus} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private PurchaseOrderStatus resolvePoStatus(PurchaseOrder po) {
         int ordered = 0;
         int received = 0;
@@ -327,6 +413,17 @@ public class DevDataSeeder implements CommandLineRunner {
         return PurchaseOrderStatus.RECEIVED;
     }
 
+    /**
+     * Executes the addPoItem operation.
+     *
+     * @param po Parameter of type {@code PurchaseOrder} used by this operation.
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param orderedQty Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void addPoItem(PurchaseOrder po, Product product, int orderedQty, BigDecimal unitCost) {
         PurchaseOrderItem item = new PurchaseOrderItem();
         item.setPurchaseOrder(po);
@@ -339,6 +436,17 @@ public class DevDataSeeder implements CommandLineRunner {
         po.getItems().add(item);
     }
 
+    /**
+     * Executes the addGrnItem operation.
+     *
+     * @param receipt Parameter of type {@code GoodsReceipt} used by this operation.
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param receivedQty Parameter of type {@code int} used by this operation.
+     * @param unitCost Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void addGrnItem(GoodsReceipt receipt, Product product, int receivedQty, BigDecimal unitCost) {
         GoodsReceiptItem item = new GoodsReceiptItem();
         item.setGoodsReceipt(receipt);
@@ -348,6 +456,16 @@ public class DevDataSeeder implements CommandLineRunner {
         receipt.getItems().add(item);
     }
 
+    /**
+     * Executes the ensureCategory operation.
+     *
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param byName Parameter of type {@code Map<String, Category>} used by this operation.
+     * @param toCreate Parameter of type {@code List<Category>} used by this operation.
+     * @return {@code Category} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Category ensureCategory(String name, Map<String, Category> byName, List<Category> toCreate) {
         String key = name.toLowerCase();
         if (byName.containsKey(key)) return byName.get(key);
@@ -361,6 +479,14 @@ public class DevDataSeeder implements CommandLineRunner {
         return c;
     }
 
+    /**
+     * Executes the newProduct operation.
+     *
+     * @param seed Parameter of type {@code ProductSeed} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product newProduct(ProductSeed seed) {
         Product p = new Product();
         p.setSku(seed.sku());

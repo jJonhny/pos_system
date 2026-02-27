@@ -1,0 +1,221 @@
+<div xmlns:th="http://www.thymeleaf.org">
+  <section th:fragment="seckillAdd">
+    <h2 class="font-semibold">Add seckill information</h2>
+    <form method="post" action="/marketing/seckill" class="mt-3 grid md:grid-cols-2 gap-2">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input name="title" required placeholder="Title" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="minSpend" type="number" step="0.01" min="0" placeholder="Min spend" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountPercent" type="number" step="0.01" min="0" placeholder="Discount %" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountAmount" type="number" step="0.01" min="0" placeholder="Discount amount" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="startsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="endsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <textarea name="description" rows="2" placeholder="Description" class="md:col-span-2 rounded border border-slate-200 px-3 py-2"></textarea>
+      <button class="md:col-span-2 rounded bg-slate-900 px-4 py-2 text-white text-sm">Create</button>
+    </form>
+  </section>
+
+  <section th:fragment="couponAdd">
+    <h2 class="font-semibold">Add coupon</h2>
+    <form method="post" action="/marketing/coupons" class="mt-3 grid md:grid-cols-2 gap-2">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input name="title" required placeholder="Title" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="code" required placeholder="Coupon code" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountPercent" type="number" step="0.01" min="0" placeholder="Discount %" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountAmount" type="number" step="0.01" min="0" placeholder="Discount amount" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="minSpend" type="number" step="0.01" min="0" placeholder="Min spend" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="couponStock" type="number" min="0" placeholder="Stock" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="perUserLimit" type="number" min="0" placeholder="Per user limit" class="rounded border border-slate-200 px-3 py-2"/>
+      <div class="hidden md:block"></div>
+      <input name="startsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="endsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <textarea name="description" rows="2" placeholder="Description" class="md:col-span-2 rounded border border-slate-200 px-3 py-2"></textarea>
+      <button class="md:col-span-2 rounded bg-slate-900 px-4 py-2 text-white text-sm">Create</button>
+    </form>
+  </section>
+
+  <section th:fragment="fullReductionAdd">
+    <h2 class="font-semibold">Full reduction</h2>
+    <form method="post" action="/marketing/full-reductions" class="mt-3 grid md:grid-cols-2 gap-2">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input name="title" required placeholder="Title" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="minSpend" type="number" step="0.01" min="0" required placeholder="Min spend" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountAmount" type="number" step="0.01" min="0" required placeholder="Reduction amount" class="rounded border border-slate-200 px-3 py-2"/>
+      <div class="hidden md:block"></div>
+      <input name="startsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="endsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <textarea name="description" rows="2" placeholder="Description" class="md:col-span-2 rounded border border-slate-200 px-3 py-2"></textarea>
+      <button class="md:col-span-2 rounded bg-slate-900 px-4 py-2 text-white text-sm">Create</button>
+    </form>
+  </section>
+
+  <section th:fragment="firstOrderAdd">
+    <h2 class="font-semibold">First order discount</h2>
+    <form method="post" action="/marketing/first-order-discounts" class="mt-3 grid md:grid-cols-2 gap-2">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input name="title" required placeholder="Title" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="minSpend" type="number" step="0.01" min="0" placeholder="Min spend" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountPercent" type="number" step="0.01" min="0" placeholder="Discount %" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="discountAmount" type="number" step="0.01" min="0" placeholder="Discount amount" class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="startsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <input name="endsAt" type="datetime-local" required class="rounded border border-slate-200 px-3 py-2"/>
+      <textarea name="description" rows="2" placeholder="Description" class="md:col-span-2 rounded border border-slate-200 px-3 py-2"></textarea>
+      <button class="md:col-span-2 rounded bg-slate-900 px-4 py-2 text-white text-sm">Create</button>
+    </form>
+  </section>
+
+  <section th:fragment="listSection(title, items, tabName)">
+    <h2 class="font-semibold" th:text="${title}">List</h2>
+    <div class="mt-3 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr>
+            <th class="px-3 py-2 text-left">Title</th>
+            <th class="px-3 py-2 text-left">Discount</th>
+            <th class="px-3 py-2 text-left">Period</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr th:if="${#lists.isEmpty(items)}"><td colspan="5" class="px-3 py-3 text-slate-500">No records.</td></tr>
+          <tr th:each="item : ${items}">
+            <td class="px-3 py-3">
+              <div class="font-medium" th:text="${item.title}">Title</div>
+              <div class="text-xs text-slate-500" th:text="${item.description}">Description</div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div>Percent: <span th:text="${item.discountPercent != null ? #numbers.formatDecimal(item.discountPercent,1,2) + '%' : '-'}">-</span></div>
+              <div>Amount: <span th:text="${item.discountAmount != null ? '$' + #numbers.formatDecimal(item.discountAmount,1,2) : '-'}">-</span></div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div th:text="${#temporals.format(item.startsAt, 'yyyy-MM-dd HH:mm')}">Start</div>
+              <div th:text="${#temporals.format(item.endsAt, 'yyyy-MM-dd HH:mm')}">End</div>
+            </td>
+            <td class="px-3 py-3">
+              <span th:if="${item.active}" class="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">Active</span>
+              <span th:unless="${item.active}" class="inline-flex rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">Inactive</span>
+            </td>
+            <td class="px-3 py-3 text-right whitespace-nowrap">
+              <form th:action="@{'/marketing/' + ${item.id} + '/toggle-active'}" method="post" class="inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="tab" th:value="${tabName}"/>
+                <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs hover:bg-slate-50" th:text="${item.active ? 'Disable' : 'Enable'}">Toggle</button>
+              </form>
+              <form th:action="@{'/marketing/' + ${item.id} + '/delete'}" method="post" class="inline ml-1" onsubmit="return confirm('Delete this campaign?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="tab" th:value="${tabName}"/>
+                <button class="rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-700 hover:bg-red-50">Delete</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section th:fragment="couponList(items)">
+    <h2 class="font-semibold">Coupon list</h2>
+    <div class="mt-3 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr>
+            <th class="px-3 py-2 text-left">Title / Code</th>
+            <th class="px-3 py-2 text-left">Discount</th>
+            <th class="px-3 py-2 text-left">Limits</th>
+            <th class="px-3 py-2 text-left">Period</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr th:if="${#lists.isEmpty(items)}"><td colspan="6" class="px-3 py-3 text-slate-500">No records.</td></tr>
+          <tr th:each="item : ${items}">
+            <td class="px-3 py-3">
+              <div class="font-medium" th:text="${item.title}">Title</div>
+              <div class="text-xs font-semibold text-indigo-700" th:text="${item.code}">CODE</div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div>Percent: <span th:text="${item.discountPercent != null ? #numbers.formatDecimal(item.discountPercent,1,2) + '%' : '-'}">-</span></div>
+              <div>Amount: <span th:text="${item.discountAmount != null ? '$' + #numbers.formatDecimal(item.discountAmount,1,2) : '-'}">-</span></div>
+              <div>Min spend: <span th:text="${item.minSpend != null ? '$' + #numbers.formatDecimal(item.minSpend,1,2) : '-'}">-</span></div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div>Stock: <span th:text="${item.couponStock != null ? item.couponStock : '-'}">-</span></div>
+              <div>User limit: <span th:text="${item.perUserLimit != null ? item.perUserLimit : '-'}">-</span></div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div th:text="${#temporals.format(item.startsAt, 'yyyy-MM-dd HH:mm')}">Start</div>
+              <div th:text="${#temporals.format(item.endsAt, 'yyyy-MM-dd HH:mm')}">End</div>
+            </td>
+            <td class="px-3 py-3">
+              <span th:if="${item.active}" class="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">Active</span>
+              <span th:unless="${item.active}" class="inline-flex rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">Inactive</span>
+            </td>
+            <td class="px-3 py-3 text-right whitespace-nowrap">
+              <form th:action="@{'/marketing/' + ${item.id} + '/toggle-active'}" method="post" class="inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="tab" value="coupon-list"/>
+                <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs hover:bg-slate-50" th:text="${item.active ? 'Disable' : 'Enable'}">Toggle</button>
+              </form>
+              <form th:action="@{'/marketing/' + ${item.id} + '/delete'}" method="post" class="inline ml-1" onsubmit="return confirm('Delete this campaign?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="tab" value="coupon-list"/>
+                <button class="rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-700 hover:bg-red-50">Delete</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section th:fragment="fullReductionList(items)">
+    <h2 class="font-semibold">Full reduction list</h2>
+    <div class="mt-3 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr>
+            <th class="px-3 py-2 text-left">Title</th>
+            <th class="px-3 py-2 text-left">Rule</th>
+            <th class="px-3 py-2 text-left">Period</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr th:if="${#lists.isEmpty(items)}"><td colspan="5" class="px-3 py-3 text-slate-500">No records.</td></tr>
+          <tr th:each="item : ${items}">
+            <td class="px-3 py-3">
+              <div class="font-medium" th:text="${item.title}">Title</div>
+              <div class="text-xs text-slate-500" th:text="${item.description}">Description</div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div>Spend: <span th:text="${item.minSpend != null ? '$' + #numbers.formatDecimal(item.minSpend,1,2) : '-'}">-</span></div>
+              <div>Reduce: <span th:text="${item.discountAmount != null ? '$' + #numbers.formatDecimal(item.discountAmount,1,2) : '-'}">-</span></div>
+            </td>
+            <td class="px-3 py-3 text-xs text-slate-600">
+              <div th:text="${#temporals.format(item.startsAt, 'yyyy-MM-dd HH:mm')}">Start</div>
+              <div th:text="${#temporals.format(item.endsAt, 'yyyy-MM-dd HH:mm')}">End</div>
+            </td>
+            <td class="px-3 py-3">
+              <span th:if="${item.active}" class="inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">Active</span>
+              <span th:unless="${item.active}" class="inline-flex rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">Inactive</span>
+            </td>
+            <td class="px-3 py-3 text-right whitespace-nowrap">
+              <form th:action="@{'/marketing/' + ${item.id} + '/toggle-active'}" method="post" class="inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="tab" value="full-reduction-list"/>
+                <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs hover:bg-slate-50" th:text="${item.active ? 'Disable' : 'Enable'}">Toggle</button>
+              </form>
+              <form th:action="@{'/marketing/' + ${item.id} + '/delete'}" method="post" class="inline ml-1" onsubmit="return confirm('Delete this campaign?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="tab" value="full-reduction-list"/>
+                <button class="rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-700 hover:bg-red-50">Delete</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

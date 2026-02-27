@@ -25,6 +25,27 @@ class ReceiptPayloadServiceTests {
     @Autowired
     private ReceiptPayloadService receiptPayloadService;
 
+    /**
+     * Executes the buildPrintPayloadIncludesTotalsTaxesAndSplitPayments operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildPrintPayloadIncludesTotalsTaxesAndSplitPayments operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildPrintPayloadIncludesTotalsTaxesAndSplitPayments operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void buildPrintPayloadIncludesTotalsTaxesAndSplitPayments() {
         Sale sale = buildSale();
@@ -52,6 +73,27 @@ class ReceiptPayloadServiceTests {
         assertThat(payload.text()).contains("200000.00 KHR");
     }
 
+    /**
+     * Executes the buildPrintPayloadIncludesCashReceivedAndChangeForSingleCashPayment operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildPrintPayloadIncludesCashReceivedAndChangeForSingleCashPayment operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildPrintPayloadIncludesCashReceivedAndChangeForSingleCashPayment operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void buildPrintPayloadIncludesCashReceivedAndChangeForSingleCashPayment() {
         Sale sale = buildSale();
@@ -73,6 +115,27 @@ class ReceiptPayloadServiceTests {
         assertThat(payload.text()).contains("$5.50");
     }
 
+    /**
+     * Executes the buildPrintPayloadIncludesHeaderFooterAndQrPayload operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildPrintPayloadIncludesHeaderFooterAndQrPayload operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the buildPrintPayloadIncludesHeaderFooterAndQrPayload operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void buildPrintPayloadIncludesHeaderFooterAndQrPayload() {
         Sale sale = buildSale();
@@ -87,6 +150,13 @@ class ReceiptPayloadServiceTests {
         assertThat(payload.qrPayload()).contains("terminal=TERM-99");
     }
 
+    /**
+     * Executes the buildSale operation.
+     *
+     * @return {@code Sale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Sale buildSale() {
         Sale sale = new Sale();
         sale.setId(101L);
@@ -124,6 +194,13 @@ class ReceiptPayloadServiceTests {
         return sale;
     }
 
+    /**
+     * Executes the buildSettings operation.
+     *
+     * @return {@code TerminalSettings} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private TerminalSettings buildSettings() {
         TerminalSettings settings = new TerminalSettings();
         settings.setTerminalId("TERM-01");

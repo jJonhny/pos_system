@@ -2,6 +2,7 @@ package com.example.pos_system.service;
 
 import com.example.pos_system.entity.PrinterMode;
 import com.example.pos_system.entity.TerminalSettings;
+import com.example.pos_system.modules.currency.application.CurrencyService;
 import com.example.pos_system.repository.TerminalSettingsRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,16 @@ public class TerminalSettingsService {
     private final CurrencyService currencyService;
     private final AuditEventService auditEventService;
 
+    /**
+     * Executes the TerminalSettingsService operation.
+     * <p>Return value: A fully initialized TerminalSettingsService instance.</p>
+     *
+     * @param terminalSettingsRepo Parameter of type {@code TerminalSettingsRepo} used by this operation.
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public TerminalSettingsService(TerminalSettingsRepo terminalSettingsRepo,
                                    CurrencyService currencyService,
                                    AuditEventService auditEventService) {
@@ -28,16 +39,85 @@ public class TerminalSettingsService {
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @return {@code List<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @return {@code List<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @return {@code List<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<TerminalSettings> list() {
         return terminalSettingsRepo.findAllByOrderByNameAscTerminalIdAsc();
     }
 
+    /**
+     * Executes the findById operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code Optional<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findById operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code Optional<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findById operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code Optional<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public Optional<TerminalSettings> findById(Long id) {
         return terminalSettingsRepo.findById(id);
     }
 
+    /**
+     * Executes the findByTerminalId operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findByTerminalId operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findByTerminalId operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<TerminalSettings>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public Optional<TerminalSettings> findByTerminalId(String terminalId) {
         String key = sanitizeTerminalId(terminalId);
@@ -45,6 +125,27 @@ public class TerminalSettingsService {
         return terminalSettingsRepo.findByTerminalIdIgnoreCase(key);
     }
 
+    /**
+     * Executes the preferredTerminalId operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the preferredTerminalId operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the preferredTerminalId operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public String preferredTerminalId() {
         return list().stream()
@@ -53,6 +154,30 @@ public class TerminalSettingsService {
                 .orElse(null);
     }
 
+    /**
+     * Executes the resolveForTerminal operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code TerminalSettings} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the resolveForTerminal operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code TerminalSettings} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the resolveForTerminal operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code TerminalSettings} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public TerminalSettings resolveForTerminal(String terminalId) {
         String key = sanitizeTerminalId(terminalId);
@@ -63,6 +188,24 @@ public class TerminalSettingsService {
         return list().stream().findFirst().orElseGet(() -> buildDefaultSettings(key));
     }
 
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param defaultCurrency Parameter of type {@code String} used by this operation.
+     * @param receiptHeader Parameter of type {@code String} used by this operation.
+     * @param receiptFooter Parameter of type {@code String} used by this operation.
+     * @param taxId Parameter of type {@code String} used by this operation.
+     * @param printerMode Parameter of type {@code PrinterMode} used by this operation.
+     * @param bridgeUrl Parameter of type {@code String} used by this operation.
+     * @param autoPrintEnabled Parameter of type {@code Boolean} used by this operation.
+     * @param cameraScannerEnabled Parameter of type {@code Boolean} used by this operation.
+     * @return {@code TerminalSettings} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public TerminalSettings save(Long id,
                                  String terminalId,
                                  String name,
@@ -122,6 +265,14 @@ public class TerminalSettingsService {
         return saved;
     }
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void delete(Long id) {
         if (id == null) return;
         TerminalSettings existing = terminalSettingsRepo.findById(id).orElse(null);
@@ -130,12 +281,28 @@ public class TerminalSettingsService {
         auditEventService.record("TERMINAL_SETTINGS_DELETE", "TERMINAL_SETTINGS", id, snapshot(existing), null, null);
     }
 
+    /**
+     * Executes the effectiveBridgeUrl operation.
+     *
+     * @param settings Parameter of type {@code TerminalSettings} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String effectiveBridgeUrl(TerminalSettings settings) {
         if (settings == null) return DEFAULT_BRIDGE_URL;
         String configured = normalizeBridgeUrl(settings.getBridgeUrl());
         return configured == null ? DEFAULT_BRIDGE_URL : configured;
     }
 
+    /**
+     * Executes the buildDefaultSettings operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code TerminalSettings} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private TerminalSettings buildDefaultSettings(String terminalId) {
         TerminalSettings settings = new TerminalSettings();
         settings.setId(null);
@@ -154,12 +321,28 @@ public class TerminalSettingsService {
         return settings;
     }
 
+    /**
+     * Executes the sanitizeTerminalId operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String sanitizeTerminalId(String value) {
         String trimmed = trimTo(value, 128);
         if (trimmed == null) return null;
         return trimmed.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Executes the normalizeCurrency operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeCurrency(String value) {
         String cleaned = trimTo(value, 8);
         if (cleaned == null) {
@@ -168,6 +351,14 @@ public class TerminalSettingsService {
         return cleaned.toUpperCase(Locale.ROOT);
     }
 
+    /**
+     * Executes the normalizeBridgeUrl operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeBridgeUrl(String value) {
         String cleaned = trimTo(value, 255);
         if (cleaned == null) return null;
@@ -177,6 +368,15 @@ public class TerminalSettingsService {
         return cleaned;
     }
 
+    /**
+     * Executes the trimTo operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimTo(String value, int maxLength) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -184,6 +384,14 @@ public class TerminalSettingsService {
         return trimmed.length() <= maxLength ? trimmed : trimmed.substring(0, maxLength);
     }
 
+    /**
+     * Executes the snapshot operation.
+     *
+     * @param settings Parameter of type {@code TerminalSettings} used by this operation.
+     * @return {@code java.util.Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private java.util.Map<String, Object> snapshot(TerminalSettings settings) {
         if (settings == null) return null;
         java.util.Map<String, Object> snapshot = new java.util.LinkedHashMap<>();

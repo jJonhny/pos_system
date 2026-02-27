@@ -23,6 +23,18 @@ public class PosHardwareService {
     private final ShiftService shiftService;
     private final AuditEventService auditEventService;
 
+    /**
+     * Executes the PosHardwareService operation.
+     * <p>Return value: A fully initialized PosHardwareService instance.</p>
+     *
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param terminalSettingsService Parameter of type {@code TerminalSettingsService} used by this operation.
+     * @param receiptPayloadService Parameter of type {@code ReceiptPayloadService} used by this operation.
+     * @param shiftService Parameter of type {@code ShiftService} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PosHardwareService(SaleRepo saleRepo,
                               TerminalSettingsService terminalSettingsService,
                               ReceiptPayloadService receiptPayloadService,
@@ -35,6 +47,16 @@ public class PosHardwareService {
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the buildReceiptPrintResponse operation.
+     *
+     * @param saleId Parameter of type {@code Long} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param reprint Parameter of type {@code boolean} used by this operation.
+     * @return {@code PrintResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PrintResponse buildReceiptPrintResponse(Long saleId, String terminalId, boolean reprint) {
         var sale = saleRepo.findByIdForReceipt(saleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sale not found."));
@@ -74,6 +96,16 @@ public class PosHardwareService {
         );
     }
 
+    /**
+     * Executes the openDrawer operation.
+     *
+     * @param actorUsername Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param saleId Parameter of type {@code Long} used by this operation.
+     * @return {@code DrawerResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public DrawerResponse openDrawer(String actorUsername, String terminalId, Long saleId) {
         String resolvedTerminalId = resolveTerminalId(terminalId, null);
         TerminalSettings settings = terminalSettingsService.resolveForTerminal(resolvedTerminalId);
@@ -113,6 +145,14 @@ public class PosHardwareService {
         );
     }
 
+    /**
+     * Executes the buildPrinterTestResponse operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code PrintResponse} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PrintResponse buildPrinterTestResponse(String terminalId) {
         String resolvedTerminalId = resolveTerminalId(terminalId, null);
         TerminalSettings settings = terminalSettingsService.resolveForTerminal(resolvedTerminalId);
@@ -160,6 +200,15 @@ public class PosHardwareService {
         );
     }
 
+    /**
+     * Executes the resolveTerminalId operation.
+     *
+     * @param preferred Parameter of type {@code String} used by this operation.
+     * @param fallback Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String resolveTerminalId(String preferred, String fallback) {
         String first = sanitize(preferred);
         if (first != null) return first;
@@ -170,6 +219,14 @@ public class PosHardwareService {
         return "TERM-DEFAULT";
     }
 
+    /**
+     * Executes the sanitize operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String sanitize(String terminalId) {
         if (terminalId == null) return null;
         String cleaned = terminalId.trim();

@@ -49,6 +49,22 @@ public class ProductVariantService {
     private final ProductVariantExclusionRepo productVariantExclusionRepo;
     private final VariantCombinationKeyService keyService;
 
+    /**
+     * Executes the ProductVariantService operation.
+     * <p>Return value: A fully initialized ProductVariantService instance.</p>
+     *
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param attributeGroupRepo Parameter of type {@code AttributeGroupRepo} used by this operation.
+     * @param attributeValueRepo Parameter of type {@code AttributeValueRepo} used by this operation.
+     * @param productAttributeGroupRepo Parameter of type {@code ProductAttributeGroupRepo} used by this operation.
+     * @param productAttributeValueRepo Parameter of type {@code ProductAttributeValueRepo} used by this operation.
+     * @param productVariantRepo Parameter of type {@code ProductVariantRepo} used by this operation.
+     * @param productVariantAttributeRepo Parameter of type {@code ProductVariantAttributeRepo} used by this operation.
+     * @param productVariantExclusionRepo Parameter of type {@code ProductVariantExclusionRepo} used by this operation.
+     * @param keyService Parameter of type {@code VariantCombinationKeyService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductVariantService(ProductRepo productRepo,
                                  AttributeGroupRepo attributeGroupRepo,
                                  AttributeValueRepo attributeValueRepo,
@@ -69,6 +85,14 @@ public class ProductVariantService {
         this.keyService = keyService;
     }
 
+    /**
+     * Executes the createAttributeGroup operation.
+     *
+     * @param request Parameter of type {@code VariantApiDtos.AttributeGroupCreateRequest} used by this operation.
+     * @return {@code AttributeGroup} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AttributeGroup createAttributeGroup(VariantApiDtos.AttributeGroupCreateRequest request) {
         String code = normalizeCode(request == null ? null : request.code());
         String name = normalizeText(request == null ? null : request.name());
@@ -86,6 +110,15 @@ public class ProductVariantService {
         return attributeGroupRepo.save(group);
     }
 
+    /**
+     * Executes the createAttributeValue operation.
+     *
+     * @param groupId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.AttributeValueCreateRequest} used by this operation.
+     * @return {@code AttributeValue} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public AttributeValue createAttributeValue(Long groupId, VariantApiDtos.AttributeValueCreateRequest request) {
         AttributeGroup group = attributeGroupRepo.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Attribute group not found."));
@@ -106,14 +139,39 @@ public class ProductVariantService {
         return attributeValueRepo.save(value);
     }
 
+    /**
+     * Executes the deleteAttributeGroup operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void deleteAttributeGroup(Long id) {
         attributeGroupRepo.deleteById(id);
     }
 
+    /**
+     * Executes the deleteAttributeValue operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void deleteAttributeValue(Long id) {
         attributeValueRepo.deleteById(id);
     }
 
+    /**
+     * Executes the configureProductAttributes operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.ProductAttributeConfigRequest} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void configureProductAttributes(Long productId, VariantApiDtos.ProductAttributeConfigRequest request) {
         Product product = requireProduct(productId);
         List<VariantApiDtos.ProductAttributeGroupSelection> groupSelections =
@@ -181,6 +239,15 @@ public class ProductVariantService {
         }
     }
 
+    /**
+     * Executes the generateVariants operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.VariantGenerateRequest} used by this operation.
+     * @return {@code VariantApiDtos.VariantGenerationResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public VariantApiDtos.VariantGenerationResult generateVariants(Long productId, VariantApiDtos.VariantGenerateRequest request) {
         Product product = requireProduct(productId);
         List<ProductAttributeGroup> groups = productAttributeGroupRepo.findByProductOrderBySortOrderAscIdAsc(product);
@@ -287,6 +354,16 @@ public class ProductVariantService {
         );
     }
 
+    /**
+     * Executes the addExclusion operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.VariantExclusionRequest} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return {@code ProductVariantExclusion} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductVariantExclusion addExclusion(Long productId,
                                                 VariantApiDtos.VariantExclusionRequest request,
                                                 Authentication authentication) {
@@ -321,6 +398,15 @@ public class ProductVariantService {
         return saved;
     }
 
+    /**
+     * Executes the removeExclusion operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param exclusionId Parameter of type {@code Long} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void removeExclusion(Long productId, Long exclusionId) {
         Product product = requireProduct(productId);
         ProductVariantExclusion exclusion = productVariantExclusionRepo.findById(exclusionId)
@@ -332,6 +418,15 @@ public class ProductVariantService {
         productVariantExclusionRepo.save(exclusion);
     }
 
+    /**
+     * Executes the updateVariantState operation.
+     *
+     * @param variantId Parameter of type {@code Long} used by this operation.
+     * @param request Parameter of type {@code VariantApiDtos.VariantStateUpdateRequest} used by this operation.
+     * @return {@code ProductVariant} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ProductVariant updateVariantState(Long variantId, VariantApiDtos.VariantStateUpdateRequest request) {
         ProductVariant variant = productVariantRepo.findById(variantId)
                 .orElseThrow(() -> new IllegalArgumentException("Variant not found."));
@@ -350,6 +445,15 @@ public class ProductVariantService {
         return productVariantRepo.save(variant);
     }
 
+    /**
+     * Executes the syncVariantAttributes operation.
+     *
+     * @param variant Parameter of type {@code ProductVariant} used by this operation.
+     * @param combo Parameter of type {@code List<ComboValue>} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void syncVariantAttributes(ProductVariant variant, List<ComboValue> combo) {
         productVariantAttributeRepo.deleteByVariant(variant);
         productVariantAttributeRepo.flush();
@@ -362,6 +466,17 @@ public class ProductVariantService {
         }
     }
 
+    /**
+     * Executes the buildCombinations operation.
+     *
+     * @param groups Parameter of type {@code List<GroupValues>} used by this operation.
+     * @param index Parameter of type {@code int} used by this operation.
+     * @param current Parameter of type {@code List<ComboValue>} used by this operation.
+     * @param consumer Parameter of type {@code java.util.function.Consumer<List<ComboValue>>} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void buildCombinations(List<GroupValues> groups,
                                    int index,
                                    List<ComboValue> current,
@@ -378,6 +493,14 @@ public class ProductVariantService {
         }
     }
 
+    /**
+     * Executes the countCombinations operation.
+     *
+     * @param groups Parameter of type {@code List<GroupValues>} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int countCombinations(List<GroupValues> groups) {
         if (groups.isEmpty()) return 0;
         long total = 1L;
@@ -390,20 +513,57 @@ public class ProductVariantService {
         return (int) total;
     }
 
+    /**
+     * Executes the defaultPrice operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param defaults Parameter of type {@code VariantApiDtos.DefaultVariantValues} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal defaultPrice(Product product, VariantApiDtos.DefaultVariantValues defaults) {
         if (defaults != null && defaults.price() != null) return defaults.price();
         return product.getPrice();
     }
 
+    /**
+     * Executes the defaultCost operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @param defaults Parameter of type {@code VariantApiDtos.DefaultVariantValues} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal defaultCost(Product product, VariantApiDtos.DefaultVariantValues defaults) {
         if (defaults != null && defaults.cost() != null) return defaults.cost();
         return product.getCostPrice();
     }
 
+    /**
+     * Executes the defaultEnabled operation.
+     *
+     * @param defaults Parameter of type {@code VariantApiDtos.DefaultVariantValues} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean defaultEnabled(VariantApiDtos.DefaultVariantValues defaults) {
         return defaults == null || defaults.enabled() == null || defaults.enabled();
     }
 
+    /**
+     * Executes the applyNonPreservedDefaults operation.
+     *
+     * @param variant Parameter of type {@code ProductVariant} used by this operation.
+     * @param preserve Parameter of type {@code Set<String>} used by this operation.
+     * @param defaults Parameter of type {@code VariantApiDtos.DefaultVariantValues} used by this operation.
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void applyNonPreservedDefaults(ProductVariant variant,
                                            Set<String> preserve,
                                            VariantApiDtos.DefaultVariantValues defaults,
@@ -433,6 +593,14 @@ public class ProductVariantService {
         }
     }
 
+    /**
+     * Executes the normalizePreserveFields operation.
+     *
+     * @param fields Parameter of type {@code Collection<String>} used by this operation.
+     * @return {@code Set<String>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Set<String> normalizePreserveFields(Collection<String> fields) {
         if (fields == null || fields.isEmpty()) {
             return Set.of("sku", "barcode", "price", "cost", "stock", "enabled", "impossible");
@@ -443,23 +611,55 @@ public class ProductVariantService {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Executes the toVariantName operation.
+     *
+     * @param combo Parameter of type {@code List<ComboValue>} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String toVariantName(List<ComboValue> combo) {
         return combo.stream()
                 .map(v -> v.value().getDisplayName())
                 .collect(Collectors.joining(" / "));
     }
 
+    /**
+     * Executes the requireProduct operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product requireProduct(Long productId) {
         return productRepo.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found."));
     }
 
+    /**
+     * Executes the normalizeCode operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeCode(String value) {
         if (value == null) return null;
         String normalized = value.trim().toUpperCase(Locale.ROOT);
         return normalized.isEmpty() ? null : normalized;
     }
 
+    /**
+     * Executes the normalizeText operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeText(String value) {
         if (value == null) return null;
         String normalized = value.trim();

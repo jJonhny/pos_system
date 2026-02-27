@@ -21,6 +21,16 @@ public class CursorTokenService {
     @Value("${app.pagination.cursor-secret:pos-cursor-secret-change-me}")
     private String cursorSecret;
 
+    /**
+     * Executes the createProductCursor operation.
+     *
+     * @param lastId Parameter of type {@code Long} used by this operation.
+     * @param query Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String createProductCursor(Long lastId, String query, Long categoryId) {
         if (lastId == null || lastId <= 0) {
             throw new IllegalArgumentException("Cannot create cursor without a valid product id.");
@@ -33,6 +43,16 @@ public class CursorTokenService {
         return payloadEncoded + "." + signature;
     }
 
+    /**
+     * Executes the parseProductCursor operation.
+     *
+     * @param token Parameter of type {@code String} used by this operation.
+     * @param query Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Long parseProductCursor(String token, String query, Long categoryId) {
         if (token == null || token.isBlank()) return null;
         String[] parts = token.split("\\.");
@@ -73,6 +93,15 @@ public class CursorTokenService {
         return lastId;
     }
 
+    /**
+     * Executes the filterFingerprint operation.
+     *
+     * @param query Parameter of type {@code String} used by this operation.
+     * @param categoryId Parameter of type {@code Long} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public String filterFingerprint(String query, Long categoryId) {
         String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
         String category = categoryId == null ? "" : String.valueOf(categoryId);
@@ -80,6 +109,14 @@ public class CursorTokenService {
         return shortHash(value);
     }
 
+    /**
+     * Executes the hmac operation.
+     *
+     * @param payload Parameter of type {@code String} used by this operation.
+     * @return {@code byte[]} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private byte[] hmac(String payload) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -90,6 +127,14 @@ public class CursorTokenService {
         }
     }
 
+    /**
+     * Executes the shortHash operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String shortHash(String value) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -104,10 +149,28 @@ public class CursorTokenService {
         }
     }
 
+    /**
+     * Executes the decodePart operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param label Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String decodePart(String value, String label) {
         return new String(decodeBytes(value, label), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Executes the decodeBytes operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param label Parameter of type {@code String} used by this operation.
+     * @return {@code byte[]} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private byte[] decodeBytes(String value, String label) {
         try {
             return URL_DECODER.decode(value);

@@ -184,12 +184,30 @@
 
   // Auto‑initialise on DOMContentLoaded if there is a data‑attribute on the document
   // This provides the same "drop‑in" behaviour as the original script.
+  /**
+   * Executes the autoInit function.
+   * @returns {any} Result produced by this function.
+   * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
+   * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
+   */
   function autoInit() {
     if (document.documentElement.hasAttribute('data-lang-switcher-auto')) {
       new LangSwitcher();
     }
   }
 
+  /**
+   * Executes the autoInit function.
+   * @returns {any} Result produced by this function.
+   * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
+   * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
+   */
+  /**
+   * Executes the autoInit function.
+   * @returns {any} Result produced by this function.
+   * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
+   * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
+   */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoInit, { once: true });
   } else {

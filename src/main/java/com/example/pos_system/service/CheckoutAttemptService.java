@@ -16,10 +16,48 @@ public class CheckoutAttemptService {
 
     private final CheckoutAttemptRepo checkoutAttemptRepo;
 
+    /**
+     * Executes the CheckoutAttemptService operation.
+     * <p>Return value: A fully initialized CheckoutAttemptService instance.</p>
+     *
+     * @param checkoutAttemptRepo Parameter of type {@code CheckoutAttemptRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public CheckoutAttemptService(CheckoutAttemptRepo checkoutAttemptRepo) {
         this.checkoutAttemptRepo = checkoutAttemptRepo;
     }
 
+    /**
+     * Executes the process operation.
+     *
+     * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param operation Parameter of type {@code CheckoutOperation} used by this operation.
+     * @return {@code CheckoutResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the process operation.
+     *
+     * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param operation Parameter of type {@code CheckoutOperation} used by this operation.
+     * @return {@code CheckoutResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the process operation.
+     *
+     * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param operation Parameter of type {@code CheckoutOperation} used by this operation.
+     * @return {@code CheckoutResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional
     public CheckoutResult process(String clientCheckoutId,
                                   String terminalId,
@@ -52,6 +90,15 @@ public class CheckoutAttemptService {
         }
     }
 
+    /**
+     * Executes the reserveAttempt operation.
+     *
+     * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code CheckoutAttempt} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private CheckoutAttempt reserveAttempt(String clientCheckoutId, String terminalId) {
         var existing = checkoutAttemptRepo.findForUpdate(terminalId, clientCheckoutId);
         if (existing.isPresent()) {
@@ -69,6 +116,14 @@ public class CheckoutAttemptService {
         }
     }
 
+    /**
+     * Executes the normalizeClientCheckoutId operation.
+     *
+     * @param clientCheckoutId Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeClientCheckoutId(String clientCheckoutId) {
         String cleaned = trim(clientCheckoutId, 64);
         if (cleaned == null) {
@@ -77,11 +132,28 @@ public class CheckoutAttemptService {
         return cleaned;
     }
 
+    /**
+     * Executes the normalizeTerminalId operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeTerminalId(String terminalId) {
         String cleaned = trim(terminalId, 128);
         return cleaned == null ? UNKNOWN_TERMINAL : cleaned;
     }
 
+    /**
+     * Executes the trim operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trim(String value, int maxLength) {
         if (value == null) return null;
         String cleaned = value.trim();
@@ -93,6 +165,13 @@ public class CheckoutAttemptService {
 
     @FunctionalInterface
     public interface CheckoutOperation {
+        /**
+         * Executes the execute operation.
+         *
+         * @return {@code Sale} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         Sale execute();
     }
 }

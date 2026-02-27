@@ -9,6 +9,14 @@ import java.util.Set;
 
 @Service
 public class RolePermissionService {
+    /**
+     * Executes the defaultsForRole operation.
+     *
+     * @param role Parameter of type {@code UserRole} used by this operation.
+     * @return {@code Set<Permission>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Set<Permission> defaultsForRole(UserRole role) {
         if (role == null) {
             return EnumSet.noneOf(Permission.class);

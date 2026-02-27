@@ -5,6 +5,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public final class VariantApiDtos {
+    /**
+     * Executes the VariantApiDtos operation.
+     * <p>Return value: A fully initialized VariantApiDtos instance.</p>
+     *
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private VariantApiDtos() {
     }
 

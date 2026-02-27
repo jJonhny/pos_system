@@ -32,11 +32,59 @@ public class CategoriesController {
     private final CategoryRepo categoryRepo;
     private final ProductRepo productRepo;
 
+    /**
+     * Executes the CategoriesController operation.
+     * <p>Return value: A fully initialized CategoriesController instance.</p>
+     *
+     * @param categoryRepo Parameter of type {@code CategoryRepo} used by this operation.
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public CategoriesController(CategoryRepo categoryRepo, ProductRepo productRepo) {
         this.categoryRepo = categoryRepo;
         this.productRepo = productRepo;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param error Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param error Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param error Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String list(@RequestParam(required = false) String q,
                        @RequestParam(required = false) String error,
@@ -102,12 +150,63 @@ public class CategoriesController {
         return "categories/list";
     }
 
+    /**
+     * Executes the createForm operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the createForm operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the createForm operation.
+     *
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/new")
     public String createForm(Model model) {
         model.addAttribute("category", new Category());
         return "categories/form";
     }
 
+    /**
+     * Executes the editForm operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the editForm operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the editForm operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         Category category = categoryRepo.findById(id).orElseThrow();
@@ -115,6 +214,33 @@ public class CategoriesController {
         return "categories/form";
     }
 
+    /**
+     * Executes the save operation.
+     *
+     * @param category Parameter of type {@code Category} used by this operation.
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param category Parameter of type {@code Category} used by this operation.
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the save operation.
+     *
+     * @param category Parameter of type {@code Category} used by this operation.
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping
     public String save(@ModelAttribute Category category,
                        @RequestParam(required = false) MultipartFile imageFile) {
@@ -140,6 +266,42 @@ public class CategoriesController {
         return "redirect:/categories";
     }
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id,
                          @RequestParam(required = false) String q,
@@ -164,6 +326,42 @@ public class CategoriesController {
         return redirect.toString();
     }
 
+    /**
+     * Executes the toggleActive operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the toggleActive operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the toggleActive operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param page Parameter of type {@code int} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/{id}/toggle-active")
     public String toggleActive(@PathVariable Long id,
                                @RequestParam(required = false) String q,
@@ -186,6 +384,45 @@ public class CategoriesController {
         return redirect.toString();
     }
 
+    /**
+     * Executes the bulkAction operation.
+     *
+     * @param action Parameter of type {@code String} used by this operation.
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the bulkAction operation.
+     *
+     * @param action Parameter of type {@code String} used by this operation.
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the bulkAction operation.
+     *
+     * @param action Parameter of type {@code String} used by this operation.
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code String} used by this operation.
+     * @param size Parameter of type {@code Integer} used by this operation.
+     * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/bulk")
     public String bulkAction(@RequestParam String action,
                              @RequestParam(required = false) List<Long> ids,
@@ -255,6 +492,30 @@ public class CategoriesController {
         return redirect.toString();
     }
 
+    /**
+     * Executes the reorder operation.
+     *
+     * @param request Parameter of type {@code ReorderRequest} used by this operation.
+     * @return {@code ResponseEntity<Void>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the reorder operation.
+     *
+     * @param request Parameter of type {@code ReorderRequest} used by this operation.
+     * @return {@code ResponseEntity<Void>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the reorder operation.
+     *
+     * @param request Parameter of type {@code ReorderRequest} used by this operation.
+     * @return {@code ResponseEntity<Void>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PostMapping("/reorder")
     @ResponseBody
     public ResponseEntity<Void> reorder(@RequestBody ReorderRequest request) {
@@ -284,6 +545,14 @@ public class CategoriesController {
         public Integer pageSize;
     }
 
+    /**
+     * Executes the storeImage operation.
+     *
+     * @param imageFile Parameter of type {@code MultipartFile} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String storeImage(MultipartFile imageFile) {
         String originalName = imageFile.getOriginalFilename();
         String ext = "";
@@ -310,6 +579,14 @@ public class CategoriesController {
         return "/uploads/categories/" + filename;
     }
 
+    /**
+     * Executes the normalizeEmptyStrings operation.
+     *
+     * @param category Parameter of type {@code Category} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void normalizeEmptyStrings(Category category) {
         if (category.getName() != null && category.getName().trim().isEmpty()) {
             category.setName(null);

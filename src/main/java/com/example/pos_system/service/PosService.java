@@ -34,6 +34,23 @@ public class PosService {
     private final I18nService i18nService;
     private final MarketingPricingService marketingPricingService;
 
+    /**
+     * Executes the PosService operation.
+     * <p>Return value: A fully initialized PosService instance.</p>
+     *
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param customerRepo Parameter of type {@code CustomerRepo} used by this operation.
+     * @param discountAuditRepo Parameter of type {@code DiscountAuditRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * @param variantInventoryService Parameter of type {@code VariantInventoryService} used by this operation.
+     * @param userLocalePreferenceService Parameter of type {@code UserLocalePreferenceService} used by this operation.
+     * @param i18nService Parameter of type {@code I18nService} used by this operation.
+     * @param marketingPricingService Parameter of type {@code MarketingPricingService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public PosService(ProductRepo productRepo, SaleRepo saleRepo, CustomerRepo customerRepo,
                       DiscountAuditRepo discountAuditRepo, AuditEventService auditEventService,
                       StockMovementService stockMovementService,
@@ -53,10 +70,35 @@ public class PosService {
         this.marketingPricingService = marketingPricingService;
     }
 
+    /**
+     * Executes the checkout operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param payment Parameter of type {@code SalePayment} used by this operation.
+     * @param cashierUsername Parameter of type {@code String} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @return {@code Sale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift) {
         return checkout(cart, payment, cashierUsername, customer, shift, null);
     }
 
+    /**
+     * Executes the checkout operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param payment Parameter of type {@code SalePayment} used by this operation.
+     * @param cashierUsername Parameter of type {@code String} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Sale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Sale checkout(Cart cart, SalePayment payment, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException(msg("pos.error.cartEmpty"));
         marketingPricingService.applyBestCampaign(cart, customer);
@@ -120,10 +162,35 @@ public class PosService {
         return saved;
     }
 
+    /**
+     * Executes the checkoutSplit operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param payments Parameter of type {@code List<SalePayment>} used by this operation.
+     * @param cashierUsername Parameter of type {@code String} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @return {@code Sale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift) {
         return checkoutSplit(cart, payments, cashierUsername, customer, shift, null);
     }
 
+    /**
+     * Executes the checkoutSplit operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param payments Parameter of type {@code List<SalePayment>} used by this operation.
+     * @param cashierUsername Parameter of type {@code String} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Sale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Sale checkoutSplit(Cart cart, List<SalePayment> payments, String cashierUsername, Customer customer, Shift shift, String terminalId) {
         if (cart.getItems().isEmpty()) throw new IllegalStateException(msg("pos.error.cartEmpty"));
         if (payments == null || payments.isEmpty()) throw new IllegalStateException(msg("pos.error.noPayments"));
@@ -181,6 +248,17 @@ public class PosService {
         return saved;
     }
 
+    /**
+     * Executes the consumeCartItemInventory operation.
+     *
+     * @param item Parameter of type {@code CartItem} used by this operation.
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product consumeCartItemInventory(CartItem item, Sale sale, String terminalId, String notes) {
         if (item == null) {
             throw new IllegalArgumentException(msg("pos.error.productNotFound"));
@@ -205,6 +283,15 @@ public class PosService {
         );
     }
 
+    /**
+     * Executes the applyVariantLineFields operation.
+     *
+     * @param saleItem Parameter of type {@code SaleItem} used by this operation.
+     * @param item Parameter of type {@code CartItem} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void applyVariantLineFields(SaleItem saleItem, CartItem item) {
         if (saleItem == null || item == null || !item.isVariantLine()) return;
         saleItem.setVariantId(item.getVariantId());
@@ -216,6 +303,15 @@ public class PosService {
         saleItem.setAppliedTierGroupCode(item.getAppliedTierGroupCode());
     }
 
+    /**
+     * Executes the applyLoyaltyPoints operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void applyLoyaltyPoints(Sale sale, Customer customer) {
         if (customer == null) return;
         int points = sale.getTotal() == null ? 0 : sale.getTotal().setScale(0, RoundingMode.FLOOR).intValue();
@@ -226,6 +322,16 @@ public class PosService {
         customerRepo.save(customer);
     }
 
+    /**
+     * Executes the recordDiscountAudit operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @param cashierUsername Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void recordDiscountAudit(Sale sale, Cart cart, String cashierUsername) {
         if (sale == null || cart == null) return;
         BigDecimal discountAmount = cart.getDiscount() == null ? BigDecimal.ZERO : cart.getDiscount();
@@ -251,6 +357,16 @@ public class PosService {
         discountAuditRepo.save(audit);
     }
 
+    /**
+     * Executes the recordCheckoutAudit operation.
+     *
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void recordCheckoutAudit(String actionType, Sale sale, Cart cart) {
         if (sale == null || cart == null) return;
         Map<String, Object> metadata = new LinkedHashMap<>();
@@ -267,6 +383,14 @@ public class PosService {
         );
     }
 
+    /**
+     * Executes the cartSnapshot operation.
+     *
+     * @param cart Parameter of type {@code Cart} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> cartSnapshot(Cart cart) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("subtotal", cart.getSubtotal());
@@ -304,6 +428,14 @@ public class PosService {
         return snapshot;
     }
 
+    /**
+     * Executes the saleSnapshot operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> saleSnapshot(Sale sale) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("saleId", sale.getId());
@@ -324,6 +456,14 @@ public class PosService {
         return snapshot;
     }
 
+    /**
+     * Executes the paymentSnapshot operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code List<Map<String, Object>>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<Map<String, Object>> paymentSnapshot(Sale sale) {
         List<Map<String, Object>> payments = new ArrayList<>();
         if (sale.getPayments() == null) return payments;
@@ -339,6 +479,14 @@ public class PosService {
         return payments;
     }
 
+    /**
+     * Executes the sanitizeTerminalId operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String sanitizeTerminalId(String terminalId) {
         if (terminalId == null) return null;
         String trimmed = terminalId.trim();
@@ -346,6 +494,15 @@ public class PosService {
         return trimmed.length() <= 128 ? trimmed : trimmed.substring(0, 128);
     }
 
+    /**
+     * Executes the requireCheckoutShift operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String requireCheckoutShift(Shift shift, String terminalId) {
         if (shift == null || shift.getId() == null || shift.getStatus() != ShiftStatus.OPEN) {
             throw new IllegalStateException(msg("pos.error.openShiftBeforeCheckout"));
@@ -359,6 +516,14 @@ public class PosService {
         return resolved;
     }
 
+    /**
+     * Executes the lockProduct operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product lockProduct(Long productId) {
         if (productId == null) {
             throw new IllegalArgumentException(msg("pos.error.productNotFound"));
@@ -367,6 +532,15 @@ public class PosService {
                 .orElseThrow(() -> new IllegalArgumentException(msg("pos.error.productNotFound")));
     }
 
+    /**
+     * Executes the msg operation.
+     *
+     * @param key Parameter of type {@code String} used by this operation.
+     * @param args Parameter of type {@code Object...} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String msg(String key, Object... args) {
         return i18nService.msg(key, args);
     }

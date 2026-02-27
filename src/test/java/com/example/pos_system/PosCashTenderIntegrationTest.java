@@ -1,12 +1,12 @@
 package com.example.pos_system;
 
 import com.example.pos_system.entity.Category;
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.Product;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
-import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.ShiftService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,27 @@ class PosCashTenderIntegrationTest {
     @Autowired
     private CurrencyService currencyService;
 
+    /**
+     * Executes the checkoutRejectsCashWhenReceivedAmountIsBelowTotal operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutRejectsCashWhenReceivedAmountIsBelowTotal operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutRejectsCashWhenReceivedAmountIsBelowTotal operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void checkoutRejectsCashWhenReceivedAmountIsBelowTotal() throws Exception {
         Currency baseCurrency = currencyService.getBaseCurrency();
@@ -81,6 +102,14 @@ class PosCashTenderIntegrationTest {
         assertThat(saleRepo.count()).isEqualTo(salesBefore);
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @param price Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct(BigDecimal price) {
         Category category = new Category();
         category.setName("POS Cash Tender Test Category");

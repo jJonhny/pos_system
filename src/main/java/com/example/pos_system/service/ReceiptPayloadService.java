@@ -1,11 +1,12 @@
 package com.example.pos_system.service;
 
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.PaymentMethod;
 import com.example.pos_system.entity.Sale;
 import com.example.pos_system.entity.SaleItem;
 import com.example.pos_system.entity.TerminalSettings;
 import com.example.pos_system.entity.UnitType;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,16 @@ public class ReceiptPayloadService {
     private final ReceiptPaymentService receiptPaymentService;
     private final I18nService i18nService;
 
+    /**
+     * Executes the ReceiptPayloadService operation.
+     * <p>Return value: A fully initialized ReceiptPayloadService instance.</p>
+     *
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * @param receiptPaymentService Parameter of type {@code ReceiptPaymentService} used by this operation.
+     * @param i18nService Parameter of type {@code I18nService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ReceiptPayloadService(CurrencyService currencyService,
                                  ReceiptPaymentService receiptPaymentService,
                                  I18nService i18nService) {
@@ -36,6 +47,16 @@ public class ReceiptPayloadService {
         this.i18nService = i18nService;
     }
 
+    /**
+     * Executes the buildPrintPayload operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param settings Parameter of type {@code TerminalSettings} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code ReceiptPrintPayload} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ReceiptPrintPayload buildPrintPayload(Sale sale, TerminalSettings settings, String terminalId) {
         Currency baseCurrency = currencyService.getBaseCurrency();
         Locale receiptLocale = i18nService.parseOrDefault(sale == null ? null : sale.getReceiptLocale());
@@ -108,6 +129,19 @@ public class ReceiptPayloadService {
         );
     }
 
+    /**
+     * Executes the buildReceiptText operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param paymentLines Parameter of type {@code List<ReceiptPaymentService.ReceiptPaymentLine>} used by this operation.
+     * @param settings Parameter of type {@code TerminalSettings} used by this operation.
+     * @param baseCurrency Parameter of type {@code Currency} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String buildReceiptText(Sale sale,
                                     List<ReceiptPaymentService.ReceiptPaymentLine> paymentLines,
                                     TerminalSettings settings,
@@ -197,6 +231,15 @@ public class ReceiptPayloadService {
         return out.toString();
     }
 
+    /**
+     * Executes the buildQrPayload operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String buildQrPayload(Sale sale, String terminalId) {
         String date = sale.getCreatedAt() == null ? "-" : sale.getCreatedAt().format(DATE_TIME);
         return "sale=" + safeId(sale.getId())
@@ -205,6 +248,15 @@ public class ReceiptPayloadService {
                 + "|at=" + date;
     }
 
+    /**
+     * Executes the twoCol operation.
+     *
+     * @param left Parameter of type {@code String} used by this operation.
+     * @param right Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String twoCol(String left, String right) {
         String safeLeft = safeText(left, "");
         String safeRight = safeText(right, "");
@@ -215,21 +267,56 @@ public class ReceiptPayloadService {
         return safeLeft + " ".repeat(Math.max(1, WIDTH - safeRight.length() - safeLeft.length())) + safeRight;
     }
 
+    /**
+     * Executes the center operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String center(String value) {
         String safe = trimToWidth(safeText(value, ""), WIDTH);
         int pad = Math.max(0, (WIDTH - safe.length()) / 2);
         return " ".repeat(pad) + safe;
     }
 
+    /**
+     * Executes the repeat operation.
+     *
+     * @param c Parameter of type {@code char} used by this operation.
+     * @param count Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String repeat(char c, int count) {
         return String.valueOf(c).repeat(Math.max(0, count));
     }
 
+    /**
+     * Executes the trimToWidth operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param width Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimToWidth(String value, int width) {
         if (value == null) return "";
         return value.length() <= width ? value : value.substring(0, width);
     }
 
+    /**
+     * Executes the money operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @param currency Parameter of type {@code Currency} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String money(BigDecimal value, Currency currency) {
         BigDecimal scaled = safeMoney(value).setScale(currencyDecimals(currency), RoundingMode.HALF_UP);
         String symbol = currency == null ? "$" : currency.getSymbol();
@@ -240,21 +327,55 @@ public class ReceiptPayloadService {
         return scaled.toPlainString() + " " + (code == null ? "" : code);
     }
 
+    /**
+     * Executes the currencyDecimals operation.
+     *
+     * @param currency Parameter of type {@code Currency} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int currencyDecimals(Currency currency) {
         if (currency == null || currency.getFractionDigits() == null) return 2;
         return Math.max(0, currency.getFractionDigits());
     }
 
+    /**
+     * Executes the safeMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeMoney(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    /**
+     * Executes the safeText operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param fallback Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String safeText(String value, String fallback) {
         if (value == null) return fallback;
         String trimmed = value.trim();
         return trimmed.isEmpty() ? fallback : trimmed;
     }
 
+    /**
+     * Executes the trimTo operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimTo(String value, int maxLength) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -262,10 +383,27 @@ public class ReceiptPayloadService {
         return trimmed.length() <= maxLength ? trimmed : trimmed.substring(0, maxLength);
     }
 
+    /**
+     * Executes the safeId operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String safeId(Long id) {
         return id == null ? "0" : String.valueOf(id);
     }
 
+    /**
+     * Executes the unitLabel operation.
+     *
+     * @param unitType Parameter of type {@code UnitType} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String unitLabel(UnitType unitType, Locale locale) {
         if (unitType == null) return msg(locale, "common.unit.piece");
         return switch (unitType) {
@@ -275,6 +413,15 @@ public class ReceiptPayloadService {
         };
     }
 
+    /**
+     * Executes the paymentMethodLabel operation.
+     *
+     * @param method Parameter of type {@code PaymentMethod} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String paymentMethodLabel(PaymentMethod method, Locale locale) {
         if (method == null) return msg(locale, "payment.method.cash");
         return switch (method) {
@@ -285,6 +432,16 @@ public class ReceiptPayloadService {
         };
     }
 
+    /**
+     * Executes the msg operation.
+     *
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @param key Parameter of type {@code String} used by this operation.
+     * @param args Parameter of type {@code Object...} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String msg(Locale locale, String key, Object... args) {
         return i18nService.msg(locale, key, args);
     }

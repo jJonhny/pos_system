@@ -1,16 +1,20 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
+
+<!-- Primary Button -->
 <button th:fragment="primaryButton(labelKey, type)"
         th:type="${type}"
-        class="ui-btn ui-btn-primary rounded-xl px-3 py-2 text-xs">
+        class="ui-btn ui-btn-primary rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
   <span th:text="#{__${labelKey}__}">Action</span>
 </button>
 
+<!-- Secondary Button -->
 <button th:fragment="secondaryButton(labelKey, type)"
         th:type="${type}"
-        class="ui-btn ui-btn-secondary rounded-xl px-3 py-2 text-xs">
+        class="ui-btn ui-btn-secondary rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
   <span th:text="#{__${labelKey}__}">Action</span>
 </button>
+
 </body>
 </html>

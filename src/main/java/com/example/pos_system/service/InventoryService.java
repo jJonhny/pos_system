@@ -25,6 +25,18 @@ public class InventoryService {
     private final SkuSellUnitRepo skuSellUnitRepo;
     private final VariantInventoryService variantInventoryService;
 
+    /**
+     * Executes the InventoryService operation.
+     * <p>Return value: A fully initialized InventoryService instance.</p>
+     *
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * @param skuSellUnitRepo Parameter of type {@code SkuSellUnitRepo} used by this operation.
+     * @param variantInventoryService Parameter of type {@code VariantInventoryService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public InventoryService(ProductRepo productRepo, AuditEventService auditEventService,
                             StockMovementService stockMovementService,
                             SkuSellUnitRepo skuSellUnitRepo,
@@ -36,6 +48,16 @@ public class InventoryService {
         this.variantInventoryService = variantInventoryService;
     }
 
+    /**
+     * Executes the quickUpdate operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param price Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product quickUpdate(Long id, String price, String stockQty) {
         Product product = productRepo.findByIdForUpdate(id).orElseThrow();
         Map<String, Object> before = productSnapshot(product);
@@ -99,6 +121,15 @@ public class InventoryService {
         return saved;
     }
 
+    /**
+     * Executes the deductVariantUnitStock operation.
+     *
+     * @param sellUnitId Parameter of type {@code Long} used by this operation.
+     * @param qty Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code VariantUnitDeductionResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public VariantUnitDeductionResult deductVariantUnitStock(Long sellUnitId, BigDecimal qty) {
         if (sellUnitId == null) {
             throw new IllegalArgumentException("sellUnitId is required.");
@@ -155,6 +186,16 @@ public class InventoryService {
         );
     }
 
+    /**
+     * Executes the bulkAdjustStock operation.
+     *
+     * @param ids Parameter of type {@code List<Long>} used by this operation.
+     * @param operation Parameter of type {@code String} used by this operation.
+     * @param qty Parameter of type {@code String} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public int bulkAdjustStock(List<Long> ids, String operation, String qty) {
         if (ids == null || ids.isEmpty()) {
             throw new IllegalArgumentException("Select at least one product for bulk update.");
@@ -204,6 +245,17 @@ public class InventoryService {
         return updatedCount;
     }
 
+    /**
+     * Executes the setStockFromAdjustment operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param targetStock Parameter of type {@code int} used by this operation.
+     * @param reference Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product setStockFromAdjustment(Long productId,
                                           int targetStock,
                                           String reference,
@@ -211,6 +263,17 @@ public class InventoryService {
         return syncStockLevel(productId, targetStock, StockMovementType.ADJUSTMENT, reference, notes);
     }
 
+    /**
+     * Executes the setStockFromImport operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param targetStock Parameter of type {@code int} used by this operation.
+     * @param reference Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Product setStockFromImport(Long productId,
                                       int targetStock,
                                       String reference,
@@ -218,6 +281,18 @@ public class InventoryService {
         return syncStockLevel(productId, targetStock, StockMovementType.IMPORT, reference, notes);
     }
 
+    /**
+     * Executes the syncStockLevel operation.
+     *
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param targetStock Parameter of type {@code int} used by this operation.
+     * @param movementType Parameter of type {@code StockMovementType} used by this operation.
+     * @param reference Parameter of type {@code String} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product syncStockLevel(Long productId,
                                    int targetStock,
                                    StockMovementType movementType,
@@ -236,6 +311,20 @@ public class InventoryService {
         );
     }
 
+    /**
+     * Executes the recordImportSummary operation.
+     *
+     * @param filename Parameter of type {@code String} used by this operation.
+     * @param allowCreate Parameter of type {@code boolean} used by this operation.
+     * @param createCategories Parameter of type {@code boolean} used by this operation.
+     * @param created Parameter of type {@code int} used by this operation.
+     * @param updated Parameter of type {@code int} used by this operation.
+     * @param skipped Parameter of type {@code int} used by this operation.
+     * @param failed Parameter of type {@code int} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void recordImportSummary(String filename,
                                     boolean allowCreate,
                                     boolean createCategories,
@@ -254,6 +343,14 @@ public class InventoryService {
         auditEventService.record("STOCK_IMPORT", "PRODUCT", "import", null, null, metadata);
     }
 
+    /**
+     * Executes the productSnapshot operation.
+     *
+     * @param product Parameter of type {@code Product} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> productSnapshot(Product product) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("id", product.getId());
@@ -265,6 +362,14 @@ public class InventoryService {
         return snapshot;
     }
 
+    /**
+     * Executes the parseInteger operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code Integer} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Integer parseInteger(String value) {
         if (!hasText(value)) return null;
         try {
@@ -274,6 +379,14 @@ public class InventoryService {
         }
     }
 
+    /**
+     * Executes the parseBigDecimal operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal parseBigDecimal(String value) {
         if (!hasText(value)) return null;
         try {
@@ -283,19 +396,52 @@ public class InventoryService {
         }
     }
 
+    /**
+     * Executes the hasText operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }
 
+    /**
+     * Executes the safeStock operation.
+     *
+     * @param value Parameter of type {@code Integer} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int safeStock(Integer value) {
         return value == null ? 0 : value;
     }
 
+    /**
+     * Executes the normalizeQty operation.
+     *
+     * @param qty Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal normalizeQty(BigDecimal qty) {
         if (qty == null) return BigDecimal.ZERO.setScale(6, RoundingMode.HALF_UP);
         return qty.setScale(6, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the variantSnapshot operation.
+     *
+     * @param variantId Parameter of type {@code Long} used by this operation.
+     * @param stockBaseUnits Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> variantSnapshot(Long variantId, BigDecimal stockBaseUnits) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put("variantId", variantId);

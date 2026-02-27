@@ -60,6 +60,20 @@ public class SalesController {
   private final SalesService salesService;
   private final I18nService i18nService;
 
+  /**
+   * Executes the SalesController operation.
+   * <p>Return value: A fully initialized SalesController instance.</p>
+   *
+   * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+   * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+   * @param customerRepo Parameter of type {@code CustomerRepo} used by this operation.
+   * @param receiptPdfService Parameter of type {@code ReceiptPdfService} used by this operation.
+   * @param receiptPaymentService Parameter of type {@code ReceiptPaymentService} used by this operation.
+   * @param salesService Parameter of type {@code SalesService} used by this operation.
+   * @param i18nService Parameter of type {@code I18nService} used by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   public SalesController(SaleRepo saleRepo, ProductRepo productRepo, CustomerRepo customerRepo,
                          ReceiptPdfService receiptPdfService,
                          ReceiptPaymentService receiptPaymentService,
@@ -74,6 +88,63 @@ public class SalesController {
     this.i18nService = i18nService;
   }
 
+  /**
+   * Executes the list operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @param page Parameter of type {@code int} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the list operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @param page Parameter of type {@code int} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the list operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @param page Parameter of type {@code int} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping
   public String list(@RequestParam(required = false) String q,
                      @RequestParam(required = false) PaymentMethod method,
@@ -127,6 +198,36 @@ public class SalesController {
     return "sales/list";
   }
 
+  /**
+   * Executes the receipt operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param print Parameter of type {@code String} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the receipt operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param print Parameter of type {@code String} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the receipt operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param print Parameter of type {@code String} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/{id}/receipt")
   public String receipt(@PathVariable Long id,
                         @RequestParam(required = false) String print,
@@ -143,6 +244,33 @@ public class SalesController {
     return "sales/receipt";
   }
 
+  /**
+   * Executes the returnForm operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the returnForm operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the returnForm operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param model Parameter of type {@code Model} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/{id}/return")
   public String returnForm(@PathVariable Long id, Model model) {
     Sale sale = saleRepo.findById(id).orElseThrow();
@@ -150,6 +278,33 @@ public class SalesController {
     return "sales/return";
   }
 
+  /**
+   * Executes the receiptPdf operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * @throws IOException If the operation cannot complete successfully.
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the receiptPdf operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * @throws IOException If the operation cannot complete successfully.
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the receiptPdf operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * @throws IOException If the operation cannot complete successfully.
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/{id}/receipt/pdf")
   @Transactional(readOnly = true)
   public void receiptPdf(@PathVariable Long id, HttpServletResponse response) throws IOException {
@@ -174,6 +329,36 @@ public class SalesController {
     }
   }
 
+  /**
+   * Executes the processReturn operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param params Parameter of type {@code java.util.Map<String, String>} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the processReturn operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param params Parameter of type {@code java.util.Map<String, String>} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the processReturn operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param params Parameter of type {@code java.util.Map<String, String>} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/{id}/return")
   public String processReturn(@PathVariable Long id,
                               @RequestParam java.util.Map<String, String> params,
@@ -192,6 +377,36 @@ public class SalesController {
     }
   }
 
+  /**
+   * Executes the voidSale operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param redirect Parameter of type {@code String} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the voidSale operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param redirect Parameter of type {@code String} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the voidSale operation.
+   *
+   * @param id Parameter of type {@code Long} used by this operation.
+   * @param redirect Parameter of type {@code String} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/{id}/void")
   public String voidSale(@PathVariable Long id,
                          @RequestParam(required = false) String redirect,
@@ -205,6 +420,63 @@ public class SalesController {
     return "redirect:" + (redirect == null || redirect.isBlank() ? "/sales" : redirect);
   }
 
+  /**
+   * Executes the exportCsv operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param ids Parameter of type {@code List<Long>} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * @throws IOException If the operation cannot complete successfully.
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the exportCsv operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param ids Parameter of type {@code List<Long>} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * @throws IOException If the operation cannot complete successfully.
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the exportCsv operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param ids Parameter of type {@code List<Long>} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+   * @return void No value is returned; the method applies side effects to existing state.
+   * @throws IOException If the operation cannot complete successfully.
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @GetMapping("/export")
   public void exportCsv(@RequestParam(required = false) String q,
                         @RequestParam(required = false) PaymentMethod method,
@@ -234,6 +506,22 @@ public class SalesController {
     }
   }
 
+  /**
+   * Executes the filterSales operation.
+   *
+   * @param q Parameter of type {@code String} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @param status Parameter of type {@code SaleStatus} used by this operation.
+   * @param cashier Parameter of type {@code String} used by this operation.
+   * @param customer Parameter of type {@code String} used by this operation.
+   * @param minTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param maxTotal Parameter of type {@code BigDecimal} used by this operation.
+   * @param from Parameter of type {@code LocalDate} used by this operation.
+   * @param to Parameter of type {@code LocalDate} used by this operation.
+   * @return {@code List<Sale>} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private List<Sale> filterSales(String q, PaymentMethod method, SaleStatus status, String cashier, String customer,
                                  BigDecimal minTotal, BigDecimal maxTotal, LocalDate from, LocalDate to) {
     List<Sale> sales = saleRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -265,6 +553,15 @@ public class SalesController {
     return stream.toList();
   }
 
+  /**
+   * Executes the sortSales operation.
+   *
+   * @param sales Parameter of type {@code List<Sale>} used by this operation.
+   * @param sort Parameter of type {@code String} used by this operation.
+   * @return {@code List<Sale>} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private List<Sale> sortSales(List<Sale> sales, String sort) {
     Comparator<Sale> createdAtAsc = Comparator.comparing(Sale::getCreatedAt,
             Comparator.nullsLast(Comparator.naturalOrder()));
@@ -296,6 +593,14 @@ public class SalesController {
     return sales.stream().sorted(comparator).toList();
   }
 
+  /**
+   * Executes the buildSnapshot operation.
+   *
+   * @param sales Parameter of type {@code List<Sale>} used by this operation.
+   * @return {@code SalesSnapshot} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private SalesSnapshot buildSnapshot(List<Sale> sales) {
     BigDecimal gross = BigDecimal.ZERO;
     BigDecimal net = BigDecimal.ZERO;
@@ -319,6 +624,16 @@ public class SalesController {
     return new SalesSnapshot(sales.size(), gross, net, refunded, voidCount, avgTicket);
   }
 
+  /**
+   * Executes the matchesQuery operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @param query Parameter of type {@code String} used by this operation.
+   * @param amountQuery Parameter of type {@code BigDecimal} used by this operation.
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean matchesQuery(Sale sale, String query, BigDecimal amountQuery) {
     if (sale.getId() != null && String.valueOf(sale.getId()).contains(query)) return true;
     if (sale.getCashierUsername() != null &&
@@ -346,6 +661,15 @@ public class SalesController {
     return matchesProductName(sale, query);
   }
 
+  /**
+   * Executes the matchesProductName operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @param query Parameter of type {@code String} used by this operation.
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean matchesProductName(Sale sale, String query) {
     if (sale.getItems() == null) return false;
     for (SaleItem item : sale.getItems()) {
@@ -355,6 +679,15 @@ public class SalesController {
     return false;
   }
 
+  /**
+   * Executes the matchesCustomer operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @param query Parameter of type {@code String} used by this operation.
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean matchesCustomer(Sale sale, String query) {
     Customer customer = sale.getCustomer();
     if (customer == null) return false;
@@ -364,6 +697,17 @@ public class SalesController {
     return false;
   }
 
+  /**
+   * Executes the summarize operation.
+   *
+   * @param sales Parameter of type {@code List<Sale>} used by this operation.
+   * @param start Parameter of type {@code LocalDate} used by this operation.
+   * @param end Parameter of type {@code LocalDate} used by this operation.
+   * @param includeVoid Parameter of type {@code boolean} used by this operation.
+   * @return {@code SummaryStats} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private SummaryStats summarize(List<Sale> sales, LocalDate start, LocalDate end, boolean includeVoid) {
     BigDecimal total = BigDecimal.ZERO;
     int count = 0;
@@ -379,6 +723,15 @@ public class SalesController {
     return new SummaryStats(total, count);
   }
 
+  /**
+   * Executes the buildCsvRow operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @param formatter Parameter of type {@code DateTimeFormatter} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String buildCsvRow(Sale sale, DateTimeFormatter formatter) {
     String id = sale.getId() == null ? "" : String.valueOf(sale.getId());
     String date = sale.getCreatedAt() == null ? "" : formatter.format(sale.getCreatedAt());
@@ -405,6 +758,14 @@ public class SalesController {
     );
   }
 
+  /**
+   * Executes the buildItemsLabel operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String buildItemsLabel(Sale sale) {
     if (sale.getItems() == null || sale.getItems().isEmpty()) return "";
     StringBuilder label = new StringBuilder();
@@ -423,6 +784,15 @@ public class SalesController {
     return label.toString();
   }
 
+  /**
+   * Executes the matchesMethod operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @param method Parameter of type {@code PaymentMethod} used by this operation.
+   * @return {@code boolean} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private boolean matchesMethod(Sale sale, PaymentMethod method) {
     if (sale.getPaymentMethod() != null && sale.getPaymentMethod() == method) return true;
     if (sale.getPayments() == null) return false;
@@ -432,6 +802,14 @@ public class SalesController {
     return false;
   }
 
+  /**
+   * Executes the buildPaymentLabel operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String buildPaymentLabel(Sale sale) {
     if (sale.getPayments() != null && !sale.getPayments().isEmpty()) {
       return "MIXED";
@@ -439,6 +817,14 @@ public class SalesController {
     return sale.getPaymentMethod() == null ? "" : sale.getPaymentMethod().name();
   }
 
+  /**
+   * Executes the safeNetTotal operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @return {@code BigDecimal} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private BigDecimal safeNetTotal(Sale sale) {
     BigDecimal total = safeAmount(sale.getTotal());
     BigDecimal refunded = safeAmount(sale.getRefundedTotal());
@@ -446,16 +832,40 @@ public class SalesController {
     return net.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : net;
   }
 
+  /**
+   * Executes the safeAmount operation.
+   *
+   * @param value Parameter of type {@code BigDecimal} used by this operation.
+   * @return {@code BigDecimal} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private BigDecimal safeAmount(BigDecimal value) {
     return value == null ? BigDecimal.ZERO : value;
   }
 
+  /**
+   * Executes the unitSize operation.
+   *
+   * @param item Parameter of type {@code SaleItem} used by this operation.
+   * @return {@code int} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private int unitSize(SaleItem item) {
     if (item == null) return 1;
     Integer size = item.getUnitSize();
     return size == null || size <= 0 ? 1 : size;
   }
 
+  /**
+   * Executes the unitLabel operation.
+   *
+   * @param unitType Parameter of type {@code UnitType} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String unitLabel(UnitType unitType) {
     if (unitType == null) return "pc";
     return switch (unitType) {
@@ -465,6 +875,14 @@ public class SalesController {
     };
   }
 
+  /**
+   * Executes the csv operation.
+   *
+   * @param value Parameter of type {@code String} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String csv(String value) {
     if (value == null) return "";
     boolean needsQuotes = value.contains(",") || value.contains("\"") || value.contains("\n");
@@ -476,12 +894,35 @@ public class SalesController {
     private final BigDecimal total;
     private final int count;
 
+    /**
+     * Executes the SummaryStats operation.
+     * <p>Return value: A fully initialized SummaryStats instance.</p>
+     *
+     * @param total Parameter of type {@code BigDecimal} used by this operation.
+     * @param count Parameter of type {@code int} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private SummaryStats(BigDecimal total, int count) {
       this.total = total;
       this.count = count;
     }
 
+    /**
+     * Executes the getTotal operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getTotal() { return total; }
+    /**
+     * Executes the getCount operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public int getCount() { return count; }
   }
 
@@ -493,6 +934,19 @@ public class SalesController {
     private final int voidCount;
     private final BigDecimal avgTicket;
 
+    /**
+     * Executes the SalesSnapshot operation.
+     * <p>Return value: A fully initialized SalesSnapshot instance.</p>
+     *
+     * @param count Parameter of type {@code int} used by this operation.
+     * @param gross Parameter of type {@code BigDecimal} used by this operation.
+     * @param net Parameter of type {@code BigDecimal} used by this operation.
+     * @param refunded Parameter of type {@code BigDecimal} used by this operation.
+     * @param voidCount Parameter of type {@code int} used by this operation.
+     * @param avgTicket Parameter of type {@code BigDecimal} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private SalesSnapshot(int count, BigDecimal gross, BigDecimal net, BigDecimal refunded, int voidCount, BigDecimal avgTicket) {
       this.count = count;
       this.gross = gross;
@@ -502,14 +956,64 @@ public class SalesController {
       this.avgTicket = avgTicket;
     }
 
+    /**
+     * Executes the getCount operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public int getCount() { return count; }
+    /**
+     * Executes the getGross operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getGross() { return gross; }
+    /**
+     * Executes the getNet operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getNet() { return net; }
+    /**
+     * Executes the getRefunded operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getRefunded() { return refunded; }
+    /**
+     * Executes the getVoidCount operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public int getVoidCount() { return voidCount; }
+    /**
+     * Executes the getAvgTicket operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getAvgTicket() { return avgTicket; }
   }
 
+  /**
+   * Executes the buildProfitMap operation.
+   *
+   * @param sales Parameter of type {@code List<Sale>} used by this operation.
+   * @return {@code Map<Long, ProfitInfo>} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Map<Long, ProfitInfo> buildProfitMap(List<Sale> sales) {
     Map<Long, ProfitInfo> map = new HashMap<>();
     for (Sale sale : sales) {
@@ -519,6 +1023,14 @@ public class SalesController {
     return map;
   }
 
+  /**
+   * Executes the calculateProfit operation.
+   *
+   * @param sale Parameter of type {@code Sale} used by this operation.
+   * @return {@code ProfitInfo} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private ProfitInfo calculateProfit(Sale sale) {
     BigDecimal profit = BigDecimal.ZERO;
     boolean missingCost = false;
@@ -548,6 +1060,14 @@ public class SalesController {
     return new ProfitInfo(profit, margin, missingCost);
   }
 
+  /**
+   * Executes the buildCustomerSummaryMap operation.
+   *
+   * @param sales Parameter of type {@code List<Sale>} used by this operation.
+   * @return {@code Map<Long, CustomerSummary>} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private Map<Long, CustomerSummary> buildCustomerSummaryMap(List<Sale> sales) {
     Map<Long, CustomerSummary> summaryByCustomer = new HashMap<>();
     Map<Long, CustomerSummary> summaryBySale = new HashMap<>();
@@ -564,6 +1084,14 @@ public class SalesController {
     return summaryBySale;
   }
 
+  /**
+   * Executes the buildCustomerSummary operation.
+   *
+   * @param customer Parameter of type {@code Customer} used by this operation.
+   * @return {@code CustomerSummary} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private CustomerSummary buildCustomerSummary(Customer customer) {
     if (customer == null || customer.getId() == null) return null;
     List<Sale> sales = saleRepo.findByCustomer_Id(customer.getId());
@@ -581,6 +1109,39 @@ public class SalesController {
     return new CustomerSummary(customer, spend, visits, lastPurchase);
   }
 
+  /**
+   * Executes the bulkAction operation.
+   *
+   * @param action Parameter of type {@code String} used by this operation.
+   * @param ids Parameter of type {@code List<Long>} used by this operation.
+   * @param redirect Parameter of type {@code String} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the bulkAction operation.
+   *
+   * @param action Parameter of type {@code String} used by this operation.
+   * @param ids Parameter of type {@code List<Long>} used by this operation.
+   * @param redirect Parameter of type {@code String} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
+  /**
+   * Executes the bulkAction operation.
+   *
+   * @param action Parameter of type {@code String} used by this operation.
+   * @param ids Parameter of type {@code List<Long>} used by this operation.
+   * @param redirect Parameter of type {@code String} used by this operation.
+   * @param redirectAttributes Parameter of type {@code RedirectAttributes} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   @PostMapping("/bulk")
   public String bulkAction(@RequestParam String action,
                            @RequestParam(required = false) List<Long> ids,
@@ -617,6 +1178,15 @@ public class SalesController {
     return "redirect:" + (redirect == null || redirect.isBlank() ? "/sales" : redirect);
   }
 
+  /**
+   * Executes the msg operation.
+   *
+   * @param key Parameter of type {@code String} used by this operation.
+   * @param args Parameter of type {@code Object...} used by this operation.
+   * @return {@code String} Result produced by this operation.
+   * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+   * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+   */
   private String msg(String key, Object... args) {
     return i18nService.msg(key, args);
   }
@@ -626,14 +1196,45 @@ public class SalesController {
     private final BigDecimal marginPct;
     private final boolean missingCost;
 
+    /**
+     * Executes the ProfitInfo operation.
+     * <p>Return value: A fully initialized ProfitInfo instance.</p>
+     *
+     * @param profit Parameter of type {@code BigDecimal} used by this operation.
+     * @param marginPct Parameter of type {@code BigDecimal} used by this operation.
+     * @param missingCost Parameter of type {@code boolean} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ProfitInfo(BigDecimal profit, BigDecimal marginPct, boolean missingCost) {
       this.profit = profit;
       this.marginPct = marginPct;
       this.missingCost = missingCost;
     }
 
+    /**
+     * Executes the getProfit operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getProfit() { return profit; }
+    /**
+     * Executes the getMarginPct operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getMarginPct() { return marginPct; }
+    /**
+     * Executes the isMissingCost operation.
+     *
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public boolean isMissingCost() { return missingCost; }
   }
 
@@ -643,6 +1244,17 @@ public class SalesController {
     private final int visits;
     private final LocalDateTime lastPurchase;
 
+    /**
+     * Executes the CustomerSummary operation.
+     * <p>Return value: A fully initialized CustomerSummary instance.</p>
+     *
+     * @param customer Parameter of type {@code Customer} used by this operation.
+     * @param lifetimeSpend Parameter of type {@code BigDecimal} used by this operation.
+     * @param visits Parameter of type {@code int} used by this operation.
+     * @param lastPurchase Parameter of type {@code LocalDateTime} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private CustomerSummary(Customer customer, BigDecimal lifetimeSpend, int visits, LocalDateTime lastPurchase) {
       this.customer = customer;
       this.lifetimeSpend = lifetimeSpend;
@@ -650,9 +1262,37 @@ public class SalesController {
       this.lastPurchase = lastPurchase;
     }
 
+    /**
+     * Executes the getCustomer operation.
+     *
+     * @return {@code Customer} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Customer getCustomer() { return customer; }
+    /**
+     * Executes the getLifetimeSpend operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal getLifetimeSpend() { return lifetimeSpend; }
+    /**
+     * Executes the getVisits operation.
+     *
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public int getVisits() { return visits; }
+    /**
+     * Executes the getLastPurchase operation.
+     *
+     * @return {@code LocalDateTime} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public LocalDateTime getLastPurchase() { return lastPurchase; }
   }
 }

@@ -46,6 +46,18 @@ public class ReportsController {
     private final StockMovementService stockMovementService;
     private final PurchaseService purchaseService;
 
+    /**
+     * Executes the ReportsController operation.
+     * <p>Return value: A fully initialized ReportsController instance.</p>
+     *
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param shiftRepo Parameter of type {@code ShiftRepo} used by this operation.
+     * @param productRepo Parameter of type {@code ProductRepo} used by this operation.
+     * @param stockMovementService Parameter of type {@code StockMovementService} used by this operation.
+     * @param purchaseService Parameter of type {@code PurchaseService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ReportsController(SaleRepo saleRepo,
                              ShiftRepo shiftRepo,
                              ProductRepo productRepo,
@@ -58,6 +70,42 @@ public class ReportsController {
         this.purchaseService = purchaseService;
     }
 
+    /**
+     * Executes the reports operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the reports operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the reports operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping
     public String reports(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -98,6 +146,36 @@ public class ReportsController {
         return "reports/index";
     }
 
+    /**
+     * Executes the exportSalesExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportSalesExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportSalesExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/sales.xlsx")
     @Transactional(readOnly = true)
     public void exportSalesExcel(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -150,6 +228,42 @@ public class ReportsController {
         }
     }
 
+    /**
+     * Executes the exportShiftsExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportShiftsExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportShiftsExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/shifts.xlsx")
     @Transactional(readOnly = true)
     public void exportShiftsExcel(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -219,6 +333,42 @@ public class ReportsController {
         }
     }
 
+    /**
+     * Executes the inventoryLedger operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the inventoryLedger operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the inventoryLedger operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/inventory-ledger")
     public String inventoryLedger(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -237,6 +387,42 @@ public class ReportsController {
         return "reports/inventory-ledger";
     }
 
+    /**
+     * Executes the exportInventoryLedgerExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportInventoryLedgerExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportInventoryLedgerExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param productId Parameter of type {@code Long} used by this operation.
+     * @param type Parameter of type {@code StockMovementType} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/inventory-ledger.xlsx")
     @Transactional(readOnly = true)
     public void exportInventoryLedgerExcel(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -286,6 +472,39 @@ public class ReportsController {
         }
     }
 
+    /**
+     * Executes the receivingReport operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the receivingReport operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the receivingReport operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param model Parameter of type {@code Model} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/receiving")
     public String receivingReport(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -302,6 +521,39 @@ public class ReportsController {
         return "reports/receiving";
     }
 
+    /**
+     * Executes the exportReceivingExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportReceivingExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the exportReceivingExcel operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param supplierId Parameter of type {@code Long} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @GetMapping("/receiving.xlsx")
     @Transactional(readOnly = true)
     public void exportReceivingExcel(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -342,6 +594,15 @@ public class ReportsController {
         }
     }
 
+    /**
+     * Executes the filterSales operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @return {@code List<Sale>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<Sale> filterSales(LocalDate from, LocalDate to) {
         List<Sale> sales = saleRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         Stream<Sale> stream = sales.stream();
@@ -356,6 +617,17 @@ public class ReportsController {
         return stream.toList();
     }
 
+    /**
+     * Executes the filterShifts operation.
+     *
+     * @param from Parameter of type {@code LocalDate} used by this operation.
+     * @param to Parameter of type {@code LocalDate} used by this operation.
+     * @param cashier Parameter of type {@code String} used by this operation.
+     * @param terminal Parameter of type {@code String} used by this operation.
+     * @return {@code List<Shift>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private List<Shift> filterShifts(LocalDate from, LocalDate to, String cashier, String terminal) {
         List<Shift> shifts = shiftRepo.findAll(Sort.by(Sort.Direction.DESC, "openedAt"));
         String cashierFilter = normalizeFilter(cashier);
@@ -380,12 +652,28 @@ public class ReportsController {
         return filtered;
     }
 
+    /**
+     * Executes the normalizeFilter operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeFilter(String value) {
         if (value == null) return null;
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    /**
+     * Executes the referenceDate operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @return {@code LocalDate} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private LocalDate referenceDate(Shift shift) {
         if (shift == null) return null;
         LocalDateTime closedAt = shift.getClosedAt();
@@ -395,24 +683,65 @@ public class ReportsController {
         return null;
     }
 
+    /**
+     * Executes the formatDateTime operation.
+     *
+     * @param value Parameter of type {@code LocalDateTime} used by this operation.
+     * @param formatter Parameter of type {@code DateTimeFormatter} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String formatDateTime(LocalDateTime value, DateTimeFormatter formatter) {
         if (value == null) return "";
         return formatter.format(value);
     }
 
+    /**
+     * Executes the compactJson operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String compactJson(String value) {
         if (value == null || value.isBlank()) return "";
         return value.replaceAll("\\s+", " ").trim();
     }
 
+    /**
+     * Executes the safeAmount operation.
+     *
+     * @param amount Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeAmount(BigDecimal amount) {
         return amount == null ? BigDecimal.ZERO : amount;
     }
 
+    /**
+     * Executes the nullToEmpty operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
+    /**
+     * Executes the buildItemsSummary operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String buildItemsSummary(Sale sale) {
         if (sale.getItems() == null || sale.getItems().isEmpty()) return "";
         StringJoiner joiner = new StringJoiner(" | ");

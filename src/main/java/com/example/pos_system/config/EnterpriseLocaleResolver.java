@@ -17,10 +17,42 @@ public class EnterpriseLocaleResolver implements LocaleResolver {
 
     private final UserLocalePreferenceService userLocalePreferenceService;
 
+    /**
+     * Executes the EnterpriseLocaleResolver operation.
+     * <p>Return value: A fully initialized EnterpriseLocaleResolver instance.</p>
+     *
+     * @param userLocalePreferenceService Parameter of type {@code UserLocalePreferenceService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public EnterpriseLocaleResolver(UserLocalePreferenceService userLocalePreferenceService) {
         this.userLocalePreferenceService = userLocalePreferenceService;
     }
 
+    /**
+     * Executes the resolveLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code Locale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the resolveLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code Locale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the resolveLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code Locale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
         Object attr = request.getAttribute(LOCALE_ATTR);
@@ -46,6 +78,36 @@ public class EnterpriseLocaleResolver implements LocaleResolver {
         return locale;
     }
 
+    /**
+     * Executes the setLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the setLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the setLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Override
     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
         Locale resolved = userLocalePreferenceService.normalizeSupportedLocale(locale);
@@ -58,6 +120,14 @@ public class EnterpriseLocaleResolver implements LocaleResolver {
         userLocalePreferenceService.persistCurrentUserPreference(resolved);
     }
 
+    /**
+     * Executes the resolveCookieLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code Locale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Locale resolveCookieLocale(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null || cookies.length == 0) return null;
@@ -71,6 +141,14 @@ public class EnterpriseLocaleResolver implements LocaleResolver {
         return null;
     }
 
+    /**
+     * Executes the resolveAcceptLanguageLocale operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @return {@code Locale} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Locale resolveAcceptLanguageLocale(HttpServletRequest request) {
         Enumeration<Locale> locales = request.getLocales();
         if (locales == null) return null;
@@ -83,6 +161,16 @@ public class EnterpriseLocaleResolver implements LocaleResolver {
         return null;
     }
 
+    /**
+     * Executes the writeLocaleCookie operation.
+     *
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param locale Parameter of type {@code Locale} used by this operation.
+     * @param secure Parameter of type {@code boolean} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void writeLocaleCookie(HttpServletResponse response, Locale locale, boolean secure) {
         if (response == null) return;
         Cookie cookie = new Cookie(LOCALE_COOKIE, userLocalePreferenceService.toLanguageTag(locale));

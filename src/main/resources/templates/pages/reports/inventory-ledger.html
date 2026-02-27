@@ -1,0 +1,106 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory Ledger Report</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16v16H4z"/>
+                <path d="M8 8h8M8 12h8M8 16h6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Inventory Ledger</div>
+              <div class="text-sm text-slate-500">Stock movements by product/date/type</div>
+            </div>
+          </div>
+
+          <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+
+          <div class="flex items-center gap-2">
+            <a href="/reports" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">Reports Home</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-8 space-y-6">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <form action="/reports/inventory-ledger" method="get" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-slate-600">From</label>
+            <input type="date" name="from" th:value="${from}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5"/>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">To</label>
+            <input type="date" name="to" th:value="${to}" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5"/>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Product</label>
+            <select name="productId" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5">
+              <option value="">All products</option>
+              <option th:each="p : ${products}" th:value="${p.id}" th:selected="${productId == p.id}" th:text="${p.name}">Product</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-600">Type</label>
+            <select name="type" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5">
+              <option value="">All</option>
+              <option th:each="t : ${types}" th:value="${t}" th:selected="${type == t}" th:text="${t}">SALE</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-2">
+            <button class="rounded-xl bg-slate-900 text-white px-4 py-2.5 text-sm font-semibold hover:bg-slate-800 transition">Apply</button>
+            <a href="/reports/inventory-ledger" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm hover:bg-slate-50 transition">Reset</a>
+          </div>
+        </form>
+
+        <div class="mt-4 flex items-center justify-between gap-3 text-sm">
+          <div class="text-slate-600">Rows: <span class="font-semibold text-slate-900" th:text="${#lists.size(rows)}">0</span> | Net Delta: <span class="font-semibold text-slate-900" th:text="${totalDelta}">0</span></div>
+          <a th:href="@{/reports/inventory-ledger.xlsx(from=${from}, to=${to}, productId=${productId}, type=${type})}"
+             class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm hover:bg-slate-50 transition">Export Excel</a>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold">Date</th>
+                <th class="px-4 py-3 text-left font-semibold">Product</th>
+                <th class="px-4 py-3 text-left font-semibold">Type</th>
+                <th class="px-4 py-3 text-right font-semibold">Qty Delta</th>
+                <th class="px-4 py-3 text-left font-semibold">Reference</th>
+                <th class="px-4 py-3 text-left font-semibold">Terminal</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr th:if="${#lists.isEmpty(rows)}">
+                <td colspan="6" class="px-4 py-8 text-center text-slate-500">No rows for this filter.</td>
+              </tr>
+              <tr th:each="r : ${rows}">
+                <td class="px-4 py-3" th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">date</td>
+                <td class="px-4 py-3" th:text="${r.product != null ? r.product.name : '-'}">product</td>
+                <td class="px-4 py-3" th:text="${r.type}">SALE</td>
+                <td class="px-4 py-3 text-right font-semibold" th:classappend="${r.qtyDelta != null and r.qtyDelta < 0} ? ' text-rose-600' : ' text-emerald-700'" th:text="${r.qtyDelta}">0</td>
+                <td class="px-4 py-3" th:text="${(r.refType != null ? r.refType : '-') + ' #' + (r.refId != null ? r.refId : '-')}">ref</td>
+                <td class="px-4 py-3" th:text="${r.terminalId}">TERM</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

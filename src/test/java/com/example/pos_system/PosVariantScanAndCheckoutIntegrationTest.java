@@ -4,18 +4,18 @@ import com.example.pos_system.dto.Cart;
 import com.example.pos_system.dto.CartItem;
 import com.example.pos_system.dto.VariantApiDtos;
 import com.example.pos_system.entity.Category;
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.Product;
 import com.example.pos_system.entity.ProductVariant;
 import com.example.pos_system.entity.Sale;
 import com.example.pos_system.entity.SaleItem;
 import com.example.pos_system.entity.SkuSellUnit;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.ProductVariantRepo;
 import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.repository.UnitOfMeasureRepo;
-import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.ShiftService;
 import com.example.pos_system.service.SkuUnitPricingService;
 import com.example.pos_system.service.VariantCombinationKeyService;
@@ -63,6 +63,27 @@ class PosVariantScanAndCheckoutIntegrationTest {
     @Autowired
     private SaleRepo saleRepo;
 
+    /**
+     * Executes the scanAndCheckoutUseVariantBarcodeFlow operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the scanAndCheckoutUseVariantBarcodeFlow operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the scanAndCheckoutUseVariantBarcodeFlow operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void scanAndCheckoutUseVariantBarcodeFlow() throws Exception {
         VariantFixture fixture = createVariantFixture();
@@ -119,6 +140,13 @@ class PosVariantScanAndCheckoutIntegrationTest {
         assertThat(refreshed.getStockBaseQty()).isEqualByComparingTo("11.000000");
     }
 
+    /**
+     * Executes the createVariantFixture operation.
+     *
+     * @return {@code VariantFixture} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private VariantFixture createVariantFixture() {
         Category category = new Category();
         category.setName("Variant POS Category");

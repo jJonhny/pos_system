@@ -62,6 +62,24 @@ public class AuditEvent {
     @Column(length = 128, updatable = false)
     private String terminalId;
 
+    /**
+     * Executes the AuditEvent operation.
+     * <p>Return value: A fully initialized AuditEvent instance.</p>
+     *
+     * @param timestamp Parameter of type {@code LocalDateTime} used by this operation.
+     * @param actorUserId Parameter of type {@code Long} used by this operation.
+     * @param actorUsername Parameter of type {@code String} used by this operation.
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param targetType Parameter of type {@code String} used by this operation.
+     * @param targetId Parameter of type {@code String} used by this operation.
+     * @param beforeJson Parameter of type {@code String} used by this operation.
+     * @param afterJson Parameter of type {@code String} used by this operation.
+     * @param metadataJson Parameter of type {@code String} used by this operation.
+     * @param ipAddress Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private AuditEvent(LocalDateTime timestamp,
                        Long actorUserId,
                        String actorUsername,
@@ -86,6 +104,24 @@ public class AuditEvent {
         this.terminalId = terminalId;
     }
 
+    /**
+     * Executes the of operation.
+     *
+     * @param timestamp Parameter of type {@code LocalDateTime} used by this operation.
+     * @param actorUserId Parameter of type {@code Long} used by this operation.
+     * @param actorUsername Parameter of type {@code String} used by this operation.
+     * @param actionType Parameter of type {@code String} used by this operation.
+     * @param targetType Parameter of type {@code String} used by this operation.
+     * @param targetId Parameter of type {@code String} used by this operation.
+     * @param beforeJson Parameter of type {@code String} used by this operation.
+     * @param afterJson Parameter of type {@code String} used by this operation.
+     * @param metadataJson Parameter of type {@code String} used by this operation.
+     * @param ipAddress Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code AuditEvent} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public static AuditEvent of(LocalDateTime timestamp,
                                 Long actorUserId,
                                 String actorUsername,
@@ -101,6 +137,27 @@ public class AuditEvent {
                 beforeJson, afterJson, metadataJson, ipAddress, terminalId);
     }
 
+    /**
+     * Executes the onCreate operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the onCreate operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the onCreate operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @PrePersist
     public void onCreate() {
         if (timestamp == null) {

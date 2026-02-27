@@ -53,6 +53,27 @@ class PosPrintPayloadIntegrationTest {
     @Autowired
     private PosService posService;
 
+    /**
+     * Executes the checkoutPrintPayloadEndpointReturnsBridgeStructure operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutPrintPayloadEndpointReturnsBridgeStructure operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the checkoutPrintPayloadEndpointReturnsBridgeStructure operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void checkoutPrintPayloadEndpointReturnsBridgeStructure() throws Exception {
         String terminalId = "TERM-PRINT-01";
@@ -82,6 +103,13 @@ class PosPrintPayloadIntegrationTest {
                 .andExpect(jsonPath("$.payload.text", containsString("TOTAL")));
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct() {
         Category category = new Category();
         category.setName("Print Category");
@@ -99,6 +127,14 @@ class PosPrintPayloadIntegrationTest {
         return productRepo.save(product);
     }
 
+    /**
+     * Executes the createShift operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Shift} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Shift createShift(String terminalId) {
         Shift shift = new Shift();
         shift.setCashierUsername("cashier");
@@ -109,6 +145,14 @@ class PosPrintPayloadIntegrationTest {
         return shiftRepo.save(shift);
     }
 
+    /**
+     * Executes the createTerminalSettings operation.
+     *
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void createTerminalSettings(String terminalId) {
         TerminalSettings settings = new TerminalSettings();
         settings.setTerminalId(terminalId);

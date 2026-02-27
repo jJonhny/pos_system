@@ -20,6 +20,27 @@ class AnalyticsPageIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * Executes the analyticsPageRendersAdditionalCharts operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the analyticsPageRendersAdditionalCharts operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the analyticsPageRendersAdditionalCharts operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void analyticsPageRendersAdditionalCharts() throws Exception {
         mockMvc.perform(get("/analytics")

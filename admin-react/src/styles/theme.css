@@ -1,0 +1,12 @@
+:root {
+  --bg: #f3f5f8;
+  --panel: #ffffff;
+  --text: #1c2a39;
+  --muted: #6a7683;
+  --line: #d4dce5;
+  --brand: #0f4c81;
+  --brand-strong: #0b3b64;
+  --good: #0d7a53;
+  --bad: #b83145;
+  --sidebar-bg: linear-gradient(180deg, #102f4a 0%, #0f4a5d 100%);
+}

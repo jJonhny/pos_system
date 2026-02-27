@@ -1,6 +1,5 @@
 package com.example.pos_system.service;
 
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.PaymentMethod;
 import com.example.pos_system.entity.Sale;
 import com.example.pos_system.entity.SalePayment;
@@ -9,6 +8,8 @@ import com.example.pos_system.entity.Shift;
 import com.example.pos_system.entity.ShiftCashEvent;
 import com.example.pos_system.entity.ShiftCashEventType;
 import com.example.pos_system.entity.ShiftStatus;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import com.example.pos_system.repository.AppUserRepo;
 import com.example.pos_system.repository.SaleRepo;
 import com.example.pos_system.repository.ShiftCashEventRepo;
@@ -44,6 +45,21 @@ public class ShiftService {
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     private final BigDecimal varianceThreshold;
 
+    /**
+     * Executes the ShiftService operation.
+     * <p>Return value: A fully initialized ShiftService instance.</p>
+     *
+     * @param shiftRepo Parameter of type {@code ShiftRepo} used by this operation.
+     * @param saleRepo Parameter of type {@code SaleRepo} used by this operation.
+     * @param shiftCashEventRepo Parameter of type {@code ShiftCashEventRepo} used by this operation.
+     * @param currencyService Parameter of type {@code CurrencyService} used by this operation.
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * @param i18nService Parameter of type {@code I18nService} used by this operation.
+     * @param varianceThreshold Parameter of type {@code BigDecimal} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ShiftService(ShiftRepo shiftRepo,
                         SaleRepo saleRepo,
                         ShiftCashEventRepo shiftCashEventRepo,
@@ -62,6 +78,16 @@ public class ShiftService {
         this.varianceThreshold = varianceThreshold == null ? new BigDecimal("20.00") : varianceThreshold.abs();
     }
 
+    /**
+     * Executes the openShift operation.
+     *
+     * @param openedBy Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param openingFloatByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code Shift} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Shift openShift(String openedBy, String terminalId, Map<String, BigDecimal> openingFloatByCurrency) {
         String actor = sanitize(openedBy);
         if (actor == null) {
@@ -111,6 +137,19 @@ public class ShiftService {
         return saved;
     }
 
+    /**
+     * Executes the addCashEvent operation.
+     *
+     * @param actorUsername Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param type Parameter of type {@code ShiftCashEventType} used by this operation.
+     * @param currencyCode Parameter of type {@code String} used by this operation.
+     * @param amount Parameter of type {@code BigDecimal} used by this operation.
+     * @param reason Parameter of type {@code String} used by this operation.
+     * @return {@code ShiftCashEvent} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ShiftCashEvent addCashEvent(String actorUsername,
                                        String terminalId,
                                        ShiftCashEventType type,
@@ -186,6 +225,18 @@ public class ShiftService {
         return saved;
     }
 
+    /**
+     * Executes the closeShift operation.
+     *
+     * @param actorUsername Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @param countedByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param notes Parameter of type {@code String} used by this operation.
+     * @param managerAllowedForVariance Parameter of type {@code boolean} used by this operation.
+     * @return {@code ShiftCloseResult} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public ShiftCloseResult closeShift(String actorUsername,
                                        String terminalId,
                                        Map<String, BigDecimal> countedByCurrency,
@@ -247,6 +298,33 @@ public class ShiftService {
         return new ShiftCloseResult(saved, reconciliation);
     }
 
+    /**
+     * Executes the findOpenShift operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<Shift>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findOpenShift operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<Shift>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the findOpenShift operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @param terminalId Parameter of type {@code String} used by this operation.
+     * @return {@code Optional<Shift>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public Optional<Shift> findOpenShift(String username, String terminalId) {
         String actor = sanitize(username);
@@ -259,12 +337,60 @@ public class ShiftService {
         return shiftRepo.findByCashierUsernameAndStatus(actor, ShiftStatus.OPEN);
     }
 
+    /**
+     * Executes the listCashEvents operation.
+     *
+     * @param shiftId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<ShiftCashEvent>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listCashEvents operation.
+     *
+     * @param shiftId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<ShiftCashEvent>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the listCashEvents operation.
+     *
+     * @param shiftId Parameter of type {@code Long} used by this operation.
+     * @return {@code List<ShiftCashEvent>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<ShiftCashEvent> listCashEvents(Long shiftId) {
         if (shiftId == null) return List.of();
         return shiftCashEventRepo.findByShift_IdOrderByCreatedAtAsc(shiftId);
     }
 
+    /**
+     * Executes the parseAmounts operation.
+     *
+     * @param json Parameter of type {@code String} used by this operation.
+     * @return {@code Map<String, BigDecimal>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the parseAmounts operation.
+     *
+     * @param json Parameter of type {@code String} used by this operation.
+     * @return {@code Map<String, BigDecimal>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the parseAmounts operation.
+     *
+     * @param json Parameter of type {@code String} used by this operation.
+     * @return {@code Map<String, BigDecimal>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public Map<String, BigDecimal> parseAmounts(String json) {
         if (json == null || json.isBlank()) return new LinkedHashMap<>();
@@ -276,6 +402,33 @@ public class ShiftService {
         }
     }
 
+    /**
+     * Executes the previewReconciliation operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param countedByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code ShiftReconciliationData} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the previewReconciliation operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param countedByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code ShiftReconciliationData} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the previewReconciliation operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param countedByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code ShiftReconciliationData} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public ShiftReconciliationData previewReconciliation(Shift shift, Map<String, BigDecimal> countedByCurrency) {
         if (shift == null) {
@@ -289,10 +442,27 @@ public class ShiftService {
         return buildReconciliation(shift, opening, counted);
     }
 
+    /**
+     * Executes the varianceThreshold operation.
+     *
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public BigDecimal varianceThreshold() {
         return varianceThreshold;
     }
 
+    /**
+     * Executes the buildReconciliation operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @param openingByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param countedByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code ShiftReconciliationData} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private ShiftReconciliationData buildReconciliation(Shift shift,
                                                         Map<String, BigDecimal> openingByCurrency,
                                                         Map<String, BigDecimal> countedByCurrency) {
@@ -398,6 +568,14 @@ public class ShiftService {
         );
     }
 
+    /**
+     * Executes the toBaseTotal operation.
+     *
+     * @param amountsByCurrency Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal toBaseTotal(Map<String, BigDecimal> amountsByCurrency) {
         BigDecimal total = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         for (Map.Entry<String, BigDecimal> entry : amountsByCurrency.entrySet()) {
@@ -409,6 +587,15 @@ public class ShiftService {
         return total.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the unionKeys operation.
+     *
+     * @param first Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param second Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code Set<String>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Set<String> unionKeys(Map<String, BigDecimal> first, Map<String, BigDecimal> second) {
         Set<String> keys = new LinkedHashSet<>();
         if (first != null) keys.addAll(first.keySet());
@@ -416,6 +603,15 @@ public class ShiftService {
         return keys;
     }
 
+    /**
+     * Executes the merge operation.
+     *
+     * @param target Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param source Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void merge(Map<String, BigDecimal> target, Map<String, BigDecimal> source) {
         if (source == null) return;
         for (Map.Entry<String, BigDecimal> entry : source.entrySet()) {
@@ -423,6 +619,15 @@ public class ShiftService {
         }
     }
 
+    /**
+     * Executes the subtract operation.
+     *
+     * @param target Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param source Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void subtract(Map<String, BigDecimal> target, Map<String, BigDecimal> source) {
         if (source == null) return;
         for (Map.Entry<String, BigDecimal> entry : source.entrySet()) {
@@ -432,6 +637,16 @@ public class ShiftService {
         }
     }
 
+    /**
+     * Executes the addAmount operation.
+     *
+     * @param target Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @param currencyCode Parameter of type {@code String} used by this operation.
+     * @param amount Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void addAmount(Map<String, BigDecimal> target, String currencyCode, BigDecimal amount) {
         if (target == null || amount == null) return;
         String code = normalizeCode(currencyCode, baseCode());
@@ -439,6 +654,14 @@ public class ShiftService {
         target.put(code, current.add(amount).setScale(4, RoundingMode.HALF_UP));
     }
 
+    /**
+     * Executes the formatMoney operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String formatMoney(BigDecimal value) {
         BigDecimal safe = safeAmount(value).setScale(2, RoundingMode.HALF_UP);
         Currency base = currencyService.getBaseCurrency();
@@ -446,6 +669,14 @@ public class ShiftService {
         return (symbol == null ? "" : symbol) + safe.toPlainString();
     }
 
+    /**
+     * Executes the resolveCurrency operation.
+     *
+     * @param code Parameter of type {@code String} used by this operation.
+     * @return {@code Currency} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Currency resolveCurrency(String code) {
         Currency base = currencyService.getBaseCurrency();
         String normalized = normalizeCode(code, base == null ? "USD" : base.getCode());
@@ -456,11 +687,27 @@ public class ShiftService {
         return base;
     }
 
+    /**
+     * Executes the currencyDecimals operation.
+     *
+     * @param currency Parameter of type {@code Currency} used by this operation.
+     * @return {@code int} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private int currencyDecimals(Currency currency) {
         if (currency == null || currency.getFractionDigits() == null) return 2;
         return Math.max(0, currency.getFractionDigits());
     }
 
+    /**
+     * Executes the safeRate operation.
+     *
+     * @param currency Parameter of type {@code Currency} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeRate(Currency currency) {
         if (currency == null || currency.getRateToBase() == null || currency.getRateToBase().compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ONE;
@@ -468,17 +715,41 @@ public class ShiftService {
         return currency.getRateToBase();
     }
 
+    /**
+     * Executes the baseCode operation.
+     *
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String baseCode() {
         Currency base = currencyService.getBaseCurrency();
         return base == null || base.getCode() == null ? "USD" : base.getCode().toUpperCase();
     }
 
+    /**
+     * Executes the normalizeCode operation.
+     *
+     * @param code Parameter of type {@code String} used by this operation.
+     * @param fallback Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String normalizeCode(String code, String fallback) {
         String normalized = sanitize(code);
         if (normalized == null) return fallback == null ? "USD" : fallback.toUpperCase();
         return normalized.toUpperCase();
     }
 
+    /**
+     * Executes the normalizeAmounts operation.
+     *
+     * @param raw Parameter of type {@code Map<String, BigDecimal>} used by this operation.
+     * @return {@code Map<String, BigDecimal>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, BigDecimal> normalizeAmounts(Map<String, BigDecimal> raw) {
         Map<String, BigDecimal> normalized = new LinkedHashMap<>();
         if (raw == null) return normalized;
@@ -491,10 +762,26 @@ public class ShiftService {
         return normalized;
     }
 
+    /**
+     * Executes the safeAmount operation.
+     *
+     * @param value Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeAmount(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    /**
+     * Executes the safeCashRefund operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeCashRefund(Sale sale) {
         if (sale == null) {
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
@@ -510,12 +797,28 @@ public class ShiftService {
         return refunded.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the resolveActorUserId operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @return {@code Long} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Long resolveActorUserId(String username) {
         String actor = sanitize(username);
         if (actor == null) return null;
         return appUserRepo.findByUsername(actor).map(u -> u.getId()).orElse(null);
     }
 
+    /**
+     * Executes the safeNetTotal operation.
+     *
+     * @param sale Parameter of type {@code Sale} used by this operation.
+     * @return {@code BigDecimal} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private BigDecimal safeNetTotal(Sale sale) {
         BigDecimal total = safeAmount(sale.getTotal());
         BigDecimal refunded = safeAmount(sale.getRefundedTotal());
@@ -526,6 +829,14 @@ public class ShiftService {
         return net.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Executes the toJson operation.
+     *
+     * @param value Parameter of type {@code Object} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String toJson(Object value) {
         try {
             return objectMapper.writeValueAsString(value);
@@ -534,16 +845,42 @@ public class ShiftService {
         }
     }
 
+    /**
+     * Executes the msg operation.
+     *
+     * @param key Parameter of type {@code String} used by this operation.
+     * @param args Parameter of type {@code Object...} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String msg(String key, Object... args) {
         return i18nService.msg(key, args);
     }
 
+    /**
+     * Executes the sanitize operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String sanitize(String value) {
         if (value == null) return null;
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    /**
+     * Executes the trimTo operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimTo(String value, int maxLength) {
         String safe = sanitize(value);
         if (safe == null) return null;
@@ -551,6 +888,14 @@ public class ShiftService {
         return safe.substring(0, maxLength);
     }
 
+    /**
+     * Executes the shiftSnapshot operation.
+     *
+     * @param shift Parameter of type {@code Shift} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> shiftSnapshot(Shift shift) {
         if (shift == null) return null;
         Map<String, Object> snapshot = new LinkedHashMap<>();
@@ -583,6 +928,14 @@ public class ShiftService {
         return snapshot;
     }
 
+    /**
+     * Executes the cashEventSnapshot operation.
+     *
+     * @param event Parameter of type {@code ShiftCashEvent} used by this operation.
+     * @return {@code Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Map<String, Object> cashEventSnapshot(ShiftCashEvent event) {
         if (event == null) return null;
         Map<String, Object> snapshot = new LinkedHashMap<>();
@@ -618,6 +971,13 @@ public class ShiftService {
             BigDecimal cashOutBase,
             int cashEventCount
     ) {
+        /**
+         * Executes the empty operation.
+         *
+         * @return {@code ShiftReconciliationData} Result produced by this operation.
+         * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+         * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+         */
         public static ShiftReconciliationData empty() {
             return new ShiftReconciliationData(
                     Map.of(),

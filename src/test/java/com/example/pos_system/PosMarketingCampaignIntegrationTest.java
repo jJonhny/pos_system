@@ -2,16 +2,16 @@ package com.example.pos_system;
 
 import com.example.pos_system.dto.Cart;
 import com.example.pos_system.entity.Category;
-import com.example.pos_system.entity.Currency;
 import com.example.pos_system.entity.MarketingCampaign;
 import com.example.pos_system.entity.MarketingCampaignType;
 import com.example.pos_system.entity.Product;
 import com.example.pos_system.entity.Sale;
+import com.example.pos_system.modules.currency.application.CurrencyService;
+import com.example.pos_system.modules.currency.domain.Currency;
 import com.example.pos_system.repository.CategoryRepo;
 import com.example.pos_system.repository.MarketingCampaignRepo;
 import com.example.pos_system.repository.ProductRepo;
 import com.example.pos_system.repository.SaleRepo;
-import com.example.pos_system.service.CurrencyService;
 import com.example.pos_system.service.ShiftService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +56,27 @@ class PosMarketingCampaignIntegrationTest {
     @Autowired
     private CurrencyService currencyService;
 
+    /**
+     * Executes the activeCampaignAutoAppliesToCartAndCheckoutTotals operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the activeCampaignAutoAppliesToCartAndCheckoutTotals operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the activeCampaignAutoAppliesToCartAndCheckoutTotals operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void activeCampaignAutoAppliesToCartAndCheckoutTotals() throws Exception {
         createActiveDiscountCampaign("AUTO-10", new BigDecimal("10.00"), null);
@@ -104,6 +125,27 @@ class PosMarketingCampaignIntegrationTest {
         assertThat(latest.getDiscountReason()).startsWith("[AUTO_CAMPAIGN] ");
     }
 
+    /**
+     * Executes the manualDiscountOverridesAutoCampaignUntilCleared operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the manualDiscountOverridesAutoCampaignUntilCleared operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the manualDiscountOverridesAutoCampaignUntilCleared operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws Exception If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void manualDiscountOverridesAutoCampaignUntilCleared() throws Exception {
         createActiveDiscountCampaign("AUTO-50", new BigDecimal("50.00"), null);
@@ -170,6 +212,16 @@ class PosMarketingCampaignIntegrationTest {
         assertThat(cartAfterClear.getDiscountReason()).startsWith("[AUTO_CAMPAIGN] ");
     }
 
+    /**
+     * Executes the createActiveDiscountCampaign operation.
+     *
+     * @param title Parameter of type {@code String} used by this operation.
+     * @param discountPercent Parameter of type {@code BigDecimal} used by this operation.
+     * @param discountAmount Parameter of type {@code BigDecimal} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void createActiveDiscountCampaign(String title, BigDecimal discountPercent, BigDecimal discountAmount) {
         MarketingCampaign campaign = new MarketingCampaign();
         campaign.setType(MarketingCampaignType.DISCOUNT_EVENT);
@@ -184,6 +236,15 @@ class PosMarketingCampaignIntegrationTest {
         marketingCampaignRepo.save(campaign);
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @param sku Parameter of type {@code String} used by this operation.
+     * @param price Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct(String sku, BigDecimal price) {
         Category category = new Category();
         category.setName("POS Marketing Test Category " + sku);

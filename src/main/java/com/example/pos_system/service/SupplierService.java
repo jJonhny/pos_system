@@ -19,11 +19,47 @@ public class SupplierService {
     private final SupplierRepo supplierRepo;
     private final AuditEventService auditEventService;
 
+    /**
+     * Executes the SupplierService operation.
+     * <p>Return value: A fully initialized SupplierService instance.</p>
+     *
+     * @param supplierRepo Parameter of type {@code SupplierRepo} used by this operation.
+     * @param auditEventService Parameter of type {@code AuditEventService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public SupplierService(SupplierRepo supplierRepo, AuditEventService auditEventService) {
         this.supplierRepo = supplierRepo;
         this.auditEventService = auditEventService;
     }
 
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @return {@code List<Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @return {@code List<Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the list operation.
+     *
+     * @param q Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @return {@code List<Supplier>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public List<Supplier> list(String q, SupplierStatus status) {
         requireManageSuppliers();
@@ -40,6 +76,30 @@ public class SupplierService {
         return supplierRepo.findAll(sort);
     }
 
+    /**
+     * Executes the get operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code Supplier} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the get operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code Supplier} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the get operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return {@code Supplier} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Transactional(readOnly = true)
     public Supplier get(Long id) {
         requireManageSuppliers();
@@ -47,6 +107,19 @@ public class SupplierService {
         return supplierRepo.findById(id).orElse(null);
     }
 
+    /**
+     * Executes the save operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @param name Parameter of type {@code String} used by this operation.
+     * @param phone Parameter of type {@code String} used by this operation.
+     * @param email Parameter of type {@code String} used by this operation.
+     * @param address Parameter of type {@code String} used by this operation.
+     * @param status Parameter of type {@code SupplierStatus} used by this operation.
+     * @return {@code Supplier} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public Supplier save(Long id,
                          String name,
                          String phone,
@@ -60,6 +133,13 @@ public class SupplierService {
         }
 
         Supplier supplier = id == null
+                /**
+                 * Executes the Supplier operation.
+                 *
+                 * @return {@code ? new} Result produced by this operation.
+                 * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+                 * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+                 */
                 ? new Supplier()
                 : supplierRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Supplier not found."));
 
@@ -76,6 +156,14 @@ public class SupplierService {
         return saved;
     }
 
+    /**
+     * Executes the delete operation.
+     *
+     * @param id Parameter of type {@code Long} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public void delete(Long id) {
         requireManageSuppliers();
         Supplier supplier = supplierRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Supplier not found."));
@@ -84,12 +172,27 @@ public class SupplierService {
         auditEventService.record("SUPPLIER_DELETE", "SUPPLIER", id, before, null, null);
     }
 
+    /**
+     * Executes the requireManageSuppliers operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void requireManageSuppliers() {
         if (!hasAnyAuthority("PERM_SUPPLIERS_MANAGE", "ROLE_ADMIN", "ROLE_MANAGER")) {
             throw new AccessDeniedException("Supplier management permission required.");
         }
     }
 
+    /**
+     * Executes the hasAnyAuthority operation.
+     *
+     * @param authorities Parameter of type {@code String...} used by this operation.
+     * @return {@code boolean} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private boolean hasAnyAuthority(String... authorities) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -107,6 +210,15 @@ public class SupplierService {
         return false;
     }
 
+    /**
+     * Executes the trimTo operation.
+     *
+     * @param value Parameter of type {@code String} used by this operation.
+     * @param maxLength Parameter of type {@code int} used by this operation.
+     * @return {@code String} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private String trimTo(String value, int maxLength) {
         if (value == null) return null;
         String trimmed = value.trim();
@@ -114,6 +226,14 @@ public class SupplierService {
         return trimmed.length() <= maxLength ? trimmed : trimmed.substring(0, maxLength);
     }
 
+    /**
+     * Executes the snapshot operation.
+     *
+     * @param supplier Parameter of type {@code Supplier} used by this operation.
+     * @return {@code java.util.Map<String, Object>} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private java.util.Map<String, Object> snapshot(Supplier supplier) {
         if (supplier == null) return null;
         var map = new java.util.LinkedHashMap<String, Object>();

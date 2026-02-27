@@ -1,0 +1,257 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commodity Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
+  <style>
+    :root{
+      --cm-bg-a:#f7fbff;
+      --cm-bg-b:#eef3f9;
+      --cm-surface:#ffffff;
+      --cm-stroke:#d7e1ee;
+      --cm-stroke-strong:#b8c8db;
+      --cm-text:#0f1f38;
+      --cm-muted:#49617f;
+      --cm-brand:#0b2142;
+      --cm-brand-soft:#eaf2fc;
+      --cm-shadow:0 20px 34px -28px rgba(11,33,66,.45), 0 8px 16px -14px rgba(11,33,66,.2);
+      --cm-focus:0 0 0 3px rgba(41,94,158,.22);
+    }
+
+    html, body{
+      min-height:100%;
+    }
+
+    body{
+      font-family:"Manrope","Avenir Next","Segoe UI",sans-serif;
+      color:var(--cm-text);
+      background:
+        radial-gradient(1000px 420px at -8% -14%, rgba(114,138,167,.2), transparent 60%),
+        radial-gradient(860px 440px at 108% -12%, rgba(160,179,201,.25), transparent 56%),
+        linear-gradient(180deg, var(--cm-bg-a), var(--cm-bg-b));
+      position:relative;
+      isolation:isolate;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(121,143,169,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(121,143,169,.05) 1px, transparent 1px);
+      background-size:48px 48px;
+      opacity:.5;
+    }
+
+    .font-mono{
+      font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .cm-surface{
+      border:1px solid var(--cm-stroke);
+      background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow:var(--cm-shadow);
+    }
+
+    .cm-module{
+      border:1px solid var(--cm-stroke);
+      background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow:0 14px 28px -24px rgba(11,33,66,.35);
+      transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+    }
+
+    .cm-module:hover{
+      transform:translateY(-2px);
+      border-color:var(--cm-stroke-strong);
+      box-shadow:0 16px 26px -24px rgba(11,33,66,.5);
+      background:linear-gradient(180deg, #ffffff 0%, #f2f8ff 100%);
+    }
+
+    .cm-module:focus-visible{
+      outline:none;
+      box-shadow:var(--cm-focus);
+      border-color:#2c5d96;
+    }
+
+    .cm-pill{
+      border:1px solid var(--cm-stroke);
+      background:#f5f9ff;
+      color:#2b4769;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+  <div class="min-h-screen flex flex-col">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 8l-9 5-9-5 9-5 9 5z"/>
+                <path d="M3 8v8l9 5 9-5V8"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Commodity Management</div>
+              <div class="text-sm text-slate-500">Products and categories</div>
+            </div>
+          </div>
+
+          <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <a sec:authorize="isAnonymous()" href="/login"
+               class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+              Login
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <button class="rounded-xl border border-slate-200 px-4 py-2 bg-white hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 w-full px-6 lg:px-10 py-8 lg:py-10">
+      <section class="cm-surface rounded-3xl p-6 lg:p-7">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 rounded-full cm-pill px-3 py-1 text-[11px] font-semibold tracking-wide uppercase">
+              <span class="h-1.5 w-1.5 rounded-full bg-slate-700"></span>
+              Inventory Command Center
+            </div>
+            <h1 class="mt-3 text-2xl lg:text-3xl font-extrabold tracking-tight text-slate-900">Commodity Operations Hub</h1>
+            <p class="mt-2 text-sm lg:text-base text-slate-600">
+              Centralize catalog control, purchasing flow, supplier governance, and stock movement auditing in one workspace.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:w-[560px]">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+              <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Modules</div>
+              <div class="mt-1 text-xl font-extrabold text-slate-900">5</div>
+              <div class="text-xs text-slate-500">Core operations areas</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+              <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Flow</div>
+              <div class="mt-1 text-xl font-extrabold text-slate-900">End-to-End</div>
+              <div class="text-xs text-slate-500">Purchase to stock ledger</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-slate-900 px-4 py-3 text-white">
+              <div class="text-[11px] font-semibold uppercase tracking-wide text-white/70">Status</div>
+              <div class="mt-1 text-xl font-extrabold">Ready</div>
+              <div class="text-xs text-white/80">Operational workspace</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-7">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 class="text-lg lg:text-xl font-bold text-slate-900">Operations</h2>
+            <p class="text-sm text-slate-600">Open a module to continue catalog, purchasing, and inventory work.</p>
+          </div>
+          <div class="text-xs text-slate-500 font-semibold tracking-wide uppercase">Direct Navigation</div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <a href="/products" class="cm-module rounded-2xl p-6 focus:outline-none">
+            <div class="flex items-start justify-between gap-4">
+              <div class="h-11 w-11 rounded-xl bg-slate-900 text-white grid place-items-center">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 7l9-4 9 4-9 4-9-4z"/>
+                  <path d="M3 7v10l9 4 9-4V7"/>
+                </svg>
+              </div>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Catalog</span>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Products</h3>
+            <p class="mt-2 text-sm text-slate-600">Manage product catalog, pricing, stock, and imports.</p>
+            <div class="mt-4 text-xs font-semibold text-slate-700">Open module →</div>
+          </a>
+
+          <a href="/categories" class="cm-module rounded-2xl p-6 focus:outline-none">
+            <div class="flex items-start justify-between gap-4">
+              <div class="h-11 w-11 rounded-xl bg-slate-900 text-white grid place-items-center">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+                  <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+                  <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+                  <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+                </svg>
+              </div>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Structure</span>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Categories</h3>
+            <p class="mt-2 text-sm text-slate-600">Manage category structure, visibility, and ordering.</p>
+            <div class="mt-4 text-xs font-semibold text-slate-700">Open module →</div>
+          </a>
+
+          <a href="/inventory/movements" class="cm-module rounded-2xl p-6 focus:outline-none">
+            <div class="flex items-start justify-between gap-4">
+              <div class="h-11 w-11 rounded-xl bg-slate-900 text-white grid place-items-center">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 6h16"/>
+                  <path d="M4 12h16"/>
+                  <path d="M4 18h16"/>
+                  <path d="M8 6v12"/>
+                </svg>
+              </div>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Ledger</span>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Stock Movements</h3>
+            <p class="mt-2 text-sm text-slate-600">View the inventory ledger and export movement history.</p>
+            <div class="mt-4 text-xs font-semibold text-slate-700">Open module →</div>
+          </a>
+
+          <a href="/suppliers" class="cm-module rounded-2xl p-6 focus:outline-none">
+            <div class="flex items-start justify-between gap-4">
+              <div class="h-11 w-11 rounded-xl bg-slate-900 text-white grid place-items-center">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 20h18"/>
+                  <path d="M5 20V9l7-4 7 4v11"/>
+                  <path d="M9 13h6"/>
+                </svg>
+              </div>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Partners</span>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Suppliers</h3>
+            <p class="mt-2 text-sm text-slate-600">Maintain supplier contacts and active status.</p>
+            <div class="mt-4 text-xs font-semibold text-slate-700">Open module →</div>
+          </a>
+
+          <a href="/purchases/po" class="cm-module rounded-2xl p-6 focus:outline-none md:col-span-2 xl:col-span-1">
+            <div class="flex items-start justify-between gap-4">
+              <div class="h-11 w-11 rounded-xl bg-slate-900 text-white grid place-items-center">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 3h9l3 3v15H6z"/>
+                  <path d="M15 3v3h3"/>
+                  <path d="M9 11h6"/>
+                  <path d="M9 15h6"/>
+                </svg>
+              </div>
+              <span class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Procurement</span>
+            </div>
+            <h3 class="mt-4 text-lg font-bold text-slate-900">Purchase Orders</h3>
+            <p class="mt-2 text-sm text-slate-600">Create POs, receive goods, and track partial receipts.</p>
+            <div class="mt-4 text-xs font-semibold text-slate-700">Open module →</div>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

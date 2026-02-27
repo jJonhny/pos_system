@@ -21,11 +21,53 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenService jwtTokenService;
     private final AppUserDetailsService appUserDetailsService;
 
+    /**
+     * Executes the JwtAuthenticationFilter operation.
+     * <p>Return value: A fully initialized JwtAuthenticationFilter instance.</p>
+     *
+     * @param jwtTokenService Parameter of type {@code JwtTokenService} used by this operation.
+     * @param appUserDetailsService Parameter of type {@code AppUserDetailsService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public JwtAuthenticationFilter(JwtTokenService jwtTokenService, AppUserDetailsService appUserDetailsService) {
         this.jwtTokenService = jwtTokenService;
         this.appUserDetailsService = appUserDetailsService;
     }
 
+    /**
+     * Executes the doFilterInternal operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param filterChain Parameter of type {@code FilterChain} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws ServletException If the operation cannot complete successfully.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the doFilterInternal operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param filterChain Parameter of type {@code FilterChain} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws ServletException If the operation cannot complete successfully.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the doFilterInternal operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param filterChain Parameter of type {@code FilterChain} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws ServletException If the operation cannot complete successfully.
+     * @throws IOException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

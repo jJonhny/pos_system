@@ -1,0 +1,166 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Audit Events</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}" href="/css/app.css">
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16v16H4z"/>
+                <path d="M8 8h8M8 12h8M8 16h6"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Audit Events</div>
+              <div class="text-sm text-slate-500">Immutable log of sensitive POS actions</div>
+            </div>
+          </div>
+
+          <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+
+          <div class="flex items-center justify-end gap-2">
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full px-6 lg:px-10 py-8">
+      <div class="mx-auto max-w-7xl">
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div class="text-xl font-bold">Audit Events</div>
+            <div class="text-sm text-slate-500">Immutable log of sensitive POS actions</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="/users"
+               class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+              Back to users
+            </a>
+            <form sec:authorize="isAuthenticated()" action="/logout" method="post" class="m-0">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <form action="/audit-events" method="get" class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">From</label>
+            <input type="date" name="from" th:value="${from}"
+                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">To</label>
+            <input type="date" name="to" th:value="${to}"
+                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">User</label>
+            <input type="text" name="user" th:value="${user}" placeholder="username"
+                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-medium text-slate-600">Action Type</label>
+            <select name="actionType"
+                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300">
+              <option value="" th:selected="${actionType == null or #strings.isEmpty(actionType)}">All</option>
+              <option th:each="type : ${actionTypes}"
+                      th:value="${type}"
+                      th:selected="${type == actionType}"
+                      th:text="${type}">ACTION</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-2">
+            <button class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition">
+              Filter
+            </button>
+            <a href="/audit-events"
+               class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+              Reset
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Timestamp</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Actor</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Action</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Target</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">IP</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Terminal</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600">Payload</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr th:each="event : ${events}">
+                <td class="px-4 py-3 text-xs text-slate-700" th:text="${#temporals.format(event.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-01-01 10:00:00</td>
+                <td class="px-4 py-3 text-xs text-slate-700">
+                  <div th:text="${event.actorUsername} ?: 'system'">admin</div>
+                  <div class="text-slate-500" th:text="${event.actorUserId} != null ? ('id=' + event.actorUserId) : '-'">id=1</div>
+                </td>
+                <td class="px-4 py-3 text-xs">
+                  <span class="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-700" th:text="${event.actionType}">ACTION</span>
+                </td>
+                <td class="px-4 py-3 text-xs text-slate-700">
+                  <div th:text="${event.targetType}">SALE</div>
+                  <div class="text-slate-500" th:text="${event.targetId}">123</div>
+                </td>
+                <td class="px-4 py-3 text-xs text-slate-700" th:text="${event.ipAddress} ?: '-'">127.0.0.1</td>
+                <td class="px-4 py-3 text-xs text-slate-700" th:text="${event.terminalId} ?: '-'">TERM-1</td>
+                <td class="px-4 py-3 text-xs text-slate-600">
+                  <details>
+                    <summary class="cursor-pointer text-slate-700 hover:text-slate-900">View JSON</summary>
+                    <pre class="mt-2 max-w-xl overflow-x-auto rounded-lg bg-slate-900 p-2 text-[11px] leading-5 text-slate-100" th:text="'before: ' + ${event.beforeJson} + '\nafter: ' + ${event.afterJson} + '\nmetadata: ' + ${event.metadataJson}">payload</pre>
+                  </details>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(events)}">
+                <td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">No audit events found for the selected filters.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4 flex items-center justify-between">
+        <a th:if="${hasPrev}"
+           th:href="@{/audit-events(page=${prevPage}, from=${from}, to=${to}, user=${user}, actionType=${actionType})}"
+           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+          Prev
+        </a>
+        <div class="text-xs text-slate-500">
+          Page <span th:text="${page + 1}">1</span> / <span th:text="${totalPages}">1</span>
+        </div>
+        <a th:if="${hasNext}"
+           th:href="@{/audit-events(page=${nextPage}, from=${from}, to=${to}, user=${user}, actionType=${actionType})}"
+           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+          Next
+        </a>
+      </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

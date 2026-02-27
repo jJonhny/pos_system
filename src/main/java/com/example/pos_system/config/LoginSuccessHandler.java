@@ -22,6 +22,16 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
     private final UserAuditLogRepo auditLogRepo;
     private final LoginSecurityService loginSecurityService;
 
+    /**
+     * Executes the LoginSuccessHandler operation.
+     * <p>Return value: A fully initialized LoginSuccessHandler instance.</p>
+     *
+     * @param appUserRepo Parameter of type {@code AppUserRepo} used by this operation.
+     * @param auditLogRepo Parameter of type {@code UserAuditLogRepo} used by this operation.
+     * @param loginSecurityService Parameter of type {@code LoginSecurityService} used by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     public LoginSuccessHandler(AppUserRepo appUserRepo,
                                UserAuditLogRepo auditLogRepo,
                                LoginSecurityService loginSecurityService) {
@@ -31,6 +41,39 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         setDefaultTargetUrl("/");
     }
 
+    /**
+     * Executes the onAuthenticationSuccess operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * @throws ServletException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the onAuthenticationSuccess operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * @throws ServletException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the onAuthenticationSuccess operation.
+     *
+     * @param request Parameter of type {@code HttpServletRequest} used by this operation.
+     * @param response Parameter of type {@code HttpServletResponse} used by this operation.
+     * @param authentication Parameter of type {@code Authentication} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * @throws IOException If the operation cannot complete successfully.
+     * @throws ServletException If the operation cannot complete successfully.
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,

@@ -51,6 +51,27 @@ class VariantAndPricingServiceIntegrationTest {
     @Autowired
     private VariantCombinationKeyService keyService;
 
+    /**
+     * Executes the variantGenerationPreservesEditedRowsWhenAttributesChange operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the variantGenerationPreservesEditedRowsWhenAttributesChange operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the variantGenerationPreservesEditedRowsWhenAttributesChange operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void variantGenerationPreservesEditedRowsWhenAttributesChange() {
         Product product = new Product();
@@ -118,6 +139,27 @@ class VariantAndPricingServiceIntegrationTest {
         assertThat(mergedRedS.getArchived()).isFalse();
     }
 
+    /**
+     * Executes the pricingQuoteUsesCustomerGroupTierBeforeGlobalTierFor12Boxes operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the pricingQuoteUsesCustomerGroupTierBeforeGlobalTierFor12Boxes operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the pricingQuoteUsesCustomerGroupTierBeforeGlobalTierFor12Boxes operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void pricingQuoteUsesCustomerGroupTierBeforeGlobalTierFor12Boxes() {
         Product product = new Product();
@@ -162,6 +204,27 @@ class VariantAndPricingServiceIntegrationTest {
         assertThat(line.inventoryBaseQty()).isEqualByComparingTo("288.000000");
     }
 
+    /**
+     * Executes the inventoryServiceConvertsSellUnitQtyToBaseAndDeductsStock operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the inventoryServiceConvertsSellUnitQtyToBaseAndDeductsStock operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the inventoryServiceConvertsSellUnitQtyToBaseAndDeductsStock operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     void inventoryServiceConvertsSellUnitQtyToBaseAndDeductsStock() {
         Product product = new Product();

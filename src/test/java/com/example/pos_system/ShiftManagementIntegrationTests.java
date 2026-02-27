@@ -53,6 +53,27 @@ class ShiftManagementIntegrationTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Executes the openSaleCloseShiftReconciliationWorks operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the openSaleCloseShiftReconciliationWorks operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the openSaleCloseShiftReconciliationWorks operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "shift_manager", roles = "MANAGER")
     void openSaleCloseShiftReconciliationWorks() {
@@ -114,6 +135,27 @@ class ShiftManagementIntegrationTests {
         assertThat(persistedSale.getTerminalId()).isEqualTo("TERM-A1");
     }
 
+    /**
+     * Executes the closeShiftWithVarianceOverThresholdRequiresManagerApproval operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the closeShiftWithVarianceOverThresholdRequiresManagerApproval operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
+    /**
+     * Executes the closeShiftWithVarianceOverThresholdRequiresManagerApproval operation.
+     *
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     @Test
     @WithMockUser(username = "shift_cashier", roles = "CASHIER")
     void closeShiftWithVarianceOverThresholdRequiresManagerApproval() {
@@ -135,6 +177,16 @@ class ShiftManagementIntegrationTests {
                 .hasMessageContaining("Manager approval required");
     }
 
+    /**
+     * Executes the createProduct operation.
+     *
+     * @param sku Parameter of type {@code String} used by this operation.
+     * @param stockQty Parameter of type {@code int} used by this operation.
+     * @param price Parameter of type {@code BigDecimal} used by this operation.
+     * @return {@code Product} Result produced by this operation.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private Product createProduct(String sku, int stockQty, BigDecimal price) {
         Category category = new Category();
         category.setName("Shift Category " + sku);
@@ -152,6 +204,15 @@ class ShiftManagementIntegrationTests {
         return productRepo.save(product);
     }
 
+    /**
+     * Executes the ensureUser operation.
+     *
+     * @param username Parameter of type {@code String} used by this operation.
+     * @param role Parameter of type {@code UserRole} used by this operation.
+     * @return void No value is returned; the method applies side effects to existing state.
+     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
+     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
+     */
     private void ensureUser(String username, UserRole role) {
         if (appUserRepo.findByUsername(username).isPresent()) return;
         AppUser user = new AppUser();
