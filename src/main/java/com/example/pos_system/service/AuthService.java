@@ -82,19 +82,18 @@ public class AuthService {
      *
      * @param email Parameter of type {@code String} used by this operation.
      * @param password Parameter of type {@code String} used by this operation.
-     * @param roleName Parameter of type {@code String} used by this operation.
      * @return {@code RegisterResult} Result produced by this operation.
      * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
      * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
      */
-    public RegisterResult register(String email, String password, String roleName) {
+    public RegisterResult register(String email, String password) {
         String normalizedEmail = normalizeEmail(email);
         validatePassword(password);
         if (appUserRepo.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered.");
         }
 
-        UserRole role = resolveRole(roleName);
+        UserRole role = UserRole.CASHIER;
         String username = generateUsernameFromEmail(normalizedEmail);
         Set<Permission> permissions = rolePermissionService.defaultsForRole(role);
 
@@ -382,28 +381,6 @@ public class AuthService {
         if (password == null || password.length() < 8) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 8 characters.");
         }
-    }
-
-    /**
-     * Executes the resolveRole operation.
-     *
-     * @param roleName Parameter of type {@code String} used by this operation.
-     * @return {@code UserRole} Result produced by this operation.
-     * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
-     * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
-     */
-    private UserRole resolveRole(String roleName) {
-        if (roleName == null || roleName.isBlank()) {
-            return UserRole.CASHIER;
-        }
-        String normalized = roleName.trim().toUpperCase(Locale.ROOT);
-        return switch (normalized) {
-            case "SUPER_ADMIN", "ADMIN" -> UserRole.SUPER_ADMIN;
-            case "BRANCH_MANAGER", "MANAGER" -> UserRole.BRANCH_MANAGER;
-            case "INVENTORY_STAFF" -> UserRole.INVENTORY_STAFF;
-            case "CASHIER" -> UserRole.CASHIER;
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported role: " + roleName);
-        };
     }
 
     /**

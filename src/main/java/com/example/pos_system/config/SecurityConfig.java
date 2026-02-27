@@ -32,7 +32,7 @@ public class SecurityConfig {
     @Value("${app.auth.sso.registration-id:corp}")
     private String ssoRegistrationId;
 
-    @Value("${app.security.remember-me.key:pos-system-dev-remember-me-key-change-in-prod}")
+    @Value("${app.security.remember-me.key}")
     private String rememberMeKey;
 
     /**

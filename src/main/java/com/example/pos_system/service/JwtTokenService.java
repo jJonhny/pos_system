@@ -21,7 +21,7 @@ public class JwtTokenService {
     private static final String TYPE_ACCESS = "ACCESS";
     private static final String TYPE_OTP_CHALLENGE = "OTP_CHALLENGE";
 
-    @Value("${app.security.jwt.secret:change-this-secret-key-with-at-least-32-bytes}")
+    @Value("${app.security.jwt.secret}")
     private String jwtSecret;
 
     @Value("${app.security.jwt.access-token-minutes:720}")

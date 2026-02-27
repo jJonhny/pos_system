@@ -71,8 +71,7 @@ class AuthApiIntegrationTest {
                         .content("""
                                 {
                                   "email":"%s",
-                                  "password":"%s",
-                                  "role":"CASHIER"
+                                  "password":"%s"
                                 }
                                 """.formatted(email, password)))
                 .andExpect(status().isCreated())
@@ -133,8 +132,7 @@ class AuthApiIntegrationTest {
                         .content("""
                                 {
                                   "email":"%s",
-                                  "password":"%s",
-                                  "role":"BRANCH_MANAGER"
+                                  "password":"%s"
                                 }
                                 """.formatted(email, password)))
                 .andExpect(status().isCreated());
@@ -166,7 +164,7 @@ class AuthApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.role").value("BRANCH_MANAGER"))
+                .andExpect(jsonPath("$.role").value("CASHIER"))
                 .andExpect(jsonPath("$.expiresInSeconds").isNumber());
     }
 }

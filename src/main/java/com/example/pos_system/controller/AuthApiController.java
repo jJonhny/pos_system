@@ -63,7 +63,7 @@ public class AuthApiController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
         AuthService.RegisterResult result =
-                authService.register(request.email(), request.password(), request.role());
+                authService.register(request.email(), request.password());
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponse(
                 result.userId(),
                 result.username(),
@@ -269,7 +269,7 @@ public class AuthApiController {
         );
     }
 
-    public record RegisterRequest(String email, String password, String role) {
+    public record RegisterRequest(String email, String password) {
     }
 
     public record LoginRequest(String email, String password) {

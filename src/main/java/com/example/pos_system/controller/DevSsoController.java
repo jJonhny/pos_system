@@ -1,6 +1,7 @@
 package com.example.pos_system.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
+@Profile("dev")
 public class DevSsoController {
     private static final long AUTHORIZATION_CODE_TTL_SECONDS = 180;
     private static final long ACCESS_TOKEN_TTL_SECONDS = 3600;
@@ -53,13 +55,13 @@ public class DevSsoController {
      * <p>Possible exceptions: Runtime exceptions from downstream dependencies may propagate unchanged.</p>
      * <p>Edge cases: Null, empty, and boundary inputs are handled by the existing control flow and validations.</p>
      */
-    public DevSsoController(@Value("${app.auth.sso.demo.enabled:true}") boolean demoEnabled,
-                            @Value("${app.auth.sso.demo.client-id:demo-client}") String demoClientId,
-                            @Value("${app.auth.sso.demo.client-secret:demo-secret}") String demoClientSecret,
-                            @Value("${app.auth.sso.demo.user-sub:demo-user-001}") String demoSubject,
-                            @Value("${app.auth.sso.demo.user-email:demo.cashier@devcore.local}") String demoEmail,
-                            @Value("${app.auth.sso.demo.user-username:demo.cashier}") String demoUsername,
-                            @Value("${app.auth.sso.demo.user-name:Demo Cashier}") String demoName) {
+    public DevSsoController(@Value("${app.auth.sso.demo.enabled}") boolean demoEnabled,
+                            @Value("${app.auth.sso.demo.client-id}") String demoClientId,
+                            @Value("${app.auth.sso.demo.client-secret}") String demoClientSecret,
+                            @Value("${app.auth.sso.demo.user-sub}") String demoSubject,
+                            @Value("${app.auth.sso.demo.user-email}") String demoEmail,
+                            @Value("${app.auth.sso.demo.user-username}") String demoUsername,
+                            @Value("${app.auth.sso.demo.user-name}") String demoName) {
         this.demoEnabled = demoEnabled;
         this.demoClientId = normalizeOrDefault(demoClientId, "demo-client");
         this.demoClientSecret = normalizeOrDefault(demoClientSecret, "demo-secret");
