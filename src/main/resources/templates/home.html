@@ -152,7 +152,7 @@
         <div class="rounded-3xl bg-white border border-slate-200 p-6 shadow-sm">
           <div>
             <div class="text-base font-semibold">Payment Methods</div>
-            <div class="text-sm text-slate-500">Cash / Card / QR (last 7 days)</div>
+            <div class="text-sm text-slate-500" th:text="#{home.payment.methods.last7d}">Cash / Card / QR (last 7 days)</div>
           </div>
           <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div class="chart-wrap">
@@ -415,9 +415,9 @@
         data: {
           labels: paymentLabels,
           datasets: [
-            { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
-            { label: "Card", data: paymentCard, backgroundColor: "#334155" },
-            { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+            { label: /*[[#{payment.method.cash}]]*/ "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+            { label: /*[[#{payment.method.card}]]*/ "Card", data: paymentCard, backgroundColor: "#334155" },
+            { label: /*[[#{payment.method.qr}]]*/ "QR", data: paymentQr, backgroundColor: "#94a3b8" }
           ]
         },
         options: {
@@ -674,7 +674,13 @@
         announce(lang) {
           const liveRegion = document.querySelector('[aria-live="polite"], [aria-live="assertive"]');
           if (liveRegion && this.options.ariaLive !== 'none') {
-            liveRegion.textContent = `Language changed to ${lang}`;
+            const htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+            if (htmlLang.startsWith('zh')) {
+              const zhLabel = lang === 'zh-CN' ? '简体中文' : lang;
+              liveRegion.textContent = `语言已切换为 ${zhLabel}`;
+            } else {
+              liveRegion.textContent = `Language changed to ${lang}`;
+            }
           }
         }
 

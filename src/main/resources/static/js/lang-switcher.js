@@ -168,7 +168,13 @@
     announce(lang) {
       const liveRegion = document.querySelector('[aria-live="polite"], [aria-live="assertive"]');
       if (liveRegion && this.options.ariaLive !== 'none') {
-        liveRegion.textContent = `Language changed to ${lang}`;
+        const htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+        if (htmlLang.startsWith('zh')) {
+          const zhLabel = lang === 'zh-CN' ? '简体中文' : lang;
+          liveRegion.textContent = `语言已切换为 ${zhLabel}`;
+        } else {
+          liveRegion.textContent = `Language changed to ${lang}`;
+        }
       }
     }
 

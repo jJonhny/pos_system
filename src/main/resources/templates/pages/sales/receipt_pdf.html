@@ -200,7 +200,7 @@
         <tbody>
           <tr th:each="it : ${sale.items}">
             <td>
-              <div th:text="${it.product != null ? it.product.name : #messages.msg('receipt.itemDefault')}">Item</div>
+              <div th:text="${it.safeProductName != null ? it.safeProductName : #messages.msg('receipt.itemDefault')}">Item</div>
               <div class="muted" th:if="${it.unitType != null and it.unitType.name() != 'PIECE'}"
                    th:text="${#messages.msg('pos.unitSize', it.unitSize, uiFormat.unitLabel(it.unitType))}">Unit size</div>
               <div class="muted" th:if="${it.priceTier != null and it.priceTier.name() == 'WHOLESALE'}" th:text="#{pos.wholesale}">Wholesale price</div>

@@ -67,30 +67,26 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-900">
   <div class="min-h-screen">
     <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
-      <div class="w-full px-6 lg:px-10 py-4">
-        <div class="flex items-center gap-4">
-          <div class="flex max-w-[20rem] flex-none min-w-0 items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center">
+      <div class="w-full px-6 lg:px-10 py-5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M4 19V5M10 19V9M16 19V7M22 19H2"/>
               </svg>
             </div>
-            <div class="min-w-0">
-              <div class="text-xl sm:text-2xl font-bold leading-tight truncate">Sales Analysis</div>
-              <div class="text-sm text-slate-500 truncate">Style dashboard for campaign performance</div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold leading-tight">Sales Analysis</div>
+              <div class="text-sm text-slate-500">Style dashboard for campaign performance</div>
             </div>
           </div>
 
-          <div class="flex-1 min-w-0">
-            <div class="mx-auto w-full max-w-[960px]">
-              <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
-            </div>
-          </div>
+          <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
-          <div class="flex w-[18rem] min-w-[18rem] shrink-0 items-center justify-end gap-2">
+          <div class="flex items-center justify-end gap-2">
             <button id="focusBtn"
                     class="whitespace-nowrap rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-semibold text-cyan-900 hover:bg-cyan-100 transition">
               Focus 6M
@@ -173,7 +169,7 @@
         </article>
         <article class="panel p-5">
           <div class="text-lg font-semibold">Payment Mix</div>
-          <div class="text-sm text-slate-500">Cash, card, and QR distribution</div>
+          <div class="text-sm text-slate-500" th:text="#{analytics.paymentMix.subtitle}">Cash, card, and QR distribution</div>
           <div class="h-sub mt-3"><canvas id="paymentMixChart"></canvas></div>
         </article>
         <article class="panel p-5">
@@ -238,72 +234,10 @@
     const paymentCard = Array.isArray(paymentCardRaw) ? paymentCardRaw : [];
     const paymentQr = Array.isArray(paymentQrRaw) ? paymentQrRaw : [];
 
-    /**
-     * Executes the toNum function.
-     * @param {*} v Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const toNum = (v) => Number(v) || 0;
-    /**
-     * Executes the sum function.
-     * @param {*} arr Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
     const sum = (arr) => arr.reduce((a, b) => a + toNum(b), 0);
     const money = (v) => toNum(v).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
-    /**
-     * Executes the percent function.
-     * @param {*} v Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-    /**
-     * Executes the sum function.
-     * @param {*} arr Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the sum function.
-     * @param {*} arr Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
     const percent = (v) => `${toNum(v).toFixed(2)}%`;
-    /**
-     * Executes the movingAvg function.
-     * @param {*} arr Input parameter used by this function.
-     * @param {*} w Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-    /**
-     * Executes the percent function.
-     * @param {*} v Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the percent function.
-     * @param {*} v Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the movingAvg function.
-     * @param {*} arr Input parameter used by this function.
-     * @param {*} w Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const movingAvg = (arr, w) => arr.map((_, i) => {
       const s = Math.max(0, i - w + 1);
       const sample = arr.slice(s, i + 1).map(toNum);
@@ -312,22 +246,6 @@
 
     const colors = {
       cyan: "#06b6d4",
-    /**
-     * Executes the movingAvg function.
-     * @param {*} arr Input parameter used by this function.
-     * @param {*} w Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the movingAvg function.
-     * @param {*} arr Input parameter used by this function.
-     * @param {*} w Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       orange: "#f97316",
       green: "#22c55e",
       slate: "#334155",
@@ -346,59 +264,23 @@
     let salesTrendChart;
     let marginTrendChart;
 
-    /**
-     * Executes the windowed function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function windowed() {
       const size = mode === "6M" ? 6 : 12;
       return {
         labels: dataStore.labels.slice(-size),
         sales: dataStore.sales.slice(-size),
         revenue: dataStore.revenue.slice(-size),
-    /**
-     * Executes the windowed function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the windowed function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         cost: dataStore.cost.slice(-size),
         profit: dataStore.profit.slice(-size)
       };
     }
 
-    /**
-     * Executes the updateKpi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updateKpi() {
       const { sales, revenue, profit } = windowed();
       const totalSales = sum(sales);
       const current = sales.length ? sales[sales.length - 1] : 0;
       const previous = sales.length > 1 ? sales[sales.length - 2] : 0;
       const variance = current - previous;
-    /**
-     * Executes the updateKpi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateKpi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const currentRevenue = revenue.length ? revenue[revenue.length - 1] : 0;
       const currentProfit = profit.length ? profit[profit.length - 1] : 0;
       const currentMargin = currentRevenue > 0 ? (currentProfit / currentRevenue) * 100 : 0;
@@ -428,30 +310,12 @@
       });
     }
 
-    /**
-     * Executes the renderSalesTrend function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function renderSalesTrend() {
       const ctx = document.getElementById("salesTrendChart");
       const { labels, sales } = windowed();
       const previous = sales.map((_, i) => i === 0 ? sales[0] : sales[i - 1]);
       const rolling = movingAvg(sales, 3);
 
-    /**
-     * Executes the renderSalesTrend function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the renderSalesTrend function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (salesTrendChart) salesTrendChart.destroy();
       salesTrendChart = new Chart(ctx, {
         data: {
@@ -503,30 +367,12 @@
       });
     }
 
-    /**
-     * Executes the renderMarginTrend function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function renderMarginTrend() {
       const ctx = document.getElementById("marginTrendChart");
       const { labels, revenue, cost, profit } = windowed();
 
       if (marginTrendChart) marginTrendChart.destroy();
       marginTrendChart = new Chart(ctx, {
-    /**
-     * Executes the renderMarginTrend function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the renderMarginTrend function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         data: {
           labels,
           datasets: [
@@ -573,30 +419,12 @@
       });
     }
 
-    /**
-     * Executes the renderStaticCharts function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function renderStaticCharts() {
       new Chart(document.getElementById("categoryShareChart"), {
         type: "doughnut",
         data: {
           labels: topCategoryLabels,
           datasets: [{ data: topCategoryValues.map(toNum), backgroundColor: colors.soft, borderWidth: 0 }]
-    /**
-     * Executes the renderStaticCharts function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the renderStaticCharts function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         },
         options: {
           responsive: true,
@@ -611,7 +439,11 @@
       new Chart(document.getElementById("paymentMixChart"), {
         type: "pie",
         data: {
-          labels: ["Cash", "Card", "QR"],
+          labels: [
+            /*[[#{payment.method.cash}]]*/ "Cash",
+            /*[[#{payment.method.card}]]*/ "Card",
+            /*[[#{payment.method.qr}]]*/ "QR"
+          ],
           datasets: [{
             data: [sum(paymentCash), sum(paymentCard), sum(paymentQr)],
             backgroundColor: [colors.cyan, colors.orange, colors.slate],
@@ -650,30 +482,12 @@
       });
     }
 
-    /**
-     * Executes the renderAll function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function renderAll() {
       updateKpi();
       renderSalesTrend();
       renderMarginTrend();
     }
 
-    /**
-     * Executes the renderAll function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the renderAll function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     document.getElementById("focusBtn").addEventListener("click", () => {
       mode = "6M";
       renderAll();

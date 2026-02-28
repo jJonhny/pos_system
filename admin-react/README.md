@@ -55,6 +55,12 @@ npm run preview
   - `GET /api/v1/inventory/products/{productId}/availability`
   - `POST /api/v1/inventory/adjustments`
   - `POST /api/v1/inventory/receive`
+- Suppliers:
+  - `GET /api/v1/suppliers`
+  - `GET /api/v1/suppliers/{id}`
+  - `POST /api/v1/suppliers`
+  - `PUT /api/v1/suppliers/{id}`
+  - `DELETE /api/v1/suppliers/{id}`
 - Reports:
   - `GET /api/v1/reports/summary`
   - `GET /api/v1/reports/sales`

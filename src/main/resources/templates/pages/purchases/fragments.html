@@ -3,11 +3,27 @@
 <body>
   <th:block th:fragment="poLine">
     <div class="po-line-row grid grid-cols-12 gap-2 items-end rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <div class="col-span-12 md:col-span-4">
+      <div class="col-span-12 md:col-span-3">
         <label class="text-xs font-semibold text-slate-600">Product</label>
-        <select name="lineProductId" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required>
+        <select name="lineProductId" class="uom-product-select mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required>
           <option value="">Select</option>
-          <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name}">Product</option>
+          <option th:each="p : ${products}"
+                  th:value="${p.id}"
+                  th:text="${p.name}"
+                  th:attr="data-base-unit=${p.baseUnitName != null ? p.baseUnitName : 'base'}">Product</option>
+        </select>
+      </div>
+      <div class="col-span-6 md:col-span-2">
+        <label class="text-xs font-semibold text-slate-600">Unit</label>
+        <select name="lineUnitId" class="uom-unit-select mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+          <option value="">Base</option>
+          <th:block th:each="p : ${products}">
+            <option th:each="u : ${p.productUnits}"
+                    th:value="${u.id}"
+                    th:text="${u.name + ' (' + u.conversionToBase + ')'}"
+                    th:attr="data-product-id=${p.id}"
+                    hidden>Unit</option>
+          </th:block>
         </select>
       </div>
       <div class="col-span-6 md:col-span-2">
@@ -40,14 +56,30 @@
 
   <th:block th:fragment="grnLine">
     <div class="grn-line-row grid grid-cols-12 gap-2 items-end rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <div class="col-span-12 md:col-span-5">
+      <div class="col-span-12 md:col-span-4">
         <label class="text-xs font-semibold text-slate-600">Product</label>
-        <select name="grnProductId" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required>
+        <select name="grnProductId" class="uom-product-select mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required>
           <option value="">Select</option>
-          <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name}">Product</option>
+          <option th:each="p : ${products}"
+                  th:value="${p.id}"
+                  th:text="${p.name}"
+                  th:attr="data-base-unit=${p.baseUnitName != null ? p.baseUnitName : 'base'}">Product</option>
         </select>
       </div>
-      <div class="col-span-6 md:col-span-3">
+      <div class="col-span-6 md:col-span-2">
+        <label class="text-xs font-semibold text-slate-600">Unit</label>
+        <select name="grnUnitId" class="uom-unit-select mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+          <option value="">Base</option>
+          <th:block th:each="p : ${products}">
+            <option th:each="u : ${p.productUnits}"
+                    th:value="${u.id}"
+                    th:text="${u.name + ' (' + u.conversionToBase + ')'}"
+                    th:attr="data-product-id=${p.id}"
+                    hidden>Unit</option>
+          </th:block>
+        </select>
+      </div>
+      <div class="col-span-6 md:col-span-2">
         <label class="text-xs font-semibold text-slate-600">Received Qty</label>
         <input name="grnReceivedQty" type="number" min="1" step="1" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required/>
       </div>

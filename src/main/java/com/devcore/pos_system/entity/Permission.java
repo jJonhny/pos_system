@@ -1,0 +1,17 @@
+package com.devcore.pos_system.entity;
+
+public enum Permission {
+    MANAGE_USERS,
+    VIEW_REPORTS,
+    VIEW_ANALYTICS,
+    MANAGE_INVENTORY,
+    MANAGE_SALES,
+    USE_POS,
+    POS_PRINT,
+    POS_DRAWER_OPEN,
+    POS_TERMINAL_SETTINGS,
+    INVENTORY_VIEW_MOVEMENTS,
+    PURCHASES_MANAGE,
+    RECEIVING_POST,
+    SUPPLIERS_MANAGE
+}

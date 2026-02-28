@@ -55,7 +55,7 @@
       </div>
 
       <!-- Form card -->
-      <form method="post" th:action="@{/products}" th:object="${product}" enctype="multipart/form-data"
+      <form id="product-form" method="post" th:action="@{/products}" th:object="${product}" enctype="multipart/form-data"
             class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" th:field="*{id}"/>
@@ -150,9 +150,11 @@
             <div>
               <label class="block text-sm font-medium text-slate-700">Upload Image</label>
               <input id="productImageFile" type="file" name="imageFile" accept="image/*"
+                     data-max-size-bytes="10485760"
                      class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
                             file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-white file:text-sm
                             hover:file:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+              <p class="mt-2 text-xs text-slate-500">Accepted image files only. Maximum size: 10MB.</p>
               <div id="productImagePasteZone" tabindex="0"
                    class="mt-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300">
                 Paste image with <span class="font-semibold">Ctrl/Cmd + V</span> or drag & drop here.
@@ -195,43 +197,63 @@
           <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-slate-700">Retail Price</label>
-              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                             focus:outline-none focus:ring-2 focus:ring-slate-300"
-                     type="number" step="0.01" min="0" th:field="*{price}"/>
+              <div class="mt-1 grid grid-cols-[1fr_auto] gap-2">
+                <input class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300"
+                       type="number" step="0.01" min="0" name="price" th:value="${retailPriceDisplay}"/>
+                <select name="retailPriceUnitToken"
+                        class="w-44 rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option th:each="u : ${uomUnitOptions}"
+                          th:value="${u.token}"
+                          th:attr="data-conversion=${u.conversionToBase}"
+                          th:selected="${u.token == retailPriceUnitToken}"
+                          th:text="${u.label}">Base</option>
+                </select>
+              </div>
+              <p id="retailPriceBasePreview" class="mt-2 text-xs text-slate-500">
+                Retail Price per base = -
+              </p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-slate-700">Wholesale Price</label>
-              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                             focus:outline-none focus:ring-2 focus:ring-slate-300"
-                     type="number" step="0.01" min="0" th:field="*{wholesalePrice}"
-                     placeholder="Optional"/>
+              <div class="mt-1 grid grid-cols-[1fr_auto] gap-2">
+                <input class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300"
+                       type="number" step="0.01" min="0" name="wholesalePrice"
+                       th:value="${wholesalePriceDisplay}" placeholder="Optional"/>
+                <select name="wholesalePriceUnitToken"
+                        class="w-44 rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option th:each="u : ${uomUnitOptions}"
+                          th:value="${u.token}"
+                          th:attr="data-conversion=${u.conversionToBase}"
+                          th:selected="${u.token == wholesalePriceUnitToken}"
+                          th:text="${u.label}">Base</option>
+                </select>
+              </div>
               <p class="mt-2 text-xs text-slate-500">Leave blank to disable wholesale pricing.</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-700">Wholesale Min Qty (pieces)</label>
-              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                             focus:outline-none focus:ring-2 focus:ring-slate-300"
-                     type="number" step="1" min="1" th:field="*{wholesaleMinQty}"
-                     placeholder="e.g. 12"/>
-              <p class="mt-2 text-xs text-slate-500">Applies wholesale price when this many pieces are sold.</p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700">Units per Box</label>
-              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                             focus:outline-none focus:ring-2 focus:ring-slate-300"
-                     type="number" step="1" min="1" th:field="*{unitsPerBox}"
-                     placeholder="Optional"/>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700">Units per Case</label>
-              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                             focus:outline-none focus:ring-2 focus:ring-slate-300"
-                     type="number" step="1" min="1" th:field="*{unitsPerCase}"
-                     placeholder="Optional"/>
+              <label class="block text-sm font-medium text-slate-700">Wholesale Min Qty</label>
+              <div class="mt-1 grid grid-cols-[1fr_auto] gap-2">
+                <input class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300"
+                       type="number" step="1" min="0" name="wholesaleMinQty"
+                       th:value="${wholesaleMinQtyDisplay}" placeholder="e.g. 12"/>
+                <select name="wholesaleMinQtyUnitToken"
+                        class="w-44 rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option th:each="u : ${uomUnitOptions}"
+                          th:value="${u.token}"
+                          th:attr="data-conversion=${u.conversionToBase}"
+                          th:selected="${u.token == wholesaleMinQtyUnitToken}"
+                          th:text="${u.label}">Base</option>
+                </select>
+              </div>
+              <p class="mt-2 text-xs text-slate-500">Applies wholesale price when this threshold is reached.</p>
             </div>
 
             <div>
@@ -256,11 +278,25 @@
 
             <div>
               <label class="block text-sm font-medium text-slate-700">Low Stock Threshold</label>
-              <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                             focus:outline-none focus:ring-2 focus:ring-slate-300"
-                     type="number" step="1" min="0" th:field="*{lowStockThreshold}"
-                     placeholder="e.g. 5"/>
+              <div class="mt-1 grid grid-cols-[1fr_auto] gap-2">
+                <input class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300"
+                       type="number" step="1" min="0" name="lowStockThreshold"
+                       th:value="${lowStockThresholdDisplay}" placeholder="e.g. 5"/>
+                <select name="lowStockThresholdUnitToken"
+                        class="w-44 rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                  <option th:each="u : ${uomUnitOptions}"
+                          th:value="${u.token}"
+                          th:attr="data-conversion=${u.conversionToBase}"
+                          th:selected="${u.token == lowStockThresholdUnitToken}"
+                          th:text="${u.label}">Base</option>
+                </select>
+              </div>
               <p class="mt-2 text-xs text-slate-500">Show a low-stock badge when stock is at or below this number.</p>
+              <p id="lowStockBasePreview" class="mt-1 text-xs text-slate-500">
+                Low stock threshold in base = -
+              </p>
             </div>
 
             <div class="md:col-span-2">
@@ -271,6 +307,82 @@
                 </span>
                 <span class="text-sm font-medium text-slate-700">Allow negative stock</span>
               </label>
+            </div>
+
+            <div class="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Packaging Units</div>
+                  <div class="text-xs text-slate-500">Define sell/purchase units dynamically (no Box/Case hardcoding).</div>
+                </div>
+                <button type="button" id="uom-add-row"
+                        class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold hover:bg-slate-100 transition">
+                  Add Unit
+                </button>
+              </div>
+              <div class="mt-3 overflow-x-auto">
+                <table class="min-w-full text-xs text-slate-700">
+                  <thead>
+                  <tr class="border-b border-slate-200 text-slate-500 uppercase">
+                    <th class="py-2 pr-2 text-left">Name</th>
+                    <th class="py-2 pr-2 text-left">Abbrev</th>
+                    <th class="py-2 pr-2 text-left">1 Unit = Base</th>
+                    <th class="py-2 pr-2 text-left">Sell</th>
+                    <th class="py-2 pr-2 text-left">Buy</th>
+                    <th class="py-2 pr-2 text-left">Default Sell</th>
+                    <th class="py-2 pr-2 text-left">Default Buy</th>
+                    <th class="py-2 pr-2 text-left">Barcode</th>
+                    <th class="py-2 text-right">Action</th>
+                  </tr>
+                  </thead>
+                  <tbody id="uom-rows">
+                  <tr th:each="row,rowStat : ${uomRows}" class="uom-row border-b border-slate-200/80 last:border-0">
+                    <td class="py-2 pr-2">
+                      <input type="hidden" name="packagingId" th:value="${row.id}"/>
+                      <input name="packagingName" th:value="${row.name}"
+                             class="w-32 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="Case"/>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <input name="packagingAbbreviation" th:value="${row.abbreviation}"
+                             class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="CS"/>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <input name="packagingConversionToBase" th:value="${row.conversionToBase}"
+                             type="number" step="0.0001" min="0.0001"
+                             class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="24"/>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <select name="packagingAllowForSale" class="rounded-lg border border-slate-200 px-2 py-1.5 bg-white">
+                        <option value="true" th:selected="${row.allowForSale}">Yes</option>
+                        <option value="false" th:selected="${!row.allowForSale}">No</option>
+                      </select>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <select name="packagingAllowForPurchase" class="rounded-lg border border-slate-200 px-2 py-1.5 bg-white">
+                        <option value="true" th:selected="${row.allowForPurchase}">Yes</option>
+                        <option value="false" th:selected="${!row.allowForPurchase}">No</option>
+                      </select>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <input type="radio" name="packagingDefaultSaleIndex" th:value="${rowStat.index}" th:checked="${row.defaultSale}"/>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <input type="radio" name="packagingDefaultPurchaseIndex" th:value="${rowStat.index}" th:checked="${row.defaultPurchase}"/>
+                    </td>
+                    <td class="py-2 pr-2">
+                      <input name="packagingBarcode" th:value="${row.barcode}"
+                             class="w-36 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="Optional"/>
+                    </td>
+                    <td class="py-2 text-right">
+                      <button type="button"
+                              class="uom-remove-row rounded-lg border border-rose-200 bg-white px-2 py-1 text-rose-700 hover:bg-rose-50 transition">
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -288,10 +400,28 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-slate-700">Basic Unit</label>
+                <label class="block text-sm font-medium text-slate-700">Base Unit Name</label>
+                <div class="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <input class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
+                                 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                         th:field="*{baseUnitName}" list="baseUnitNameSuggestions" placeholder="piece, bottle, egg"/>
+                  <a href="/msw"
+                     class="inline-flex shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                     title="Manage Master Stock Units">
+                    Manage MSW
+                  </a>
+                </div>
+                <datalist id="baseUnitNameSuggestions">
+                  <option th:each="unitName : ${baseUnitSuggestions}" th:value="${unitName}"></option>
+                </datalist>
+                <input type="hidden" th:field="*{basicUnit}" id="legacyBasicUnitMirror"/>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Base Unit Precision</label>
                 <input class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
                                focus:outline-none focus:ring-2 focus:ring-slate-300"
-                       th:field="*{basicUnit}" placeholder="piece, bottle, box"/>
+                       type="number" min="0" step="1" th:field="*{baseUnitPrecision}" placeholder="0"/>
               </div>
 
               <div>
@@ -601,7 +731,8 @@
                class="rounded-xl border border-slate-200 px-4 py-2.5 bg-white text-sm font-medium hover:bg-slate-50 transition">
               Cancel
             </a>
-            <button class="rounded-xl bg-slate-900 text-white px-5 py-2.5 text-sm font-semibold hover:bg-slate-800 transition">
+            <button id="product-save-btn" type="submit"
+                    class="rounded-xl bg-slate-900 text-white px-5 py-2.5 text-sm font-semibold hover:bg-slate-800 transition">
               Save
             </button>
           </div>
@@ -618,25 +749,18 @@
       const clearBtn = document.getElementById("productImageClearBtn");
       const statusEl = document.getElementById("productImagePasteStatus");
       if (!fileInput || !pasteZone || !previewWrap || !previewImage) return;
+      const maxSizeBytes = Number(fileInput.dataset.maxSizeBytes || "0");
 
+      const defaultStatus = "Clipboard paste is enabled for screenshots and copied images.";
       let previewUrl = null;
 
-      /**
-       * Executes the setStatus function.
-       * @param {*} message Input parameter used by this function.
-       * @param {*} isError Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      const setStatus = (message, isError) => {
+      const setStatus = (message, isError = false) => {
         if (!statusEl) return;
         statusEl.textContent = message;
         statusEl.classList.toggle("text-rose-600", Boolean(isError));
         statusEl.classList.toggle("text-slate-500", !isError);
       };
 
-      /**
       const clearPreviewUrl = () => {
         if (!previewUrl) return;
         URL.revokeObjectURL(previewUrl);
@@ -645,104 +769,32 @@
 
       const showPreview = (file) => {
         clearPreviewUrl();
-      /**
-       * Executes the clearPreviewUrl function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         previewUrl = URL.createObjectURL(file);
         previewImage.src = previewUrl;
         previewWrap.classList.remove("hidden");
         previewWrap.classList.add("flex");
-      /**
-       * Executes the showPreview function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-      /**
-       * Executes the showPreview function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-       * Executes the showPreview function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       };
 
-      /**
-       * Executes the clearSelection function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const clearSelection = () => {
         fileInput.value = "";
         clearPreviewUrl();
-        previewImage.src = "";
+        previewImage.removeAttribute("src");
         previewWrap.classList.remove("flex");
         previewWrap.classList.add("hidden");
-      /**
-       * Executes the clearSelection function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the clearSelection function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-        setStatus("Clipboard paste is enabled for screenshots and copied images.", false);
+        setStatus(defaultStatus, false);
       };
 
-      /**
-       * Executes the toClipboardFile function.
-       * @param {*} item Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const toClipboardFile = (item) => {
+        if (!item || typeof item.getAsFile !== "function") return null;
         const file = item.getAsFile();
         if (!file) return null;
         if (file.name && file.name.trim().length > 0) return file;
         const ext = file.type && file.type.includes("/") ? file.type.split("/")[1] : "png";
         return new File([file], `pasted-image-${Date.now()}.${ext}`, {
           type: file.type || "image/png"
-      /**
-       * Executes the toClipboardFile function.
-       * @param {*} item Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the toClipboardFile function.
-       * @param {*} item Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         });
       };
 
-      /**
-       * Executes the readImageFromClipboard function.
-       * @param {*} clipboardData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const readImageFromClipboard = (clipboardData) => {
         if (!clipboardData || !clipboardData.items) return null;
         for (const item of clipboardData.items) {
@@ -750,63 +802,31 @@
             return toClipboardFile(item);
           }
         }
-      /**
-       * Executes the readImageFromClipboard function.
-       * @param {*} clipboardData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the readImageFromClipboard function.
-       * @param {*} clipboardData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         return null;
       };
 
-      /**
-       * Executes the assignFile function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const assignFile = (file) => {
+        if (!file || !file.type || !file.type.startsWith("image/")) {
+          setStatus("Only image files are allowed.", true);
+          return;
+        }
+        if (maxSizeBytes > 0 && file.size > maxSizeBytes) {
+          setStatus("Image is too large. Maximum size is 10MB.", true);
+          return;
+        }
+        showPreview(file);
         try {
-          const transfer = new DataTransfer();
-          transfer.items.add(file);
-          fileInput.files = transfer.files;
-          showPreview(file);
+          if (window.DataTransfer) {
+            const transfer = new DataTransfer();
+            transfer.items.add(file);
+            fileInput.files = transfer.files;
+          }
           setStatus(`Image selected: ${file.name || "pasted image"}`, false);
-      /**
-       * Executes the assignFile function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the assignFile function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-        } catch (error) {
-          setStatus("This browser blocked clipboard image auto-fill. Please choose file manually.", true);
+        } catch (_error) {
+          setStatus("Preview updated, but browser blocked file auto-fill. Choose the file manually if needed.", true);
         }
       };
 
-      /**
-       * Executes the handlePaste function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const handlePaste = (event) => {
         const file = readImageFromClipboard(event.clipboardData);
         if (!file) return;
@@ -814,44 +834,12 @@
         assignFile(file);
       };
 
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const handleDrop = (event) => {
         event.preventDefault();
         pasteZone.classList.remove("border-slate-400", "bg-slate-100");
         const files = event.dataTransfer?.files;
         const file = files && files.length > 0 ? files[0] : null;
         if (!file) return;
-        if (!file.type || !file.type.startsWith("image/")) {
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-          setStatus("Only image files are allowed.", true);
-          return;
-        }
         assignFile(file);
       };
 
@@ -861,8 +849,7 @@
           clearSelection();
           return;
         }
-        showPreview(file);
-        setStatus(`Image selected: ${file.name || "uploaded image"}`, false);
+        assignFile(file);
       });
 
       pasteZone.addEventListener("click", () => pasteZone.focus());
@@ -879,11 +866,13 @@
       document.addEventListener("paste", handlePaste);
       if (clearBtn) clearBtn.addEventListener("click", clearSelection);
       window.addEventListener("beforeunload", clearPreviewUrl);
+      setStatus(defaultStatus, false);
     })();
 
     (() => {
       const root = document.getElementById("variantApiFormRoot");
       if (!root) return;
+
       const wrap = root.closest("[data-product-id]");
       const productId = wrap?.dataset?.productId;
       const csrfHeader = wrap?.dataset?.csrfHeader || "X-CSRF-TOKEN";
@@ -891,59 +880,23 @@
       const resultEl = document.getElementById("variantApiResult");
       if (!productId || !resultEl) return;
 
-      /**
-       * Executes the showResult function.
-       * @param {*} payload Input parameter used by this function.
-       * @param {*} isError Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      const showResult = (payload, isError) => {
+      const showResult = (payload, isError = false) => {
         const output = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
         resultEl.textContent = output;
         resultEl.classList.toggle("text-rose-300", Boolean(isError));
         resultEl.classList.toggle("text-slate-100", !isError);
       };
 
-      /**
       const parseJson = (text) => {
+        const raw = String(text == null ? "" : text).trim();
+        if (!raw) throw new Error("JSON payload is required.");
         try {
-          return JSON.parse(text);
-        } catch (e) {
+          return JSON.parse(raw);
+        } catch (_e) {
           throw new Error("Invalid JSON payload.");
         }
       };
-      /**
-      /**
-       * Executes the parseJson function.
-       * @param {*} text Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-       * Executes the parseJson function.
-       * @param {*} text Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
 
-      /**
-       * Executes the request function.
-       * @param {*} method Input parameter used by this function.
-       * @param {*} url Input parameter used by this function.
-       * @param {*} body Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-      /**
-       * Executes the request function.
-       * @param {*} method Input parameter used by this function.
-       * @param {*} url Input parameter used by this function.
-       * @param {*} body Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const request = async (method, url, body) => {
         const headers = { "Content-Type": "application/json" };
         if (csrfToken) headers[csrfHeader] = csrfToken;
@@ -953,30 +906,14 @@
           body: body == null ? null : JSON.stringify(body)
         });
         const raw = await res.text();
-      /**
-       * Executes the request function.
-       * @param {*} method Input parameter used by this function.
-       * @param {*} url Input parameter used by this function.
-       * @param {*} body Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
+
         let data;
-      /**
-       * Executes the request function.
-       * @param {*} method Input parameter used by this function.
-       * @param {*} url Input parameter used by this function.
-       * @param {*} body Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         try {
           data = raw ? JSON.parse(raw) : { status: res.status };
         } catch (_ignored) {
           data = raw || { status: res.status };
         }
+
         if (!res.ok) {
           const message = data && typeof data === "object" && data.message ? data.message : data;
           throw new Error(typeof message === "string" ? message : JSON.stringify(message));
@@ -984,145 +921,314 @@
         return data;
       };
 
-      /**
-       * Executes the num function.
-       * @param {*} id Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const num = (id) => {
-        const v = document.getElementById(id)?.value;
-        if (v == null || String(v).trim() === "") return null;
-        return Number(v);
+        const value = document.getElementById(id)?.value;
+        if (value == null || String(value).trim() === "") return null;
+        return Number(value);
       };
-      /**
-       * Executes the str function.
+
       const str = (id) => {
-        const v = document.getElementById(id)?.value;
-        return v == null ? "" : String(v).trim();
+        const value = document.getElementById(id)?.value;
+        return value == null ? "" : String(value).trim();
       };
-      /**
-       * Executes the bool function.
-       * @param {*} id Input parameter used by this function.
+
       const bool = (id) => str(id) === "true";
-      /**
-       * Executes the str function.
-       * @param {*} id Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-      /**
-       * Executes the bool function.
-       * @param {*} id Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
 
       const run = async (fn) => {
         try {
           const data = await fn();
-      /**
-       * Executes the bool function.
-       * @param {*} id Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-      /**
-       * Executes the run function.
-       * @param {*} fn Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
           showResult(data, false);
         } catch (e) {
           showResult(e?.message || "Request failed.", true);
         }
-      /**
-      /**
-       * Executes the run function.
-       * @param {*} fn Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-       * Executes the run function.
-       * @param {*} fn Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       };
 
-      document.getElementById("btnCreateAttrGroup")?.addEventListener("click", () => run(() =>
-        request("POST", "/api/v1/attributes/groups", {
-          code: str("attrGroupCode"),
-          name: str("attrGroupName"),
-          sortOrder: num("attrGroupSort")
+      document.getElementById("btnCreateAttrGroup")?.addEventListener("click", () =>
+        run(() =>
+          request("POST", "/api/v1/attributes/groups", {
+            code: str("attrGroupCode"),
+            name: str("attrGroupName"),
+            sortOrder: num("attrGroupSort")
+          })
+        )
+      );
+
+      document.getElementById("btnCreateAttrValue")?.addEventListener("click", () =>
+        run(() => {
+          const groupId = num("attrValueGroupId");
+          if (!groupId) throw new Error("Group ID is required.");
+          return request("POST", `/api/v1/attributes/groups/${groupId}/values`, {
+            code: str("attrValueCode"),
+            displayName: str("attrValueName"),
+            sortOrder: num("attrValueSort")
+          });
         })
-      ));
+      );
 
-      document.getElementById("btnCreateAttrValue")?.addEventListener("click", () => run(() => {
-        const gid = num("attrValueGroupId");
-        if (!gid) throw new Error("Group ID is required.");
-        return request("POST", `/api/v1/attributes/groups/${gid}/values`, {
-          code: str("attrValueCode"),
-          displayName: str("attrValueName"),
-          sortOrder: num("attrValueSort")
-        });
-      }));
+      document.getElementById("btnSaveAttrConfig")?.addEventListener("click", () =>
+        run(() =>
+          request("PUT", `/api/v1/products/${productId}/attribute-config`, parseJson(str("attrConfigJson")))
+        )
+      );
 
-      document.getElementById("btnSaveAttrConfig")?.addEventListener("click", () => run(() =>
-        request("PUT", `/api/v1/products/${productId}/attribute-config`, parseJson(str("attrConfigJson")))
-      ));
+      document.getElementById("btnGenerateVariants")?.addEventListener("click", () =>
+        run(() =>
+          request("POST", `/api/v1/products/${productId}/variants/generate`, {
+            mode: "MERGE",
+            preserveFields: ["sku", "barcode", "price", "cost", "stock", "enabled", "impossible"],
+            maxVariants: 2000
+          })
+        )
+      );
 
-      document.getElementById("btnGenerateVariants")?.addEventListener("click", () => run(() =>
-        request("POST", `/api/v1/products/${productId}/variants/generate`, {
-          mode: "MERGE",
-          preserveFields: ["sku", "barcode", "price", "cost", "stock", "enabled", "impossible"],
-          maxVariants: 2000
+      document.getElementById("btnUpsertSellUnit")?.addEventListener("click", () =>
+        run(() => {
+          const variantId = num("sellUnitVariantId");
+          if (!variantId) throw new Error("Variant ID is required.");
+          return request("POST", `/api/v1/variants/${variantId}/sell-units`, {
+            unitCode: str("sellUnitCode"),
+            conversionToBase: num("sellUnitConv"),
+            isBase: bool("sellUnitIsBase"),
+            basePrice: num("sellUnitPrice"),
+            enabled: bool("sellUnitEnabled")
+          });
         })
-      ));
+      );
 
-      document.getElementById("btnUpsertSellUnit")?.addEventListener("click", () => run(() => {
-        const variantId = num("sellUnitVariantId");
-        if (!variantId) throw new Error("Variant ID is required.");
-        return request("POST", `/api/v1/variants/${variantId}/sell-units`, {
-          unitCode: str("sellUnitCode"),
-          conversionToBase: num("sellUnitConv"),
-          isBase: bool("sellUnitIsBase"),
-          basePrice: num("sellUnitPrice"),
-          enabled: bool("sellUnitEnabled")
+      document.getElementById("btnReplaceTiers")?.addEventListener("click", () =>
+        run(() => {
+          const sellUnitId = num("tierSellUnitId");
+          if (!sellUnitId) throw new Error("Sell Unit ID is required.");
+          return request("PUT", `/api/v1/sell-units/${sellUnitId}/tier-prices`, parseJson(str("tierJson")));
+        })
+      );
+
+      document.getElementById("btnQuote")?.addEventListener("click", () =>
+        run(() => {
+          const variantId = num("quoteVariantId");
+          const sellUnitId = num("quoteSellUnitId");
+          const qty = num("quoteQty");
+          if (!variantId || !sellUnitId || !qty) {
+            throw new Error("Variant ID, Sell Unit ID, and Qty are required.");
+          }
+          return request("POST", "/api/v1/pos/pricing/quote", {
+            customerGroupCode: str("quoteGroup") || null,
+            currencyCode: "USD",
+            lines: [{ variantId, sellUnitId, qty }]
+          });
+        })
+      );
+
+      document.getElementById("btnDeduct")?.addEventListener("click", () =>
+        run(() => {
+          const sellUnitId = num("deductSellUnitId");
+          const qty = num("deductQty");
+          if (!sellUnitId || !qty) throw new Error("Sell Unit ID and Qty are required.");
+          return request("POST", "/api/v1/inventory/deduct", { sellUnitId, qty });
+        })
+      );
+    })();
+  </script>
+  <script>
+    (() => {
+      const rowsWrap = document.getElementById("uom-rows");
+      const addBtn = document.getElementById("uom-add-row");
+      const form = document.getElementById("product-form");
+      const baseUnitInput = document.getElementById("baseUnitName");
+      const legacyBasicUnitMirror = document.getElementById("legacyBasicUnitMirror");
+      const retailPriceInput = document.querySelector("input[name='price']");
+      const retailPriceUnitSelect = document.querySelector("select[name='retailPriceUnitToken']");
+      const lowStockInput = document.querySelector("input[name='lowStockThreshold']");
+      const lowStockUnitSelect = document.querySelector("select[name='lowStockThresholdUnitToken']");
+      const retailPriceBasePreview = document.getElementById("retailPriceBasePreview");
+      const lowStockBasePreview = document.getElementById("lowStockBasePreview");
+      if (!rowsWrap || !addBtn) return;
+
+      const baseUnitSelectNames = [
+        "retailPriceUnitToken",
+        "wholesalePriceUnitToken",
+        "wholesaleMinQtyUnitToken",
+        "lowStockThresholdUnitToken"
+      ];
+
+      const getBaseName = () => ((baseUnitInput?.value || "").trim() || "piece");
+
+      const conversionForSelect = (select) => {
+        if (!select) return 1;
+        const option = select.options[select.selectedIndex];
+        const raw = option?.dataset?.conversion;
+        const parsed = Number(raw);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+      };
+
+      const updateBaseSummaries = () => {
+        const baseName = getBaseName();
+        if (retailPriceBasePreview) {
+          const retailRaw = Number(retailPriceInput?.value ?? "");
+          if (Number.isFinite(retailRaw) && retailRaw >= 0) {
+            const conversion = conversionForSelect(retailPriceUnitSelect);
+            const perBase = retailRaw / conversion;
+            retailPriceBasePreview.textContent = `Retail Price per base = ${perBase.toFixed(2)} / ${baseName}`;
+          } else {
+            retailPriceBasePreview.textContent = "Retail Price per base = -";
+          }
+        }
+        if (lowStockBasePreview) {
+          const lowStockRaw = Number(lowStockInput?.value ?? "");
+          if (Number.isFinite(lowStockRaw) && lowStockRaw >= 0) {
+            const conversion = conversionForSelect(lowStockUnitSelect);
+            const thresholdBase = Math.round(lowStockRaw * conversion);
+            lowStockBasePreview.textContent = `Low stock threshold in base = ${thresholdBase} ${baseName}`;
+          } else {
+            lowStockBasePreview.textContent = "Low stock threshold in base = -";
+          }
+        }
+      };
+
+      const syncBaseUnitOptionLabels = () => {
+        const baseName = getBaseName();
+        baseUnitSelectNames.forEach((name) => {
+          document.querySelectorAll(`select[name='${name}'] option[value='BASE']`)
+            .forEach((option) => {
+              option.textContent = `${baseName} (base)`;
+            });
         });
-      }));
+        updateBaseSummaries();
+      };
 
-      document.getElementById("btnReplaceTiers")?.addEventListener("click", () => run(() => {
-        const sellUnitId = num("tierSellUnitId");
-        if (!sellUnitId) throw new Error("Sell Unit ID is required.");
-        return request("PUT", `/api/v1/sell-units/${sellUnitId}/tier-prices`, parseJson(str("tierJson")));
-      }));
+      const syncLegacyBasicUnit = () => {
+        if (!baseUnitInput || !legacyBasicUnitMirror) return;
+        legacyBasicUnitMirror.value = (baseUnitInput.value || "").trim();
+        syncBaseUnitOptionLabels();
+      };
 
-      document.getElementById("btnQuote")?.addEventListener("click", () => run(() => {
-        const variantId = num("quoteVariantId");
-        const sellUnitId = num("quoteSellUnitId");
-        const qty = num("quoteQty");
-        if (!variantId || !sellUnitId || !qty) throw new Error("Variant ID, Sell Unit ID, and Qty are required.");
-        return request("POST", "/api/v1/pos/pricing/quote", {
-          customerGroupCode: str("quoteGroup") || null,
-          currencyCode: "USD",
-          lines: [{ variantId, sellUnitId, qty }]
+      const reindexRadios = () => {
+        const rows = Array.from(rowsWrap.querySelectorAll(".uom-row"));
+        rows.forEach((row, index) => {
+          const saleRadio = row.querySelector("input[name='packagingDefaultSaleIndex']");
+          const purchaseRadio = row.querySelector("input[name='packagingDefaultPurchaseIndex']");
+          if (saleRadio) saleRadio.value = String(index);
+          if (purchaseRadio) purchaseRadio.value = String(index);
         });
-      }));
+      };
 
-      document.getElementById("btnDeduct")?.addEventListener("click", () => run(() => {
-        const sellUnitId = num("deductSellUnitId");
-        const qty = num("deductQty");
-        if (!sellUnitId || !qty) throw new Error("Sell Unit ID and Qty are required.");
-        return request("POST", "/api/v1/inventory/deduct", { sellUnitId, qty });
-      }));
+      const removeRow = (btn) => {
+        const row = btn.closest(".uom-row");
+        if (!row) return;
+        row.remove();
+        reindexRadios();
+      };
+
+      const createRow = () => {
+        const tr = document.createElement("tr");
+        tr.className = "uom-row border-b border-slate-200/80 last:border-0";
+        tr.innerHTML = `
+          <td class="py-2 pr-2">
+            <input type="hidden" name="packagingId" value="">
+            <input name="packagingName" class="w-32 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="Bundle">
+          </td>
+          <td class="py-2 pr-2">
+            <input name="packagingAbbreviation" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="BDL">
+          </td>
+          <td class="py-2 pr-2">
+            <input name="packagingConversionToBase" type="number" step="0.0001" min="0.0001"
+                   class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="12">
+          </td>
+          <td class="py-2 pr-2">
+            <select name="packagingAllowForSale" class="rounded-lg border border-slate-200 px-2 py-1.5 bg-white">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </td>
+          <td class="py-2 pr-2">
+            <select name="packagingAllowForPurchase" class="rounded-lg border border-slate-200 px-2 py-1.5 bg-white">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </td>
+          <td class="py-2 pr-2">
+            <input type="radio" name="packagingDefaultSaleIndex" value="">
+          </td>
+          <td class="py-2 pr-2">
+            <input type="radio" name="packagingDefaultPurchaseIndex" value="">
+          </td>
+          <td class="py-2 pr-2">
+            <input name="packagingBarcode" class="w-36 rounded-lg border border-slate-200 px-2 py-1.5 bg-white" placeholder="Optional">
+          </td>
+          <td class="py-2 text-right">
+            <button type="button"
+                    class="uom-remove-row rounded-lg border border-rose-200 bg-white px-2 py-1 text-rose-700 hover:bg-rose-50 transition">
+              Remove
+            </button>
+          </td>
+        `;
+        rowsWrap.appendChild(tr);
+        reindexRadios();
+      };
+
+      rowsWrap.addEventListener("click", (event) => {
+        const btn = event.target.closest(".uom-remove-row");
+        if (!btn) return;
+        removeRow(btn);
+      });
+      addBtn.addEventListener("click", () => createRow());
+
+      if (retailPriceInput) retailPriceInput.addEventListener("input", updateBaseSummaries);
+      if (retailPriceUnitSelect) retailPriceUnitSelect.addEventListener("change", updateBaseSummaries);
+      if (lowStockInput) lowStockInput.addEventListener("input", updateBaseSummaries);
+      if (lowStockUnitSelect) lowStockUnitSelect.addEventListener("change", updateBaseSummaries);
+
+      if (baseUnitInput) {
+        baseUnitInput.addEventListener("input", syncLegacyBasicUnit);
+        syncLegacyBasicUnit();
+      } else {
+        syncBaseUnitOptionLabels();
+      }
+      reindexRadios();
+
+      if (form) {
+        const submitButtons = Array.from(form.querySelectorAll("button[type='submit']"));
+        let hasUnsavedChanges = false;
+        let isSubmitting = false;
+
+        const markDirty = () => {
+          if (!isSubmitting) {
+            hasUnsavedChanges = true;
+          }
+        };
+
+        form.addEventListener("input", markDirty, true);
+        form.addEventListener("change", markDirty, true);
+
+        form.addEventListener("submit", (event) => {
+          const firstInvalid = form.querySelector(":invalid");
+          if (firstInvalid) {
+            event.preventDefault();
+            firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+            firstInvalid.focus({ preventScroll: true });
+            form.reportValidity();
+            return;
+          }
+          isSubmitting = true;
+          hasUnsavedChanges = false;
+          submitButtons.forEach((button) => {
+            if (!button.dataset.originalText) {
+              button.dataset.originalText = button.textContent || "Save";
+            }
+            button.disabled = true;
+            button.classList.add("opacity-60", "cursor-not-allowed");
+            button.textContent = "Saving...";
+          });
+        });
+
+        window.addEventListener("beforeunload", (event) => {
+          if (!hasUnsavedChanges || isSubmitting) return;
+          event.preventDefault();
+          event.returnValue = "";
+        });
+      }
+
+      updateBaseSummaries();
     })();
   </script>
 </body>

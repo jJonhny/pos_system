@@ -89,7 +89,8 @@
                 <tbody>
                   <tr th:each="it : ${sale.items}" class="border-t border-slate-100">
                     <td class="px-5 py-4">
-                      <div class="font-semibold text-slate-900" th:text="${it.product.name}">Product</div>
+                      <div class="font-semibold text-slate-900"
+                           th:text="${it.safeProductName != null ? it.safeProductName : #messages.msg('receipt.itemDefault')}">Product</div>
                       <div class="text-xs text-slate-500" th:text="${@uiFormat.money(it.unitPrice)}">$0.00</div>
                       <div class="text-[11px] text-slate-400"
                            th:if="${it.unitType != null and it.unitType.name() != 'PIECE'}"

@@ -7,6 +7,7 @@ import { UsersPage } from '../pages/UsersPage'
 import { ProductsPage } from '../pages/ProductsPage'
 import { InventoryPage } from '../pages/InventoryPage'
 import { ReportsPage } from '../pages/ReportsPage'
+import { SuppliersPage } from '../pages/SuppliersPage'
 import { AuditLogsPage } from '../pages/AuditLogsPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { UnauthorizedPage } from '../pages/UnauthorizedPage'
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
               {
                 path: 'inventory',
                 element: <InventoryPage />
+              },
+              {
+                path: 'suppliers',
+                element: <SuppliersPage />
               },
               {
                 path: 'reports',

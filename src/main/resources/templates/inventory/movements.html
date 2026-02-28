@@ -109,10 +109,10 @@
               <tr th:each="m : ${movements}">
                 <td class="px-4 py-3 whitespace-nowrap text-slate-700" th:text="${m.createdAt != null ? #temporals.format(m.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">2026-02-14</td>
                 <td class="px-4 py-3 text-slate-700">
-                  <div class="font-medium" th:text="${m.product != null ? m.product.name : 'Unknown'}">Product</div>
-                  <div class="text-xs text-slate-500" th:text="${m.product != null ? m.product.sku : ''}">SKU</div>
+                  <div class="font-medium" th:text="${m.productName}">Product</div>
+                  <div class="text-xs text-slate-500" th:text="${m.productSku}">SKU</div>
                 </td>
-                <td class="px-4 py-3"><span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700" th:text="${m.type}">SALE</span></td>
+                <td class="px-4 py-3"><span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700" th:text="${@uiFormat.stockMovementTypeLabel(m.type)}">SALE</span></td>
                 <td class="px-4 py-3 text-right font-semibold" th:classappend="${m.qtyDelta != null and m.qtyDelta < 0} ? ' text-rose-600' : ' text-emerald-700'" th:text="${m.qtyDelta}">0</td>
                 <td class="px-4 py-3 text-right text-slate-700" th:text="${m.unitCost != null ? #numbers.formatDecimal(m.unitCost, 1, 4) : '-'}">0.0000</td>
                 <td class="px-4 py-3 text-slate-700" th:text="${(m.refType != null ? m.refType : '-') + ' #' + (m.refId != null ? m.refId : '-')}">SALE #1</td>

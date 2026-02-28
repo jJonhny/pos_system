@@ -171,7 +171,7 @@
                 <div class="grid grid-cols-2 gap-2">
                   <label th:each="p : ${permissions}" class="flex items-center gap-2 rounded-lg border border-slate-200 px-2 py-1.5 text-xs text-slate-700">
                     <input type="checkbox" name="permissions" th:value="${p}" class="rounded border-slate-300"/>
-                    <span th:text="${p}">PERMISSION</span>
+                    <span th:text="${@uiFormat.permissionLabel(p)}">PERMISSION</span>
                   </label>
                 </div>
               </div>
@@ -234,7 +234,7 @@
                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
                                focus:outline-none focus:ring-2 focus:ring-slate-300">
                   <option value="" th:selected="${role == null}">All roles</option>
-                  <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${role == r}"></option>
+                  <option th:each="r : ${roles}" th:value="${r}" th:text="${@uiFormat.userRoleLabel(r)}" th:selected="${role == r}"></option>
                 </select>
               </div>
               <div>
@@ -280,12 +280,14 @@
                                  focus:outline-none focus:ring-2 focus:ring-slate-300">
                     <option value="activate">Activate accounts</option>
                     <option value="deactivate">Deactivate accounts</option>
+                    <option value="unlock">Unlock accounts</option>
                     <option value="role">Change role</option>
                     <option value="add-perm">Add permission</option>
                     <option value="remove-perm">Remove permission</option>
                     <option value="reset-password">Reset password (temporary)</option>
                     <option value="require-mfa">Require MFA</option>
                     <option value="clear-mfa">Clear MFA requirement</option>
+                    <option value="reset-otp">Reset OTP setup</option>
                   </select>
                 </div>
                 <div id="bulkRoleWrap" class="lg:col-span-1 hidden">
@@ -293,7 +295,7 @@
                   <select name="role"
                           class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
                                  focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${@uiFormat.userRoleLabel(r)}"></option>
                   </select>
                 </div>
                 <div id="bulkPermWrap" class="lg:col-span-1 hidden">
@@ -301,7 +303,7 @@
                   <select name="permission"
                           class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
                                  focus:outline-none focus:ring-2 focus:ring-slate-300">
-                    <option th:each="p : ${permissions}" th:value="${p}" th:text="${p}"></option>
+                    <option th:each="p : ${permissions}" th:value="${p}" th:text="${@uiFormat.permissionLabel(p)}"></option>
                   </select>
                 </div>
                 <div id="bulkPasswordWrap" class="lg:col-span-1 hidden">
@@ -347,7 +349,7 @@
                       <div class="mt-2 flex flex-wrap items-center gap-2">
                         <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
                               th:classappend="${u.role.name() == 'ADMIN'} ? ' bg-slate-900 text-white' : (${u.role.name() == 'MANAGER'} ? ' bg-amber-100 text-amber-800' : ' bg-emerald-100 text-emerald-700')"
-                              th:text="${u.role}">ROLE</span>
+                              th:text="${@uiFormat.userRoleLabel(u.role)}">ROLE</span>
                         <span th:if="${isSelf}"
                               class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">You</span>
                       </div>
@@ -355,19 +357,24 @@
                     <td class="px-6 py-4">
                       <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
                             th:classappend="${u.active} ? ' bg-emerald-100 text-emerald-700' : ' bg-rose-100 text-rose-700'"
-                            th:text="${u.active} ? 'Active' : 'Inactive'">Active</span>
+                            th:text="${u.active} ? #messages.msg('supplier.status.active') : #messages.msg('supplier.status.inactive')">Active</span>
                       <div class="mt-2 flex flex-wrap gap-2 text-xs">
                         <span th:if="${u.mustResetPassword}"
                               class="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">Reset required</span>
                         <span th:if="${u.mfaRequired}"
                               class="rounded-full bg-indigo-100 px-2 py-0.5 font-semibold text-indigo-700">MFA required</span>
+                        <span th:if="${u.lockedUntil != null and u.lockedUntil.isAfter(T(java.time.LocalDateTime).now())}"
+                              class="rounded-full bg-rose-100 px-2 py-0.5 font-semibold text-rose-700">Locked</span>
+                        <span th:if="${u.lockedUntil != null and u.lockedUntil.isAfter(T(java.time.LocalDateTime).now())}"
+                              class="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-600"
+                              th:text="${'until ' + #temporals.format(u.lockedUntil, 'yyyy-MM-dd HH:mm')}">until 2026-01-01 00:00</span>
                       </div>
                     </td>
                     <td class="px-6 py-4">
                       <div th:if="${u.permissions != null and !u.permissions.isEmpty()}" class="flex flex-wrap gap-1">
                         <span th:each="p : ${u.permissions}"
                               class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700"
-                              th:text="${p}">PERMISSION</span>
+                              th:text="${@uiFormat.permissionLabel(p)}">PERMISSION</span>
                       </div>
                       <span th:if="${u.permissions == null or u.permissions.isEmpty()}" class="text-xs text-slate-500">None</span>
                     </td>
@@ -406,6 +413,13 @@
                                     th:text="${u.active} ? 'Deactivate' : 'Activate'"></button>
                           </form>
 
+                          <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/unlock'}" method="post" class="flex items-center gap-2">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button class="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition">
+                              Unlock account
+                            </button>
+                          </form>
+
                           <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/password'}" method="post" class="grid grid-cols-1 gap-2">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <input name="password" type="password" placeholder="New password"
@@ -429,7 +443,7 @@
                             <select name="permissions" multiple
                                     class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs h-28
                                            focus:outline-none focus:ring-2 focus:ring-slate-300">
-                              <option th:each="p : ${permissions}" th:value="${p}" th:text="${p}"
+                              <option th:each="p : ${permissions}" th:value="${p}" th:text="${@uiFormat.permissionLabel(p)}"
                                       th:selected="${u.permissions != null and u.permissions.contains(p)}"></option>
                             </select>
                             <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition">
@@ -442,6 +456,14 @@
                             <input type="hidden" name="required" th:value="${!u.mfaRequired}"/>
                             <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition"
                                     th:text="${u.mfaRequired} ? 'Clear MFA' : 'Require MFA'"></button>
+                          </form>
+
+                          <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/otp/reset'}" method="post" class="flex items-center gap-2"
+                                th:onsubmit="|return confirm('${#messages.msg('users.otp.reset.confirm')}');|">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button class="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition">
+                              Reset OTP setup
+                            </button>
                           </form>
                         </div>
                       </details>

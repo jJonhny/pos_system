@@ -55,7 +55,7 @@
             <label class="text-xs font-semibold text-slate-600">Type</label>
             <select name="type" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5">
               <option value="">All</option>
-              <option th:each="t : ${types}" th:value="${t}" th:selected="${type == t}" th:text="${t}">SALE</option>
+              <option th:each="t : ${types}" th:value="${t}" th:selected="${type == t}" th:text="${@uiFormat.stockMovementTypeLabel(t)}">SALE</option>
             </select>
           </div>
           <div class="flex items-end gap-2">
@@ -90,8 +90,8 @@
               </tr>
               <tr th:each="r : ${rows}">
                 <td class="px-4 py-3" th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">date</td>
-                <td class="px-4 py-3" th:text="${r.product != null ? r.product.name : '-'}">product</td>
-                <td class="px-4 py-3" th:text="${r.type}">SALE</td>
+                <td class="px-4 py-3" th:text="${r.productName}">product</td>
+                <td class="px-4 py-3" th:text="${@uiFormat.stockMovementTypeLabel(r.type)}">SALE</td>
                 <td class="px-4 py-3 text-right font-semibold" th:classappend="${r.qtyDelta != null and r.qtyDelta < 0} ? ' text-rose-600' : ' text-emerald-700'" th:text="${r.qtyDelta}">0</td>
                 <td class="px-4 py-3" th:text="${(r.refType != null ? r.refType : '-') + ' #' + (r.refId != null ? r.refId : '-')}">ref</td>
                 <td class="px-4 py-3" th:text="${r.terminalId}">TERM</td>

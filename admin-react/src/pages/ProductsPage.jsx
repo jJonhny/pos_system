@@ -95,128 +95,198 @@ export function ProductsPage() {
     <div className="page">
       <div className="page-head">
         <h2>Product Management</h2>
-        <p>Backed by `GET/POST/PUT /api/v1/products/*`</p>
+        <p>Create, manage, and track all products in your catalog</p>
       </div>
 
       <div className="panel">
-        <h3>Create Product</h3>
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 700 }}>📝 Add New Product</h3>
         <form className="stack-form" onSubmit={onCreate}>
-          <label>
-            Name
-            <input
-              required
-              value={form.name}
-              onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
-            />
-          </label>
-          <label>
-            SKU
-            <input value={form.sku} onChange={(e) => setForm((s) => ({ ...s, sku: e.target.value }))} />
-          </label>
-          <label>
-            Barcode
-            <input
-              value={form.barcode}
-              onChange={(e) => setForm((s) => ({ ...s, barcode: e.target.value }))}
-            />
-          </label>
-          <label>
-            Price
-            <input
-              type="number"
-              step="0.01"
-              value={form.price}
-              onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))}
-            />
-          </label>
-          <label>
-            Cost Price
-            <input
-              type="number"
-              step="0.01"
-              value={form.costPrice}
-              onChange={(e) => setForm((s) => ({ ...s, costPrice: e.target.value }))}
-            />
-          </label>
-          <label>
-            Low Stock Threshold
-            <input
-              type="number"
-              value={form.lowStockThreshold}
-              onChange={(e) => setForm((s) => ({ ...s, lowStockThreshold: e.target.value }))}
-            />
-          </label>
-          <label>
-            Category ID (optional)
-            <input
-              type="number"
-              value={form.categoryId}
-              onChange={(e) => setForm((s) => ({ ...s, categoryId: e.target.value }))}
-            />
-          </label>
-          <button className="btn btn-primary" type="submit">
-            Create Product
-          </button>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>
+                Product Name <span style={{ color: 'var(--bad)' }}>*</span>
+              </span>
+              <input
+                required
+                placeholder="Enter product name"
+                value={form.name}
+                onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>SKU</span>
+              <input
+                placeholder="Enter SKU"
+                value={form.sku}
+                onChange={(e) => setForm((s) => ({ ...s, sku: e.target.value }))}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>Barcode</span>
+              <input
+                placeholder="Enter barcode"
+                value={form.barcode}
+                onChange={(e) => setForm((s) => ({ ...s, barcode: e.target.value }))}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>Price</span>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={form.price}
+                onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>Cost Price</span>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={form.costPrice}
+                onChange={(e) => setForm((s) => ({ ...s, costPrice: e.target.value }))}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>Low Stock Threshold</span>
+              <input
+                type="number"
+                placeholder="5"
+                value={form.lowStockThreshold}
+                onChange={(e) => setForm((s) => ({ ...s, lowStockThreshold: e.target.value }))}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '8px' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)' }}>Category ID (optional)</span>
+              <input
+                type="number"
+                placeholder="Enter category ID"
+                value={form.categoryId}
+                onChange={(e) => setForm((s) => ({ ...s, categoryId: e.target.value }))}
+              />
+            </label>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <button className="btn btn-primary" type="submit">
+              ➕ Create Product
+            </button>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={() => setForm({ name: '', sku: '', barcode: '', price: '', costPrice: '', lowStockThreshold: '', categoryId: '' })}
+            >
+              Clear
+            </button>
+          </div>
         </form>
       </div>
 
       <div className="panel">
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 700 }}>🔍 Search & Filter</h3>
         <form className="inline-form" onSubmit={(e) => e.preventDefault()}>
           <input
-            placeholder="Search by name / SKU / barcode"
+            placeholder="Search by name, SKU, or barcode..."
             value={query}
+            onFocus={(e) => { if (e.target.value === '') e.target.placeholder = ''; }}
+            onBlur={(e) => { if (e.target.value === '') e.target.placeholder = 'Search by name, SKU, or barcode...'; }}
             onChange={(e) => setQuery(e.target.value)}
+            style={{ flex: 1, minWidth: '200px' }}
           />
-          <button className="btn btn-outline" onClick={load}>
+          <button className="btn btn-primary" onClick={load}>
             Search
           </button>
         </form>
       </div>
 
-      {flash && <p className="status-ok">{flash}</p>}
-      {error && <p className="status-error">{error}</p>}
+      {flash && (
+        <div className="status-ok" style={{ margin: '16px 0' }}>
+          <strong>✓</strong> {flash}
+        </div>
+      )}
+      {error && (
+        <div className="status-error" style={{ margin: '16px 0' }}>
+          <strong>⚠️</strong> {error}
+        </div>
+      )}
 
       <div className="panel">
-        <h3>Products</h3>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>SKU</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Low Stock</th>
-                <th>Active</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.id}</td>
-                  <td>{p.name}</td>
-                  <td>{p.sku || '-'}</td>
-                  <td>{p.price ?? '-'}</td>
-                  <td>{p.stockQty ?? 0}</td>
-                  <td>{p.lowStock ? 'Yes' : 'No'}</td>
-                  <td>{p.active ? 'Yes' : 'No'}</td>
-                  <td>
-                    <button className="btn btn-outline" onClick={() => onToggleActive(p)}>
-                      {p.active ? 'Disable' : 'Enable'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {items.length === 0 && (
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 700 }}>
+          📦 Products <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 500 }}>({items.length})</span>
+        </h3>
+        {items.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--muted)' }}>
+            <p style={{ margin: 0, fontSize: '1rem', fontWeight: 500 }}>No products found</p>
+            <p style={{ margin: '8px 0 0', fontSize: '0.9rem' }}>Create your first product to get started</p>
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan={8}>No products found.</td>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>SKU</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {items.map((p) => (
+                  <tr key={p.id}>
+                    <td style={{ fontWeight: 600, color: 'var(--brand)' }}>{p.id}</td>
+                    <td>
+                      <strong>{p.name}</strong>
+                      {p.sku && <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '4px 0 0' }}>SKU: {p.sku}</p>}
+                    </td>
+                    <td>{p.sku || '—'}</td>
+                    <td style={{ fontWeight: 600 }}>
+                      {p.price ? `$${String(p.price).includes('.') ? p.price : p.price + '.00'}` : '—'}
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          backgroundColor: (p.stockQty ?? 0) <= (p.lowStockThreshold || 5) ? 'var(--warning-light)' : 'var(--good-light)',
+                          color: (p.stockQty ?? 0) <= (p.lowStockThreshold || 5) ? 'var(--warning)' : 'var(--good)'
+                        }}
+                      >
+                        {p.stockQty ?? 0}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          backgroundColor: p.active ? 'var(--good-light)' : 'var(--bad-light)',
+                          color: p.active ? 'var(--good)' : 'var(--bad)'
+                        }}
+                      >
+                        {p.active ? '✓ Active' : '✕ Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn btn-secondary" onClick={() => onToggleActive(p)} style={{ fontSize: '0.9rem' }}>
+                        {p.active ? 'Disable' : 'Enable'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

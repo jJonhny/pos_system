@@ -112,131 +112,189 @@ export function UsersPage() {
     <div className="page">
       <div className="page-head">
         <h2>User Management</h2>
-        <p>Backed by `GET/POST/PATCH/PUT /api/v1/users/*`</p>
+        <p>Create and manage user accounts, roles, and permissions</p>
       </div>
 
       <div className="panel">
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 700 }}>🔍 Search Users</h3>
         <form className="inline-form" onSubmit={(e) => e.preventDefault()}>
           <input
-            placeholder="Search username/email"
+            placeholder="Search by username or email..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            style={{ flex: 1, minWidth: '200px' }}
           />
-          <button className="btn btn-outline" onClick={load}>
+          <button className="btn btn-primary" onClick={load}>
             Search
           </button>
         </form>
       </div>
 
       <div className="panel">
-        <h3>Create User</h3>
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 700 }}>➕ Create New User</h3>
         <form className="stack-form" onSubmit={onCreate}>
-          <label>
-            Username
-            <input
-              required
-              value={form.username}
-              onChange={(e) => setForm((s) => ({ ...s, username: e.target.value }))}
-            />
-          </label>
-          <label>
-            Email
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
-            />
-          </label>
-          <label>
-            Password
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={form.password}
-              onChange={(e) => setForm((s) => ({ ...s, password: e.target.value }))}
-            />
-          </label>
-          <label>
-            Role
-            <select
-              value={form.role}
-              onChange={(e) => setForm((s) => ({ ...s, role: e.target.value }))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+            <label>
+              Username <span style={{ color: 'var(--bad)' }}>*</span>
+              <input
+                required
+                placeholder="e.g., john.doe (not email)"
+                value={form.username}
+                onChange={(e) => setForm((s) => ({ ...s, username: e.target.value }))}
+                title="Enter a username (e.g., john.doe), not an email address"
+              />
+            </label>
+            <label>
+              Email
+              <input
+                type="email"
+                placeholder="e.g., john@example.com"
+                value={form.email}
+                onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
+              />
+            </label>
+            <label>
+              Password <span style={{ color: 'var(--bad)' }}>*</span>
+              <input
+                type="password"
+                required
+                minLength={8}
+                placeholder="Min 8 characters"
+                value={form.password}
+                onChange={(e) => setForm((s) => ({ ...s, password: e.target.value }))}
+              />
+            </label>
+            <label>
+              Role <span style={{ color: 'var(--bad)' }}>*</span>
+              <select
+                value={form.role}
+                onChange={(e) => setForm((s) => ({ ...s, role: e.target.value }))}
+              >
+                {ROLE_OPTIONS.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+            <button className="btn btn-primary" type="submit">
+              ✓ Create User
+            </button>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={() => setForm({ username: '', email: '', password: '', role: ROLES.CASHIER })}
             >
-              {ROLE_OPTIONS.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="btn btn-primary" type="submit">
-            Create
-          </button>
+              Clear
+            </button>
+          </div>
         </form>
       </div>
 
-      {flash && <p className="status-ok">{flash}</p>}
-      {error && <p className="status-error">{error}</p>}
+      {flash && (
+        <div className="status-ok" style={{ margin: '16px 0' }}>
+          <strong>✓</strong> {flash}
+        </div>
+      )}
+      {error && (
+        <div className="status-error" style={{ margin: '16px 0' }}>
+          <strong>⚠️</strong> {error}
+        </div>
+      )}
 
       <div className="panel">
-        <h3>Users ({pageData.totalElements || 0})</h3>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Active</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(pageData.items || []).map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.username}</td>
-                  <td>{user.email || '-'}</td>
-                  <td>
-                    <div className="inline-form">
-                      <select
-                        value={rowRoleDraft[user.id] || user.role}
-                        onChange={(e) =>
-                          setRowRoleDraft((s) => ({ ...s, [user.id]: e.target.value }))
-                        }
-                      >
-                        {ROLE_OPTIONS.map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                      </select>
-                      <button className="btn btn-outline" onClick={() => onUpdateRole(user.id)}>
-                        Save
-                      </button>
-                    </div>
-                  </td>
-                  <td>{user.active ? 'Yes' : 'No'}</td>
-                  <td>
-                    <div className="inline-form">
-                      <button className="btn btn-outline" onClick={() => onToggleStatus(user)}>
-                        {user.active ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button
-                        className="btn btn-outline"
-                        onClick={() => onClearPermissions(user.id)}
-                      >
-                        Clear Perms
-                      </button>
-                    </div>
-                  </td>
+        <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', fontWeight: 700 }}>
+          👥 Users <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 500 }}>({pageData.totalElements || 0})</span>
+        </h3>
+        {pageData.items && pageData.items.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--muted)' }}>
+            <p style={{ margin: 0, fontSize: '1rem', fontWeight: 500 }}>No users found</p>
+            <p style={{ margin: '8px 0 0', fontSize: '0.9rem' }}>Create your first user to get started</p>
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {(pageData.items || []).map((user) => (
+                  <tr key={user.id}>
+                    <td style={{ fontWeight: 600, color: 'var(--brand)' }}>{user.id}</td>
+                    <td style={{ fontWeight: 600 }}>{user.username}</td>
+                    <td>{user.email || '—'}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <select
+                          value={rowRoleDraft[user.id] || user.role}
+                          onChange={(e) =>
+                            setRowRoleDraft((s) => ({ ...s, [user.id]: e.target.value }))
+                          }
+                          style={{ minWidth: '120px' }}
+                        >
+                          {ROLE_OPTIONS.map((role) => (
+                            <option key={role} value={role}>
+                              {role}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => onUpdateRole(user.id)}
+                          style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          backgroundColor: user.active ? 'var(--good-light)' : 'var(--bad-light)',
+                          color: user.active ? 'var(--good)' : 'var(--bad)'
+                        }}
+                      >
+                        {user.active ? '✓ Active' : '✕ Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => onToggleStatus(user)}
+                          style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                        >
+                          {user.active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => onClearPermissions(user.id)}
+                          style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                        >
+                          Clear Perms
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -162,7 +162,7 @@
     }
     .nav-dropdown-footer {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0;
       margin-top: 0.25rem;
       border-top: 1px solid #e2e8f0;
@@ -313,6 +313,11 @@
         <a href="/categories" class="nav-dropdown-footer-link"
            sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')">
           Categories
+        </a>
+        <a href="/msw" class="nav-dropdown-footer-link"
+           sec:authorize="hasAnyRole('ADMIN','MANAGER') or hasAuthority('PERM_MANAGE_INVENTORY')"
+           th:text="#{nav.msw}">
+          MSW
         </a>
       </div>
     </div>

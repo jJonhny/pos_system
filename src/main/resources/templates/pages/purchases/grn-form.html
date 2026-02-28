@@ -77,13 +77,31 @@
                         th:with="remaining=${(line.orderedQty != null ? line.orderedQty : 0) - (line.receivedQty != null ? line.receivedQty : 0)}">
                 <div th:if="${remaining > 0}"
                      class="grn-line-row grid grid-cols-12 gap-2 items-end rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <div class="col-span-12 md:col-span-5">
+                  <div class="col-span-12 md:col-span-4">
                     <label class="text-xs font-semibold text-slate-600">Product</label>
-                    <select name="grnProductId" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required>
-                      <option th:each="p : ${products}" th:value="${p.id}" th:selected="${line.product != null and line.product.id == p.id}" th:text="${p.name}">Product</option>
+                    <select name="grnProductId" class="uom-product-select mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required>
+                      <option th:each="p : ${products}"
+                              th:value="${p.id}"
+                              th:selected="${line.product != null and line.product.id == p.id}"
+                              th:text="${p.name}"
+                              th:attr="data-base-unit=${p.baseUnitName != null ? p.baseUnitName : 'base'}">Product</option>
                     </select>
                   </div>
-                  <div class="col-span-6 md:col-span-3">
+                  <div class="col-span-6 md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-600">Unit</label>
+                    <select name="grnUnitId" class="uom-unit-select mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                      <option value="">Base</option>
+                      <th:block th:each="p : ${products}">
+                        <option th:each="u : ${p.productUnits}"
+                                th:value="${u.id}"
+                                th:selected="${line.unitId != null and line.unitId == u.id}"
+                                th:text="${u.name + ' (' + u.conversionToBase + ')'}"
+                                th:attr="data-product-id=${p.id}"
+                                hidden>Unit</option>
+                      </th:block>
+                    </select>
+                  </div>
+                  <div class="col-span-6 md:col-span-2">
                     <label class="text-xs font-semibold text-slate-600">Received Qty</label>
                     <input name="grnReceivedQty" type="number" min="1" step="1" th:value="${remaining}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" required/>
                   </div>
@@ -115,5 +133,50 @@
       </form>
     </main>
   </div>
+  <script>
+    (() => {
+      const linesWrap = document.getElementById("grn-lines");
+      if (!linesWrap) return;
+
+      const syncRowUnits = (row) => {
+        if (!row) return;
+        const productSelect = row.querySelector(".uom-product-select");
+        const unitSelect = row.querySelector(".uom-unit-select");
+        if (!productSelect || !unitSelect) return;
+        const selectedProductId = productSelect.value ? String(productSelect.value) : "";
+        Array.from(unitSelect.options).forEach((option) => {
+          const productId = option.dataset.productId || "";
+          if (!productId) {
+            option.hidden = false;
+            return;
+          }
+          option.hidden = productId !== selectedProductId;
+          if (option.hidden && option.selected) {
+            unitSelect.value = "";
+          }
+        });
+      };
+
+      const syncAllRows = () => {
+        linesWrap.querySelectorAll(".grn-line-row").forEach(syncRowUnits);
+      };
+
+      linesWrap.addEventListener("change", (event) => {
+        const productSelect = event.target.closest(".uom-product-select");
+        if (!productSelect) return;
+        syncRowUnits(productSelect.closest(".grn-line-row"));
+      });
+
+      document.body.addEventListener("htmx:afterSwap", (event) => {
+        const target = event.detail && event.detail.target;
+        if (!target) return;
+        if (target.id === "grn-lines" || target.closest("#grn-lines")) {
+          syncAllRows();
+        }
+      });
+
+      syncAllRows();
+    })();
+  </script>
 </body>
 </html>

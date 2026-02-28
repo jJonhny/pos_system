@@ -197,24 +197,16 @@
       const statusEl = document.getElementById("categoryImagePasteStatus");
       if (!fileInput || !pasteZone || !previewWrap || !previewImage) return;
 
+      const defaultStatus = "Clipboard paste is enabled for copied icons and screenshots.";
       let previewUrl = null;
 
-      /**
-       * Executes the setStatus function.
-       * @param {*} message Input parameter used by this function.
-       * @param {*} isError Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      const setStatus = (message, isError) => {
+      const setStatus = (message, isError = false) => {
         if (!statusEl) return;
         statusEl.textContent = message;
         statusEl.classList.toggle("text-rose-600", Boolean(isError));
         statusEl.classList.toggle("text-slate-500", !isError);
       };
 
-      /**
       const clearPreviewUrl = () => {
         if (!previewUrl) return;
         URL.revokeObjectURL(previewUrl);
@@ -223,104 +215,32 @@
 
       const showPreview = (file) => {
         clearPreviewUrl();
-      /**
-       * Executes the clearPreviewUrl function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         previewUrl = URL.createObjectURL(file);
         previewImage.src = previewUrl;
         previewWrap.classList.remove("hidden");
         previewWrap.classList.add("flex");
-      /**
-       * Executes the showPreview function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-      /**
-       * Executes the showPreview function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-       * Executes the showPreview function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       };
 
-      /**
-       * Executes the clearSelection function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const clearSelection = () => {
         fileInput.value = "";
         clearPreviewUrl();
-        previewImage.src = "";
+        previewImage.removeAttribute("src");
         previewWrap.classList.remove("flex");
         previewWrap.classList.add("hidden");
-      /**
-       * Executes the clearSelection function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the clearSelection function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-        setStatus("Clipboard paste is enabled for copied icons and screenshots.", false);
+        setStatus(defaultStatus, false);
       };
 
-      /**
-       * Executes the toClipboardFile function.
-       * @param {*} item Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const toClipboardFile = (item) => {
+        if (!item || typeof item.getAsFile !== "function") return null;
         const file = item.getAsFile();
         if (!file) return null;
         if (file.name && file.name.trim().length > 0) return file;
         const ext = file.type && file.type.includes("/") ? file.type.split("/")[1] : "png";
         return new File([file], `pasted-image-${Date.now()}.${ext}`, {
           type: file.type || "image/png"
-      /**
-       * Executes the toClipboardFile function.
-       * @param {*} item Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the toClipboardFile function.
-       * @param {*} item Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         });
       };
 
-      /**
-       * Executes the readImageFromClipboard function.
-       * @param {*} clipboardData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const readImageFromClipboard = (clipboardData) => {
         if (!clipboardData || !clipboardData.items) return null;
         for (const item of clipboardData.items) {
@@ -328,63 +248,27 @@
             return toClipboardFile(item);
           }
         }
-      /**
-       * Executes the readImageFromClipboard function.
-       * @param {*} clipboardData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the readImageFromClipboard function.
-       * @param {*} clipboardData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         return null;
       };
 
-      /**
-       * Executes the assignFile function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const assignFile = (file) => {
+        if (!file || !file.type || !file.type.startsWith("image/")) {
+          setStatus("Only image files are allowed.", true);
+          return;
+        }
+        showPreview(file);
         try {
-          const transfer = new DataTransfer();
-          transfer.items.add(file);
-          fileInput.files = transfer.files;
-          showPreview(file);
+          if (window.DataTransfer) {
+            const transfer = new DataTransfer();
+            transfer.items.add(file);
+            fileInput.files = transfer.files;
+          }
           setStatus(`Image selected: ${file.name || "pasted image"}`, false);
-      /**
-       * Executes the assignFile function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the assignFile function.
-       * @param {*} file Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-        } catch (error) {
-          setStatus("This browser blocked clipboard image auto-fill. Please choose file manually.", true);
+        } catch (_error) {
+          setStatus("Preview updated, but browser blocked file auto-fill. Choose the file manually if needed.", true);
         }
       };
 
-      /**
-       * Executes the handlePaste function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const handlePaste = (event) => {
         const file = readImageFromClipboard(event.clipboardData);
         if (!file) return;
@@ -392,44 +276,12 @@
         assignFile(file);
       };
 
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const handleDrop = (event) => {
         event.preventDefault();
         pasteZone.classList.remove("border-slate-400", "bg-slate-100");
         const files = event.dataTransfer?.files;
         const file = files && files.length > 0 ? files[0] : null;
         if (!file) return;
-        if (!file.type || !file.type.startsWith("image/")) {
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the handleDrop function.
-       * @param {*} event Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-          setStatus("Only image files are allowed.", true);
-          return;
-        }
         assignFile(file);
       };
 
@@ -439,8 +291,7 @@
           clearSelection();
           return;
         }
-        showPreview(file);
-        setStatus(`Image selected: ${file.name || "uploaded image"}`, false);
+        assignFile(file);
       });
 
       pasteZone.addEventListener("click", () => pasteZone.focus());
@@ -457,6 +308,7 @@
       document.addEventListener("paste", handlePaste);
       if (clearBtn) clearBtn.addEventListener("click", clearSelection);
       window.addEventListener("beforeunload", clearPreviewUrl);
+      setStatus(defaultStatus, false);
     })();
   </script>
 </body>

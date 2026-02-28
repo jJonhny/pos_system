@@ -193,10 +193,10 @@
             <label class="xl:col-span-1">
               <div class="text-[11px] font-semibold text-slate-300">Payment</div>
               <select id="filterPaymentFocus" class="mt-1 w-full rounded-xl border border-slate-500 bg-slate-900/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300">
-                <option value="ALL">All methods</option>
-                <option value="CASH">Cash</option>
-                <option value="CARD">Card</option>
-                <option value="QR">QR</option>
+                <option value="ALL" th:text="#{analytics.payment.allMethods}">All methods</option>
+                <option value="CASH" th:text="#{payment.method.cash}">Cash</option>
+                <option value="CARD" th:text="#{payment.method.card}">Card</option>
+                <option value="QR" th:text="#{payment.method.qr}">QR</option>
               </select>
             </label>
 
@@ -276,7 +276,7 @@
               <div class="text-base font-semibold">Payment Share Trend</div>
               <div class="text-sm text-slate-500">Daily mix percentage by payment channel</div>
             </div>
-            <div class="text-xs text-slate-500">Cash / Card / QR</div>
+            <div class="text-xs text-slate-500" th:text="#{analytics.payment.legend}">Cash / Card / QR</div>
           </div>
           <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
             <canvas id="paymentShareTrendChart" height="170"></canvas>
@@ -522,7 +522,7 @@
         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
           <div>
             <div class="text-base font-semibold">Payment Methods</div>
-            <div class="text-sm text-slate-500">Cash / Card / QR (last 7 days)</div>
+            <div class="text-sm text-slate-500" th:text="#{home.payment.methods.last7d}">Cash / Card / QR (last 7 days)</div>
           </div>
           <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
             <canvas id="paymentStackChart" height="160"></canvas>
@@ -1332,77 +1332,22 @@
     const heatmapHours = /*[[${heatmapHours}]]*/ [];
     const heatmapValues = /*[[${heatmapValues}]]*/ [];
 
-    /**
-     * Executes the formatMoney function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function formatMoney(value) {
       if (typeof value !== "number") return value;
       return "$" + value.toFixed(2);
     }
 
-    /**
-     * Executes the toNumber function.
     function toNumber(value) {
       if (typeof value === "number") return Number.isFinite(value) ? value : 0;
       const parsed = Number.parseFloat(value);
       return Number.isFinite(parsed) ? parsed : 0;
     }
 
-    /**
-    /**
-     * Executes the toNumber function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the toNumber function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Executes the sumValues function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the sumValues function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function sumValues(values) {
       if (!Array.isArray(values)) return 0;
       return values.reduce((acc, val) => acc + (typeof val === "number" ? val : 0), 0);
     }
 
-    /**
-     * Executes the topSlice function.
-    /**
-     * Executes the sumValues function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @param {*} labels Input parameter used by this function.
-    /**
-     * Executes the topSlice function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} limit Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function topSlice(labels, values, limit) {
       const rows = [];
       for (let i = 0; i < Math.min(labels.length, values.length); i++) {
@@ -1412,15 +1357,6 @@
       const selected = rows.slice(0, limit);
       return {
         labels: selected.map((r) => r.label),
-    /**
-     * Executes the topSlice function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} limit Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         values: selected.map((r) => r.value)
       };
     }
@@ -1429,20 +1365,6 @@
       return Math.min(max, Math.max(min, toNumber(value)));
     }
 
-    /**
-     * Executes the withChartSafety function.
-     * @param {*} name Input parameter used by this function.
-     * @param {*} renderFn Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-    /**
-     * Executes the clamp function.
-     * @param {*} value Input parameter used by this function.
-     * @param {*} min Input parameter used by this function.
-     * @param {*} max Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function withChartSafety(name, renderFn) {
       try {
         renderFn();
@@ -1451,83 +1373,21 @@
       }
     }
 
-    /**
-     * Executes the withChartSafety function.
-     * @param {*} name Input parameter used by this function.
-     * @param {*} renderFn Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-    /**
-     * Executes the withChartSafety function.
-     * @param {*} name Input parameter used by this function.
-     * @param {*} renderFn Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Executes the round2 function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-    /**
-     * Executes the round2 function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function round2(value) {
       return Math.round(toNumber(value) * 100) / 100;
     }
 
-    /**
-     * Executes the hasChartController function.
-     * @param {*} type Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function hasChartController(type) {
       try {
         if (!Chart || !Chart.registry || typeof Chart.registry.getController !== "function") {
-    /**
-     * Executes the round2 function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
           return false;
         }
         return !!Chart.registry.getController(type);
       } catch (error) {
-    /**
-     * Executes the hasChartController function.
-     * @param {*} type Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the hasChartController function.
-     * @param {*} type Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         return false;
       }
     }
 
-    /**
-     * Executes the buildCenteredStreamSeries function.
-     * @param {*} seriesList Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function buildCenteredStreamSeries(seriesList) {
       const safeSeries = seriesList.map((series) => Array.isArray(series) ? series.map((v) => toNumber(v)) : []);
       const length = Math.max(0, ...safeSeries.map((series) => series.length));
@@ -1535,20 +1395,6 @@
       for (const series of safeSeries) {
         for (let i = 0; i < length; i++) {
           totals[i] += toNumber(series[i] || 0);
-    /**
-     * Executes the buildCenteredStreamSeries function.
-     * @param {*} seriesList Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the buildCenteredStreamSeries function.
-     * @param {*} seriesList Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         }
       }
       const baseline = totals.map((total) => -total / 2);
@@ -1563,22 +1409,7 @@
       });
     }
 
-    /**
-     * Executes the buildFinancialRows function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} closingSeries Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function buildFinancialRows(labels, closingSeries) {
-      /**
-       * Executes the closeSeries function.
-       * @param {*} ArrayisArrayclosingSeriesclosingSeriesmapv Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const closeSeries = (Array.isArray(closingSeries) ? closingSeries : []).map((v) => Math.max(0, toNumber(v)));
       const rows = [];
       for (let i = 0; i < closeSeries.length; i++) {
@@ -1586,29 +1417,7 @@
         const prevClose = i > 0 ? closeSeries[i - 1] : close;
         const drift = (i % 2 === 0 ? 1 : -1) * Math.max(0.5, close * 0.03);
         const open = Math.max(0, prevClose + drift);
-    /**
-     * Executes the buildFinancialRows function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} closingSeries Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-      /**
-       * Executes the closeSeries function.
-       * @param {*} ArrayisArrayclosingSeriesclosingSeriesmapv Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         const rangePad = Math.max(1, Math.max(open, close) * 0.08);
-      /**
-       * Executes the closeSeries function.
-       * @param {*} ArrayisArrayclosingSeriesclosingSeriesmapv Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         const high = Math.max(open, close) + rangePad;
         const low = Math.max(0, Math.min(open, close) - rangePad * 0.75);
         rows.push({
@@ -1622,13 +1431,6 @@
       return rows;
     }
 
-    /**
-     * Executes the maxIndex function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function maxIndex(values) {
       if (!Array.isArray(values) || values.length === 0) return -1;
       let max = values[0];
@@ -1636,34 +1438,12 @@
       for (let i = 1; i < values.length; i++) {
         if (values[i] > max) {
           max = values[i];
-    /**
-     * Executes the maxIndex function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the maxIndex function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
           idx = i;
         }
       }
       return idx;
     }
 
-    /**
-     * Executes the setInsight function.
-     * @param {*} id Input parameter used by this function.
-     * @param {*} text Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function setInsight(id, text) {
       const el = document.getElementById(id);
       if (el) el.textContent = text;
@@ -1672,22 +1452,6 @@
     const peakDayIdx = maxIndex(dayOfWeekRevenue);
     if (peakDayIdx >= 0) {
       setInsight("insightPeakDay", dayOfWeekLabels[peakDayIdx] || "Unknown");
-    /**
-     * Executes the setInsight function.
-     * @param {*} id Input parameter used by this function.
-     * @param {*} text Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setInsight function.
-     * @param {*} id Input parameter used by this function.
-     * @param {*} text Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       setInsight("insightPeakDayValue", formatMoney(dayOfWeekRevenue[peakDayIdx] || 0));
     }
     const peakHourIdx = maxIndex(hourRevenue);
@@ -1715,15 +1479,6 @@
       preset: "30d"
     };
 
-    /**
-     * Executes the setDrilldown function.
-     * @param {*} title Input parameter used by this function.
-     * @param {*} meta Input parameter used by this function.
-     * @param {*} rows Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function setDrilldown(title, meta, rows) {
       const titleEl = document.getElementById("analyticsDrilldownTitle");
       const metaEl = document.getElementById("analyticsDrilldownMeta");
@@ -1733,24 +1488,6 @@
       if (!listEl) return;
       listEl.innerHTML = "";
       const items = Array.isArray(rows) ? rows.filter((row) => !!row) : [];
-    /**
-     * Executes the setDrilldown function.
-     * @param {*} title Input parameter used by this function.
-     * @param {*} meta Input parameter used by this function.
-     * @param {*} rows Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setDrilldown function.
-     * @param {*} title Input parameter used by this function.
-     * @param {*} meta Input parameter used by this function.
-     * @param {*} rows Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (items.length === 0) {
         const li = document.createElement("li");
         li.className = "rounded-md bg-white px-2.5 py-1.5";
@@ -1766,13 +1503,6 @@
       });
     }
 
-    /**
-     * Executes the parseLabelDate function.
-     * @param {*} label Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function parseLabelDate(label) {
       const text = String(label || "").trim();
       if (!text) return null;
@@ -1780,20 +1510,6 @@
       if (!Number.isNaN(direct.getTime())) return direct;
       const monthDayMatch = text.match(/^(\d{1,2})[-/](\d{1,2})$/);
       if (monthDayMatch) {
-    /**
-     * Executes the parseLabelDate function.
-     * @param {*} label Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the parseLabelDate function.
-     * @param {*} label Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         const now = new Date();
         const month = Number.parseInt(monthDayMatch[1], 10);
         const day = Number.parseInt(monthDayMatch[2], 10);
@@ -1803,17 +1519,6 @@
       return null;
     }
 
-    /**
-     * Executes the sliceSeriesByPreset function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} preset Input parameter used by this function.
-     * @param {*} fromValue Input parameter used by this function.
-     * @param {*} toValue Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function sliceSeriesByPreset(labels, values, preset, fromValue, toValue) {
       const rows = [];
       for (let i = 0; i < Math.min(labels.length, values.length); i++) {
@@ -1825,28 +1530,6 @@
         });
       }
 
-    /**
-     * Executes the sliceSeriesByPreset function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} preset Input parameter used by this function.
-     * @param {*} fromValue Input parameter used by this function.
-     * @param {*} toValue Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the sliceSeriesByPreset function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} preset Input parameter used by this function.
-     * @param {*} fromValue Input parameter used by this function.
-     * @param {*} toValue Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (preset === "custom" && (fromValue || toValue)) {
         const fromDate = fromValue ? new Date(`${fromValue}T00:00:00`) : null;
         const toDate = toValue ? new Date(`${toValue}T23:59:59`) : null;
@@ -1880,15 +1563,6 @@
       };
     }
 
-    /**
-     * Executes the buildPreviousWindow function.
-     * @param {*} allValues Input parameter used by this function.
-     * @param {*} startIndex Input parameter used by this function.
-     * @param {*} count Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function buildPreviousWindow(allValues, startIndex, count) {
       const windowStart = Math.max(0, startIndex - count);
       const raw = allValues.slice(windowStart, startIndex).map((value) => toNumber(value));
@@ -1896,8 +1570,6 @@
       return Array(count - raw.length).fill(null).concat(raw);
     }
 
-    /**
-     * Executes the formatSignedPercent function.
     function formatSignedPercent(value) {
       const numeric = toNumber(value);
       const sign = numeric > 0 ? "+" : "";
@@ -1905,56 +1577,17 @@
     }
 
     function setDeltaTone(element, value) {
-    /**
-     * Executes the formatSignedPercent function.
-    /**
-     * Executes the formatSignedPercent function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (!element) return;
       element.classList.remove("text-emerald-600", "text-rose-600", "text-slate-900");
       if (value > 0) {
         element.classList.add("text-emerald-600");
       } else if (value < 0) {
         element.classList.add("text-rose-600");
-    /**
-    /**
-     * Executes the setDeltaTone function.
-     * @param {*} element Input parameter used by this function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Executes the setDeltaTone function.
-     * @param {*} element Input parameter used by this function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       } else {
         element.classList.add("text-slate-900");
       }
     }
 
-    /**
-     * Executes the populateFocusSelect function.
-     * @param {*} selectId Input parameter used by this function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} allLabel Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function populateFocusSelect(selectId, labels, allLabel) {
       const select = document.getElementById(selectId);
       if (!select) return;
@@ -1964,24 +1597,6 @@
       allOption.textContent = allLabel;
       select.appendChild(allOption);
       const unique = Array.from(new Set((Array.isArray(labels) ? labels : []).map((value) => String(value || "").trim()).filter((value) => value.length > 0)));
-    /**
-     * Executes the populateFocusSelect function.
-     * @param {*} selectId Input parameter used by this function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} allLabel Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the populateFocusSelect function.
-     * @param {*} selectId Input parameter used by this function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} allLabel Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       unique.forEach((label) => {
         const option = document.createElement("option");
         option.value = label;
@@ -1990,30 +1605,12 @@
       });
     }
 
-    /**
-     * Executes the focusShareFromSelections function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function focusShareFromSelections() {
       const cashierSelect = document.getElementById("filterCashierFocus");
       const categorySelect = document.getElementById("filterCategoryFocus");
       const paymentSelect = document.getElementById("filterPaymentFocus");
 
       const shares = [];
-    /**
-     * Executes the focusShareFromSelections function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the focusShareFromSelections function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const focusLabels = [];
 
       const payment = paymentSelect ? paymentSelect.value : "ALL";
@@ -2055,16 +1652,6 @@
       };
     }
 
-    /**
-     * Executes the updateExecutiveTrendChart function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} focusedValues Input parameter used by this function.
-     * @param {*} compareValues Input parameter used by this function.
-     * @param {*} compareEnabled Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updateExecutiveTrendChart(labels, focusedValues, compareValues, compareEnabled) {
       const ctx = document.getElementById("executiveRangeChart");
       if (!ctx) return;
@@ -2075,26 +1662,6 @@
         backgroundColor: "rgba(15, 23, 42, 0.15)",
         fill: true,
         tension: 0.3,
-    /**
-     * Executes the updateExecutiveTrendChart function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} focusedValues Input parameter used by this function.
-     * @param {*} compareValues Input parameter used by this function.
-     * @param {*} compareEnabled Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateExecutiveTrendChart function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} focusedValues Input parameter used by this function.
-     * @param {*} compareValues Input parameter used by this function.
-     * @param {*} compareEnabled Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         pointRadius: 2,
         pointBackgroundColor: "#0f172a"
       }];
@@ -2155,14 +1722,6 @@
       });
     }
 
-    /**
-     * Executes the movingAverage function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} windowSize Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function movingAverage(values, windowSize) {
       const size = Math.max(1, Math.round(toNumber(windowSize)));
       const result = [];
@@ -2171,41 +1730,10 @@
         const slice = values.slice(start, i + 1).map((value) => toNumber(value));
         result.push(slice.length === 0 ? null : round2(sumValues(slice) / slice.length));
       }
-    /**
-     * Executes the movingAverage function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} windowSize Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the movingAverage function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} windowSize Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       return result;
     }
 
-    /**
-     * Executes the linearForecast function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} steps Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function linearForecast(values, steps) {
-      /**
-       * Executes the y function.
-       * @param {*} ArrayisArrayvaluesvaluesmapvalue Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const y = (Array.isArray(values) ? values : []).map((value) => toNumber(value));
       const n = y.length;
       const horizon = Math.max(0, Math.round(toNumber(steps)));
@@ -2213,29 +1741,7 @@
       if (n === 0) return Array(horizon).fill(0);
       if (n === 1) return Array(horizon).fill(round2(Math.max(0, y[0])));
 
-    /**
-     * Executes the linearForecast function.
-     * @param {*} values Input parameter used by this function.
-     * @param {*} steps Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-      /**
-       * Executes the y function.
-       * @param {*} ArrayisArrayvaluesvaluesmapvalue Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       let sumX = 0;
-      /**
-       * Executes the y function.
-       * @param {*} ArrayisArrayvaluesvaluesmapvalue Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       let sumY = 0;
       let sumXY = 0;
       let sumXX = 0;
@@ -2256,20 +1762,7 @@
       return out;
     }
 
-    /**
-     * Executes the standardDeviation function.
-     * @param {*} values Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function standardDeviation(values) {
-      /**
-       * Executes the series function.
-       * @param {*} ArrayisArrayvaluesvaluesmapvalue Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
       const series = (Array.isArray(values) ? values : []).map((value) => toNumber(value));
       if (series.length === 0) return 0;
       const mean = sumValues(series) / series.length;
@@ -2277,28 +1770,6 @@
       return Math.sqrt(variance);
     }
 
-      /**
-       * Executes the series function.
-       * @param {*} ArrayisArrayvaluesvaluesmapvalue Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the series function.
-       * @param {*} ArrayisArrayvaluesvaluesmapvalue Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-    /**
-    /**
-     * Executes the updateGoalTracker function.
-     * @param {*} metrics Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updateGoalTracker(metrics) {
       const revenueTarget = Math.max(1, toNumber(netRevenueTotalValue) * 1.05);
       const marginTarget = 35;
@@ -2306,26 +1777,12 @@
 
       const revenueProgress = clamp((toNumber(metrics.focusedRevenue) / revenueTarget) * 100, 0, 140);
       const marginProgress = clamp((toNumber(grossMarginPercentValue) / marginTarget) * 100, 0, 140);
-    /**
-     * Executes the updateGoalTracker function.
-     * @param {*} metrics Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const refundHealth = clamp(100 - ((toNumber(metrics.refundRatePercent) / Math.max(0.1, refundGuardrail)) * 100), 0, 100);
 
       const goalRevenueBar = document.getElementById("goalRevenueBar");
       const goalMarginBar = document.getElementById("goalMarginBar");
       const goalRefundBar = document.getElementById("goalRefundBar");
       const goalRevenueMeta = document.getElementById("goalRevenueMeta");
-    /**
-     * Executes the updateGoalTracker function.
-     * @param {*} metrics Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const goalMarginMeta = document.getElementById("goalMarginMeta");
       const goalRefundMeta = document.getElementById("goalRefundMeta");
 
@@ -2343,16 +1800,6 @@
       }
     }
 
-    /**
-     * Executes the updateAdvancedAnalyticsCharts function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} focusedValues Input parameter used by this function.
-     * @param {*} compareValues Input parameter used by this function.
-     * @param {*} compareEnabled Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updateAdvancedAnalyticsCharts(labels, focusedValues, compareValues, compareEnabled) {
       const horizon = Math.min(7, Math.max(3, Math.round(labels.length * 0.25)));
       const forecast = linearForecast(focusedValues, horizon);
@@ -2363,26 +1810,6 @@
       const compareExtended = (Array.isArray(compareValues) ? compareValues : []).concat(Array(horizon).fill(null));
       const forecastExtended = Array(focusedValues.length).fill(null).concat(forecast);
 
-    /**
-     * Executes the updateAdvancedAnalyticsCharts function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} focusedValues Input parameter used by this function.
-     * @param {*} compareValues Input parameter used by this function.
-     * @param {*} compareEnabled Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateAdvancedAnalyticsCharts function.
-     * @param {*} labels Input parameter used by this function.
-     * @param {*} focusedValues Input parameter used by this function.
-     * @param {*} compareValues Input parameter used by this function.
-     * @param {*} compareEnabled Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const forecastCtx = document.getElementById("movingAverageForecastChart");
       if (forecastCtx) {
         const datasets = [
@@ -2605,30 +2032,12 @@
       }
     }
 
-    /**
-     * Executes the updateScenarioOutputs function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updateScenarioOutputs() {
       const orderInput = document.getElementById("simOrderCount");
       const aovInput = document.getElementById("simAov");
       const discountInput = document.getElementById("simDiscountPct");
       const refundInput = document.getElementById("simRefundPct");
       if (!orderInput || !aovInput || !discountInput || !refundInput) return;
-    /**
-     * Executes the updateScenarioOutputs function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateScenarioOutputs function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
 
       const orders = Math.max(0, toNumber(orderInput.value));
       const aov = Math.max(0, toNumber(aovInput.value));
@@ -2667,30 +2076,12 @@
       }
     }
 
-    /**
-     * Executes the initScenarioSimulator function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function initScenarioSimulator() {
       const orderInput = document.getElementById("simOrderCount");
       const aovInput = document.getElementById("simAov");
       const discountInput = document.getElementById("simDiscountPct");
       const refundInput = document.getElementById("simRefundPct");
       if (!orderInput || !aovInput || !discountInput || !refundInput) return;
-    /**
-     * Executes the initScenarioSimulator function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the initScenarioSimulator function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
 
       const baseOrders = Math.max(0, Math.round(toNumber(saleCountValue)));
       const baseAov = toNumber(saleCountValue) > 0 ? toNumber(netRevenueTotalValue) / toNumber(saleCountValue) : 0;
@@ -2708,13 +2099,6 @@
       updateScenarioOutputs();
     }
 
-    /**
-     * Executes the updateAutomatedInsights function.
-     * @param {*} metrics Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updateAutomatedInsights(metrics) {
       const alertListEl = document.getElementById("analyticsAlertList");
       const summaryEl = document.getElementById("analyticsAlertSummary");
@@ -2722,20 +2106,6 @@
 
       const insights = [];
       if (toNumber(metrics.deltaPct) >= 10) {
-    /**
-     * Executes the updateAutomatedInsights function.
-     * @param {*} metrics Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateAutomatedInsights function.
-     * @param {*} metrics Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         insights.push({ tone: "positive", text: `Focused revenue is up ${toNumber(metrics.deltaPct).toFixed(1)}% versus previous period.` });
       }
       if (toNumber(metrics.deltaPct) <= -10) {
@@ -2750,13 +2120,6 @@
       if (toNumber(metrics.volatilityStdDev) > 20) {
         insights.push({ tone: "warning", text: `Volatility is high (${toNumber(metrics.volatilityStdDev).toFixed(1)} pts std dev). Forecast confidence is lower.` });
       }
-      /**
-       * Executes the cashSharePercent function.
-       * @param {*} param1 Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const cashSharePercent = (() => {
         const totalPayment = sumValues(paymentCash) + sumValues(paymentCard) + sumValues(paymentQr);
         if (totalPayment <= 0) return 0;
@@ -2764,20 +2127,6 @@
       })();
       if (cashSharePercent > 70) {
         insights.push({ tone: "warning", text: `Cash dependency is ${cashSharePercent.toFixed(1)}%. Promote non-cash methods to reduce reconciliation risk.` });
-      /**
-       * Executes the cashSharePercent function.
-       * @param {*} param1 Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the cashSharePercent function.
-       * @param {*} param1 Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       }
       if (insights.length === 0) {
         insights.push({ tone: "positive", text: "Core metrics are stable. No critical anomalies detected for the active selection." });
@@ -2799,13 +2148,6 @@
       }
     }
 
-    /**
-     * Executes the toCsvValue function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function toCsvValue(value) {
       const text = String(value ?? "");
       if (/[",\n]/.test(text)) {
@@ -2814,36 +2156,12 @@
       return text;
     }
 
-    /**
-     * Executes the exportFocusCsv function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function exportFocusCsv() {
       if (!executiveState.labels || executiveState.labels.length === 0) return;
       const rows = [ ["Label", "Focused Revenue", "Previous Revenue"] ];
       for (let i = 0; i < executiveState.labels.length; i++) {
         rows.push([
           executiveState.labels[i],
-    /**
-    /**
-     * Executes the exportFocusCsv function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the exportFocusCsv function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Executes the exportFocusCsv function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
           round2(toNumber(executiveState.focusedValues[i])).toFixed(2),
           executiveState.compareEnabled ? (executiveState.compareValues[i] == null ? "" : round2(toNumber(executiveState.compareValues[i])).toFixed(2)) : ""
         ]);
@@ -2860,30 +2178,12 @@
       URL.revokeObjectURL(url);
     }
 
-    /**
-     * Executes the applyExecutiveFilters function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function applyExecutiveFilters() {
       const presetSelect = document.getElementById("filterDatePreset");
       const compareSelect = document.getElementById("filterCompareMode");
       const fromInput = document.getElementById("filterDateFrom");
       const toInput = document.getElementById("filterDateTo");
       const summaryEl = document.getElementById("executiveFilterSummary");
-    /**
-     * Executes the applyExecutiveFilters function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the applyExecutiveFilters function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const statusEl = document.getElementById("executiveRangeStatus");
 
       const preset = presetSelect ? presetSelect.value : "30d";
@@ -2971,30 +2271,12 @@
       };
     }
 
-    /**
-     * Executes the initExecutiveFilters function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function initExecutiveFilters() {
       populateFocusSelect("filterCashierFocus", cashierLabels, "All cashiers");
       populateFocusSelect("filterCategoryFocus", topCategoryLabels, "All categories");
 
       const presetEl = document.getElementById("filterDatePreset");
       const fromEl = document.getElementById("filterDateFrom");
-    /**
-     * Executes the initExecutiveFilters function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the initExecutiveFilters function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const toEl = document.getElementById("filterDateTo");
       const compareEl = document.getElementById("filterCompareMode");
       const cashierEl = document.getElementById("filterCashierFocus");
@@ -3005,13 +2287,6 @@
       if (fromEl && toEl && parsedDates.length > 0) {
         const minDate = parsedDates[0];
         const maxDate = parsedDates[parsedDates.length - 1];
-        /**
-         * Executes the toIso function.
-         * @param {*} date Input parameter used by this function.
-         * @returns {any} Result produced by this function.
-         * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-         * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-         */
         const toIso = (date) => date.toISOString().slice(0, 10);
         fromEl.value = toIso(minDate);
         toEl.value = toIso(maxDate);
@@ -3019,20 +2294,6 @@
 
       document.getElementById("filterApplyBtn")?.addEventListener("click", applyExecutiveFilters);
       document.getElementById("exportFocusCsvBtn")?.addEventListener("click", exportFocusCsv);
-        /**
-         * Executes the toIso function.
-         * @param {*} date Input parameter used by this function.
-         * @returns {any} Result produced by this function.
-         * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-         * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-         */
-        /**
-         * Executes the toIso function.
-         * @param {*} date Input parameter used by this function.
-         * @returns {any} Result produced by this function.
-         * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-         * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-         */
       document.getElementById("filterResetBtn")?.addEventListener("click", () => {
         if (presetEl) presetEl.value = "30d";
         if (compareEl) compareEl.value = "previous";
@@ -3092,13 +2353,6 @@
       }
     }) : null;
 
-    /**
-     * Executes the setSalesMode function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function setSalesMode(mode) {
       if (!lineChart) return;
       if (mode === "monthly") {
@@ -3106,20 +2360,6 @@
         lineChart.data.datasets[0].data = monthlySales;
         document.getElementById("salesModeMonthly").classList.add("bg-white", "shadow-sm");
         document.getElementById("salesModeMonthly").classList.remove("text-slate-600");
-    /**
-     * Executes the setSalesMode function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setSalesMode function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         document.getElementById("salesModeDaily").classList.remove("bg-white", "shadow-sm");
         document.getElementById("salesModeDaily").classList.add("text-slate-600");
       } else {
@@ -3142,9 +2382,9 @@
         data: {
           labels: paymentLabels,
           datasets: [
-            { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
-            { label: "Card", data: paymentCard, backgroundColor: "#334155" },
-            { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+            { label: /*[[#{payment.method.cash}]]*/ "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+            { label: /*[[#{payment.method.card}]]*/ "Card", data: paymentCard, backgroundColor: "#334155" },
+            { label: /*[[#{payment.method.qr}]]*/ "QR", data: paymentQr, backgroundColor: "#94a3b8" }
           ]
         },
         options: {
@@ -3206,13 +2446,6 @@
       }
     }) : null;
 
-    /**
-     * Executes the setTopMode function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function setTopMode(mode) {
       if (!topChart) return;
       if (mode === "categories") {
@@ -3220,20 +2453,6 @@
         topChart.data.datasets[0].data = topCategoryValues;
         document.getElementById("topModeCategories").classList.add("bg-white", "shadow-sm");
         document.getElementById("topModeCategories").classList.remove("text-slate-600");
-    /**
-     * Executes the setTopMode function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setTopMode function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         document.getElementById("topModeProducts").classList.remove("bg-white", "shadow-sm");
         document.getElementById("topModeProducts").classList.add("text-slate-600");
       } else {
@@ -3277,7 +2496,11 @@
       new Chart(paymentMixCtx, {
         type: "doughnut",
         data: {
-          labels: ["Cash", "Card", "QR"],
+          labels: [
+            /*[[#{payment.method.cash}]]*/ "Cash",
+            /*[[#{payment.method.card}]]*/ "Card",
+            /*[[#{payment.method.qr}]]*/ "QR"
+          ],
           datasets: [{
             data: [sumValues(paymentCash), sumValues(paymentCard), sumValues(paymentQr)],
             backgroundColor: ["#0f172a", "#334155", "#94a3b8"]
@@ -3890,9 +3113,9 @@
           data: {
             labels: paymentLabels,
             datasets: [
-              { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
-              { label: "Card", data: paymentCard, backgroundColor: "#334155" },
-              { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+              { label: /*[[#{payment.method.cash}]]*/ "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+              { label: /*[[#{payment.method.card}]]*/ "Card", data: paymentCard, backgroundColor: "#334155" },
+              { label: /*[[#{payment.method.qr}]]*/ "QR", data: paymentQr, backgroundColor: "#94a3b8" }
             ]
           },
           options: {
@@ -3919,9 +3142,9 @@
           data: {
             labels: paymentLabels,
             datasets: [
-              { label: "Cash", data: paymentCash, backgroundColor: "#0f172a" },
-              { label: "Card", data: paymentCard, backgroundColor: "#334155" },
-              { label: "QR", data: paymentQr, backgroundColor: "#94a3b8" }
+              { label: /*[[#{payment.method.cash}]]*/ "Cash", data: paymentCash, backgroundColor: "#0f172a" },
+              { label: /*[[#{payment.method.card}]]*/ "Card", data: paymentCard, backgroundColor: "#334155" },
+              { label: /*[[#{payment.method.qr}]]*/ "QR", data: paymentQr, backgroundColor: "#94a3b8" }
             ]
           },
           options: {
@@ -3966,9 +3189,9 @@
           data: {
             labels: paymentLabels,
             datasets: [
-              { label: "Cash", data: cashPct, backgroundColor: "#0f172a" },
-              { label: "Card", data: cardPct, backgroundColor: "#334155" },
-              { label: "QR", data: qrPct, backgroundColor: "#94a3b8" }
+              { label: /*[[#{payment.method.cash}]]*/ "Cash", data: cashPct, backgroundColor: "#0f172a" },
+              { label: /*[[#{payment.method.card}]]*/ "Card", data: cardPct, backgroundColor: "#334155" },
+              { label: /*[[#{payment.method.qr}]]*/ "QR", data: qrPct, backgroundColor: "#94a3b8" }
             ]
           },
           options: {
@@ -4339,7 +3562,7 @@
             labels: paymentLabels,
             datasets: [
               {
-                label: "Cash",
+                label: /*[[#{payment.method.cash}]]*/ "Cash",
                 data: paymentCash,
                 borderColor: trendPalette[0],
                 backgroundColor: "rgba(15, 23, 42, 0.45)",
@@ -4349,7 +3572,7 @@
                 pointRadius: 0
               },
               {
-                label: "Card",
+                label: /*[[#{payment.method.card}]]*/ "Card",
                 data: paymentCard,
                 borderColor: trendPalette[1],
                 backgroundColor: "rgba(51, 65, 85, 0.42)",
@@ -4359,7 +3582,7 @@
                 pointRadius: 0
               },
               {
-                label: "QR",
+                label: /*[[#{payment.method.qr}]]*/ "QR",
                 data: paymentQr,
                 borderColor: trendPalette[2],
                 backgroundColor: "rgba(100, 116, 139, 0.4)",
@@ -4396,7 +3619,7 @@
             labels: paymentLabels,
             datasets: [
               {
-                label: "Cash",
+                label: /*[[#{payment.method.cash}]]*/ "Cash",
                 data: centeredSeries[0] || [],
                 borderColor: trendPalette[0],
                 backgroundColor: "rgba(15, 23, 42, 0.4)",
@@ -4405,7 +3628,7 @@
                 pointRadius: 0
               },
               {
-                label: "Card",
+                label: /*[[#{payment.method.card}]]*/ "Card",
                 data: centeredSeries[1] || [],
                 borderColor: trendPalette[1],
                 backgroundColor: "rgba(51, 65, 85, 0.35)",
@@ -4414,7 +3637,7 @@
                 pointRadius: 0
               },
               {
-                label: "QR",
+                label: /*[[#{payment.method.qr}]]*/ "QR",
                 data: centeredSeries[2] || [],
                 borderColor: trendPalette[2],
                 backgroundColor: "rgba(100, 116, 139, 0.3)",
@@ -4607,30 +3830,12 @@
       }
     });
 
-    /**
-     * Executes the updatePulseCards function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     function updatePulseCards() {
       const runRateEl = document.getElementById("pulseRunRate");
       const refundPressureEl = document.getElementById("pulseRefundPressure");
       const discountLeakageEl = document.getElementById("pulseDiscountLeakage");
       const returningMixEl = document.getElementById("pulseReturningMix");
 
-    /**
-     * Executes the updatePulseCards function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updatePulseCards function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const runRateBarEl = document.getElementById("pulseRunRateBar");
       const refundPressureBarEl = document.getElementById("pulseRefundPressureBar");
       const discountLeakageBarEl = document.getElementById("pulseDiscountLeakageBar");
@@ -4710,7 +3915,7 @@
           labels,
           datasets: [
             {
-              label: "Cash %",
+              label: /*[[#{analytics.payment.cashPercent}]]*/ "Cash %",
               data: cashPct,
               borderColor: "#0ea5e9",
               backgroundColor: "rgba(14, 165, 233, 0.15)",
@@ -4718,7 +3923,7 @@
               pointRadius: 2
             },
             {
-              label: "Card %",
+              label: /*[[#{analytics.payment.cardPercent}]]*/ "Card %",
               data: cardPct,
               borderColor: "#f97316",
               backgroundColor: "rgba(249, 115, 22, 0.12)",
@@ -4726,7 +3931,7 @@
               pointRadius: 2
             },
             {
-              label: "QR %",
+              label: /*[[#{analytics.payment.qrPercent}]]*/ "QR %",
               data: qrPct,
               borderColor: "#10b981",
               backgroundColor: "rgba(16, 185, 129, 0.12)",

@@ -53,7 +53,37 @@ async function main() {
     return;
   }
 
-  throw new Error("Unsupported command. Use 'setup' or 'verify'.");
+  if (command === "render") {
+    const base32Secret = process.argv[3];
+    const label = process.argv[4];
+    const issuer = process.argv[5] || "POS-System";
+    if (!base32Secret || !label) {
+      throw new Error("Missing secret or label for render command.");
+    }
+
+    const otpauthUrl = speakeasy.otpauthURL({
+      secret: base32Secret,
+      label: `${issuer}:${label}`,
+      issuer,
+      encoding: "base32",
+    });
+
+    const qrDataUrl = await QRCode.toDataURL(otpauthUrl, {
+      errorCorrectionLevel: "M",
+      margin: 1,
+      width: 240,
+    });
+
+    process.stdout.write(
+      JSON.stringify({
+        otpauthUrl,
+        qrDataUrl,
+      })
+    );
+    return;
+  }
+
+  throw new Error("Unsupported command. Use 'setup', 'verify', or 'render'.");
 }
 
 main().catch((error) => {

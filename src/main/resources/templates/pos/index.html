@@ -1129,6 +1129,7 @@
         overscroll-behavior:contain;
       }
 
+
       #cartPanel #checkoutSection{
         position:static;
       }
@@ -1454,20 +1455,27 @@
     </header>
 
     <main id="posMain" class="w-full px-6 lg:px-10 py-4 lg:pt-3 lg:pb-3 lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:flex lg:flex-col">
-      <section id="posToolbar" class="toolbar-shell rounded-2xl border border-slate-200 bg-white/80 p-3 lg:p-4 shadow-sm lg:flex-none">
-        <div class="flex flex-col gap-3">
+      <section id="posToolbar" class="glass-card rounded-2xl border border-gray-200 shadow-sm p-4 lg:p-5 lg:flex-none">
+        <div class="flex flex-col gap-4">
           <!-- Controls row -->
-          <div class="toolbar-controls-grid grid grid-cols-1 xl:grid-cols-12 gap-3 items-end">
+          <div class="toolbar-controls-grid grid grid-cols-1 xl:grid-cols-12 gap-4 items-end">
             <form method="get" action="/pos"
                   data-product-feed-form="true"
-                  class="toolbar-query-form xl:col-span-7 grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
+                  class="toolbar-query-form xl:col-span-7 grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
               <!-- Search -->
               <div class="lg:col-span-7">
-                <label class="ui-label" th:text="#{pos.search.label}">Search</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-2" th:text="#{pos.search.label}">Search</label>
                 <div class="relative">
+                  <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="6" />
+                      <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                  </span>
                   <input id="searchBox" name="q"
                          th:value="${q}"
-                         class="ui-input toolbar-search-input search-pill-input w-full"
+                         aria-label="Search products"
+                         class="ui-input toolbar-search-input search-pill-input w-full pl-10 rounded-lg px-3.5 py-2.5 text-sm"
                          th:placeholder="#{pos.search.placeholder}"
                          placeholder="Search product (press / to focus)"/>
                 </div>
@@ -1475,10 +1483,9 @@
 
               <!-- Category -->
               <div class="lg:col-span-3">
-                <label class="ui-label" th:text="#{pos.category}">Category</label>
+                <label class="block text-xs font-semibold text-slate-700 mb-2" th:text="#{pos.category}">Category</label>
                 <select id="categorySelect" name="categoryId"
-                        class="ui-select w-full px-3 py-2.5 bg-white
-                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        class="ui-select w-full rounded-lg px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                   <option value="" th:text="#{pos.category.all}">All</option>
                   <option th:each="c : ${categories}"
                           th:value="${c.id}"
@@ -1489,8 +1496,7 @@
 
               <!-- Filter button -->
               <div class="lg:col-span-2">
-                <button class="ui-btn ui-btn-primary h-[42px] w-full px-5 text-sm
-                               hover:bg-slate-800 transition active:scale-[0.99]">
+                <button class="rounded-lg bg-slate-900 text-white h-[42px] w-full px-5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
                   <span th:text="#{common.filter}">Filter</span>
                 </button>
               </div>
@@ -1729,12 +1735,12 @@
 
         <!-- Cart -->
         <aside id="cartPanelShell" class="enterprise-panel surface-cart col-span-12 lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:min-h-0 lg:min-w-0 lg:flex lg:flex-col">
-          <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 z-10 bg-white/95">
             <div>
-              <div class="text-base font-semibold" th:text="#{pos.cart}">Cart</div>
+              <div class="text-base font-semibold text-slate-900" th:text="#{pos.cart}">Cart</div>
               <div class="text-sm text-slate-500" th:text="#{pos.cart.subtitle}">Review items and checkout</div>
             </div>
-            <button type="button"
+            <button id="clearCart" type="button"
                     data-action="clear-cart"
                     class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
               <span th:text="#{pos.clearCart}">Clear cart</span>
@@ -1755,13 +1761,6 @@
   <script th:inline="javascript">
     /* ── Dark mode toggle ─────────────────────────────────────────── */
     const THEME_KEY = "pos.theme";
-    /**
-     * Executes the applyTheme function.
-     * @param {*} theme Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const applyTheme = (theme) => {
       const html = document.documentElement;
       html.setAttribute("data-theme-transitioning", "");
@@ -1769,20 +1768,6 @@
       const sunIcon = document.getElementById("themeIconSun");
       const moonIcon = document.getElementById("themeIconMoon");
       if (sunIcon && moonIcon) {
-    /**
-     * Executes the applyTheme function.
-     * @param {*} theme Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the applyTheme function.
-     * @param {*} theme Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         sunIcon.classList.toggle("hidden", theme !== "dark");
         moonIcon.classList.toggle("hidden", theme === "dark");
       }
@@ -1791,30 +1776,12 @@
         setTimeout(() => html.removeAttribute("data-theme-transitioning"), 400);
       });
     };
-    /**
-     * Executes the getPreferredTheme function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getPreferredTheme = () => {
       try {
         const stored = localStorage.getItem(THEME_KEY);
         if (stored === "dark" || stored === "light") return stored;
       } catch {}
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    /**
-     * Executes the getPreferredTheme function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getPreferredTheme function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
     applyTheme(getPreferredTheme());
     document.addEventListener("DOMContentLoaded", () => {
@@ -1867,22 +1834,7 @@
       cameraPermissionError: /*[[#{pos.camera.permissionError}]]*/ "Unable to access camera. Check permissions."
     });
 
-    /**
-     * Executes the templateReplace function.
-     * @param {*} template Input parameter used by this function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const templateReplace = (template, value) => template.replace("{0}", value ?? "");
-    /**
-     * Executes the isTypingTarget function.
-     * @param {*} target Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const isTypingTarget = (target) => {
       if (!target) return false;
       if (target.isContentEditable) return true;
@@ -1890,110 +1842,22 @@
       return ["input", "textarea", "select"].includes(tag);
     };
 
-    /**
-     * Executes the templateReplace function.
-     * @param {*} template Input parameter used by this function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the isTypingTarget function.
-     * @param {*} target Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-    /**
-     * Executes the shouldIgnoreShortcuts function.
-     * @param {*} event Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const shouldIgnoreShortcuts = (event) => {
       return isTypingTarget(event.target) || isTypingTarget(document.activeElement);
     };
 
     const desktopSplitQuery = window.matchMedia("(min-width: 1024px)");
-    /**
-     * Executes the isDesktopSplitScroll function.
-    /**
-     * Executes the isDesktopSplitScroll function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const isDesktopSplitScroll = () => desktopSplitQuery.matches;
-    /**
-    /**
-     * Executes the shouldIgnoreShortcuts function.
-     * @param {*} event Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-    /**
-     * Executes the getProductScrollContainer function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the getProductScrollContainer function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getProductScrollContainer = () => isDesktopSplitScroll() ? document.getElementById("productPanelBody") : null;
     const getCartScrollContainer = () => isDesktopSplitScroll() ? document.getElementById("cartPanelBody") : null;
 
-    /**
-     * Executes the updateSplitLayoutMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-    /**
-     * Executes the getCartScrollContainer function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getCartScrollContainer function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getCartScrollContainer function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the updateSplitLayoutMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const updateSplitLayoutMetrics = () => {
       const root = document.documentElement;
       const header = document.getElementById("posHeader");
       const toolbar = document.getElementById("posToolbar");
       const main = document.getElementById("posMain");
       const headerH = header ? header.getBoundingClientRect().height : 0;
-    /**
-     * Executes the updateSplitLayoutMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const toolbarH = toolbar ? toolbar.getBoundingClientRect().height : 0;
-    /**
-     * Executes the updateSplitLayoutMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const toolbarStyle = toolbar ? window.getComputedStyle(toolbar) : null;
       const toolbarGap = toolbarStyle ? Number.parseFloat(toolbarStyle.marginBottom || "0") : 0;
       const mainStyle = main ? window.getComputedStyle(main) : null;
@@ -2005,30 +1869,12 @@
       root.style.setProperty("--pos-main-y-pad", `${Math.max(0, Math.round(mainPadTop + mainPadBottom))}px`);
     };
 
-    /**
-     * Executes the openCheckout function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const openCheckout = () => {
       const section = document.getElementById("checkoutSection");
       if (!section) return;
       const cartScroll = getCartScrollContainer();
       if (cartScroll && cartScroll.contains(section)) {
         const offsetTop = Math.max(0, section.offsetTop - 12);
-    /**
-     * Executes the openCheckout function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the openCheckout function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         cartScroll.scrollTo({ top: offsetTop, behavior: "smooth" });
       } else {
         section.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2077,41 +1923,15 @@
       }
     });
 
-    /**
-     * Executes the getBaseCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getBaseCurrency = () => {
       const panel = getCartPanel();
       const symbol = (panel && panel.dataset.baseSymbol) || document.body.dataset.baseSymbol || "$";
       const code = (panel && panel.dataset.baseCode) || document.body.dataset.baseCode || "USD";
       const decimalsRaw = (panel && panel.dataset.baseDecimals) || document.body.dataset.baseDecimals || "2";
       const decimals = Number.parseInt(decimalsRaw, 10);
-    /**
-     * Executes the getBaseCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getBaseCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       return { symbol, code, decimals: Number.isFinite(decimals) ? decimals : 2 };
     };
 
-    /**
-     * Executes the formatCurrency function.
-     * @param {*} value Input parameter used by this function.
-     * @param {*} currency Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const formatCurrency = (value, currency) => {
       const num = Number.parseFloat(value);
       if (!Number.isFinite(num)) return "-";
@@ -2120,66 +1940,16 @@
       if (currency?.symbol) return `${currency.symbol}${fixed}`;
       if (currency?.code) return `${fixed} ${currency.code}`;
       return fixed;
-    /**
-     * Executes the formatCurrency function.
-     * @param {*} value Input parameter used by this function.
-     * @param {*} currency Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the formatCurrency function.
-     * @param {*} value Input parameter used by this function.
-     * @param {*} currency Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
 
-    /**
-     * Executes the formatMoney function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const formatMoney = (value) => formatCurrency(value, getBaseCurrency());
 
-    /**
-     * Executes the getCartPanel function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
     const getCartPanel = () => document.getElementById("cartPanel");
 
     const productSortKey = "pos.products.sort";
     const productDensityKey = "pos.products.density";
     const productStockFilterKey = "pos.products.stock-filter";
 
-    /**
-    /**
-     * Executes the getCartPanel function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Executes the getCartPanel function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the readStorage function.
-    /**
-     * Executes the readStorage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} fallback Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const readStorage = (key, fallback) => {
       try {
         const value = localStorage.getItem(key);
@@ -2188,26 +1958,7 @@
         return fallback;
       }
     };
-    /**
-     * Executes the readStorage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} fallback Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
 
-    /**
-     * Executes the writeStorage function.
-     * @param {*} key Input parameter used by this function.
-    /**
-     * Executes the writeStorage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const writeStorage = (key, value) => {
       try {
         localStorage.setItem(key, value);
@@ -2216,56 +1967,15 @@
       }
     };
 
-    /**
-     * Executes the writeStorage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const terminalIdKey = "pos.terminal.id";
     let clientCheckoutId = null;
 
-    /**
-     * Executes the generateTerminalId function.
-    /**
-     * Executes the generateTerminalId function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const generateTerminalId = () => {
       const random = Math.random().toString(36).slice(2, 8).toUpperCase();
       return `TERM-${random}`;
     };
 
-    /**
-    /**
-     * Executes the getTerminalId function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getTerminalId = () => {
-    /**
-     * Executes the generateTerminalId function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the getTerminalId function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the getTerminalId function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     */
-     */
       let current = readStorage(terminalIdKey, "").trim();
       if (!current) {
         const preferred = (document.body.dataset.preferredTerminalId || "").trim();
@@ -2275,13 +1985,6 @@
       return current;
     };
 
-    /**
-     * Executes the syncTerminalIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncTerminalIdFields = (root) => {
       const scope = root || document;
       const terminalId = getTerminalId();
@@ -2289,31 +1992,11 @@
       scope.querySelectorAll(".terminal-id-field").forEach((input) => {
         if (input instanceof HTMLInputElement && input.value !== terminalId) {
           input.value = terminalId;
-    /**
-     * Executes the syncTerminalIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncTerminalIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         }
       });
       return terminalId;
     };
 
-    /**
-     * Executes the generateClientCheckoutId function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const generateClientCheckoutId = () => {
       if (window.crypto && typeof window.crypto.randomUUID === "function") {
         return window.crypto.randomUUID();
@@ -2321,41 +2004,13 @@
       return `chk_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     };
 
-    /**
-     * Executes the syncClientCheckoutIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncClientCheckoutIdFields = (root) => {
       const panel = getCartPanel();
       const hasCheckoutSuccess = !!panel?.querySelector("[data-checkout-success='true']");
       const hasCartItems = !!panel?.querySelector("[data-cart-item]");
       if (!clientCheckoutId || hasCheckoutSuccess || !hasCartItems) {
         clientCheckoutId = generateClientCheckoutId();
-    /**
-     * Executes the syncClientCheckoutIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncClientCheckoutIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       }
-    /**
-     * Executes the syncClientCheckoutIdFields function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const scope = root || document;
       scope.querySelectorAll(".client-checkout-id-field").forEach((input) => {
         if (input instanceof HTMLInputElement && input.value !== clientCheckoutId) {
@@ -2366,73 +2021,23 @@
     };
 
     let terminalHeaderBound = false;
-    /**
-     * Executes the bindHtmxTerminalHeader function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const bindHtmxTerminalHeader = () => {
       if (terminalHeaderBound || !window.htmx) return;
       terminalHeaderBound = true;
       document.body.addEventListener("htmx:configRequest", (event) => {
         if (!event || !event.detail || !event.detail.headers) return;
         event.detail.headers["X-Terminal-Id"] = getTerminalId();
-    /**
-     * Executes the bindHtmxTerminalHeader function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the bindHtmxTerminalHeader function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       });
     };
 
-    /**
-     * Executes the getProductGrid function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getProductGrid = () => document.getElementById("productGrid");
 
-    /**
-     * Executes the getProductCards function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
     const getProductCards = () => {
       const grid = getProductGrid();
       if (!grid) return [];
       return Array.from(grid.querySelectorAll("[data-product-card='true']"));
     };
 
-    /**
-     * Executes the getProductCards function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getProductCards function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setProductCounts function.
-    /**
-     * Executes the setProductCounts function.
-     * @param {*} visible Input parameter used by this function.
-     * @param {*} total Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const setProductCounts = (visible, total) => {
       const visibleEl = document.getElementById("productVisibleCount");
       const totalEl = document.getElementById("productTotalCount");
@@ -2441,14 +2046,6 @@
       const emptyEl = document.getElementById("productFilterEmpty");
       if (emptyEl) {
         const shouldShow = total > 0 && visible === 0;
-    /**
-     * Executes the setProductCounts function.
-     * @param {*} visible Input parameter used by this function.
-     * @param {*} total Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         emptyEl.classList.toggle("hidden", !shouldShow);
       }
     };
@@ -2458,33 +2055,8 @@
       return Number.isFinite(num) ? num : 0;
     };
 
-    /**
-     * Executes the compareCards function.
-    /**
-     * Executes the parseCardNumber function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const compareCards = (a, b, mode) => {
-    /**
-     * Executes the parseCardNumber function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const orderA = Number.parseInt(a.dataset.order || "0", 10);
-    /**
-     * Executes the compareCards function.
-     * @param {*} a Input parameter used by this function.
-     * @param {*} b Input parameter used by this function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const orderB = Number.parseInt(b.dataset.order || "0", 10);
       const nameA = (a.dataset.name || "").toLowerCase();
       const nameB = (b.dataset.name || "").toLowerCase();
@@ -2497,25 +2069,9 @@
       if (mode === "price-asc") return priceA - priceB;
       if (mode === "price-desc") return priceB - priceA;
       if (mode === "stock-desc") return stockB - stockA;
-    /**
-     * Executes the compareCards function.
-     * @param {*} a Input parameter used by this function.
-     * @param {*} b Input parameter used by this function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       return orderA - orderB;
     };
 
-    /**
-     * Executes the syncDensityButtons function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncDensityButtons = (mode) => {
       document.querySelectorAll(".density-toggle").forEach((btn) => {
         const active = btn.getAttribute("data-density") === mode;
@@ -2523,30 +2079,9 @@
         btn.classList.toggle("text-white", active);
         btn.classList.toggle("hover:bg-slate-800", active);
         btn.classList.toggle("text-slate-600", !active);
-    /**
-     * Executes the syncDensityButtons function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncDensityButtons function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       });
     };
 
-    /**
-     * Executes the syncStockFilterButtons function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncStockFilterButtons = (mode) => {
       document.querySelectorAll(".stock-filter").forEach((btn) => {
         const active = btn.getAttribute("data-stock-filter") === mode;
@@ -2554,20 +2089,6 @@
         btn.classList.toggle("bg-white", !active);
         btn.classList.toggle("border-slate-900", active);
         btn.classList.toggle("border-slate-200", !active);
-    /**
-     * Executes the syncStockFilterButtons function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncStockFilterButtons function.
-     * @param {*} mode Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         btn.classList.toggle("text-white", active);
         btn.classList.toggle("hover:bg-slate-800", active);
         btn.classList.toggle("text-slate-600", !active);
@@ -2575,14 +2096,6 @@
       });
     };
 
-    /**
-     * Executes the shouldShowCard function.
-     * @param {*} card Input parameter used by this function.
-     * @param {*} stockFilter Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const shouldShowCard = (card, stockFilter) => {
       const stock = parseCardNumber(card.dataset.stock);
       const low = card.dataset.lowStock === "true";
@@ -2591,48 +2104,14 @@
       if (stockFilter === "low-stock") return stock > 0 && low;
       if (stockFilter === "out-of-stock") return out;
       return true;
-    /**
-     * Executes the shouldShowCard function.
-     * @param {*} card Input parameter used by this function.
-     * @param {*} stockFilter Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the shouldShowCard function.
-     * @param {*} card Input parameter used by this function.
-     * @param {*} stockFilter Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
 
-    /**
-     * Executes the applyProductListingState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const applyProductListingState = () => {
       const grid = getProductGrid();
       if (!grid) {
         setProductCounts(0, 0);
         return;
       }
-    /**
-     * Executes the applyProductListingState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the applyProductListingState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const cards = getProductCards();
       const sort = readStorage(productSortKey, "server");
       const stockFilter = readStorage(productStockFilterKey, "all");
@@ -2659,14 +2138,6 @@
       setProductCounts(visible, cards.length);
     };
 
-    /**
-     * Executes the flashElement function.
-     * @param {*} el Input parameter used by this function.
-     * @param {*} className Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const flashElement = (el, className) => {
       if (!el) return;
       el.classList.remove(className);
@@ -2675,48 +2146,14 @@
       window.setTimeout(() => el.classList.remove(className), 520);
     };
 
-    /**
-     * Executes the flashElement function.
-     * @param {*} el Input parameter used by this function.
-     * @param {*} className Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the flashElement function.
-     * @param {*} el Input parameter used by this function.
-     * @param {*} className Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     let lastQuickTotalValue = null;
 
-    /**
-     * Executes the updateQuickTotals function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const updateQuickTotals = () => {
       const panel = getCartPanel();
       const subtotalEl = document.getElementById("qtSubtotal");
       const discountEl = document.getElementById("qtDiscount");
       const taxEl = document.getElementById("qtTax");
       const totalEl = document.getElementById("qtTotal");
-    /**
-     * Executes the updateQuickTotals function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateQuickTotals function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (!subtotalEl || !discountEl || !taxEl || !totalEl) return;
       if (!panel) {
         subtotalEl.textContent = "-";
@@ -2742,13 +2179,6 @@
 
     let selectedCartId = null;
 
-    /**
-     * Executes the setSelectedCartItem function.
-     * @param {*} id Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const setSelectedCartItem = (id) => {
       selectedCartId = id || null;
       document.querySelectorAll("[data-cart-item]").forEach((el) => {
@@ -2756,101 +2186,38 @@
         el.setAttribute("aria-selected", active ? "true" : "false");
         el.classList.toggle("ring-2", active);
         el.classList.toggle("ring-slate-900/20", active);
-    /**
-     * Executes the setSelectedCartItem function.
-     * @param {*} id Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setSelectedCartItem function.
-     * @param {*} id Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         el.classList.toggle("border-slate-300", active);
         el.classList.toggle("cart-item-active", active);
       });
     };
 
-    /**
-     * Executes the restoreCartSelection function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const restoreCartSelection = () => {
       if (!selectedCartId) return;
       const exists = document.querySelector(`[data-cart-item][data-product-id="${CSS.escape(selectedCartId)}"]`);
       if (!exists) {
         selectedCartId = null;
         return;
-    /**
-     * Executes the restoreCartSelection function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the restoreCartSelection function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       }
       setSelectedCartItem(selectedCartId);
     };
 
-    /**
-     * Executes the getSelectedCartElement function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getSelectedCartElement = () => {
       if (!selectedCartId) return null;
       return document.querySelector(`[data-cart-item][data-product-id="${CSS.escape(selectedCartId)}"]`);
     };
 
-    /**
     const submitCartAction = (item, action) => {
       if (!item) return false;
       const form = item.querySelector(`form[data-cart-action="${action}"]`);
       if (!form) return false;
       if (typeof form.requestSubmit === "function") {
         form.requestSubmit();
-    /**
-     * Executes the submitCartAction function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} action Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       } else {
         form.submit();
-    /**
-     * Executes the submitCartAction function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} action Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       }
       return true;
     };
 
-    /**
-    /**
-     * Executes the adjustSelectedQty function.
-     * @param {*} direction Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const adjustSelectedQty = (direction) => {
       const item = getSelectedCartElement();
       if (!item) return;
@@ -2859,60 +2226,17 @@
     };
 
     const removeSelectedCartItem = () => {
-    /**
-     * Executes the adjustSelectedQty function.
-     * @param {*} direction Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-    /**
-    /**
-     * Executes the removeSelectedCartItem function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Executes the removeSelectedCartItem function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the removeSelectedCartItem function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const item = getSelectedCartElement();
       if (!item) return;
       submitCartAction(item, "remove");
     };
 
-    /**
-     * Executes the getSelectedCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getSelectedCurrency = () => {
       const panel = getCartPanel();
       if (!panel) return null;
       const select = panel.querySelector("#cashCurrency");
       if (!select) return null;
       const option = select.selectedOptions && select.selectedOptions[0];
-    /**
-     * Executes the getSelectedCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getSelectedCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const rate = option ? Number.parseFloat(option.getAttribute("data-rate") || "0") : 0;
       const decimals = option ? Number.parseInt(option.getAttribute("data-decimals") || "2", 10) : 2;
       return {
@@ -2923,30 +2247,12 @@
       };
     };
 
-    /**
-     * Executes the syncCashHidden function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncCashHidden = () => {
       const panel = getCartPanel();
       if (!panel) return;
       const currency = getSelectedCurrency();
       const input = panel.querySelector("#cashReceived");
       const codeInput = panel.querySelector("#cashCurrencyCode");
-    /**
-     * Executes the syncCashHidden function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncCashHidden function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const rateInput = panel.querySelector("#cashCurrencyRate");
       const foreignInput = panel.querySelector("#cashForeignAmount");
       if (!currency || !codeInput || !rateInput || !foreignInput) return;
@@ -2958,44 +2264,18 @@
 
     const cashCurrencyKey = "pos.cash.currency";
 
-    /**
-     * Executes the applyStoredCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const applyStoredCurrency = () => {
       const panel = getCartPanel();
       if (!panel) return;
       const select = panel.querySelector("#cashCurrency");
       if (!select) return;
       const stored = localStorage.getItem(cashCurrencyKey);
-    /**
-     * Executes the applyStoredCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the applyStoredCurrency function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (stored) {
         select.value = stored;
       }
     };
 
     const cashTenderTolerance = 0.000001;
-    /**
-     * Executes the setFieldInvalidState function.
-     * @param {*} field Input parameter used by this function.
-     * @param {*} invalid Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const setFieldInvalidState = (field, invalid) => {
       if (!field) return;
       if (invalid) {
@@ -3005,36 +2285,12 @@
       }
     };
 
-    /**
-     * Executes the getCashTenderState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getCashTenderState = () => {
       const panel = getCartPanel();
       if (!panel) return null;
       const input = panel.querySelector("#cashReceived");
       if (!input) return null;
 
-    /**
-     * Executes the getCashTenderState function.
-    /**
-     * Executes the getCashTenderState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getCashTenderState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const base = getBaseCurrency();
       const currency = getSelectedCurrency() || base;
       const rate = currency.rate && currency.rate > 0 ? currency.rate : 1;
@@ -3065,30 +2321,12 @@
       };
     };
 
-    /**
-     * Executes the validateCashTenderBeforeCheckout function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const validateCashTenderBeforeCheckout = () => {
       const tender = getCashTenderState();
       if (!tender || !tender.input) return true;
       const { input, totalBase, hasValue, hasValidValue, diffForeign } = tender;
       if (totalBase <= 0) {
         input.setCustomValidity("");
-    /**
-     * Executes the validateCashTenderBeforeCheckout function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the validateCashTenderBeforeCheckout function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         setFieldInvalidState(input, false);
         return true;
       }
@@ -3109,30 +2347,12 @@
       return true;
     };
 
-    /**
-     * Executes the updateCashChange function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const updateCashChange = () => {
       const tender = getCashTenderState();
       if (!tender) return;
       const { panel, input, base, currency, rate, totalBase, totalForeign, receivedForeign, diffForeign, diffBase, hasValue, hasValidValue } = tender;
       const changeEl = panel.querySelector("#cashChange");
       const statusEl = panel.querySelector("#cashStatus");
-    /**
-     * Executes the updateCashChange function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateCashChange function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const totalForeignEl = panel.querySelector("#cashTotalForeign");
       const changeBaseEl = panel.querySelector("#cashChangeBase");
       const rateTextEl = panel.querySelector("#cashRateText");
@@ -3197,41 +2417,16 @@
     const recentKey = "pos.recent.v1";
     const maxRecent = 10;
 
-    /**
-     * Executes the loadPins function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const loadPins = () => {
       try {
         const raw = localStorage.getItem(pinKey);
         const list = raw ? JSON.parse(raw) : [];
         return Array.isArray(list) ? list : [];
       } catch {
-    /**
-     * Executes the loadPins function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the loadPins function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         return [];
       }
     };
 
-    /**
-     * Executes the savePins function.
-     * @param {*} pins Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const savePins = (pins) => {
       try {
         localStorage.setItem(pinKey, JSON.stringify(pins));
@@ -3240,13 +2435,6 @@
       }
     };
 
-    /**
-     * Executes the escapeHtml function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const escapeHtml = (value) => {
       return String(value)
         .replace(/&/g, "&amp;")
@@ -3254,63 +2442,17 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
-    /**
-     * Executes the escapeHtml function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the escapeHtml function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the escapeHtml function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
 
-    /**
-     * Executes the getCsrfField function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getCsrfField = () => {
       const input = document.querySelector("#cartPanel input[name*='csrf']") || document.querySelector("input[name*='csrf']");
       if (!input) return null;
       const name = input.getAttribute("name");
       const value = input.value;
       if (!name || !value) return null;
-    /**
-     * Executes the getCsrfField function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the getCsrfField function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       return { name, value };
     };
 
-    /**
-     * Executes the injectCsrfIntoForms function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const injectCsrfIntoForms = (root) => {
       if (!root) return;
       const csrf = getCsrfField();
@@ -3318,20 +2460,6 @@
       root.querySelectorAll("form").forEach((form) => {
         const hasToken = Array.from(form.elements || []).some((el) => el.name === csrf.name);
         if (hasToken) return;
-    /**
-     * Executes the injectCsrfIntoForms function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the injectCsrfIntoForms function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = csrf.name;
@@ -3362,198 +2490,36 @@
       filterKey: ""
     };
 
-    /**
-     * Executes the parseBool function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const parseBool = (value) => String(value || "").toLowerCase() === "true";
-    /**
-     * Executes the parseNumberOrNull function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
     const parseNumberOrNull = (value) => {
       if (value === null || value === undefined || value === "") return null;
       const parsed = Number.parseFloat(value);
       return Number.isFinite(parsed) ? parsed : null;
     };
-    /**
-     * Executes the parseIntOrNull function.
-    /**
-     * Executes the parseNumberOrNull function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the parseNumberOrNull function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @param {*} value Input parameter used by this function.
-    /**
-     * Executes the parseIntOrNull function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const parseIntOrNull = (value) => {
       if (value === null || value === undefined || value === "") return null;
       const parsed = Number.parseInt(value, 10);
       return Number.isFinite(parsed) ? parsed : null;
     };
-    /**
-     * Executes the normalizeFeedQuery function.
-    /**
-     * Executes the parseIntOrNull function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the normalizeFeedQuery function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const normalizeFeedQuery = (value) => {
       if (!value) return "";
       return value.trim().toLowerCase();
     };
-    /**
-     * Executes the normalizeCategory function.
-     * @param {*} value Input parameter used by this function.
-    /**
-     * Executes the normalizeFeedQuery function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @returns {any} Result produced by this function.
-    /**
-     * Executes the normalizeCategory function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const normalizeCategory = (value) => {
       const raw = value == null ? "" : String(value).trim();
       return raw || "";
     };
-    /**
-     * Executes the getProductGridWrap function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getProductGridWrap = () => document.getElementById("productGridWrap");
-    /**
-     * Executes the getFeedSentinel function.
-    /**
-     * Executes the normalizeCategory function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
     const getFeedSentinel = () => document.getElementById("productFeedSentinel");
-    /**
-     * Executes the getFeedEndpoint function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the getFeedSentinel function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getFeedEndpoint = () => {
-    /**
-     * Executes the getFeedSentinel function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the getFeedEndpoint function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     */
       const wrap = getProductGridWrap();
       return (wrap?.dataset.feedEndpoint || "/pos/products/feed").trim();
     };
-    /**
-     * Executes the feedFilterKey function.
-     * @param {*} filters Input parameter used by this function.
-    /**
-     * Executes the feedFilterKey function.
-     * @param {*} filters Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const feedFilterKey = (filters) => `${normalizeFeedQuery(filters.q)}|${normalizeCategory(filters.categoryId)}`;
-    /**
-     * Executes the makeFeedPageKey function.
-     * @param {*} filters Input parameter used by this function.
-     * @param {*} cursor Input parameter used by this function.
-     * @param {*} size Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const makeFeedPageKey = (filters, cursor, size) => `${feedFilterKey(filters)}|${cursor || "start"}|${size}`;
 
-    /**
-     * Executes the getFeedScrollMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-    /**
-     * Executes the feedFilterKey function.
-     * @param {*} filters Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
     const getFeedScrollMetrics = () => {
       const container = getProductScrollContainer();
-    /**
-     * Executes the makeFeedPageKey function.
-     * @param {*} filters Input parameter used by this function.
-     * @param {*} cursor Input parameter used by this function.
-    /**
-     * Executes the getFeedScrollMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @param {*} size Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (container) {
         return {
           scrollTop: Math.max(0, container.scrollTop || 0),
@@ -3562,12 +2528,6 @@
         };
       }
       const doc = document.documentElement;
-    /**
-     * Executes the getFeedScrollMetrics function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       return {
         scrollTop: Math.max(0, window.scrollY || doc.scrollTop || 0),
         clientHeight: Math.max(1, window.innerHeight || doc.clientHeight || 1),
@@ -3575,96 +2535,39 @@
       };
     };
 
-    /**
-     * Executes the getFeedScrollOffset function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getFeedScrollOffset = () => {
       const container = getProductScrollContainer();
       return container ? Math.max(0, container.scrollTop || 0) : Math.max(0, window.scrollY || 0);
     };
 
-    /**
     const setFeedScrollOffset = (offset) => {
       const targetOffset = Number.isFinite(offset) ? Math.max(0, offset) : 0;
       const container = getProductScrollContainer();
       if (container) {
         container.scrollTo({ top: targetOffset, behavior: "auto" });
         return;
-    /**
-     * Executes the setFeedScrollOffset function.
-     * @param {*} offset Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       }
-    /**
-     * Executes the setFeedScrollOffset function.
-     * @param {*} offset Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       window.scrollTo({ top: targetOffset, behavior: "auto" });
     };
 
-    /**
-     * Executes the getFeedFiltersFromControls function.
-    /**
-     * Executes the getFeedFiltersFromControls function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getFeedFiltersFromControls = () => {
       const search = document.getElementById("searchBox");
       const category = document.getElementById("categorySelect");
       return {
         q: normalizeFeedQuery(search?.value || ""),
         categoryId: normalizeCategory(category?.value || "")
-    /**
-     * Executes the getFeedFiltersFromControls function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       };
     };
 
-    /**
-     * Executes the getFeedFiltersFromDataset function.
-    /**
-     * Executes the getFeedFiltersFromDataset function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const getFeedFiltersFromDataset = () => {
       const wrap = getProductGridWrap();
       if (!wrap) return getFeedFiltersFromControls();
       return {
         q: normalizeFeedQuery(wrap.dataset.feedQ || ""),
         categoryId: normalizeCategory(wrap.dataset.feedCategoryId || "")
-    /**
-     * Executes the getFeedFiltersFromDataset function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       };
     };
 
-    /**
-    /**
-     * Executes the updateFeedDataset function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const updateFeedDataset = ({ q, categoryId, hasMore, nextCursor }) => {
       const wrap = getProductGridWrap();
       if (!wrap) return;
@@ -3672,25 +2575,8 @@
       wrap.dataset.feedCategoryId = normalizeCategory(categoryId);
       wrap.dataset.feedHasMore = hasMore ? "true" : "false";
       wrap.dataset.feedNextCursor = nextCursor || "";
-    /**
-     * Executes the updateFeedDataset function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
 
-    /**
-     * Executes the updateFeedUrl function.
-     * @param {*} param1 Input parameter used by this function.
-    /**
-     * Executes the updateFeedUrl function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const updateFeedUrl = ({ q, categoryId }) => {
       const url = new URL(window.location.href);
       if (q) url.searchParams.set("q", q);
@@ -3698,24 +2584,9 @@
       if (categoryId) url.searchParams.set("categoryId", categoryId);
       else url.searchParams.delete("categoryId");
       url.searchParams.delete("page");
-    /**
-     * Executes the updateFeedUrl function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       window.history.replaceState({}, "", `${url.pathname}${url.search}`);
     };
 
-    /**
-    /**
-     * Executes the syncSearchControls function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncSearchControls = ({ q, categoryId }) => {
       const search = document.getElementById("searchBox");
       const category = document.getElementById("categorySelect");
@@ -3723,26 +2594,6 @@
       if (category) category.value = categoryId || "";
     };
 
-    /**
-     * Executes the syncSearchControls function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the showFeedStatus function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-    /**
-     * Executes the showFeedStatus function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const showFeedStatus = ({ loading = false, error = "", end = false } = {}) => {
       const skeleton = document.getElementById("productFeedSkeleton");
       const errorEl = document.getElementById("productFeedError");
@@ -3750,31 +2601,10 @@
       const endEl = document.getElementById("productFeedEnd");
       if (skeleton) skeleton.classList.toggle("hidden", !loading);
       if (errorEl) errorEl.classList.toggle("hidden", !error);
-    /**
-     * Executes the showFeedStatus function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (errorText && error) errorText.textContent = error;
-    /**
-     * Executes the showFeedStatus function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (endEl) endEl.classList.toggle("hidden", !end);
     };
 
-    /**
-     * Executes the productImageHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const productImageHtml = (item) => {
       if (item.imageUrl) {
         return `<img src="${escapeHtml(item.imageUrl)}" alt="" loading="lazy" decoding="async" class="product-image h-full w-full object-contain object-center block"/>`;
@@ -3782,20 +2612,6 @@
       return `<div class="h-full w-full grid place-items-center text-slate-400">
                 <div class="flex flex-col items-center gap-2 text-slate-400">
                   <svg viewBox="0 0 24 24" class="h-10 w-10" fill="none" stroke="currentColor" stroke-width="1.5">
-    /**
-     * Executes the productImageHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the productImageHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
                     <path d="M3 7h3l2-2h8l2 2h3v12H3V7z"></path>
                     <circle cx="12" cy="13" r="3.5"></circle>
                   </svg>
@@ -3804,20 +2620,12 @@
               </div>`;
     };
 
-    /**
-     * Executes the categoryBadgeHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const categoryBadgeHtml = (item) => {
       const categoryName = (item.categoryName || "").trim();
       if (!categoryName) return "";
       return `<div class="rounded-full border border-slate-200 bg-white/95 px-2.5 py-1 text-slate-600">${escapeHtml(categoryName)}</div>`;
     };
 
-    /**
     const stockBadgeHtml = (item) => {
       const stockQty = Number.isFinite(item.stockQty) ? item.stockQty : 0;
       const lowThreshold = parseIntOrNull(item.lowStockThreshold);
@@ -3825,47 +2633,18 @@
       if (stockQty <= 0) {
         return `<div class="rounded-full bg-red-100 px-2.5 py-1 text-red-700">${escapeHtml(I18N.outOfStock)}</div>`;
       }
-    /**
-     * Executes the stockBadgeHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the stockBadgeHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (lowThresholdReached || item.lowStock) {
         return `<div class="rounded-full border border-red-300 bg-white/95 px-2.5 py-1 text-red-700">${escapeHtml(I18N.lowStock)}</div>`;
       }
       if (stockQty < 20) {
         return `<div class="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">${escapeHtml(I18N.lowStock)}</div>`;
       }
-    /**
-     * Executes the stockBadgeHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (stockQty > 50) {
         return `<div class="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-700">${escapeHtml(I18N.inStock)}</div>`;
       }
       return `<div class="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">${escapeHtml(I18N.inStock)}</div>`;
     };
 
-    /**
-     * Executes the buildProductCardHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} order Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const buildProductCardHtml = (item, order) => {
       const idRaw = item.id;
       const id = escapeHtml(idRaw);
@@ -3874,22 +2653,6 @@
       const skuRaw = item.sku || item.barcode || "";
       const sku = escapeHtml(skuRaw);
       const barcode = escapeHtml(item.barcode || "");
-    /**
-     * Executes the buildProductCardHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} order Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the buildProductCardHtml function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} order Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const price = Number.parseFloat(item.price || 0);
       const wholesalePrice = parseNumberOrNull(item.wholesalePrice);
       const stockQty = Number.isFinite(item.stockQty) ? item.stockQty : 0;
@@ -4020,20 +2783,12 @@
       `;
     };
 
-    /**
-     * Executes the clampCardQty function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const clampCardQty = (value) => {
       const parsed = Number.parseInt(String(value ?? "1"), 10);
       if (!Number.isFinite(parsed)) return 1;
       return Math.max(1, Math.min(99, parsed));
     };
 
-    /**
     const setProductCardQty = (form, qty) => {
       if (!form) return;
       const safeQty = clampCardQty(qty);
@@ -4041,37 +2796,9 @@
       if (qtyInput) qtyInput.value = String(safeQty);
       form.dataset.qty = String(safeQty);
       const qtyLabel = form.querySelector("[data-card-qty-value='true']");
-    /**
-     * Executes the setProductCardQty function.
-     * @param {*} form Input parameter used by this function.
-     * @param {*} qty Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (qtyLabel) qtyLabel.textContent = String(safeQty);
-    /**
-     * Executes the setProductCardQty function.
-     * @param {*} form Input parameter used by this function.
-     * @param {*} qty Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
 
-    /**
-     * Executes the adjustProductCardQty function.
-     * @param {*} triggerEl Input parameter used by this function.
-     * @param {*} delta Input parameter used by this function.
-    /**
-     * Executes the adjustProductCardQty function.
-     * @param {*} triggerEl Input parameter used by this function.
-     * @param {*} delta Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const adjustProductCardQty = (triggerEl, delta) => {
       const form = triggerEl?.closest("form[data-product-card='true']");
       if (!form) return;
@@ -4080,25 +2807,6 @@
       setProductCardQty(form, currentQty + delta);
     };
 
-    /**
-     * Executes the adjustProductCardQty function.
-     * @param {*} triggerEl Input parameter used by this function.
-     * @param {*} delta Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncProductCardQtyControls function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-    /**
-     * Executes the syncProductCardQtyControls function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncProductCardQtyControls = (root = document) => {
       root.querySelectorAll("form[data-product-card='true']").forEach((form) => {
         const qtyInput = form.querySelector("input[data-card-qty-input='true']");
@@ -4106,24 +2814,6 @@
       });
     };
 
-    /**
-     * Executes the syncProductCardQtyControls function.
-     * @param {*} root Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the readProductItemFromForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-    /**
-     * Executes the readProductItemFromForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const readProductItemFromForm = (form) => {
       if (!form) return null;
       const id = parseIntOrNull(form.dataset.recentId || form.dataset.productId || "");
@@ -4131,23 +2821,9 @@
       const price = parseNumberOrNull(form.dataset.price);
       return {
         id,
-    /**
-     * Executes the readProductItemFromForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         name: form.dataset.name || form.dataset.recentName || "",
         sku: form.dataset.sku || form.dataset.recentSku || "",
         barcode: form.dataset.barcode || "",
-    /**
-     * Executes the readProductItemFromForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         price: price == null ? 0 : price,
         wholesalePrice: parseNumberOrNull(form.dataset.wholesalePrice),
         wholesaleMinQty: parseIntOrNull(form.dataset.wholesaleMinQty),
@@ -4161,12 +2837,6 @@
       };
     };
 
-    /**
-     * Executes the collectFeedItemsFromDom function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const collectFeedItemsFromDom = () => {
       const cards = Array.from(document.querySelectorAll("#productGrid form[data-product-card='true']"));
       return cards
@@ -4174,59 +2844,19 @@
         .filter((item) => item && item.id);
     };
 
-    /**
-     * Executes the setLoadedFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const setLoadedFeedItems = (items, replace = false) => {
       if (replace) {
         productFeedState.loadedItems = [];
         productFeedState.loadedIds = new Set();
       }
       items.forEach((item) => {
-    /**
-     * Executes the setLoadedFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the setLoadedFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         if (!item || !item.id) return;
         if (productFeedState.loadedIds.has(item.id)) return;
-    /**
-     * Executes the setLoadedFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         productFeedState.loadedIds.add(item.id);
         productFeedState.loadedItems.push(item);
       });
     };
 
-    /**
-     * Executes the renderFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const renderFeedItems = (items, replace = false) => {
       const grid = getProductGrid();
       if (!grid) return;
@@ -4235,22 +2865,6 @@
       const html = items.map((item, idx) => buildProductCardHtml(item, orderStart + idx)).join("");
       if (!html && replace) {
         grid.innerHTML = `
-    /**
-     * Executes the renderFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the renderFeedItems function.
-     * @param {*} items Input parameter used by this function.
-     * @param {*} replace Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
           <div data-feed-empty="true" class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-sm text-slate-600">
             <div class="mx-auto flex max-w-sm flex-col items-center gap-3 text-center">
               <div class="h-12 w-12 rounded-2xl border border-slate-200 bg-white grid place-items-center text-slate-400">
@@ -4274,14 +2888,6 @@
       syncPinToggles();
     };
 
-    /**
-     * Executes the cacheFeedPage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} data Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const cacheFeedPage = (key, data) => {
       if (!key) return;
       if (productFeedState.pageCache.has(key)) {
@@ -4290,50 +2896,16 @@
       productFeedState.pageCache.set(key, data);
       if (productFeedState.pageCache.size > 80) {
         const oldestKey = productFeedState.pageCache.keys().next().value;
-    /**
-     * Executes the cacheFeedPage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} data Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the cacheFeedPage function.
-     * @param {*} key Input parameter used by this function.
-     * @param {*} data Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         productFeedState.pageCache.delete(oldestKey);
       }
     };
 
-    /**
-     * Executes the persistFeedState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const persistFeedState = () => {
       const wrap = getProductGridWrap();
       if (!wrap) return;
       const state = {
         q: normalizeFeedQuery(wrap.dataset.feedQ || ""),
         categoryId: normalizeCategory(wrap.dataset.feedCategoryId || ""),
-    /**
-     * Executes the persistFeedState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the persistFeedState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         nextCursor: wrap.dataset.feedNextCursor || "",
         hasMore: parseBool(wrap.dataset.feedHasMore),
         loadedItems: productFeedState.loadedItems,
@@ -4347,30 +2919,12 @@
       }
     };
 
-    /**
-     * Executes the restoreFeedState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const restoreFeedState = () => {
       if (productFeedState.restored) return false;
       productFeedState.restored = true;
       try {
         const raw = sessionStorage.getItem(productFeedSessionKey);
         if (!raw) return false;
-    /**
-     * Executes the restoreFeedState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the restoreFeedState function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         const parsed = JSON.parse(raw);
         if (!parsed || !Array.isArray(parsed.loadedItems)) return false;
         if (!parsed.ts || Date.now() - parsed.ts > 10 * 60 * 1000) return false;
@@ -4401,20 +2955,8 @@
       }
     };
 
-    /**
-     * Executes the sleep function.
-     * @param {*} ms Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const sleep = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-    /**
-     * Executes the fetchFeedPage function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
     const fetchFeedPage = async ({ cursor = "", reset = false, filters = null, reason = "scroll", updateUrl = false } = {}) => {
       const wrap = getProductGridWrap();
       if (!wrap) return;
@@ -4422,29 +2964,8 @@
       const filterKey = feedFilterKey(resolvedFilters);
       const pageKey = makeFeedPageKey(resolvedFilters, cursor, productFeedState.size);
 
-    /**
-     * Executes the fetchFeedPage function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the fetchFeedPage function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (productFeedState.inFlightKey && !reset) return;
       if (productFeedState.inFlightKey === pageKey) return;
-    /**
-     * Executes the fetchFeedPage function.
-     * @param {*} param1 Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
 
       if (reset && productFeedState.activeAbort) {
         productFeedState.activeAbort.abort();
@@ -4597,30 +3118,12 @@
       }
     };
 
-    /**
-     * Executes the maybeLoadNextFeedPage function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const maybeLoadNextFeedPage = () => {
       const wrap = getProductGridWrap();
       if (!wrap) return;
       const hasMore = parseBool(wrap.dataset.feedHasMore);
       if (!hasMore) {
         showFeedStatus({ loading: false, error: "", end: true });
-    /**
-     * Executes the maybeLoadNextFeedPage function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the maybeLoadNextFeedPage function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         return;
       }
       if (productFeedState.inFlightKey) return;
@@ -4637,14 +3140,6 @@
       });
     };
 
-    /**
-     * Executes the resetFeedWithFilters function.
-     * @param {*} filters Input parameter used by this function.
-     * @param {*} param2 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const resetFeedWithFilters = (filters, { updateUrl = true } = {}) => {
       fetchFeedPage({
         cursor: "",
@@ -4653,48 +3148,14 @@
         reason: "filter",
         updateUrl
       });
-    /**
-     * Executes the resetFeedWithFilters function.
-     * @param {*} filters Input parameter used by this function.
-     * @param {*} param2 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the resetFeedWithFilters function.
-     * @param {*} filters Input parameter used by this function.
-     * @param {*} param2 Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     };
 
-    /**
-     * Executes the bindFeedObserver function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const bindFeedObserver = () => {
       const sentinel = getFeedSentinel();
       if (!sentinel) return;
       if (productFeedState.observer) {
         productFeedState.observer.disconnect();
       }
-    /**
-     * Executes the bindFeedObserver function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the bindFeedObserver function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const observerRoot = getProductScrollContainer();
       productFeedState.observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -4705,30 +3166,12 @@
       productFeedState.observer.observe(sentinel);
     };
 
-    /**
-     * Executes the bindFeedListeners function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const bindFeedListeners = () => {
       if (!productFeedState.scrollHandler) {
         productFeedState.scrollHandler = () => {
           const now = Date.now();
           const last = Number.parseInt(document.body.dataset.feedScrollTs || "0", 10);
           if (now - last < 150) return;
-    /**
-     * Executes the bindFeedListeners function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the bindFeedListeners function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
           document.body.dataset.feedScrollTs = String(now);
           maybeLoadNextFeedPage();
         };
@@ -4781,30 +3224,12 @@
       }
     };
 
-    /**
-     * Executes the initInfiniteProductFeed function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const initInfiniteProductFeed = () => {
       const wrap = getProductGridWrap();
       if (!wrap) return;
       updateSplitLayoutMetrics();
       bindFeedListeners();
       bindFeedObserver();
-    /**
-     * Executes the initInfiniteProductFeed function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the initInfiniteProductFeed function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const currentFilters = getFeedFiltersFromDataset();
       productFeedState.filterKey = feedFilterKey(currentFilters);
       productFeedState.hasMore = parseBool(wrap.dataset.feedHasMore);
@@ -4817,13 +3242,6 @@
       persistFeedState();
     };
 
-    /**
-     * Executes the buildPostBody function.
-     * @param {*} params Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const buildPostBody = (params) => {
       const body = new URLSearchParams();
       Object.entries(params || {}).forEach(([key, value]) => {
@@ -4831,31 +3249,9 @@
       });
       const csrf = getCsrfField();
       if (csrf) body.append(csrf.name, csrf.value);
-    /**
-     * Executes the buildPostBody function.
-     * @param {*} params Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the buildPostBody function.
-     * @param {*} params Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       return body;
     };
 
-    /**
-     * Executes the postJson function.
-     * @param {*} url Input parameter used by this function.
-     * @param {*} params Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const postJson = async (url, params) => {
       const response = await fetch(url, {
         method: "POST",
@@ -4864,22 +3260,6 @@
           "X-Terminal-Id": getTerminalId()
         },
         body: buildPostBody(params)
-    /**
-     * Executes the postJson function.
-     * @param {*} url Input parameter used by this function.
-     * @param {*} params Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the postJson function.
-     * @param {*} url Input parameter used by this function.
-     * @param {*} params Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       });
       if (!response.ok) {
         const text = await response.text();
@@ -4888,14 +3268,6 @@
       return response.json();
     };
 
-    /**
-     * Executes the setBridgeStatus function.
-     * @param {*} message Input parameter used by this function.
-     * @param {*} isError Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const setBridgeStatus = (message, isError) => {
       const statusEl = document.querySelector("[data-bridge-status='true']");
       if (!statusEl) return;
@@ -4904,13 +3276,6 @@
       statusEl.classList.toggle("text-rose-700", !!isError);
     };
 
-    /**
-     * Executes the resolveBridgeUrl function.
-     * @param {*} value Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const resolveBridgeUrl = (value) => {
       const explicit = (value || "").trim();
       if (explicit) return explicit;
@@ -4918,17 +3283,7 @@
       if (fromBody) return fromBody;
       return "http://127.0.0.1:18765";
     };
-    /**
 
-    /**
-     * Executes the bridgeFetch function.
-     * @param {*} baseUrl Input parameter used by this function.
-     * @param {*} path Input parameter used by this function.
-     * @param {*} payload Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const bridgeFetch = async (baseUrl, path, payload) => {
       const trimmed = resolveBridgeUrl(baseUrl).replace(/\/+$/, "");
       const response = await fetch(`${trimmed}${path}`, {
@@ -4936,48 +3291,13 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload || {})
       });
-    /**
-     * Executes the bridgeFetch function.
-     * @param {*} baseUrl Input parameter used by this function.
-     * @param {*} path Input parameter used by this function.
-     * @param {*} payload Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (!response.ok) {
         const text = await response.text();
-    /**
-     * Executes the bridgeFetch function.
-     * @param {*} baseUrl Input parameter used by this function.
-     * @param {*} path Input parameter used by this function.
-    /**
-     * Executes the bridgeFetch function.
-     * @param {*} baseUrl Input parameter used by this function.
-     * @param {*} path Input parameter used by this function.
-     * @param {*} payload Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @param {*} payload Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         throw new Error(text || I18N.requestFailed);
       }
       return response.json().catch(() => ({}));
     };
 
-    /**
-     * Executes the printReceiptViaBridge function.
-     * @param {*} saleId Input parameter used by this function.
-     * @param {*} reprint Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const printReceiptViaBridge = async (saleId, reprint = false) => {
       if (!saleId) return;
       const payloadResponse = await postJson(`/pos/checkout/${saleId}/print`, {
@@ -4986,22 +3306,6 @@
       });
 
       const mode = (payloadResponse.printerMode || "PDF").toUpperCase();
-    /**
-     * Executes the printReceiptViaBridge function.
-     * @param {*} saleId Input parameter used by this function.
-     * @param {*} reprint Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the printReceiptViaBridge function.
-     * @param {*} saleId Input parameter used by this function.
-     * @param {*} reprint Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (mode !== "BRIDGE") {
         if (payloadResponse.pdfUrl) window.open(payloadResponse.pdfUrl, "_blank", "noopener,noreferrer");
         setBridgeStatus("Bridge disabled. Downloaded PDF fallback.", false);
@@ -5017,13 +3321,6 @@
       }
     };
 
-    /**
-     * Executes the openDrawerViaBridge function.
-     * @param {*} saleId Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const openDrawerViaBridge = async (saleId) => {
       const drawerResponse = await postJson("/pos/drawer/open", {
         terminalId: getTerminalId(),
@@ -5031,20 +3328,6 @@
       });
       const mode = (drawerResponse.printerMode || "PDF").toUpperCase();
       if (mode !== "BRIDGE") {
-    /**
-     * Executes the openDrawerViaBridge function.
-     * @param {*} saleId Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the openDrawerViaBridge function.
-     * @param {*} saleId Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         setBridgeStatus("Bridge disabled. Open drawer manually.", true);
         return;
       }
@@ -5059,30 +3342,12 @@
       }
     };
 
-    /**
-     * Executes the renderPins function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const renderPins = () => {
       const section = document.getElementById("pinnedSection");
       const grid = document.getElementById("pinnedGrid");
       if (!section || !grid) return;
       const pins = loadPins();
       if (!pins.length) {
-    /**
-     * Executes the renderPins function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the renderPins function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         section.classList.add("hidden");
         grid.innerHTML = "";
         return;
@@ -5138,15 +3403,6 @@
 
     let clearingCart = false;
 
-    /**
-     * Executes the postCartForm function.
-     * @param {*} url Input parameter used by this function.
-     * @param {*} params Input parameter used by this function.
-     * @param {*} swap Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const postCartForm = async (url, params, swap) => {
       const body = buildPostBody(params);
       const response = await fetch(url, {
@@ -5156,24 +3412,6 @@
           "HX-Request": "true",
           "X-Terminal-Id": getTerminalId()
         },
-    /**
-     * Executes the postCartForm function.
-     * @param {*} url Input parameter used by this function.
-     * @param {*} params Input parameter used by this function.
-     * @param {*} swap Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the postCartForm function.
-     * @param {*} url Input parameter used by this function.
-     * @param {*} params Input parameter used by this function.
-     * @param {*} swap Input parameter used by this function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         body
       });
       if (!swap) return;
@@ -5186,30 +3424,12 @@
       afterCartSwap();
     };
 
-    /**
-     * Executes the clearCart function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const clearCart = async () => {
       if (clearingCart) return;
       const panel = getCartPanel();
       if (!panel) return;
       clearingCart = true;
       try {
-    /**
-     * Executes the clearCart function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the clearCart function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         const ids = Array.from(panel.querySelectorAll("[data-cart-item]"))
           .map((el) => el.dataset.productId)
           .filter(Boolean);
@@ -5225,12 +3445,6 @@
       }
     };
 
-    /**
-     * Executes the confirmClearCart function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const confirmClearCart = () => {
       const ok = window.confirm(I18N.clearCartConfirmText);
       if (ok) clearCart();
@@ -5238,12 +3452,6 @@
 
     let autoPrintInFlight = false;
 
-    /**
-     * Executes the runCheckoutAutoPrint function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const runCheckoutAutoPrint = async () => {
       if (autoPrintInFlight) return;
       const success = document.querySelector("[data-checkout-success='true']");
@@ -5271,13 +3479,6 @@
       }
     };
 
-    /**
-     * Executes the isPosContextInput function.
-     * @param {*} target Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const isPosContextInput = (target) => {
       if (!target) return false;
       if (target.id === "barcodeInput") return false;
@@ -5285,20 +3486,6 @@
     };
 
     let barcodeRefocusUntil = 0;
-    /**
-     * Executes the isPosContextInput function.
-     * @param {*} target Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the isPosContextInput function.
-     * @param {*} target Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     let barcodeRefocusTimer = null;
     let barcodeTypingIntervals = [];
     let barcodeLastKeyAt = 0;
@@ -5308,13 +3495,6 @@
     let pendingRecentRender = false;
     let posStaticUiReady = false;
 
-    /**
-     * Executes the scheduleBarcodeRefocus function.
-     * @param {*} delayMs Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const scheduleBarcodeRefocus = (delayMs = 180) => {
       if (barcodeRefocusTimer) window.clearTimeout(barcodeRefocusTimer);
       barcodeRefocusTimer = window.setTimeout(() => {
@@ -5322,50 +3502,18 @@
         if (!input) return;
         if (Date.now() < barcodeRefocusUntil) return;
         const active = document.activeElement;
-    /**
-     * Executes the scheduleBarcodeRefocus function.
-     * @param {*} delayMs Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the scheduleBarcodeRefocus function.
-     * @param {*} delayMs Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         if (isPosContextInput(active)) return;
         if (active === input) return;
         input.focus({ preventScroll: true });
       }, delayMs);
     };
 
-    /**
-     * Executes the bindBarcodeScannerBehavior function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const bindBarcodeScannerBehavior = () => {
       const form = document.getElementById("barcodeForm");
       const input = document.getElementById("barcodeInput");
       if (!form || !input) return;
       if (input.dataset.boundScanner === "true") return;
       input.dataset.boundScanner = "true";
-    /**
-     * Executes the bindBarcodeScannerBehavior function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the bindBarcodeScannerBehavior function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
 
       input.addEventListener("keydown", (event) => {
         const now = performance.now();
@@ -5409,30 +3557,12 @@
       scheduleBarcodeRefocus(40);
     };
 
-    /**
-     * Executes the initPosStaticUi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const initPosStaticUi = () => {
       if (posStaticUiReady) return;
       posStaticUiReady = true;
       updateSplitLayoutMetrics();
       initInfiniteProductFeed();
       syncProductCardQtyControls(document);
-    /**
-     * Executes the initPosStaticUi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the initPosStaticUi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       applyProductListingState();
       renderPins();
       renderRecents();
@@ -5440,30 +3570,12 @@
       bindBarcodeScannerBehavior();
     };
 
-    /**
-     * Executes the refreshCartUi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const refreshCartUi = () => {
       syncTerminalIdFields(document);
       syncClientCheckoutIdFields(document);
       applyStoredCurrency();
       updateCashChange();
       updateQuickTotals();
-    /**
-     * Executes the refreshCartUi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the refreshCartUi function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (pendingRecentRender) {
         renderRecents();
         pendingRecentRender = false;
@@ -5485,30 +3597,12 @@
       runCheckoutAutoPrint();
     };
 
-    /**
-     * Executes the afterCartSwap function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const afterCartSwap = () => {
       initPosStaticUi();
       refreshCartUi();
     };
 
     const cameraEnabled = (document.body.dataset.cameraScanEnabled || "").toLowerCase() === "true";
-    /**
-     * Executes the afterCartSwap function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the afterCartSwap function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const cameraState = {
       active: false,
       stream: null,
@@ -5516,14 +3610,6 @@
       rafId: null
     };
 
-    /**
-     * Executes the setCameraStatus function.
-     * @param {*} message Input parameter used by this function.
-     * @param {*} isError Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const setCameraStatus = (message, isError) => {
       const status = document.getElementById("cameraScanStatus");
       if (!status) return;
@@ -5532,36 +3618,12 @@
       status.classList.toggle("text-rose-600", !!isError);
     };
 
-    /**
-     * Executes the stopCameraScanner function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const stopCameraScanner = () => {
       cameraState.active = false;
       if (cameraState.rafId) {
         window.cancelAnimationFrame(cameraState.rafId);
         cameraState.rafId = null;
       }
-    /**
-     * Executes the stopCameraScanner function.
-    /**
-     * Executes the stopCameraScanner function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the stopCameraScanner function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (cameraState.stream) {
         cameraState.stream.getTracks().forEach((track) => track.stop());
         cameraState.stream = null;
@@ -5577,30 +3639,12 @@
       scheduleBarcodeRefocus(40);
     };
 
-    /**
-     * Executes the runCameraLoop function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const runCameraLoop = async () => {
       if (!cameraState.active) return;
       const video = document.getElementById("cameraScanVideo");
       if (!video || !cameraState.detector) return;
       try {
         const codes = await cameraState.detector.detect(video);
-    /**
-     * Executes the runCameraLoop function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the runCameraLoop function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         if (codes && codes.length > 0) {
           const value = (codes[0].rawValue || "").trim();
           if (value) {
@@ -5622,30 +3666,12 @@
       cameraState.rafId = window.requestAnimationFrame(runCameraLoop);
     };
 
-    /**
-     * Executes the startCameraScanner function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const startCameraScanner = async () => {
       if (!cameraEnabled) return;
       if (cameraState.active) {
         stopCameraScanner();
         return;
       }
-    /**
-     * Executes the startCameraScanner function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the startCameraScanner function.
-     * @returns {Promise<any>} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const panel = document.getElementById("cameraScanPanel");
       const video = document.getElementById("cameraScanVideo");
       if (!panel || !video) return;
@@ -5673,41 +3699,16 @@
       }
     };
 
-    /**
-     * Executes the loadRecents function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const loadRecents = () => {
       try {
         const raw = localStorage.getItem(recentKey);
         const list = raw ? JSON.parse(raw) : [];
         return Array.isArray(list) ? list : [];
       } catch {
-    /**
-     * Executes the loadRecents function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the loadRecents function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         return [];
       }
     };
 
-    /**
-     * Executes the saveRecents function.
-     * @param {*} items Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const saveRecents = (items) => {
       try {
         localStorage.setItem(recentKey, JSON.stringify(items));
@@ -5716,28 +3717,12 @@
       }
     };
 
-    /**
-     * Executes the recentItemKey function.
-     * @param {*} item Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const recentItemKey = (item) => {
       const sku = (item.sku || "").trim();
       if (sku) return `sku:${sku.toLowerCase()}`;
       return `id:${String(item.id || "")}`;
     };
 
-    /**
-    /**
-     * Executes the addRecentItem function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} options Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const addRecentItem = (item, options = {}) => {
       const shouldRender = options.render !== false;
       if (!item || !item.id) return;
@@ -5745,47 +3730,18 @@
       const key = recentItemKey(item);
       const filtered = list.filter((i) => recentItemKey(i) !== key);
       filtered.unshift(item);
-    /**
-     * Executes the addRecentItem function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} options Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the addRecentItem function.
-     * @param {*} item Input parameter used by this function.
-     * @param {*} options Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       saveRecents(filtered.slice(0, maxRecent));
       if (shouldRender) {
         renderRecents();
       }
     };
 
-    /**
-    /**
-     * Executes the renderRecents function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const renderRecents = () => {
       const section = document.getElementById("recentSection");
       const grid = document.getElementById("recentGrid");
       if (!section || !grid) return;
       const items = loadRecents();
       if (!items.length) {
-    /**
-     * Executes the renderRecents function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         section.classList.add("hidden");
         grid.innerHTML = "";
         return;
@@ -5793,12 +3749,6 @@
       section.classList.remove("hidden");
       grid.innerHTML = items.map((item) => {
         const name = escapeHtml(item.name || "Item");
-    /**
-     * Executes the renderRecents function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         const sku = escapeHtml(item.sku || "");
         const price = formatMoney(item.price || 0);
         const image = item.image
@@ -5838,30 +3788,12 @@
       if (window.htmx) window.htmx.process(grid);
     };
 
-    /**
-     * Executes the syncPinToggles function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const syncPinToggles = () => {
       const pins = loadPins();
       const pinned = new Set(pins.map((p) => String(p.id)));
       document.querySelectorAll(".pin-toggle").forEach((el) => {
         const id = String(el.dataset.productId || "");
         const active = pinned.has(id);
-    /**
-     * Executes the syncPinToggles function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncPinToggles function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
         el.setAttribute("aria-pressed", active ? "true" : "false");
         el.classList.toggle("bg-slate-900", active);
         el.classList.toggle("border-slate-900", active);
@@ -5872,13 +3804,6 @@
       });
     };
 
-    /**
-     * Executes the togglePin function.
-     * @param {*} el Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const togglePin = (el) => {
       const data = {
         id: String(el.dataset.productId || ""),
@@ -5886,20 +3811,6 @@
         sku: el.dataset.productSku || "",
         price: el.dataset.productPrice || "0",
         image: el.dataset.productImage || ""
-    /**
-     * Executes the togglePin function.
-     * @param {*} el Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the togglePin function.
-     * @param {*} el Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       };
       if (!data.id) return;
       const pins = loadPins();
@@ -5915,13 +3826,6 @@
       syncPinToggles();
     };
 
-    /**
-     * Executes the isAddToCartForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
     const isAddToCartForm = (form) => {
       if (!(form instanceof HTMLFormElement)) return false;
       const action = form.getAttribute("hx-post") || form.getAttribute("action") || "";
@@ -5929,20 +3833,6 @@
     };
 
     document.addEventListener("click", (e) => {
-    /**
-     * Executes the isAddToCartForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the isAddToCartForm function.
-     * @param {*} form Input parameter used by this function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       const feedRetryBtn = e.target.closest("[data-action='feed-retry']");
       if (feedRetryBtn) {
         e.preventDefault();
@@ -6303,13 +4193,6 @@
     (function () {
       if (window.htmx) return;
 
-      /**
-       * Executes the toQueryString function.
-       * @param {*} formData Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const toQueryString = (formData) => {
         const params = new URLSearchParams();
         for (const [key, value] of formData.entries()) {
@@ -6318,29 +4201,12 @@
         return params.toString();
       };
 
-      /**
-       * Executes the resolveTarget function.
-       * @param {*} el Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const resolveTarget = (el) => {
         const selector = el.getAttribute("hx-target");
         if (!selector) return null;
         return document.querySelector(selector);
       };
 
-      /**
-      /**
-       * Executes the performSwap function.
-       * @param {*} target Input parameter used by this function.
-       * @param {*} html Input parameter used by this function.
-       * @param {*} swap Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const performSwap = (target, html, swap) => {
         if (!target) return;
         if (swap === "outerHTML") {
@@ -6348,39 +4214,8 @@
         } else {
           target.innerHTML = html;
         }
-      /**
-       * Executes the performSwap function.
-       * @param {*} target Input parameter used by this function.
-       * @param {*} html Input parameter used by this function.
-       * @param {*} swap Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the performSwap function.
-       * @param {*} target Input parameter used by this function.
-       * @param {*} html Input parameter used by this function.
-       * @param {*} swap Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       };
 
-      /**
-       * Executes the afterRequest function.
-       * @param {*} el Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-      /**
-       * Executes the afterRequest function.
-       * @param {*} el Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const afterRequest = (el) => {
         const hxOn = el.getAttribute("hx-on");
         if (hxOn && hxOn.includes("afterRequest") && typeof el.reset === "function") {
@@ -6388,23 +4223,6 @@
         }
       };
 
-      /**
-       * Executes the afterRequest function.
-       * @param {*} el Input parameter used by this function.
-       * @returns {any} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the ajaxRequest function.
-       * @param {*} options Input parameter used by this function.
-      /**
-       * Executes the ajaxRequest function.
-       * @param {*} options Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const ajaxRequest = async (options) => {
         const { url, method, body, triggerEl, target, swap, pushUrl } = options;
         const headers = { "HX-Request": "true", "X-Terminal-Id": getTerminalId() };
@@ -6412,34 +4230,12 @@
 
         const response = await fetch(url, { method, body, headers });
         const html = await response.text();
-      /**
-       * Executes the ajaxRequest function.
-       * @param {*} options Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         performSwap(target, html, swap);
         afterCartSwap();
         if (pushUrl) history.pushState({}, "", url);
         if (triggerEl) afterRequest(triggerEl);
-      /**
-       * Executes the ajaxRequest function.
-       * @param {*} options Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       };
 
-      /**
-       * Executes the submitForm function.
-       * @param {*} form Input parameter used by this function.
-       * @param {*} triggerEl Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
       const submitForm = async (form, triggerEl) => {
         const method = (form.getAttribute("hx-post") ? "POST" : "GET").toUpperCase();
         const urlAttr = form.getAttribute("hx-post") || form.getAttribute("hx-get") || form.action;
@@ -6448,22 +4244,6 @@
         const target = resolveTarget(form);
         const formData = new FormData(form);
 
-      /**
-       * Executes the submitForm function.
-       * @param {*} form Input parameter used by this function.
-       * @param {*} triggerEl Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
-      /**
-       * Executes the submitForm function.
-       * @param {*} form Input parameter used by this function.
-       * @param {*} triggerEl Input parameter used by this function.
-       * @returns {Promise<any>} Result produced by this function.
-       * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-       * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-       */
         if (method === "GET") {
           const qs = toQueryString(formData);
           const url = qs ? `${urlAttr}?${qs}` : urlAttr;

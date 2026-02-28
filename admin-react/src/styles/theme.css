@@ -1,12 +1,55 @@
 :root {
-  --bg: #f3f5f8;
+  /* Background Colors */
+  --bg: #f8fafc;
+  --bg-secondary: #f3f4f6;
+  --bg-tertiary: #eff2f6;
+
+  /* Surface Colors */
   --panel: #ffffff;
-  --text: #1c2a39;
-  --muted: #6a7683;
-  --line: #d4dce5;
-  --brand: #0f4c81;
-  --brand-strong: #0b3b64;
-  --good: #0d7a53;
-  --bad: #b83145;
-  --sidebar-bg: linear-gradient(180deg, #102f4a 0%, #0f4a5d 100%);
+  --panel-secondary: #f9fafb;
+  --panel-hover: #f3f4f6;
+
+  /* Text Colors */
+  --text: #111827;
+  --text-secondary: #4b5563;
+  --muted: #6b7280;
+  --muted-light: #9ca3af;
+
+  /* Border & Line Colors */
+  --line: #e5e7eb;
+  --line-light: #f3f4f6;
+  --line-dark: #d1d5db;
+
+  /* Brand Colors */
+  --brand: #3b82f6;
+  --brand-strong: #1e40af;
+  --brand-light: #dbeafe;
+  --brand-hover: #2563eb;
+
+  /* Status Colors */
+  --good: #10b981;
+  --good-light: #d1fae5;
+  --bad: #ef4444;
+  --bad-light: #fee2e2;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --info: #06b6d4;
+  --info-light: #cffafe;
+
+  /* Sidebar */
+  --sidebar-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  --sidebar-text: #e2e8f0;
+  --sidebar-text-muted: #cbd5e1;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }

@@ -417,6 +417,12 @@
 
     /**
      * Executes the toFixedSmart function.
+     * @param {*} value Input parameter used by this function.
+     * @param {*} decimals Input parameter used by this function.
+     * @returns {any} Result produced by this function.
+     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
+     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
+     */
     function toFixedSmart(value, decimals = 6) {
       return toNumber(value).toFixed(decimals).replace(/\.?0+$/, "");
     }

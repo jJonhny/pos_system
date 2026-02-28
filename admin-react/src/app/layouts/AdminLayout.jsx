@@ -44,6 +44,9 @@ export function AdminLayout() {
               <NavLink to="/admin/inventory" className={navClass}>
                 Inventory
               </NavLink>
+              <NavLink to="/admin/suppliers" className={navClass}>
+                Suppliers
+              </NavLink>
               <NavLink to="/admin/reports" className={navClass}>
                 Reports
               </NavLink>
