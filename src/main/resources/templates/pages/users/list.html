@@ -16,16 +16,16 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .reveal {
-      animation: riseIn 0.6s ease-out both;
-    }
+    .reveal { animation: riseIn 0.6s ease-out both; }
     .reveal.delay-1 { animation-delay: 0.05s; }
     .reveal.delay-2 { animation-delay: 0.1s; }
     .reveal.delay-3 { animation-delay: 0.15s; }
+    .users-table-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+    .users-table-scroll::-webkit-scrollbar { display: none; }
   </style>
 </head>
 
-<body class="bg-slate-100 text-slate-900">
+<body class="bg-slate-100 text-slate-900 overflow-x-hidden">
   <div class="absolute inset-0 -z-10 pointer-events-none">
     <div class="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-emerald-200/30 blur-3xl"></div>
     <div class="absolute top-40 -left-24 h-96 w-96 rounded-full bg-slate-200/60 blur-3xl"></div>
@@ -36,7 +36,7 @@
     <!-- Header -->
     <header class="bg-white/80 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
       <div class="w-full px-6 lg:px-10 py-5">
-        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4">
           <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-slate-900 text-white grid place-items-center shadow-sm">
               <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,7 +50,7 @@
             </div>
           </div>
 
-                    <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
+          <nav th:replace="~{fragments/navigation :: mainNav}"></nav>
 
           <div class="flex items-center justify-end gap-2">
             <a sec:authorize="isAnonymous()" href="/login"
@@ -68,7 +68,7 @@
       </div>
     </header>
 
-    <main class="w-full px-6 lg:px-10 py-8">
+    <main class="w-full px-6 lg:px-10 py-8 overflow-x-hidden">
       <div class="mb-6 flex justify-end">
         <a href="/"
            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 transition">
@@ -90,6 +90,7 @@
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- LEFT -->
         <div class="xl:col-span-1 space-y-6">
           <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal">
             <div class="text-sm text-slate-500">Total users</div>
@@ -118,22 +119,19 @@
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">Username</label>
                 <input name="username" type="text" autocomplete="off"
-                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                              focus:outline-none focus:ring-2 focus:ring-slate-300"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                        placeholder="e.g. cashier01" required/>
               </div>
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">Password</label>
                 <input name="password" type="password" autocomplete="new-password"
-                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                              focus:outline-none focus:ring-2 focus:ring-slate-300"
+                       class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                        placeholder="Set a temporary password" required/>
               </div>
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">Role</label>
                 <select name="role"
-                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                   <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
                 </select>
               </div>
@@ -141,8 +139,7 @@
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-1">Status</label>
                   <select name="active"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                                 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                     <option value="true" selected>Active</option>
                     <option value="false">Inactive</option>
                   </select>
@@ -150,8 +147,7 @@
                 <div>
                   <label class="block text-xs font-medium text-slate-600 mb-1">Require reset</label>
                   <select name="mustResetPassword"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                                 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                     <option value="true" selected>Yes</option>
                     <option value="false">No</option>
                   </select>
@@ -160,8 +156,7 @@
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">MFA required</label>
                 <select name="mfaRequired"
-                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                   <option value="false" selected>No</option>
                   <option value="true">Yes</option>
                 </select>
@@ -169,14 +164,14 @@
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-2">Permissions</label>
                 <div class="grid grid-cols-2 gap-2">
-                  <label th:each="p : ${permissions}" class="flex items-center gap-2 rounded-lg border border-slate-200 px-2 py-1.5 text-xs text-slate-700">
+                  <label th:each="p : ${permissions}"
+                         class="flex items-center gap-2 rounded-lg border border-slate-200 px-2 py-1.5 text-xs text-slate-700">
                     <input type="checkbox" name="permissions" th:value="${p}" class="rounded border-slate-300"/>
                     <span th:text="${@uiFormat.permissionLabel(p)}">PERMISSION</span>
                   </label>
                 </div>
               </div>
-              <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold
-                             hover:bg-slate-800 transition active:scale-[0.99]">
+              <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition active:scale-[0.99]">
                 Create User
               </button>
             </form>
@@ -203,7 +198,8 @@
               <div th:each="log : ${auditLogs}" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <div class="flex items-center justify-between text-xs text-slate-500">
                   <span th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm')}">2026-02-11 18:00</span>
-                  <span class="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700" th:text="${log.action}">ACTION</span>
+                  <span class="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700"
+                        th:text="${log.action}">ACTION</span>
                 </div>
                 <div class="mt-2 text-sm font-semibold text-slate-900" th:text="${log.details}">Details</div>
                 <div class="mt-1 text-xs text-slate-600">
@@ -217,6 +213,7 @@
           </div>
         </div>
 
+        <!-- RIGHT -->
         <div class="xl:col-span-2 space-y-6">
           <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 reveal delay-1">
             <div class="text-base font-semibold">Search &amp; filters</div>
@@ -231,17 +228,16 @@
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">Role</label>
                 <select name="role"
-                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                   <option value="" th:selected="${role == null}">All roles</option>
-                  <option th:each="r : ${roles}" th:value="${r}" th:text="${@uiFormat.userRoleLabel(r)}" th:selected="${role == r}"></option>
+                  <option th:each="r : ${roles}" th:value="${r}" th:text="${@uiFormat.userRoleLabel(r)}"
+                          th:selected="${role != null and #strings.equals(role.name(), r.name())}"></option>
                 </select>
               </div>
               <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1">Status</label>
                 <select name="active"
-                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                   <option value="" th:selected="${active == null}">All statuses</option>
                   <option value="true" th:selected="${active != null and active}">Active</option>
                   <option value="false" th:selected="${active != null and !active}">Inactive</option>
@@ -276,8 +272,7 @@
                 <div class="lg:col-span-2">
                   <label class="block text-xs font-medium text-slate-600 mb-1">Bulk action</label>
                   <select id="bulkAction" name="action"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                                 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                     <option value="activate">Activate accounts</option>
                     <option value="deactivate">Deactivate accounts</option>
                     <option value="unlock">Unlock accounts</option>
@@ -290,41 +285,43 @@
                     <option value="reset-otp">Reset OTP setup</option>
                   </select>
                 </div>
+
                 <div id="bulkRoleWrap" class="lg:col-span-1 hidden">
                   <label class="block text-xs font-medium text-slate-600 mb-1">Role</label>
                   <select name="role"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                                 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                     <option th:each="r : ${roles}" th:value="${r}" th:text="${@uiFormat.userRoleLabel(r)}"></option>
                   </select>
                 </div>
+
                 <div id="bulkPermWrap" class="lg:col-span-1 hidden">
                   <label class="block text-xs font-medium text-slate-600 mb-1">Permission</label>
                   <select name="permission"
-                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                                 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                          class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
                     <option th:each="p : ${permissions}" th:value="${p}" th:text="${@uiFormat.permissionLabel(p)}"></option>
                   </select>
                 </div>
+
                 <div id="bulkPasswordWrap" class="lg:col-span-1 hidden">
                   <label class="block text-xs font-medium text-slate-600 mb-1">Temp password</label>
                   <input name="password" type="text" autocomplete="off"
-                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white
-                                focus:outline-none focus:ring-2 focus:ring-slate-300"
+                         class="w-full rounded-xl border border-slate-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
                          placeholder="Set temp password"/>
                 </div>
+
                 <div class="lg:col-span-1 flex items-end">
                   <button class="w-full rounded-xl bg-slate-900 text-white py-2.5 text-sm font-semibold hover:bg-slate-800 transition">
                     Apply
                   </button>
                 </div>
+
                 <div class="lg:col-span-6 text-xs text-slate-500">
                   Selected users: <span id="bulkCount" class="font-semibold text-slate-900">0</span>. Bulk actions skip your own account.
                 </div>
               </form>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto users-table-scroll">
               <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-600">
                   <tr>
@@ -339,37 +336,43 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                  <tr th:each="u : ${users}" th:with="isSelf=${#authentication != null and #authentication.name != null and #strings.equalsIgnoreCase(#authentication.name, u.username)}">
+                  <tr th:each="u : ${users}"
+                      th:with="isSelf=${#authentication != null and #authentication.name != null and #strings.equalsIgnoreCase(#authentication.name, u.username)}">
                     <td class="px-6 py-4">
                       <input type="checkbox" name="ids" th:value="${u.id}" form="bulkForm"
                              th:disabled="${isSelf}" class="rounded border-slate-300" data-user-select />
                     </td>
+
                     <td class="px-6 py-4">
                       <div class="font-medium text-slate-900" th:text="${u.username}">username</div>
                       <div class="mt-2 flex flex-wrap items-center gap-2">
                         <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
-                              th:classappend="${u.role.name() == 'ADMIN'} ? ' bg-slate-900 text-white' : (${u.role.name() == 'MANAGER'} ? ' bg-amber-100 text-amber-800' : ' bg-emerald-100 text-emerald-700')"
+                              th:classappend="${u.role != null and #strings.equals(u.role.name(), 'ADMIN') ? ' bg-slate-900 text-white' : (u.role != null and #strings.equals(u.role.name(), 'MANAGER') ? ' bg-amber-100 text-amber-800' : ' bg-emerald-100 text-emerald-700')}"
                               th:text="${@uiFormat.userRoleLabel(u.role)}">ROLE</span>
                         <span th:if="${isSelf}"
                               class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">You</span>
                       </div>
                     </td>
+
                     <td class="px-6 py-4">
                       <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
-                            th:classappend="${u.active} ? ' bg-emerald-100 text-emerald-700' : ' bg-rose-100 text-rose-700'"
-                            th:text="${u.active} ? #messages.msg('supplier.status.active') : #messages.msg('supplier.status.inactive')">Active</span>
+                            th:classappend="${u.active ? ' bg-emerald-100 text-emerald-700' : ' bg-rose-100 text-rose-700'}"
+                            th:text="${u.active ? #messages.msg('supplier.status.active') : #messages.msg('supplier.status.inactive')}">Active</span>
+
                       <div class="mt-2 flex flex-wrap gap-2 text-xs">
                         <span th:if="${u.mustResetPassword}"
                               class="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">Reset required</span>
                         <span th:if="${u.mfaRequired}"
                               class="rounded-full bg-indigo-100 px-2 py-0.5 font-semibold text-indigo-700">MFA required</span>
-                        <span th:if="${u.lockedUntil != null and u.lockedUntil.isAfter(T(java.time.LocalDateTime).now())}"
+
+                        <span th:if="${lockedUserIds != null and lockedUserIds.contains(u.id)}"
                               class="rounded-full bg-rose-100 px-2 py-0.5 font-semibold text-rose-700">Locked</span>
-                        <span th:if="${u.lockedUntil != null and u.lockedUntil.isAfter(T(java.time.LocalDateTime).now())}"
+                        <span th:if="${lockedUserIds != null and lockedUserIds.contains(u.id)}"
                               class="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-600"
                               th:text="${'until ' + #temporals.format(u.lockedUntil, 'yyyy-MM-dd HH:mm')}">until 2026-01-01 00:00</span>
                       </div>
                     </td>
+
                     <td class="px-6 py-4">
                       <div th:if="${u.permissions != null and !u.permissions.isEmpty()}" class="flex flex-wrap gap-1">
                         <span th:each="p : ${u.permissions}"
@@ -378,15 +381,19 @@
                       </div>
                       <span th:if="${u.permissions == null or u.permissions.isEmpty()}" class="text-xs text-slate-500">None</span>
                     </td>
+
                     <td class="px-6 py-4 text-sm text-slate-600">
-                      <span th:if="${u.lastLoginAt != null}" th:text="${#temporals.format(u.lastLoginAt, 'yyyy-MM-dd HH:mm')}">2026-02-11 18:00</span>
+                      <span th:if="${u.lastLoginAt != null}"
+                            th:text="${#temporals.format(u.lastLoginAt, 'yyyy-MM-dd HH:mm')}">2026-02-11 18:00</span>
                       <span th:if="${u.lastLoginAt == null}">Never</span>
                     </td>
+
                     <td class="px-6 py-4">
                       <details class="group">
                         <summary class="cursor-pointer text-xs font-semibold text-slate-600 hover:text-slate-900">
                           Manage
                         </summary>
+
                         <div class="mt-3 space-y-3 text-xs">
                           <div th:if="${isSelf}" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-600">
                             Self-management is limited. Use
@@ -396,10 +403,9 @@
                           <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/role'}" method="post" class="flex items-center gap-2">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <select name="role"
-                                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs
-                                           focus:outline-none focus:ring-2 focus:ring-slate-300">
+                                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300">
                               <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
-                                      th:selected="${r == u.role}"></option>
+                                      th:selected="${u.role != null and #strings.equals(r.name(), u.role.name())}"></option>
                             </select>
                             <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition">
                               Update role
@@ -410,7 +416,7 @@
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <input type="hidden" name="active" th:value="${!u.active}"/>
                             <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition"
-                                    th:text="${u.active} ? 'Deactivate' : 'Activate'"></button>
+                                    th:text="${u.active ? 'Deactivate' : 'Activate'}"></button>
                           </form>
 
                           <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/unlock'}" method="post" class="flex items-center gap-2">
@@ -423,12 +429,10 @@
                           <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/password'}" method="post" class="grid grid-cols-1 gap-2">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <input name="password" type="password" placeholder="New password"
-                                   class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs
-                                          focus:outline-none focus:ring-2 focus:ring-slate-300"/>
+                                   class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300"/>
                             <div class="flex items-center gap-2">
                               <select name="temporary"
-                                      class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs
-                                             focus:outline-none focus:ring-2 focus:ring-slate-300">
+                                      class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300">
                                 <option value="true" selected>Temporary</option>
                                 <option value="false">Permanent</option>
                               </select>
@@ -441,8 +445,7 @@
                           <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/permissions'}" method="post" class="grid grid-cols-1 gap-2">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <select name="permissions" multiple
-                                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs h-28
-                                           focus:outline-none focus:ring-2 focus:ring-slate-300">
+                                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs h-28 focus:outline-none focus:ring-2 focus:ring-slate-300">
                               <option th:each="p : ${permissions}" th:value="${p}" th:text="${@uiFormat.permissionLabel(p)}"
                                       th:selected="${u.permissions != null and u.permissions.contains(p)}"></option>
                             </select>
@@ -455,11 +458,12 @@
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <input type="hidden" name="required" th:value="${!u.mfaRequired}"/>
                             <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition"
-                                    th:text="${u.mfaRequired} ? 'Clear MFA' : 'Require MFA'"></button>
+                                    th:text="${u.mfaRequired ? 'Clear MFA' : 'Require MFA'}"></button>
                           </form>
 
                           <form th:if="${!isSelf}" th:action="@{'/users/' + ${u.id} + '/otp/reset'}" method="post" class="flex items-center gap-2"
-                                th:onsubmit="|return confirm('${#messages.msg('users.otp.reset.confirm')}');|">
+                                onsubmit="return confirm(this.dataset.confirmMessage);"
+                                th:attr="data-confirm-message=#{users.otp.reset.confirm}">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <button class="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition">
                               Reset OTP setup
@@ -469,6 +473,7 @@
                       </details>
                     </td>
                   </tr>
+
                   <tr th:if="${#lists.isEmpty(users)}">
                     <td colspan="6" class="px-6 py-6 text-center text-slate-500">No users found.</td>
                   </tr>
@@ -498,80 +503,87 @@
     const selectAll = document.getElementById('selectAll');
     const rowCheckboxes = Array.from(document.querySelectorAll('[data-user-select]'));
     const bulkCount = document.getElementById('bulkCount');
+
     const bulkAction = document.getElementById('bulkAction');
     const bulkRoleWrap = document.getElementById('bulkRoleWrap');
     const bulkPermWrap = document.getElementById('bulkPermWrap');
     const bulkPasswordWrap = document.getElementById('bulkPasswordWrap');
 
     /**
-     * Executes the updateCount function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
+     * Updates selected users count and Select-All checkbox state.
+     * Disabled checkboxes are ignored (self user).
+     *
+     * @returns {void}
      */
-    const updateCount = () => {
+    function updateCountAndSelectAllState() {
       if (!bulkCount) return;
-      const selected = rowCheckboxes.filter((cb) => cb.checked).length;
-      bulkCount.textContent = selected.toString();
-    };
 
-    /**
-     * Executes the updateCount function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the updateCount function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    if (selectAll) {
-      selectAll.addEventListener('change', () => {
-        rowCheckboxes.forEach((cb) => {
-          if (!cb.disabled) cb.checked = selectAll.checked;
-        });
-        updateCount();
-      });
+      const enabled = rowCheckboxes.filter(cb => !cb.disabled);
+      const checked = enabled.filter(cb => cb.checked);
+
+      bulkCount.textContent = String(checked.length);
+
+      if (!selectAll) return;
+
+      if (checked.length === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+      } else if (checked.length === enabled.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+      } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+      }
     }
 
-    rowCheckboxes.forEach((cb) => cb.addEventListener('change', updateCount));
-    updateCount();
-
     /**
-     * Executes the syncBulkFields function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
+     * Shows/hides extra bulk fields based on selected action.
+     *
+     * - role           => show Role dropdown
+     * - add-perm/remove-perm => show Permission dropdown
+     * - reset-password => show Temp password input
+     *
+     * @returns {void}
      */
-    const syncBulkFields = () => {
+    function syncBulkFields() {
       const action = bulkAction ? bulkAction.value : '';
+
       const showRole = action === 'role';
       const showPerm = action === 'add-perm' || action === 'remove-perm';
       const showPassword = action === 'reset-password';
 
-    /**
-     * Executes the syncBulkFields function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
-    /**
-     * Executes the syncBulkFields function.
-     * @returns {any} Result produced by this function.
-     * @throws {Error} May throw runtime errors from DOM, network, or dependency operations.
-     * Edge cases: Null, undefined, and empty inputs are handled by the existing implementation.
-     */
       if (bulkRoleWrap) bulkRoleWrap.classList.toggle('hidden', !showRole);
       if (bulkPermWrap) bulkPermWrap.classList.toggle('hidden', !showPerm);
       if (bulkPasswordWrap) bulkPasswordWrap.classList.toggle('hidden', !showPassword);
-    };
-
-    if (bulkAction) {
-      bulkAction.addEventListener('change', syncBulkFields);
-      syncBulkFields();
     }
+
+    /**
+     * Initializes event listeners and initial UI sync.
+     *
+     * @returns {void}
+     */
+    function initUsersPage() {
+      if (selectAll) {
+        selectAll.addEventListener('change', () => {
+          rowCheckboxes.forEach(cb => {
+            if (!cb.disabled) cb.checked = selectAll.checked;
+          });
+          updateCountAndSelectAllState();
+        });
+      }
+
+      rowCheckboxes.forEach(cb => cb.addEventListener('change', updateCountAndSelectAllState));
+
+      if (bulkAction) {
+        bulkAction.addEventListener('change', syncBulkFields);
+      }
+
+      syncBulkFields();
+      updateCountAndSelectAllState();
+    }
+
+    initUsersPage();
   </script>
 </body>
 </html>

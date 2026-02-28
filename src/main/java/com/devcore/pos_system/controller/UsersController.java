@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/users")
@@ -107,6 +108,10 @@ public class UsersController {
         long adminCount = filteredAll.stream().filter(u -> u.getRole() == UserRole.ADMIN).count();
         long managerCount = filteredAll.stream().filter(u -> u.getRole() == UserRole.MANAGER).count();
         long cashierCount = filteredAll.stream().filter(u -> u.getRole() == UserRole.CASHIER).count();
+        Set<Long> lockedUserIds = users.stream()
+                .filter(this::isAccountLocked)
+                .map(AppUser::getId)
+                .collect(Collectors.toSet());
 
         model.addAttribute("users", users);
         model.addAttribute("roles", UserRole.values());
@@ -124,6 +129,7 @@ public class UsersController {
         model.addAttribute("q", q);
         model.addAttribute("role", role);
         model.addAttribute("active", active);
+        model.addAttribute("lockedUserIds", lockedUserIds);
         model.addAttribute("auditLogs", auditLogRepo.findTop50ByOrderByCreatedAtDesc());
         return "users/list";
     }
@@ -629,9 +635,7 @@ public class UsersController {
                 ? "Not available"
                 : maskContact(currentUser.getEmail(), currentUser.getUsername()));
         model.addAttribute("captchaPending", hasValidCaptchaSession(session));
-        model.addAttribute("isLocked", currentUser != null
-                && currentUser.getLockedUntil() != null
-                && currentUser.getLockedUntil().isAfter(LocalDateTime.now()));
+        model.addAttribute("isLocked", isAccountLocked(currentUser));
         return "users/password";
     }
 
@@ -901,6 +905,12 @@ public class UsersController {
         if (authentication == null || user == null) return false;
         String currentUsername = authentication.getName();
         return currentUsername != null && currentUsername.equalsIgnoreCase(user.getUsername());
+    }
+
+    private boolean isAccountLocked(AppUser user) {
+        return user != null
+                && user.getLockedUntil() != null
+                && user.getLockedUntil().isAfter(LocalDateTime.now());
     }
 
     /**
